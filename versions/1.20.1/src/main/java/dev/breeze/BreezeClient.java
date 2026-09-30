@@ -34,8 +34,8 @@ public class BreezeClient implements ClientModInitializer {
         dev.breeze.ui.HudLayout.load();
         for (Module m : ModuleManager.getModules()) {
             if (m instanceof dev.breeze.modules.AbstractHudModule h) {
-                int[] p = dev.breeze.ui.HudLayout.get(m.getName());
-                if (p != null) h.setHudPos(p[0], p[1]);
+                dev.breeze.hud.HudPlacement p = dev.breeze.ui.HudLayout.get(m.getName());
+                if (p != null) h.setPlacement(p);
             }
         }
         Friends.load();

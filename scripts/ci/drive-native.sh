@@ -132,6 +132,11 @@ else
 fi
 shot 06-after-cycles 3
 
+# In a world: HUD elements, the Custom Cape and the HUD editor (drive-world.sh),
+# then back to the title screen.
+"$(dirname "$0")/drive-world.sh" "$OUT" "$WID"
+FAILED=$((FAILED + $?))
+
 # Quit through Minecraft's own Quit button; run-minecraft-test.sh checks that
 # the game process then exits.
 click "Quit Game" title '^quit game$'

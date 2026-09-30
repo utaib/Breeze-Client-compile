@@ -91,6 +91,8 @@ public final class AutoTest {
         if (s instanceof SelectWorldScreen) return "world-select";
         if (s instanceof CreateWorldScreen) return "create-world";
         if (s instanceof JoinMultiplayerScreen) return "multiplayer";
+        if (s instanceof dev.breeze.menu.HudEditorScreen) return "hud-editor";
+        if (s instanceof net.minecraft.client.gui.screens.PauseScreen) return "pause";
         if (dev.breeze.compat.Screens.isOptions(s)) return "options";
         return "other";
     }
@@ -139,6 +141,7 @@ public final class AutoTest {
             logTargets(mc, true);
         }
         watchModules();
+        worldTick(mc);
         if (!audited && dev.breeze.compat.ActiveScreen.get(mc) != null && dev.breeze.compat.ActiveScreen.overlay(mc) == null) {
             audited = true;
             auditMixins();
@@ -211,6 +214,139 @@ public final class AutoTest {
                     dev.breeze.compat.ActiveScreen.set(mc, nativeMode ? new TitleScreen() : new BreezeWebScreen(false));
                     next(Stage.DONE, "AUTOTEST_DONE");
                 }
+            }
+            case DONE -> {
+            }
+        }
+    }
+
+    // ── In a world (after the menu checks) ─────────────────────────────────
+
+    private enum World { IDLE, OPENED, IN_WORLD, EDITING, DONE }
+
+    private static World world = World.IDLE;
+    private static long worldAt;
+    private static int capeLayerCalls;
+    private static int capeCallsAtStart;
+    private static int[] fpsBefore;
+    /** HUD elements that always have something to draw, switched on for the check. */
+    private static final String[] HUD_CHECK = {"FPS", "Coordinates", "CPS", "Keystrokes", "Direction", "Inventory HUD"};
+
+    /** Called by the cape layer each time it runs (all three CapeLayerMixin forms). */
+    public static void capeLayer() {
+        if (dir != null) capeLayerCalls++;
+    }
+
+    /**
+     * The driver writes world-please once the menu checks are done: this opens
+     * Singleplayer (the driver creates the world), and once the player is in
+     * it switches on HUD elements and the Custom Cape with a test image, looks
+     * from behind, checks each element drew and the cape is the one Minecraft
+     * would draw, then opens the HUD editor for the driver to drag an element.
+     */
+    private static void worldTick(Minecraft mc) {
+        long age = System.currentTimeMillis() - worldAt;
+        switch (world) {
+            case IDLE -> {
+                if (!Files.exists(dir.resolve("world-please"))) return;
+                try {
+                    Files.deleteIfExists(dir.resolve("world-please"));
+                } catch (IOException ignored) {
+                }
+                dev.breeze.compat.ActiveScreen.set(mc, new SelectWorldScreen(dev.breeze.compat.ActiveScreen.get(mc)));
+                world = World.OPENED;
+                worldAt = System.currentTimeMillis();
+                log("world-open");
+            }
+            case OPENED -> {
+                if (mc.level != null && mc.player != null && dev.breeze.compat.ActiveScreen.get(mc) == null) {
+                    for (Module m : ModuleManager.getModules()) {
+                        for (String name : HUD_CHECK) {
+                            if (m.getName().equals(name) && !m.isEnabled()) m.setEnabled(true);
+                        }
+                    }
+                    try {
+                        Path capes = mc.gameDirectory.toPath().resolve("breeze_capes");
+                        Files.createDirectories(capes);
+                        // Blue with a light border, so it reads on a screenshot.
+                        Files.write(capes.resolve("autotest-cape.png"), dev.breeze.cosmetics.Png.encode(64, 32,
+                                (x, y) -> (x % 22 == 0 || y % 17 == 0) ? 0xFFE7E9EE : 0xFF2F6BD8));
+                    } catch (Throwable t) {
+                        log("cape-image", "error", t.toString());
+                    }
+                    for (Module m : ModuleManager.getModules()) {
+                        if (m.getName().equals("Custom Cape")) {
+                            if (m.isEnabled()) m.setEnabled(false);
+                            m.setEnabled(true);
+                        }
+                    }
+                    mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK);
+                    capeCallsAtStart = capeLayerCalls;
+                    world = World.IN_WORLD;
+                    worldAt = System.currentTimeMillis();
+                    log("world-joined");
+                } else if (age > 300_000) {
+                    log("FAIL", "reason", "the world never loaded");
+                    world = World.DONE;
+                }
+            }
+            case IN_WORLD -> {
+                if (age < 5_000) return;
+                shot(mc, "autotest-in-world");
+                JsonObject hud = new JsonObject();
+                boolean allDrawn = true;
+                for (Module m : ModuleManager.getModules()) {
+                    if (!(m instanceof dev.breeze.modules.AbstractHudModule h)) continue;
+                    for (String name : HUD_CHECK) {
+                        if (!m.getName().equals(name)) continue;
+                        boolean recent = System.currentTimeMillis() - h.lastDrawnAt() < 2_000;
+                        boolean ok = h.isEnabled() && recent && !h.drawFailed();
+                        allDrawn &= ok;
+                        hud.addProperty(name, (ok ? "drawn " : h.drawFailed() ? "threw " : "not drawn ")
+                                + h.getHudW() + "x" + h.getHudH() + " at " + h.getHudX() + "," + h.getHudY());
+                    }
+                }
+                hud.addProperty("pass", String.valueOf(allDrawn));
+                write("hud-check", hud);
+
+                String breeze = String.valueOf(dev.breeze.cape.RemoteCapes.capeFor(mc.player.getUUID()));
+                String vanilla = String.valueOf(dev.breeze.compat.Capes.vanillaCape(mc.player));
+                int layer = capeLayerCalls - capeCallsAtStart;
+                boolean capeOk = !breeze.equals("null") && breeze.equals(vanilla) && layer > 0;
+                log("cape-check", "breeze", breeze, "vanilla", vanilla, "layerCalls", String.valueOf(layer),
+                        "pass", String.valueOf(capeOk));
+
+                mc.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON);
+                for (Module m : ModuleManager.getModules()) {
+                    if (m.getName().equals("FPS") && m instanceof dev.breeze.modules.AbstractHudModule h) {
+                        fpsBefore = new int[]{h.getHudX(), h.getHudY()};
+                    }
+                }
+                dev.breeze.compat.ActiveScreen.set(mc, new dev.breeze.menu.HudEditorScreen(null));
+                world = World.EDITING;
+                worldAt = System.currentTimeMillis();
+                log("WORLD_READY");
+            }
+            case EDITING -> {
+                if (dev.breeze.compat.ActiveScreen.get(mc) instanceof dev.breeze.menu.HudEditorScreen) {
+                    if (age > 300_000) world = World.DONE;
+                    return;
+                }
+                String after = "none";
+                String saved = "none";
+                boolean moved = false;
+                for (Module m : ModuleManager.getModules()) {
+                    if (m.getName().equals("FPS") && m instanceof dev.breeze.modules.AbstractHudModule h) {
+                        after = h.getHudX() + "," + h.getHudY();
+                        dev.breeze.hud.HudPlacement p = dev.breeze.ui.HudLayout.get("FPS");
+                        saved = String.valueOf(p);
+                        moved = fpsBefore != null && p != null
+                                && (Math.abs(h.getHudX() - fpsBefore[0]) + Math.abs(h.getHudY() - fpsBefore[1])) > 10;
+                    }
+                }
+                log("hud-moved", "before", fpsBefore == null ? "none" : fpsBefore[0] + "," + fpsBefore[1],
+                        "after", after, "saved", saved, "pass", String.valueOf(moved));
+                world = World.DONE;
             }
             case DONE -> {
             }

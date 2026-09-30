@@ -160,6 +160,12 @@ else
 fi
 shot 09-after-cycles 3
 
+# In a world: HUD elements, the Custom Cape and the HUD editor (drive-world.sh),
+# then back to the Breeze menu, given a moment to paint again.
+"$(dirname "$0")/drive-world.sh" "$OUT" "$WID"
+FAILED=$((FAILED + $?))
+sleep 5
+
 # Quit through the menu itself: the Quit button asks, Enter confirms.
 b=$(count '"action":"game.quit"')
 click 45 677

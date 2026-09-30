@@ -27,8 +27,14 @@ import java.util.List;
  */
 public abstract class AbstractHudModule extends Module {
 
+    /** Where the element is drawn this frame, resolved from its placement. */
     protected int x;
     protected int y;
+    /** The constructor's position, which Reset in the HUD editor goes back to. */
+    private final int defaultX;
+    private final int defaultY;
+    /** Anchor and offset (HudPlacement); null means the default position. */
+    private dev.breeze.hud.HudPlacement placement;
 
     private final HudStyle style = new HudStyle();
     private final List<String> lineText = new ArrayList<>();
@@ -40,11 +46,15 @@ public abstract class AbstractHudModule extends Module {
     private int lastH;
     /** So a throwing module reports itself once rather than once per frame. */
     private boolean drawFailureReported;
+    /** When draw last finished without throwing (System.currentTimeMillis), 0 if never. */
+    private long lastDrawnAt;
 
     protected AbstractHudModule(String name, Category category, String description, int defaultKey, int x, int y) {
         super(name, category, description, defaultKey);
         this.x = x;
         this.y = y;
+        this.defaultX = x;
+        this.defaultY = y;
         addAll(style.settings());
     }
 
@@ -56,6 +66,7 @@ public abstract class AbstractHudModule extends Module {
         lineColor.clear();
         Minecraft mc = Minecraft.getInstance();
         Font font = mc.font;
+        resolvePosition(mc);
 
         float s = style.scaleFactor();
         boolean scaled = Math.abs(s - 1f) > 0.001f;
@@ -73,6 +84,7 @@ public abstract class AbstractHudModule extends Module {
 
         try {
             draw(mc, g, font);
+            lastDrawnAt = System.currentTimeMillis();
         } catch (Throwable error) {
             // A module that throws here used to render nothing and say nothing,
             // which is indistinguishable from a module that is simply switched
@@ -155,13 +167,62 @@ public abstract class AbstractHudModule extends Module {
         lastH = h;
     }
 
+    /** When the module last drew without an error, for the self-test; 0 if never. */
+    public long lastDrawnAt() { return lastDrawnAt; }
+
+    /** Whether draw has thrown (reported once in the log). */
+    public boolean drawFailed() { return drawFailureReported; }
+
     public int getHudX() { return x; }
 
     public int getHudY() { return y; }
 
+    /**
+     * Places the element's top-left corner at (x, y) on the current screen;
+     * it is stored anchored to the nearest edges (HudPlacement.of), so it keeps
+     * its place relative to them when the screen changes size.
+     */
     public void setHudPos(int x, int y) {
-        this.x = x;
-        this.y = y;
+        Minecraft mc = Minecraft.getInstance();
+        int sw = mc.getWindow().getGuiScaledWidth();
+        int sh = mc.getWindow().getGuiScaledHeight();
+        int[] c = dev.breeze.hud.HudPlacement.clamp(x, y, getHudW(), getHudH(), sw, sh);
+        this.x = c[0];
+        this.y = c[1];
+        this.placement = dev.breeze.hud.HudPlacement.of(c[0], c[1], getHudW(), getHudH(), sw, sh);
+    }
+
+    /** The saved placement, or null while the element sits at its default position. */
+    public dev.breeze.hud.HudPlacement getPlacement() { return placement; }
+
+    public void setPlacement(dev.breeze.hud.HudPlacement placement) {
+        this.placement = placement;
+        resolvePosition(Minecraft.getInstance());
+    }
+
+    /** Back to the default position. */
+    public void resetPlacement() {
+        setPlacement(null);
+    }
+
+    /**
+     * Where the element sits until it is moved: the constructor's position,
+     * top-left anchored. A module that belongs elsewhere by default (the
+     * inventory, top right) overrides this.
+     */
+    protected dev.breeze.hud.HudPlacement defaultPlacement() {
+        return dev.breeze.hud.HudPlacement.topLeft(defaultX, defaultY);
+    }
+
+    /** x and y for this frame: the placement resolved on the current screen, kept wholly on it. */
+    private void resolvePosition(Minecraft mc) {
+        int sw = mc.getWindow().getGuiScaledWidth();
+        int sh = mc.getWindow().getGuiScaledHeight();
+        if (sw <= 0 || sh <= 0) return;
+        dev.breeze.hud.HudPlacement p = placement != null ? placement : defaultPlacement();
+        int[] at = p.resolve(getHudW(), getHudH(), sw, sh);
+        x = at[0];
+        y = at[1];
     }
 
     /** Scaled, because this is what the HUD editor draws a handle around. */

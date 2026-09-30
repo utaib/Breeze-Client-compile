@@ -18,6 +18,7 @@ public class CapeLayerMixin {
 
     @Inject(method = "submit(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;ILnet/minecraft/client/renderer/entity/state/AvatarRenderState;FF)V", at = @At("HEAD"))
     private void breeze$wavePush(PoseStack poseStack, SubmitNodeCollector nodes, int packedLight, AvatarRenderState state, float yRot, float xRot, CallbackInfo ci) {
+        dev.breeze.devtest.AutoTest.capeLayer();
         if (!CustomCape.active()) return;
         poseStack.pushPose();
         float wave = ((float) Math.sin(state.ageInTicks * 0.18f) * 0.5f + 0.5f) * (2.0f + state.walkAnimationSpeed * 5.0f);

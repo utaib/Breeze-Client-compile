@@ -16,6 +16,7 @@ public class CapeLayerMixin {
 
     @Inject(method = "render", at = @At("HEAD"))
     private void breeze$wavePush(PoseStack poseStack, MultiBufferSource buffer, int packedLight, AbstractClientPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo ci) {
+        dev.breeze.devtest.AutoTest.capeLayer();
         if (!CustomCape.active()) return;
         poseStack.pushPose();
         float wave = ((float) Math.sin(ageInTicks * 0.18f) * 0.5f + 0.5f) * (2.0f + limbSwingAmount * 5.0f);

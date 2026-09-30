@@ -105,6 +105,8 @@ grep -hE 'Exception|ERROR|FATAL' "$OUT/minecraft-latest.log" > "$OUT/errors.txt"
 # the error lines in the game log said.
 echo "== harness: screens, stages and failures"
 grep -E '"event":"(start|screen|menu-open|READY_FOR_INPUT|key|FAIL|stress-result|AUTOTEST_DONE|mixin-audit|module)"' "$OUT/breeze-autotest.log" 2>/dev/null | head -80
+echo "== harness: in the world"
+grep -E '"event":"(world-open|world-joined|hud-check|cape-check|cape-image|WORLD_READY|hud-moved)"' "$OUT/breeze-autotest.log" 2>/dev/null | head -20
 echo "== harness: mouse presses (1.21.9 and later)"
 grep '"event":"mouse"' "$OUT/breeze-autotest.log" 2>/dev/null | head -40
 if [ "$MODE" = prod ]; then
