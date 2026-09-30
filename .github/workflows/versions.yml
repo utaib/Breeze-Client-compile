@@ -1,0 +1,33 @@
+name: Version facts
+
+# Reads what every Minecraft version needs (Java, Fabric, Fabric API, Loom,
+# MCEF) from Mojang, Fabric and Modrinth. See scripts/ci/version-facts.sh.
+on:
+  push:
+    branches: [main]
+    paths:
+      - scripts/ci/version-facts.sh
+      - .github/workflows/versions.yml
+  workflow_dispatch:
+    inputs:
+      oldest:
+        description: Oldest release to list
+        default: '1.17'
+      example_branches:
+        description: Fabric example mod branches to print the build setup of
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  facts:
+    name: Version facts
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - run: scripts/ci/version-facts.sh "${{ inputs.oldest || '1.17' }}"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          EXAMPLE_BRANCHES: ${{ inputs.example_branches }}

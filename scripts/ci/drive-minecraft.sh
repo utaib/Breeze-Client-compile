@@ -106,17 +106,17 @@ expect_new "Escape went back and the page acknowledged it" '"handled":true' 5 "$
 shot 06-home
 
 # Singleplayer opens Minecraft's own flow: the world list, or Create World
-# directly when there are no worlds yet, as on a new game folder. Both screens
-# are in Minecraft's worldselection package.
-b=$(count 'screens.worldselection.')
+# directly when there are no worlds yet, as on a new game folder. The harness
+# reports screens by kind, since a released jar runs with intermediary names.
+b=$(count '"kind":"\(world-select\|create-world\)"')
 click 45 154
-expect_new "Singleplayer opened Minecraft's world selection or Create World" 'screens.worldselection.' 8 "$b"
+expect_new "Singleplayer opened Minecraft's world selection or Create World" '"kind":"\(world-select\|create-world\)"' 8 "$b"
 shot 07-select-world
 
 # Minecraft's Back returns to Breeze, which opens a fresh browser.
-b=$(count '"class":"dev.breeze.web.BreezeWebScreen"')
+b=$(count '"kind":"breeze-web"')
 xdotool key Escape
-expect_new "Back from world selection returned to the Breeze menu" '"class":"dev.breeze.web.BreezeWebScreen"' 8 "$b"
+expect_new "Back from world selection returned to the Breeze menu" '"kind":"breeze-web"' 8 "$b"
 shot 08-back-to-menu 3
 
 # Escape at the root of the title menu must not close anything.

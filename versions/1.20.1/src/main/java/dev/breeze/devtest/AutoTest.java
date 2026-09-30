@@ -10,7 +10,11 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.screens.OptionsScreen;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
+import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
+import net.minecraft.client.gui.screens.worldselection.SelectWorldScreen;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -50,8 +54,27 @@ public final class AutoTest {
     private static int cycle;
     private static int maxLiveAfterClose;
     private static final int CYCLES = 20;
+    // A first start in a real install downloads MCEF's Chromium build before
+    // the menu can open, so the wait is longer there.
+    private static final long MENU_TIMEOUT_MS = Long.getLong("breeze.autotest.menuTimeoutSeconds", 240L) * 1000L;
 
     private AutoTest() {}
+
+    /**
+     * What a screen is, independent of class names. Released jars run with
+     * Fabric's intermediary names (net.minecraft.class_525), so the log cannot
+     * rely on Mojang's names; instanceof is remapped with the jar.
+     */
+    private static String kind(Screen s) {
+        if (s == null) return "none";
+        if (s instanceof BreezeWebScreen) return "breeze-web";
+        if (s instanceof TitleScreen) return "title";
+        if (s instanceof SelectWorldScreen) return "world-select";
+        if (s instanceof CreateWorldScreen) return "create-world";
+        if (s instanceof JoinMultiplayerScreen) return "multiplayer";
+        if (s instanceof OptionsScreen) return "options";
+        return "other";
+    }
 
     public static void install() {
         String target = System.getProperty("breeze.autotest");
@@ -82,13 +105,14 @@ public final class AutoTest {
         String screen = mc.screen == null ? "none" : mc.screen.getClass().getName();
         if (!screen.equals(lastScreen)) {
             lastScreen = screen;
-            log("screen", "class", screen, "liveBrowsers", String.valueOf(BreezeBrowser.live()));
+            log("screen", "class", screen, "kind", kind(mc.screen),
+                    "liveBrowsers", String.valueOf(BreezeBrowser.live()));
         }
         long age = System.currentTimeMillis() - stageStart;
         switch (stage) {
             case WAIT_MENU -> {
                 if (mc.screen instanceof BreezeWebScreen) next(Stage.WAIT_PAINT, "menu-open");
-                else if (age > 240_000) fail("the Breeze title menu never opened; web state " + WebInit.state());
+                else if (age > MENU_TIMEOUT_MS) fail("the Breeze title menu never opened; web state " + WebInit.state());
             }
             case WAIT_PAINT -> {
                 if (painted(mc)) {

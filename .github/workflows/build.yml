@@ -16,6 +16,9 @@ concurrency:
   group: breeze-build-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   frontend:
     name: Interface (types, unit, browser tests)
@@ -98,6 +101,11 @@ jobs:
           name: jar-source-zip-and-reports
           path: ${{ runner.temp }}/out/
           retention-days: 7
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-jar-1.20.1
+          path: ${{ runner.temp }}/out/1.20.1.jar
+          retention-days: 30
 
   minecraft:
     name: Real Minecraft 1.20.1 (software rendered, X11 input)
@@ -150,3 +158,104 @@ jobs:
           name: minecraft-evidence
           path: ${{ github.workspace }}/autotest/
           retention-days: 7
+
+  # The jar players get, in a real Fabric install: vanilla Minecraft, Fabric
+  # Loader and mods/ as a launcher sets them up (portablemc), so the game runs
+  # with intermediary names exactly as for a player. Same driver and checks as
+  # the development run above.
+  release:
+    name: Released 1.20.1 jar in a real Fabric install
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      MC: '1.20.1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-jar-1.20.1
+          path: dist
+      - name: Display, input and capture tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb openbox xdotool imagemagick ffmpeg mesa-utils x11-utils libnss3 libgbm1 libxkbcommon0
+          pipx install "portablemc<5"
+          portablemc --help | head -5
+      - name: Minecraft and MCEF downloads cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.minecraft
+            ~/.cache/mcef-libraries
+          key: release-${{ env.MC }}-mcef-2.1.6-${{ runner.os }}
+      - name: Other mods (Fabric API from Fabric's Maven, MCEF from libs)
+        run: |
+          props="versions/$MC/gradle.properties"
+          fapi=$(sed -n 's/^fabric_api_version=//p' "$props")
+          loader=$(sed -n 's/^loader_version=//p' "$props")
+          echo "LOADER=$loader" >> "$GITHUB_ENV"
+          mkdir -p "$RUNNER_TEMP/mods"
+          enc=${fapi//+/%2B}
+          curl -sSfL -o "$RUNNER_TEMP/mods/fabric-api-$fapi.jar" "https://maven.fabricmc.net/net/fabricmc/fabric-api/fabric-api/$enc/fabric-api-$enc.jar"
+          cp versions/$MC/libs/mcef-fabric-*.jar "$RUNNER_TEMP/mods/"
+          ls -la "$RUNNER_TEMP/mods" dist
+      - name: Launch, drive and check
+        run: |
+          mkdir -p ~/.cache/mcef-libraries
+          BREEZE_LAUNCH=prod BREEZE_MC="$MC" BREEZE_LOADER="$LOADER" \
+          BREEZE_JAR="dist/$MC.jar" BREEZE_MODS="$RUNNER_TEMP/mods" \
+          MCEF_LIBRARIES="$HOME/.cache/mcef-libraries" \
+            scripts/ci/run-minecraft-test.sh "$GITHUB_WORKSPACE/release-test"
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo '## Released jar in a real Fabric install'
+            echo '```'
+            cat release-test/driver.log 2>/dev/null || echo 'no driver log'
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: release-evidence
+          path: |
+            ${{ github.workspace }}/release-test/
+            !${{ github.workspace }}/release-test/game/
+          retention-days: 7
+
+  # Jars that passed every job are committed to the jars branch, so they can be
+  # fetched with git (artifact storage is not reachable from every machine).
+  publish:
+    name: Publish tested jars
+    needs: [build, minecraft, release]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: release-jar-*
+          path: tested
+          merge-multiple: true
+      - name: Commit to the jars branch
+        env:
+          TOKEN: ${{ github.token }}
+        run: |
+          git init -q pub && cd pub
+          git config user.name utaib
+          git config user.email utaib092008@gmail.com
+          git remote add origin "https://x-access-token:$TOKEN@github.com/${GITHUB_REPOSITORY}.git"
+          if git fetch -q --depth 1 origin jars; then git checkout -q -b jars FETCH_HEAD; else git checkout -q --orphan jars; fi
+          for jar in ../tested/*.jar; do
+            name=$(basename "$jar")
+            cp "$jar" "$name"
+            echo "$name $(sha256sum "$name" | cut -d' ' -f1) source ${GITHUB_SHA::7} run ${GITHUB_RUN_ID}" >> tested.txt
+          done
+          git add -A
+          git commit -q -m "Tested jars from run ${GITHUB_RUN_ID} (source ${GITHUB_SHA::7})"
+          git push -q origin HEAD:jars
+          cat tested.txt
