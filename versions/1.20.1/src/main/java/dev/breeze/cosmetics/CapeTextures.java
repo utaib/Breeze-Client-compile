@@ -221,7 +221,7 @@ public final class CapeTextures {
         for (String id : new ArrayList<>(REGISTERED.keySet())) release(id);
     }
 
-    private static NativeImage decode(byte[] bytes) {
+    static NativeImage decode(byte[] bytes) {
         try {
             return NativeImage.read(new ByteArrayInputStream(bytes));
         } catch (Throwable notPng) {

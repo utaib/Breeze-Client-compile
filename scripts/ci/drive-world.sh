@@ -95,6 +95,12 @@ case "$cape" in
   *'"pass":"true"'*) pass "the Custom Cape is the cape Minecraft draws, and the cape layer ran" ;;
   *) fail "the Custom Cape did not reach Minecraft's cape layer" ;;
 esac
+cosmetic=$(grep '"event":"cosmetic-check"' "$LOG" | tail -1)
+say "cosmetic: $cosmetic"
+case "$cosmetic" in
+  *'"pass":"true"'*) pass "a 3D cosmetic (a GLB hat built by the test) was drawn on the player" ;;
+  *) fail "the 3D cosmetic was not drawn on the player" ;;
+esac
 
 # ── HUD editor: drag FPS with the real mouse, Done ───────────────────────
 t=$(fresh_targets hud-editor)

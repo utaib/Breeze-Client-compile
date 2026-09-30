@@ -229,6 +229,7 @@ public final class AutoTest {
     private static int capeLayerCalls;
     private static int capeCallsAtStart;
     private static int[] fpsBefore;
+    private static int cosmeticDrawsAtStart;
     /** HUD elements that always have something to draw, switched on for the check. */
     private static final String[] HUD_CHECK = {"FPS", "Coordinates", "CPS", "Keystrokes", "Direction", "Inventory HUD"};
 
@@ -280,8 +281,19 @@ public final class AutoTest {
                             m.setEnabled(true);
                         }
                     }
+                    // A 3D cosmetic built in code, worn as a hat, without the API.
+                    try {
+                        dev.breeze.cosmetics.CosmeticModels.load("autotest-hat", null, TestModel.cubeGlb());
+                        dev.breeze.cosmetics.WornCosmetics.setForTest(mc.player.getUUID(), java.util.List.of(
+                                new dev.breeze.cosmetics.WornCosmetics.Worn("autotest-hat", "hat", "Test hat", "",
+                                        dev.breeze.cosmetics.model.CosmeticRig.Attachment.HEAD,
+                                        dev.breeze.cosmetics.model.CosmeticRig.Transform.NONE, java.util.Map.of(), null)));
+                    } catch (Throwable t) {
+                        log("cosmetic-setup", "error", t.toString());
+                    }
                     mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK);
                     capeCallsAtStart = capeLayerCalls;
+                    cosmeticDrawsAtStart = dev.breeze.cosmetics.CosmeticRender.draws;
                     world = World.IN_WORLD;
                     worldAt = System.currentTimeMillis();
                     log("world-joined");
@@ -315,6 +327,8 @@ public final class AutoTest {
                 boolean capeOk = !breeze.equals("null") && breeze.equals(vanilla) && layer > 0;
                 log("cape-check", "breeze", breeze, "vanilla", vanilla, "layerCalls", String.valueOf(layer),
                         "pass", String.valueOf(capeOk));
+                int cosmeticDraws = dev.breeze.cosmetics.CosmeticRender.draws - cosmeticDrawsAtStart;
+                log("cosmetic-check", "draws", String.valueOf(cosmeticDraws), "pass", String.valueOf(cosmeticDraws > 0));
 
                 mc.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON);
                 for (Module m : ModuleManager.getModules()) {
