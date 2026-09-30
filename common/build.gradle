@@ -2,25 +2,26 @@ plugins {
     id 'java-library'
 }
 
-// Java 17 bytecode, which is the floor this code can actually meet today.
+// Java 16 bytecode and API (javac --release 16), the Java that Minecraft 1.17
+// runs on. The range starts at Minecraft 1.16, which runs on Java 8, so ideally
+// this would target 8 and be loadable everywhere. It cannot yet: BreezeApi is
+// built on java.net.http, introduced in Java 11, and the settings model uses
+// switch expressions and records (Java 14 and 16).
 //
-// The range starts at Minecraft 1.16, which runs on Java 8, so ideally this
-// would target 8 and be loadable everywhere. It cannot yet: BreezeApi is built
-// on java.net.http, introduced in Java 11, and the settings model uses syntax
-// newer than 8. Claiming 8 and failing to compile would be worse than saying
-// where the line really is.
-//
-// At 17 this module is consumable by Minecraft 1.18 through 26.3, which is
-// thirty-four of the forty supported versions. Reaching 1.16 and 1.17 means
-// porting the HTTP transport to HttpURLConnection, which is available on every
-// Java from 8 up; that is a defined piece of work, not a blocker for the rest.
+// At 16 this module is consumable by Minecraft 1.17 through 26.3. Reaching 1.16
+// means porting the HTTP transport to HttpURLConnection and the syntax back to
+// Java 8.
 //
 // It is also why this module may not touch Minecraft: those APIs move between
 // versions, so anything here has to be true of Breeze rather than of a
 // Minecraft release.
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_16
+    targetCompatibility = JavaVersion.VERSION_16
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 16
 }
 
 repositories {

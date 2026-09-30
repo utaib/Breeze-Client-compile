@@ -257,3 +257,20 @@ net.minecraft.world.clock.WorldClock
 net.minecraft.world.clock.ClockNetworkState
 net.minecraft.world.clock.WorldClocks
 net.minecraft.world.entity.Avatar
+p net.minecraft.client.gui.Hud
+net.minecraft.client.player.FirstPersonHandsAndItems
+p net.minecraft.client.Camera
+c net.minecraft.client.renderer.FirstPersonHandsAndItemsRenderer
+net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$CollectSubmits
+# Before 1.20 (GuiGraphics did not exist yet): drawing went through
+# GuiComponent's static methods with a PoseStack, registries through Registry.
+p net.minecraft.client.gui.GuiComponent
+net.minecraft.core.Registry
+net.minecraft.core.registries.BuiltInRegistries
+net.minecraft.client.gui.components.Button
+net.minecraft.util.Util
+net.minecraft.util.Util$OS
+net.minecraft.Util$OS
+net.minecraft.server.MinecraftServer$MultiplayerScope
+com.mojang.blaze3d.platform.InputConstants$Type
+c net.minecraft.client.gui.screens.ConfirmLinkScreen

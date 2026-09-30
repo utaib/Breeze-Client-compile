@@ -93,7 +93,7 @@ public final class HostManager {
                     // own game mode is used rather than forcing survival on a
                     // creative or adventure world.
                     GameType mode = srv.getDefaultGameType();
-                    mc.execute(() -> srv.publishServer(mode, false, chosen));
+                    mc.execute(() -> dev.breeze.compat.Lan.open(srv, mode, chosen));
                     for (int i = 0; i < 20 && srv.getPort() <= 0; i++) Thread.sleep(250);
                     port = srv.getPort();
                 }

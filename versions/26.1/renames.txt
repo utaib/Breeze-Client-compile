@@ -10,3 +10,9 @@ GuiGraphics GuiGraphicsExtractor
 net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper
 KeyBindingHelper KeyMappingHelper
 .registerKeyBinding .registerKeyMapping
+# Moved or renamed in 26.1 (the calls keep their arguments).
+net.minecraft.client.renderer.state.CameraRenderState net.minecraft.client.renderer.state.level.CameraRenderState
+.renderEntityInInventoryFollowsMouse .extractEntityInInventoryFollowsMouse
+.resizeDisplay .resizeGui
+# Day time is the dimension's default world clock (compat/Game sets it).
+.getDayTime .getDefaultClockTime

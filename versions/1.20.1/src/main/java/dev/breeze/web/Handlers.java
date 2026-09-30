@@ -26,7 +26,6 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.metadata.ModMetadata;
 import net.fabricmc.loader.api.metadata.Person;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.TitleScreen;
@@ -85,7 +84,7 @@ final class Handlers {
         });
         on(r, "app.openExternal", p -> {
             var uri = ExternalLinks.check(p.str("url", 500));
-            Util.getPlatform().openUri(uri);
+            dev.breeze.compat.Links.open(uri);
             return Router.ok();
         });
 
