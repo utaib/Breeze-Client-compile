@@ -28,8 +28,11 @@ export DISPLAY=:99
 # renderer gives one. Only this virtual display needs it; GLFW (every version
 # before 26.3) ignores the variable.
 export SDL_VIDEO_FORCE_EGL=1
-# Clicks that focus the window go through to the game as on GLFW.
-export SDL_MOUSE_FOCUS_CLICKTHROUGH=1
+# With xdotool's XTEST input on Xvfb, SDL 3's XInput2 path delivers every
+# click twice (press, release, press, release; reproduced with LWJGL 3.4.3's
+# SDL), so a module card switched on and straight back off on 26.3. SDL's own
+# switch for that path keeps it to the one core event. Test harness only.
+export SDL_VIDEO_X11_XINPUT2=0
 export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-$(mktemp -d)}"
 
 Xvfb :99 -screen 0 1280x800x24 -nolisten tcp > "$OUT/xvfb.log" 2>&1 &
