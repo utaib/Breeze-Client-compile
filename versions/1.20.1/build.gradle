@@ -1,0 +1,132 @@
+// Breeze for one Minecraft version. Everything that differs per version (the
+// Minecraft, Loader and Fabric API versions, the bytecode level and the range
+// the jar declares) is in this module's gradle.properties.
+
+plugins {
+    id 'fabric-loom' version '1.6.12'
+}
+
+version = rootProject.mod_version
+group = rootProject.maven_group
+
+def mc = project.minecraft_version
+
+base {
+    archivesName = mc
+}
+
+// The spec's naming: the jar players get is called after the Minecraft version
+// only, 1.20.1.jar; the mod version lives inside it (fabric.mod.json and the
+// manifest). Loom would otherwise append the version. The unmapped dev jar gets
+// a classifier so it can never be mistaken for the real one.
+tasks.named('jar') { archiveClassifier = 'dev' }
+tasks.named('remapJar') { archiveFileName = "${mc}.jar" }
+tasks.named('remapSourcesJar') { archiveFileName = "${mc}-sources.jar" }
+
+repositories {
+    maven { name = 'Fabric'; url = 'https://maven.fabricmc.net/' }
+    mavenCentral()
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${mc}"
+    mappings loom.officialMojangMappings()
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+
+    // The portable half. Plain Java, so its classes are merged into this jar
+    // (see jar below) rather than nested: Fabric only loads nested jars that
+    // are themselves mods.
+    implementation project(':common')
+
+    // MCEF 2.1.6 for 1.20.1, compile only. The mod runs without it (native
+    // menus); with it, the web interface. Not declared in fabric.mod.json, so an
+    // install without MCEF still starts. MCEF's Maven is not reachable from
+    // every build machine, hence the local copy (LGPL-2.1, CinemaMod Group).
+    modCompileOnly files('libs/mcef-fabric-2.1.6-1.20.1.jar')
+    // Present in the development client, so runClient shows the real web
+    // interface. Never part of the published jar.
+    modLocalRuntime files('libs/mcef-fabric-2.1.6-1.20.1.jar')
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+// ── The interface ──────────────────────────────────────────────────────────
+//
+// The React frontend builds once into frontend/dist and is packaged from
+// there. Nothing generated is written into src/, so the source tree cannot hold
+// a stale bundle that looks current.
+def web = rootProject.file('frontend')
+def webDist = new File(web, 'dist')
+
+tasks.register('buildWebUi', Exec) {
+    description = 'Builds the in-game React interface (frontend/dist).'
+    workingDir web
+    def npm = System.getProperty('os.name').toLowerCase().contains('windows') ? 'npm.cmd' : 'npm'
+    commandLine npm, 'run', 'build'
+    inputs.dir(new File(web, 'src'))
+    inputs.files(new File(web, 'index.html'), new File(web, 'package.json'), new File(web, 'package-lock.json'), new File(web, 'vite.config.ts'))
+    outputs.dir(webDist)
+    doFirst {
+        if (!new File(web, 'node_modules').exists()) {
+            throw new GradleException("frontend/node_modules is missing. Run 'npm ci' in Breeze-Mod-New/frontend once.")
+        }
+    }
+}
+
+processResources {
+    dependsOn tasks.named('buildWebUi')
+    inputs.property 'version', project.version
+    inputs.property 'minecraft_range', project.minecraft_range
+    inputs.property 'loader_min', project.loader_min
+    filesMatching('fabric.mod.json') {
+        expand 'version': project.version,
+                'minecraft_range': project.minecraft_range,
+                'loader_min': project.loader_min
+    }
+    from(webDist) {
+        into 'assets/breeze/html'
+        exclude '**/*.map'
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = (project.java_release as Integer)
+    it.options.encoding = 'UTF-8'
+}
+
+java {
+    withSourcesJar()
+}
+
+tasks.named('sourcesJar') { dependsOn tasks.named('buildWebUi') }
+
+jar {
+    from project(':common').sourceSets.main.output
+    manifest {
+        attributes([
+                'Implementation-Title'  : 'Breeze',
+                'Implementation-Version': project.version,
+                'Minecraft-Version'     : mc,
+                'Minecraft-Range'       : project.minecraft_range,
+        ])
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
+
+// runClient for automated checks: a fixed window, a dev player name, and the
+// Breeze self-test switched on only when -Pbreeze.autotest is given.
+loom {
+    runs {
+        client {
+            programArgs '--width', '1280', '--height', '720', '--username', 'BreezeDev'
+            if (project.hasProperty('breeze.autotest')) {
+                vmArg "-Dbreeze.autotest=${project.property('breeze.autotest')}"
+            }
+        }
+    }
+}

@@ -1,0 +1,22 @@
+pluginManagement {
+    repositories {
+        maven { name = 'Fabric'; url = 'https://maven.fabricmc.net/' }
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+rootProject.name = 'breeze'
+
+// Portable code, compiled once and consumed by every version.
+include 'common'
+
+// One module per supported Minecraft version. Each declares its own Minecraft,
+// Fabric loader, Fabric API and Java level, because those differ across the
+// range in ways a single value cannot express: Java alone changes five times
+// between 1.16 and 26.3 (docs/MOD_VERSION_MATRIX.md).
+//
+// Versions are added here as they are ported, rather than listed aspirationally.
+// A module in this file is one that builds.
+include 'versions:1.20.1'
+project(':versions:1.20.1').projectDir = file('versions/1.20.1')
