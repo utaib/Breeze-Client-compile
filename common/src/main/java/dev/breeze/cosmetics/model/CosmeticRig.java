@@ -99,14 +99,26 @@ public final class CosmeticRig {
      * bounds is {minX, minY, minZ, maxX, maxY, maxZ} of the model at rest.
      */
     public static float[] toLauncherPart(Attachment a, Transform tr, float[] bounds) {
+        return placed(a, tr, bounds, a.x + tr.offset[0], a.y + tr.offset[1], a.z + tr.offset[2], 0, 0, 1);
+    }
+
+    /**
+     * As {@link #toLauncherPart}, with the holder somewhere else and turned: a
+     * flying pet's current position, yaw and bank, or a trail copy's place,
+     * yaw and shrink. (hx, hy, hz) already includes the offset, as the
+     * launcher's holder position does.
+     */
+    public static float[] placed(Attachment a, Transform tr, float[] bounds, float hx, float hy, float hz,
+                                 float yaw, float roll, float extraScale) {
         float sx = bounds[3] - bounds[0], sy = bounds[4] - bounds[1], sz = bounds[5] - bounds[2];
         float longest = Math.max(sx, Math.max(sy, sz));
-        float fitted = (a.size / (longest > 0 ? longest : 1)) * tr.scale;
+        float fitted = (a.size / (longest > 0 ? longest : 1)) * tr.scale * extraScale;
         float cx = (bounds[0] + bounds[3]) / 2, cy = (bounds[1] + bounds[4]) / 2, cz = (bounds[2] + bounds[5]) / 2;
         float ax = cx, ay = cy, az = cz;
         if (a.align == Align.BOTTOM) ay = bounds[1];
         else if (a.align == Align.FRONT) az = bounds[5];
-        float[] m = Mat4.translation(a.x + tr.offset[0], a.y + tr.offset[1], a.z + tr.offset[2]);
+        float[] m = Mat4.translation(hx, hy, hz);
+        if (yaw != 0 || roll != 0) m = Mat4.mul(m, Mat4.mul(Mat4.rotationY(yaw), Mat4.rotationZ(roll)));
         m = Mat4.mul(m, Mat4.eulerXYZDegrees(tr.rotation[0], tr.rotation[1], tr.rotation[2]));
         m = Mat4.mul(m, Mat4.scale(fitted, fitted, fitted));
         return Mat4.mul(m, Mat4.translation(-ax, -ay, -az));
@@ -130,6 +142,12 @@ public final class CosmeticRig {
     /** Model space to the Minecraft part the attachment moves with, in pixels. */
     public static float[] toPart(Attachment a, Transform tr, float[] bounds) {
         return Mat4.mul(launcherToMinecraft(a.part), toLauncherPart(a, tr, bounds));
+    }
+
+    /** {@link #placed}, into the Minecraft part the attachment moves with. */
+    public static float[] toPartAt(Attachment a, Transform tr, float[] bounds, float hx, float hy, float hz,
+                                   float yaw, float roll, float extraScale) {
+        return Mat4.mul(launcherToMinecraft(a.part), placed(a, tr, bounds, hx, hy, hz, yaw, roll, extraScale));
     }
 
     /** The clip for an animation role: that role's, else idle's, else the first clip; null for none. */

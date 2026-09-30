@@ -4,7 +4,7 @@
 # the same simple name that do exist there. 'c ' adds the calls inside each
 # method; 'j ' adds the whole bytecode with constants (javap -c -p -constants).
 com.mojang.blaze3d.platform.GlStateManager
-com.mojang.blaze3d.platform.InputConstants
+j com.mojang.blaze3d.platform.InputConstants
 com.mojang.blaze3d.platform.NativeImage
 com.mojang.blaze3d.platform.Window
 com.mojang.blaze3d.systems.RenderSystem
@@ -26,7 +26,7 @@ net.minecraft.SharedConstants
 net.minecraft.Util
 net.minecraft.client.Camera
 net.minecraft.client.CameraType
-net.minecraft.client.KeyMapping
+j net.minecraft.client.KeyMapping
 net.minecraft.client.Minecraft
 net.minecraft.client.MouseHandler
 net.minecraft.client.OptionInstance

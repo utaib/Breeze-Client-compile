@@ -23,7 +23,7 @@ public class CapeLayerMixin {
         dev.breeze.cosmetics.CosmeticRender.draw(poseStack,
                 (ps, tex, translucent, geo) -> geo.write(buffer.getBuffer(translucent
                         ? dev.breeze.compat.CosmeticTypes.translucent(tex) : dev.breeze.compat.CosmeticTypes.cutout(tex)), ps.last()),
-                packedLight, breeze$uuid(state.id), model.head, model.body, model.rightArm, state.ageInTicks, state.isInvisible);
+                packedLight, breeze$uuid(state.id), model.head, model.body, model.rightArm, state.ageInTicks, state.walkAnimationSpeed, state.isInvisible);
         if (!CustomCape.active()) return;
         poseStack.pushPose();
         float wave = ((float) Math.sin(state.ageInTicks * 0.18f) * 0.5f + 0.5f) * (2.0f + state.walkAnimationSpeed * 5.0f);
