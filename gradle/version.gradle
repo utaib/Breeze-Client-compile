@@ -313,7 +313,7 @@ tasks.register('dumpApi') {
             }
             w << "== classes\n"
             def packages = ['net.minecraft.client.', 'net.minecraft.resources.', 'net.minecraft.core.', 'com.mojang.blaze3d.',
-                            'net.fabricmc.fabric.api.client.', 'org.lwjgl.glfw.']
+                            'net.fabricmc.fabric.api.client.', 'org.lwjgl.glfw.', 'net.minecraft.world.clock.']
             all.findAll { n -> !n.contains('$') && packages.any { n.startsWith(it) } && !n.contains('.impl.') }
                     .each { w << it << '\n' }
         }
