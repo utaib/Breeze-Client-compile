@@ -324,6 +324,17 @@ public final class AutoTest {
         stage = Stage.DONE;
     }
 
+    /**
+     * A mouse press as the game and a Breeze screen saw it, for the driver's
+     * log when a click does not do what it should. Does nothing unless the
+     * self-test is running.
+     */
+    public static void mouse(String where, double x, double y, int button, String result) {
+        if (dir == null) return;
+        log("mouse", "where", where, "x", String.valueOf((int) x), "y", String.valueOf((int) y),
+                "button", String.valueOf(button), "result", result);
+    }
+
     private static void log(String event, String... kv) {
         JsonObject o = new JsonObject();
         for (int i = 0; i + 1 < kv.length; i += 2) o.addProperty(kv[i], kv[i + 1]);

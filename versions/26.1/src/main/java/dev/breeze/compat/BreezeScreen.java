@@ -143,7 +143,9 @@ public abstract class BreezeScreen extends Screen {
     public final boolean mouseClicked(MouseButtonEvent e, boolean doubleClick) {
         this.mouseModifiers = e.modifiers();
         this.doubleClick = doubleClick;
-        return onMouseClicked(e.x(), e.y(), Buttons.fromGame(e.button()));
+        boolean handled = onMouseClicked(e.x(), e.y(), Buttons.fromGame(e.button()));
+        dev.breeze.devtest.AutoTest.mouse(getClass().getSimpleName(), e.x(), e.y(), e.button(), String.valueOf(handled));
+        return handled;
     }
 
     @Override

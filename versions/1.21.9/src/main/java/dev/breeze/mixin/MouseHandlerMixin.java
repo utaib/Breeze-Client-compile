@@ -32,5 +32,6 @@ public class MouseHandlerMixin {
         // Minecraft's own press constant (GLFW_PRESS up to 26.2), and the button
         // in Breeze's numbering (26.3 numbers them SDL's way).
         if (action == InputConstants.PRESS) Clicks.onPress(Buttons.fromGame(info.button()));
+        dev.breeze.devtest.AutoTest.mouse("MouseHandler", 0, 0, info.button(), "action " + action);
     }
 }
