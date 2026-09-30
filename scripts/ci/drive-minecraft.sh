@@ -71,6 +71,14 @@ if ! wait_ready 1200; then
 fi
 pass "Breeze title menu painted in a real Minecraft client"
 
+# No embedded browser on this Minecraft version: the native menus are the
+# interface, and drive-native.sh tests those.
+if grep '"event":"READY_FOR_INPUT"' "$LOG" | tail -1 | grep -q '"mode":"native"'; then
+  say "no embedded browser here: testing the native menus"
+  "$(dirname "$0")/drive-native.sh" "$OUT"
+  exit $?
+fi
+
 WID=$(xdotool search --onlyvisible --name 'Minecraft' | head -1)
 [ -n "$WID" ] || { fail "no Minecraft window"; exit 98; }
 xdotool windowactivate --sync "$WID" 2>/dev/null || xdotool windowfocus "$WID"

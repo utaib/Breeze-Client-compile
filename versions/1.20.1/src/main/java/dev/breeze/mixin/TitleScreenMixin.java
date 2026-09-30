@@ -51,6 +51,7 @@ public abstract class TitleScreenMixin extends Screen {
             g.drawString(this.font, labels[i], 14, y + 6, hover ? Palette.TEXT_PRIMARY : Palette.TEXT_SECONDARY, false);
         }
         UiRender.logo(g, 6, breeze$btnY(0) - 40, 32, 1.0f);
+        dev.breeze.devtest.Targets.put("breeze-button", 6 + 39, breeze$btnY(0) + 10);
     }
 
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)

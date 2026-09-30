@@ -263,6 +263,7 @@ public class BreezeMenuScreen extends Screen {
             boolean over = inside(mouseX, mouseY, cx, cy, cardW, CARD_H) && mouseY >= gridY && mouseY <= gridBottom;
             if (over) hovered = m;
             drawCard(g, m, cx, cy, over);
+            if (i == 0) dev.breeze.devtest.Targets.put("module-card-0", cx + cardW / 3, cy + CARD_H / 2);
         }
         g.disableScissor();
 

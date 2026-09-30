@@ -1,0 +1,203 @@
+// Breeze for one Minecraft version, applied by each versions/<mc>/build.gradle
+// after it applies Loom: net.fabricmc.fabric-loom-remap up to 1.21.11, which
+// ship obfuscated, and net.fabricmc.fabric-loom from 26.1, which do not.
+// Everything else that differs per version is in its gradle.properties:
+//
+//   minecraft_version   the Minecraft release this jar is built against
+//   loader_version      Fabric Loader used to build and run it
+//   fabric_api_version  Fabric API build for this Minecraft version
+//   java_release        bytecode level Minecraft's own Java can load
+//   minecraft_range     what fabric.mod.json declares (the version itself)
+//   loader_min          the oldest Fabric Loader the jar accepts
+//   mixin_java          Mixin compatibility level for breeze.mixins.json
+//   mcef_version        MCEF build on Modrinth, only where one exists
+//   obfuscated          false from 26.1: no mappings and no remapping
+//   source_chain        folders under versions/ whose src/main make up this
+//                       version's source, oldest first (see "Sources")
+
+def mc = project.minecraft_version
+def obfuscated = (project.findProperty('obfuscated') ?: 'true').toString().toBoolean()
+def loomPlugin = obfuscated ? 'net.fabricmc.fabric-loom-remap' : 'net.fabricmc.fabric-loom'
+if (!plugins.hasPlugin(loomPlugin)) {
+    throw new GradleException("${project.name}/build.gradle must apply $loomPlugin (obfuscated=$obfuscated)")
+}
+
+version = rootProject.mod_version
+group = rootProject.maven_group
+
+base {
+    archivesName = mc
+}
+
+// The spec's naming: the jar players get is called after the Minecraft version
+// only, 1.20.1.jar; the mod version lives inside it (fabric.mod.json and the
+// manifest). Loom would otherwise append the version. Where Loom remaps, the
+// unmapped dev jar gets a classifier so it can never be mistaken for the real
+// one; from 26.1 there is no remapping and the plain jar is the real one.
+if (obfuscated) {
+    tasks.named('jar') { archiveClassifier = 'dev' }
+    tasks.named('remapJar') { archiveFileName = "${mc}.jar" }
+    tasks.named('remapSourcesJar') { archiveFileName = "${mc}-sources.jar" }
+} else {
+    tasks.named('jar') { archiveFileName = "${mc}.jar" }
+    tasks.named('sourcesJar') { archiveFileName = "${mc}-sources.jar" }
+}
+
+// ── Sources ────────────────────────────────────────────────────────────────
+//
+// Most code is the same across Minecraft versions, and the part that is not
+// changes at a few points (1.20.2, 1.20.5, 1.21.2, 1.21.6, ...). So a version's
+// source is a chain of folders, oldest first: versions/1.20.1/src/main is the
+// full base, and each later folder holds only the files that differ from what
+// comes before it. The newest folder that has a file wins. A folder's
+// removed.txt lists paths (relative to src/main) that older folders have and
+// this version must not. versions/shared/no-browser is the chain's last link on
+// versions MCEF does not cover.
+//
+// A version whose chain is just itself compiles its own folder directly. Any
+// other is merged into build/merged-src first; edit the files in versions/,
+// never the merged copy. The source ZIP (scripts/package-source.sh) ships the
+// merged result, so a ZIP is always one plain folder.
+def chain = ((project.findProperty('source_chain') ?: project.name) as String)
+        .split(',').collect { it.trim() }.findAll { it }
+chain.each { entry ->
+    if (!rootProject.file("versions/$entry/src/main").isDirectory()) {
+        throw new GradleException("source_chain of ${project.name} names versions/$entry, which has no src/main")
+    }
+}
+
+if (chain == [project.name]) {
+    // Sources are this folder's own src/main, as for any Gradle project.
+} else {
+    def merged = layout.buildDirectory.dir('merged-src').get().asFile
+    def merge = tasks.register('mergeSources', Sync) {
+        description = "Merges ${chain.join(' < ')} into build/merged-src."
+        into merged
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        def removed = []
+        chain.reverse().each { entry ->
+            def dir = rootProject.file("versions/$entry/src/main")
+            def dropped = removed.collect()
+            from(dir) { exclude dropped }
+            def list = rootProject.file("versions/$entry/removed.txt")
+            if (list.isFile()) {
+                removed.addAll(list.readLines().collect { it.trim() }.findAll { it && !it.startsWith('#') })
+            }
+        }
+    }
+    sourceSets.main.java.srcDirs = [new File(merged, 'java')]
+    sourceSets.main.resources.srcDirs = [new File(merged, 'resources')]
+    tasks.named('compileJava') { dependsOn merge }
+    tasks.named('processResources') { dependsOn merge }
+    tasks.named('sourcesJar') { dependsOn merge }
+}
+
+repositories {
+    maven { name = 'Fabric'; url = 'https://maven.fabricmc.net/' }
+    // MCEF, the embedded browser, as published on Modrinth.
+    maven {
+        name = 'Modrinth'
+        url = 'https://api.modrinth.com/maven'
+        content { includeGroup 'maven.modrinth' }
+    }
+    mavenCentral()
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${mc}"
+    if (obfuscated) {
+        mappings loom.officialMojangMappings()
+    }
+    def mod = obfuscated ? 'modImplementation' : 'implementation'
+    add(mod, "net.fabricmc:fabric-loader:${project.loader_version}")
+    add(mod, "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}")
+
+    // The portable half. Plain Java, so its classes are merged into this jar
+    // (see jar below) rather than nested: Fabric only loads nested jars that
+    // are themselves mods.
+    implementation project(':common')
+
+    // MCEF, compile only. The mod runs without it (native menus); with it, the
+    // web interface. Not declared in fabric.mod.json, so an install without
+    // MCEF still starts. Present in the development client so runClient shows
+    // the real web interface; never part of the published jar. MCEF is
+    // LGPL-2.1, by CinemaMod Group.
+    def mcef = project.findProperty('mcef_version')
+    if (mcef) {
+        add(obfuscated ? 'modCompileOnly' : 'compileOnly', "maven.modrinth:mcef:${mcef}")
+        add(obfuscated ? 'modLocalRuntime' : 'localRuntime', "maven.modrinth:mcef:${mcef}")
+    }
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+// ── The interface ──────────────────────────────────────────────────────────
+//
+// The React frontend is built once, by the root project's buildWebUi, into
+// frontend/dist, and packaged from there by every version. Nothing generated
+// is written into src/, so the source tree cannot hold a stale bundle.
+def webDist = rootProject.file('frontend/dist')
+def buildWebUi = rootProject.tasks.named('buildWebUi')
+
+processResources {
+    dependsOn buildWebUi
+    def props = [
+            'version'        : project.version,
+            'minecraft_range': project.minecraft_range,
+            'loader_min'     : project.loader_min,
+            'java_release'   : project.java_release,
+            'mixin_java'     : project.mixin_java,
+    ]
+    inputs.properties props
+    filesMatching(['fabric.mod.json', 'breeze.mixins.json']) {
+        expand props
+    }
+    from(webDist) {
+        into 'assets/breeze/html'
+        exclude '**/*.map'
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = (project.java_release as Integer)
+    it.options.encoding = 'UTF-8'
+    // Every error at once when a new Minecraft version breaks many files,
+    // rather than javac's first hundred.
+    it.options.compilerArgs += ['-Xmaxerrs', '10000']
+}
+
+java {
+    withSourcesJar()
+}
+
+tasks.named('sourcesJar') { dependsOn buildWebUi }
+
+jar {
+    from project(':common').sourceSets.main.output
+    manifest {
+        attributes([
+                'Implementation-Title'  : 'Breeze',
+                'Implementation-Version': project.version,
+                'Minecraft-Version'     : mc,
+                'Minecraft-Range'       : project.minecraft_range,
+        ])
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
+
+// runClient for automated checks: a fixed window, a dev player name, and the
+// Breeze self-test switched on only when -Pbreeze.autotest is given.
+loom {
+    runs {
+        client {
+            programArgs '--width', '1280', '--height', '720', '--username', 'BreezeDev'
+            if (project.hasProperty('breeze.autotest')) {
+                vmArg "-Dbreeze.autotest=${project.property('breeze.autotest')}"
+            }
+        }
+    }
+}

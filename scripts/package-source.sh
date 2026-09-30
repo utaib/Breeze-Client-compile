@@ -7,8 +7,10 @@
 # revision (default HEAD), never from uncommitted files. Only files Git tracks go
 # in, so there is no node_modules, build output, local tooling or anything
 # ignored. The ZIP holds the Gradle wrapper, common/, contract/, frontend/
-# source, docs/, scripts/ and versions/<mc>/ only, with a settings.gradle that
-# includes just that version, plus SOURCE.txt naming the exact commit.
+# source, docs/, scripts/ and versions/<mc>/ only, plus SOURCE.txt naming the
+# exact commit. A version whose source_chain spans several folders
+# (gradle/version.gradle, "Sources") gets them merged into its own src/main,
+# so the ZIP is one plain folder that settings.gradle finds on its own.
 #
 # The ZIP is reproducible: file times are the commit's time, entries are sorted,
 # and no owner or extended attributes are stored, so the same revision always
@@ -23,8 +25,10 @@ name="Breeze Mod for $mc"
 commit=$(git rev-parse --verify -q "$rev^{commit}") || { echo "not a commit: $rev"; exit 1; }
 prefix=$(git rev-parse --show-prefix)
 top=$(git rev-parse --show-toplevel)
-git cat-file -e "$commit:${prefix}versions/$mc/build.gradle" 2>/dev/null \
-  || { echo "versions/$mc has no build.gradle at $rev"; exit 1; }
+for f in build.gradle gradle.properties; do
+  git cat-file -e "$commit:${prefix}versions/$mc/$f" 2>/dev/null \
+    || { echo "versions/$mc has no $f at $rev"; exit 1; }
+done
 
 out="$PWD/build/release"
 stage=$(mktemp -d)
@@ -36,21 +40,48 @@ mkdir -p "$root" "$out"
 # Code sessions (CLAUDE.md, .mcp.json). Run from the top level, where Git reads
 # these paths relative to the archived tree rather than to this directory.
 git -C "$top" archive --format=tar "$commit:$prefix" -- \
-  .gitignore README.md CHANGELOG.md gradle.properties settings.gradle \
+  .gitignore README.md CHANGELOG.md build.gradle gradle.properties settings.gradle \
   gradlew gradlew.bat gradle common contract docs frontend scripts "versions/$mc" \
   | tar -x -C "$root"
 
-# Keep only this version's include lines; comments are left alone.
-awk -v want="versions:$mc'" '
-  /^[[:space:]]*(include|project\()/ && /versions:/ && index($0, want) == 0 { next }
-  { print }
-' "$root/settings.gradle" > "$stage/settings.gradle"
-mv "$stage/settings.gradle" "$root/settings.gradle"
-grep -q "^include 'versions:$mc'" "$root/settings.gradle" \
-  || { echo "settings.gradle does not include versions:$mc"; exit 1; }
-if grep -E "^[[:space:]]*(include|project\()" "$root/settings.gradle" | grep "versions:" | grep -vq "versions:$mc'"; then
-  echo "settings.gradle still includes another version"; exit 1
+# The version's source: its source_chain merged, newest folder first, each
+# folder's removed.txt dropping files of the folders before it. The same rule
+# as gradle/version.gradle's mergeSources.
+props="$root/versions/$mc/gradle.properties"
+chain=$(sed -n 's/^source_chain=//p' "$props" | tr -d ' ')
+[ -n "$chain" ] || chain=$mc
+IFS=',' read -ra links <<< "$chain"
+if [ "$chain" != "$mc" ]; then
+  merged="$stage/merged"
+  dropped="$stage/dropped.txt"
+  mkdir -p "$merged"
+  : > "$dropped"
+  for (( i=${#links[@]}-1; i>=0; i-- )); do
+    link=${links[$i]}
+    part="$stage/link-$i"
+    mkdir -p "$part"
+    git -C "$top" archive --format=tar "$commit:${prefix}versions/$link/src/main" | tar -x -C "$part"
+    (cd "$part" && find . -type f | sed 's#^\./##' | LC_ALL=C sort) | while IFS= read -r f; do
+      grep -qxF "$f" "$dropped" && continue
+      [ -e "$merged/$f" ] && continue
+      mkdir -p "$merged/$(dirname "$f")"
+      cp "$part/$f" "$merged/$f"
+    done
+    if git -C "$top" cat-file -e "$commit:${prefix}versions/$link/removed.txt" 2>/dev/null; then
+      git -C "$top" show "$commit:${prefix}versions/$link/removed.txt" | sed 's/[[:space:]]*$//' \
+        | grep -vE '^(#|$)' >> "$dropped" || true
+    fi
+  done
+  rm -rf "$root/versions/$mc/src"
+  mkdir -p "$root/versions/$mc/src"
+  cp -R "$merged" "$root/versions/$mc/src/main"
+  rm -f "$root/versions/$mc/removed.txt"
+  sed -i "s/^source_chain=.*/source_chain=$mc/" "$props"
 fi
+[ -f "$root/versions/$mc/src/main/resources/fabric.mod.json" ] \
+  || { echo "versions/$mc has no fabric.mod.json after merging $chain"; exit 1; }
+others=$(find "$root/versions" -mindepth 1 -maxdepth 1 -type d ! -name "$mc")
+[ -z "$others" ] || { echo "the ZIP would hold other versions: $others"; exit 1; }
 
 # Nothing that looks like a credential ships, whatever Git tracks.
 leaks=$(cd "$root" && find . -type f \( -name 'env' -o -name '.env*' -o -name '*.pem' -o -name '*.key' \
@@ -64,6 +95,7 @@ epoch=$(git log -1 --format=%ct "$commit")
 cat > "$root/SOURCE.txt" <<EOF
 Breeze mod $version for Minecraft $mc
 Source: utaib/Breeze-Client, commit $commit
+Merged from: versions/${chain//,/, versions/}
 Committed: $(TZ=UTC git log -1 --date=format-local:'%Y-%m-%d %H:%M UTC' --format=%cd "$commit")
 
 Build instructions are in README.md. The jar players install is

@@ -1,14 +1,20 @@
 package dev.breeze.devtest;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import dev.breeze.BreezeClient;
+import dev.breeze.Module;
+import dev.breeze.ModuleManager;
 import dev.breeze.bridge.Router;
+import dev.breeze.menu.BreezeMenuScreen;
 import dev.breeze.web.BreezeBrowser;
 import dev.breeze.web.BreezeWebScreen;
 import dev.breeze.web.WebInit;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.OptionsScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
@@ -21,24 +27,31 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Development self-test for the web menu in a real Minecraft client.
+ * Development self-test for the Breeze menu in a real Minecraft client.
  *
  * Inert unless the JVM is started with -Dbreeze.autotest=&lt;directory&gt;
- * (runClient -Pbreeze.autotest=...). It opens no ports and accepts no input of
- * its own; it only observes and records, then runs an open/close leak check:
+ * (runClient -Pbreeze.autotest=..., or a real install's JVM arguments). It
+ * opens no ports and accepts no input of its own; it only observes and
+ * records, then runs an open/close leak check:
  *
  * <ol>
- *   <li>waits for the Breeze title menu to paint, records it, and writes
- *       READY_FOR_INPUT so an external driver can send real X11 mouse and
- *       keyboard input (scripts/ci/drive-minecraft.sh uses xdotool);</li>
- *   <li>records every bridge action the page sends and every screen change,
- *       so the driver's clicks can be checked against what the game did;</li>
+ *   <li>waits for the Breeze menu: the web menu where MCEF runs, or Minecraft's
+ *       title screen with Breeze's buttons where there is no browser (the
+ *       native mode). Records it and writes READY_FOR_INPUT, naming the mode,
+ *       so an external driver can send real X11 mouse and keyboard input
+ *       (scripts/ci/drive-minecraft.sh, drive-native.sh, with xdotool);</li>
+ *   <li>records every screen change, the bridge actions the page sends, every
+ *       module switched on or off, and, a moment after each screen opens, where
+ *       its buttons are in window pixels (the "targets" event), so the driver
+ *       can click by label and check what the game did;</li>
  *   <li>when the driver writes driver-done, opens and closes the menu 20 times
  *       and records how many browsers are live after each close and the heap;</li>
  *   <li>writes AUTOTEST_DONE and leaves the game running for the driver's
- *       last step (quitting through the menu's own Quit button).</li>
+ *       last step (quitting through a menu).</li>
  * </ol>
  *
  * Every line goes to &lt;directory&gt;/breeze-autotest.log as JSON.
@@ -53,6 +66,10 @@ public final class AutoTest {
     private static String lastScreen = "";
     private static int cycle;
     private static int maxLiveAfterClose;
+    private static boolean nativeMode;
+    private static int targetsDue = -1;
+    private static String lastTargets = "";
+    private static final Map<String, Boolean> MODULES = new HashMap<>();
     private static final int CYCLES = 20;
     // A first start in a real install downloads MCEF's Chromium build before
     // the menu can open, so the wait is longer there.
@@ -68,6 +85,7 @@ public final class AutoTest {
     private static String kind(Screen s) {
         if (s == null) return "none";
         if (s instanceof BreezeWebScreen) return "breeze-web";
+        if (s instanceof BreezeMenuScreen) return "breeze-native";
         if (s instanceof TitleScreen) return "title";
         if (s instanceof SelectWorldScreen) return "world-select";
         if (s instanceof CreateWorldScreen) return "create-world";
@@ -87,6 +105,7 @@ public final class AutoTest {
             return;
         }
         log("start", "dir", dir.toString());
+        Targets.enable();
         Router.tap = (action, params) -> {
             JsonObject o = new JsonObject();
             o.addProperty("action", action);
@@ -107,17 +126,41 @@ public final class AutoTest {
             lastScreen = screen;
             log("screen", "class", screen, "kind", kind(mc.screen),
                     "liveBrowsers", String.valueOf(BreezeBrowser.live()));
+            Targets.clear();
+            targetsDue = 10;
         }
+        if (targetsDue > 0 && --targetsDue == 0) logTargets(mc, false);
+        if (Files.exists(dir.resolve("targets-please"))) {
+            try {
+                Files.deleteIfExists(dir.resolve("targets-please"));
+            } catch (IOException ignored) {
+            }
+            logTargets(mc, true);
+        }
+        watchModules();
+
         long age = System.currentTimeMillis() - stageStart;
         switch (stage) {
             case WAIT_MENU -> {
-                if (mc.screen instanceof BreezeWebScreen) next(Stage.WAIT_PAINT, "menu-open");
-                else if (age > MENU_TIMEOUT_MS) fail("the Breeze title menu never opened; web state " + WebInit.state());
+                if (mc.screen instanceof BreezeWebScreen) {
+                    next(Stage.WAIT_PAINT, "menu-open");
+                } else if (WebInit.state() == WebInit.State.UNAVAILABLE && mc.screen instanceof TitleScreen) {
+                    // No embedded browser here: Minecraft's title screen with
+                    // Breeze's buttons is the menu, and the native screens open
+                    // from it.
+                    nativeMode = true;
+                    next(Stage.WAIT_PAINT, "menu-open");
+                } else if (age > MENU_TIMEOUT_MS) {
+                    fail("the Breeze title menu never opened; web state " + WebInit.state());
+                }
             }
             case WAIT_PAINT -> {
-                if (painted(mc)) {
+                if (nativeMode ? age > 2_000 : painted(mc)) {
                     shot(mc, "autotest-title-menu");
-                    next(Stage.WAIT_DRIVER, "READY_FOR_INPUT");
+                    logTargets(mc, true);
+                    stage = Stage.WAIT_DRIVER;
+                    stageStart = System.currentTimeMillis();
+                    log("READY_FOR_INPUT", "mode", nativeMode ? "native" : "web");
                 } else if (age > 60_000) {
                     fail("the page never painted");
                 }
@@ -127,12 +170,13 @@ public final class AutoTest {
                 else if (age > 600_000) fail("the input driver never finished");
             }
             case STRESS_OPEN -> {
-                mc.setScreen(new BreezeWebScreen(false));
+                mc.setScreen(nativeMode ? new BreezeMenuScreen() : new BreezeWebScreen(false));
                 next(Stage.STRESS_WAIT_PAINT, null);
             }
             case STRESS_WAIT_PAINT -> {
-                if (painted(mc) || age > 15_000) {
-                    log("cycle-open", "cycle", String.valueOf(cycle), "painted", String.valueOf(painted(mc)),
+                boolean open = nativeMode ? mc.screen instanceof BreezeMenuScreen : painted(mc);
+                if (open || age > 15_000) {
+                    log("cycle-open", "cycle", String.valueOf(cycle), "painted", String.valueOf(open),
                             "ms", String.valueOf(age), "liveBrowsers", String.valueOf(BreezeBrowser.live()));
                     // Leave through a vanilla screen so removed() runs exactly as
                     // it does when a player opens Options from the menu.
@@ -153,11 +197,60 @@ public final class AutoTest {
                     log("stress-result", "cycles", String.valueOf(CYCLES), "maxLiveAfterClose",
                             String.valueOf(maxLiveAfterClose), "heapMb", String.valueOf(heapMb()),
                             "pass", String.valueOf(maxLiveAfterClose == 0));
-                    mc.setScreen(new BreezeWebScreen(false));
+                    mc.setScreen(nativeMode ? new TitleScreen() : new BreezeWebScreen(false));
                     next(Stage.DONE, "AUTOTEST_DONE");
                 }
             }
             case DONE -> {
+            }
+        }
+    }
+
+    /**
+     * Where the current screen's controls are, in window pixels: Minecraft's
+     * widgets by their label, and the points Breeze's own screens publish
+     * ({@link Targets}). Logged when it changes, or always when forced.
+     */
+    private static void logTargets(Minecraft mc, boolean force) {
+        double scale = mc.getWindow().getGuiScale();
+        JsonArray items = new JsonArray();
+        if (mc.screen != null) {
+            for (GuiEventListener child : mc.screen.children()) {
+                if (!(child instanceof AbstractWidget w) || !w.visible) continue;
+                items.add(item(w.getMessage().getString(), "widget",
+                        w.getX() + w.getWidth() / 2, w.getY() + w.getHeight() / 2, scale, w.active));
+            }
+        }
+        for (Map.Entry<String, int[]> e : Targets.snapshot().entrySet()) {
+            items.add(item(e.getKey(), "target", e.getValue()[0], e.getValue()[1], scale, true));
+        }
+        JsonObject o = new JsonObject();
+        o.addProperty("kind", kind(mc.screen));
+        o.addProperty("scale", scale);
+        o.add("items", items);
+        String key = o.toString();
+        if (!force && key.equals(lastTargets)) return;
+        lastTargets = key;
+        write("targets", o);
+    }
+
+    private static JsonObject item(String name, String type, int guiX, int guiY, double scale, boolean active) {
+        JsonObject i = new JsonObject();
+        i.addProperty("name", name);
+        i.addProperty("type", type);
+        i.addProperty("x", (int) Math.round(guiX * scale));
+        i.addProperty("y", (int) Math.round(guiY * scale));
+        i.addProperty("active", active);
+        return i;
+    }
+
+    /** Logs every module that changes state, whoever changed it. */
+    private static void watchModules() {
+        boolean first = MODULES.isEmpty();
+        for (Module m : ModuleManager.getModules()) {
+            Boolean was = MODULES.put(m.getName(), m.isEnabled());
+            if (!first && was != null && was != m.isEnabled()) {
+                log("module", "name", m.getName(), "enabled", String.valueOf(m.isEnabled()));
             }
         }
     }

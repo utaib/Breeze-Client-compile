@@ -172,4 +172,14 @@ public final class WebInit {
     public static State state() {
         return state;
     }
+
+    /** The embedded Chromium's version, or null when there is no browser. */
+    public static String chromiumVersion() {
+        if (state == State.UNAVAILABLE) return null;
+        try {
+            return com.cinemamod.mcef.MCEF.getApp().getHandle().getVersion().getChromeVersion();
+        } catch (Throwable notAvailable) {
+            return null;
+        }
+    }
 }

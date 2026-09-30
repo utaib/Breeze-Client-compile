@@ -4,6 +4,10 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
     }
+    plugins {
+        id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
+        id 'net.fabricmc.fabric-loom' version "${loom_version}"
+    }
 }
 
 rootProject.name = 'breeze'
@@ -11,12 +15,20 @@ rootProject.name = 'breeze'
 // Portable code, compiled once and consumed by every version.
 include 'common'
 
-// One module per supported Minecraft version. Each declares its own Minecraft,
-// Fabric loader, Fabric API and Java level, because those differ across the
-// range in ways a single value cannot express: Java alone changes five times
-// between 1.16 and 26.3 (docs/MOD_VERSION_MATRIX.md).
+// One project per Minecraft version: every folder in versions/ that has a
+// gradle.properties. Each builds <version>.jar (gradle/version.gradle).
 //
-// Versions are added here as they are ported, rather than listed aspirationally.
-// A module in this file is one that builds.
-include 'versions:1.20.1'
-project(':versions:1.20.1').projectDir = file('versions/1.20.1')
+// Loom sets Minecraft up while configuring a project, so configuring every
+// version downloads every Minecraft. To work on some of them only, name them:
+//   ./gradlew -Pbreeze_versions=1.21.4,1.21.11 :versions:1.21.4:runClient
+def only = startParameter.projectProperties['breeze_versions']
+def wanted = only ? only.split(',').collect { it.trim() } as Set : null
+def versionKey = { String v -> v.tokenize('.').collect { it.isInteger() ? String.format('%05d', it as int) : it }.join('.') }
+file('versions').listFiles()
+        .findAll { new File(it, 'gradle.properties').isFile() }
+        .findAll { wanted == null || wanted.contains(it.name) }
+        .sort { versionKey(it.name) }
+        .each { dir ->
+            include "versions:${dir.name}"
+            project(":versions:${dir.name}").projectDir = dir
+        }

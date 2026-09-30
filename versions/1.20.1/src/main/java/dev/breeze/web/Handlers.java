@@ -1,6 +1,5 @@
 package dev.breeze.web;
 
-import com.cinemamod.mcef.MCEF;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -75,12 +74,7 @@ final class Handlers {
             o.addProperty("modVersion", version("breeze"));
             o.addProperty("minecraftVersion", SharedConstants.getCurrentVersion().getName());
             o.addProperty("loaderVersion", version("fabricloader"));
-            String chrome = null;
-            try {
-                chrome = MCEF.getApp().getHandle().getVersion().getChromeVersion();
-            } catch (Throwable ignored) {
-            }
-            o.addProperty("chromiumVersion", chrome);
+            o.addProperty("chromiumVersion", WebInit.chromiumVersion());
             o.addProperty("context", ingame ? "ingame" : "title");
             o.addProperty("lastRoute", UiState.lastRoute(ingame));
             JsonObject f = new JsonObject();

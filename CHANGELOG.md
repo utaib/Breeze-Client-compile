@@ -7,6 +7,40 @@ fixes bump PATCH. `scripts/check-version.sh` keeps `gradle.properties`,
 Each entry says what was verified and how. Anything not verified is marked
 **UNVERIFIED**.
 
+## [2.5.0] - 2026-09-30 (not released)
+
+One build for every Minecraft version, and the first new version: 1.20.
+
+### Added
+- Minecraft 1.20 gets its own jar, `1.20.jar`, built and tested against 1.20
+  itself. MCEF has no build for 1.20, so the native menus are the interface.
+- The native menus are tested in a real Fabric install too:
+  `scripts/ci/drive-native.sh` opens the Breeze menu from its title screen
+  button, types in the search field, switches a module on and off, opens
+  Singleplayer and quits, clicking controls by name. The self-test logs where
+  each control is (`Targets` for the ones Breeze draws itself) and every
+  module that changes state.
+
+### Changed
+- Build layout for many versions: every folder in `versions/` with a
+  `gradle.properties` is a version project, configured by the shared
+  `gradle/version.gradle`. A version's source is a chain of folders
+  (`source_chain`): `versions/1.20.1/src/main` is the base and later versions
+  hold only the files that differ; `versions/shared/no-browser` stands in for
+  the four classes that talk to MCEF on versions MCEF does not cover. The
+  source ZIP ships the merged folder.
+- Loom 1.18.2 and Gradle 9.7.1 (what Fabric's example mod uses from 1.20.6
+  to 26.3), with `net.fabricmc.fabric-loom-remap` up to 1.21.11 and
+  `net.fabricmc.fabric-loom` for 26.x. MCEF comes from Modrinth's Maven
+  instead of a copy in the repository.
+- Each jar declares only its own Minecraft version (`1.20.1.jar` said
+  `>=1.20 <1.20.2`; 1.20 now has its own jar) and the Java level it needs.
+- `-Pbreeze_versions=...` limits a build to the named versions, since Loom
+  sets up Minecraft for every version it configures.
+
+### Verified
+- Pending CI.
+
 ## [2.4.1] - 2026-09-30 (not released)
 
 Fixes from the first runs in a real Minecraft 1.20.1 client.
@@ -33,6 +67,15 @@ Fixes from the first runs in a real Minecraft 1.20.1 client.
 - The Singleplayer check accepts either of Minecraft's world selection
   screens: a new game folder has no worlds, so Minecraft opens Create World
   directly.
+- The released jar is now tested in a real Fabric install as well as the
+  development client: `scripts/ci/run-minecraft-test.sh` with
+  `BREEZE_LAUNCH=prod` installs vanilla Minecraft and Fabric Loader with
+  portablemc and puts the jar, Fabric API and MCEF in `mods/`. The self-test
+  reports screens by kind, because a released jar runs with intermediary
+  class names.
+- `scripts/ci/version-facts.sh` reads each Minecraft release's Java level,
+  Fabric and Fabric API support and MCEF builds from Mojang, Fabric and
+  Modrinth.
 
 ### Verified
 In CI on the temporary build mirror, run 36661189403 (source identical to
@@ -48,6 +91,11 @@ this commit's `Breeze-Mod-New/`):
   without a crash; Back returned to the Breeze menu; Escape at the root was
   declined and the menu stayed open; 20 open and close cycles left 0
   browsers open (heap 247 MB); Quit from the menu reached the game.
+- The released `1.20.1.jar` (SHA-256 `2474f4e9...a7c714`) in a real Fabric
+  install, run 36665561143: Fabric loaded it with MCEF, MCEF downloaded
+  Chromium on first start, and the same checks passed with 0 failures (Create
+  World showed up as `class_525`, confirming intermediary names). The jar is
+  in `Breeze Jars/`.
 
 ## [2.4.0] - 2026-09-29 (not released)
 
