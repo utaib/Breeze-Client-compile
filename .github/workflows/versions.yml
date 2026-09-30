@@ -16,6 +16,9 @@ on:
       example_branches:
         description: Fabric example mod branches to print the build setup of
         default: ''
+      fabric_api_for:
+        description: Minecraft versions to read Fabric API facts for (space separated; skips the rest)
+        default: ''
 
 permissions:
   contents: read
@@ -27,7 +30,10 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - run: scripts/ci/version-facts.sh "${{ inputs.oldest || '1.17' }}"
+      - if: ${{ inputs.fabric_api_for != '' }}
+        run: scripts/ci/fabric-api-facts.sh ${{ inputs.fabric_api_for }}
+      - if: ${{ inputs.fabric_api_for == '' }}
+        run: scripts/ci/version-facts.sh "${{ inputs.oldest || '1.17' }}"
         env:
           GITHUB_TOKEN: ${{ github.token }}
           EXAMPLE_BRANCHES: ${{ inputs.example_branches }}
