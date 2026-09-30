@@ -1,7 +1,8 @@
 # Classes whose signatures scripts/ci/dump-api prints for each version (javap
 # -public; lines starting with 'p ' also print private members, for mixin
 # targets). A class missing from a version is reported with the classes of
-# the same simple name that do exist there.
+# the same simple name that do exist there. 'c ' adds the calls inside each
+# method; 'j ' adds the whole bytecode with constants (javap -c -p -constants).
 com.mojang.blaze3d.platform.GlStateManager
 com.mojang.blaze3d.platform.InputConstants
 com.mojang.blaze3d.platform.NativeImage
@@ -212,7 +213,7 @@ p net.minecraft.client.sounds.SoundEngine
 net.minecraft.client.sounds.SoundEngine$PlayResult
 p net.minecraft.client.gui.screens.TitleScreen
 p net.minecraft.client.gui.components.toasts.ToastComponent
-p com.mojang.blaze3d.platform.Window
+c com.mojang.blaze3d.platform.Window
 net.minecraft.client.gui.GuiGraphicsExtractor
 net.minecraft.client.gui.components.debug.DebugScreenEntries
 net.minecraft.client.gui.components.debug.DebugScreenEntryList
@@ -274,3 +275,8 @@ net.minecraft.Util$OS
 net.minecraft.server.MinecraftServer$MultiplayerScope
 com.mojang.blaze3d.platform.InputConstants$Type
 c net.minecraft.client.gui.screens.ConfirmLinkScreen
+# 26.3's render backends (the in-game test could not create a window there)
+j com.mojang.renderpearl.backend.opengl.GlDevice
+j com.mojang.renderpearl.backend.opengl.GlBackend
+j com.mojang.renderpearl.backend.vulkan.VulkanBackend
+p net.minecraft.client.PreferredGraphicsApi

@@ -294,13 +294,14 @@ tasks.register('dumpApi') {
         out.parentFile.mkdirs()
         out.withWriter('UTF-8') { w ->
             w << "== api of minecraft ${mc}\n"
-            def present = [], privateToo = [], calls = []
+            def present = [], privateToo = [], calls = [], code = []
             entries.each { line ->
-                def priv = line.startsWith('p ') || line.startsWith('c ')
+                def priv = line.startsWith('p ') || line.startsWith('c ') || line.startsWith('j ')
                 def name = priv ? line.substring(2).trim() : line
                 if (all.contains(name)) {
                     (priv ? privateToo : present) << name
                     if (line.startsWith('c ')) calls << name
+                    if (line.startsWith('j ')) code << name
                 } else {
                     def alike = bySimple[simple(name)] ?: []
                     w << "MISSING ${name}" << (alike ? " -> ${alike.join(', ')}" : '') << '\n'
@@ -326,9 +327,17 @@ tasks.register('dumpApi') {
                 }
                 proc.waitFor()
             }
+            code.each { name ->
+                w << "== code ${name}\n"
+                def proc = new ProcessBuilder([javap, '-c', '-p', '-constants', '-cp', classpath.asPath, name])
+                        .redirectErrorStream(true).start()
+                proc.inputStream.eachLine('UTF-8') { w << it << '\n' }
+                proc.waitFor()
+            }
             w << "== classes\n"
             def packages = ['net.minecraft.client.', 'net.minecraft.resources.', 'net.minecraft.core.', 'com.mojang.blaze3d.',
-                            'net.fabricmc.fabric.api.client.', 'org.lwjgl.glfw.', 'net.minecraft.world.clock.']
+                            'net.fabricmc.fabric.api.client.', 'org.lwjgl.glfw.', 'net.minecraft.world.clock.',
+                            'com.mojang.renderpearl.']
             all.findAll { n -> !n.contains('$') && packages.any { n.startsWith(it) } && !n.contains('.impl.') }
                     .each { w << it << '\n' }
         }
