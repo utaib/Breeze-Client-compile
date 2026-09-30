@@ -25,6 +25,11 @@ if (!plugins.hasPlugin(loomPlugin)) {
 version = rootProject.mod_version
 group = rootProject.maven_group
 
+// The sources jar exists before anything below names it.
+java {
+    withSourcesJar()
+}
+
 base {
     archivesName = mc
 }
@@ -168,10 +173,6 @@ tasks.withType(JavaCompile).configureEach {
     // Every error at once when a new Minecraft version breaks many files,
     // rather than javac's first hundred.
     it.options.compilerArgs += ['-Xmaxerrs', '10000']
-}
-
-java {
-    withSourcesJar()
 }
 
 tasks.named('sourcesJar') { dependsOn buildWebUi }

@@ -204,10 +204,16 @@ public final class BreezeWebScreen extends Screen {
         return true;
     }
 
-    @Override
+    // Minecraft 1.20.2 added a horizontal axis to this method. Both forms, and
+    // no @Override, so the same source compiles on either side of that change:
+    // whichever Minecraft calls overrides, the other is never called.
     public boolean mouseScrolled(double x, double y, double amount) {
         if (browser != null) browser.mouseScrolled(x, y, amount);
         return true;
+    }
+
+    public boolean mouseScrolled(double x, double y, double scrollX, double scrollY) {
+        return mouseScrolled(x, y, scrollY);
     }
 
     @Override
