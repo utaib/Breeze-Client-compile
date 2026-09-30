@@ -9,7 +9,7 @@ Each entry says what was verified and how. Anything not verified is marked
 
 ## [2.7.0] - 2026-09-30 (not released)
 
-Minecraft 26.1 to 26.3, and work towards 1.17 to 1.19.4.
+Minecraft 26.1 to 26.3 and 1.17 to 1.19.4.
 
 ### Added
 - Jars for 26.1, 26.1.1, 26.1.2, 26.2 and 26.3 (native menus; MCEF has no
@@ -32,13 +32,36 @@ Minecraft 26.1 to 26.3, and work towards 1.17 to 1.19.4.
 - common compiles against the Java 16 API, and reads JSON through
   dev.breeze.Json, which uses only Gson 2.8.0 calls (Minecraft 1.17 ships
   Gson 2.8.0). 83 unit tests pass.
+- fabric.mod.json names Fabric API by the mod id of that version's build:
+  "fabric" on 1.17 to 1.19.1 (except 1.18.2), "fabric-api" elsewhere. Before,
+  the loader refused to start Breeze on those versions with Fabric API
+  installed. 1.17 builds against Fabric API 0.36.0 and 1.18 against 0.44.0,
+  the newest builds that accept those exact versions.
+
+### Fixed
+- 1.17 to 1.19.3: gradients (GuiComponent's seven-argument fillGradient is an
+  instance method before 1.19.4; the static one with z = 0 is used).
+
+### Test harness
+- Fabric API comes from Modrinth, as players get it, and must bundle its
+  modules (Fabric's Maven served a 4877-byte stub of 0.77.0+1.18.2).
+- 26.3 opens its window through SDL 3 and asks for an sRGB OpenGL
+  framebuffer, which Xvfb's GLX cannot give; the test sets
+  SDL_VIDEO_FORCE_EGL=1 (test only; the same software renderer then gives GL
+  4.5 with an sRGB back buffer).
+- The drivers find the game window from xwininfo's tree (on 26.3 in CI,
+  xdotool search listed no windows at all).
 
 ### Verified
 - Mirror run 36705618640 (source `059b3a4`, numbered 2.6.0): 1.20 to 1.21.11,
   26.1, 26.1.1, 26.1.2 and 26.2 each passed every check in a real Fabric
-  install, including the base changes above. The 2.7.0 jars come from the
-  next full run.
-- **UNVERIFIED**: 26.3 and 1.17 to 1.19.4 until they pass in CI; in-world
+  install, including the base changes above.
+- Real-install test passed at 2.7.0: 1.19.2, 1.19.3, 1.19.4 (run
+  36739211954), 1.18.2 (run 36741374246), 1.17, 1.17.1, 1.18, 1.18.1, 1.19,
+  1.19.1 (run 36742564206). The 2.7.0 jars for Breeze Jars come from one
+  full run.
+- **UNVERIFIED**: 26.3 until it passes in CI (it reaches the Breeze menu with
+  every mixin applied); in-world
   behaviour on every version (the test does not enter a world), including the
   26.x world drawing, Zoom on 26.x (Camera.getFov) and Item Scale on 26.3.
 

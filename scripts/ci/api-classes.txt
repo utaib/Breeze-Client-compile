@@ -202,7 +202,7 @@ p net.minecraft.client.renderer.ItemInHandRenderer
 p net.minecraft.client.renderer.LightTexture
 p net.minecraft.client.player.LocalPlayer
 p net.minecraft.client.Minecraft
-p net.minecraft.client.MouseHandler
+c net.minecraft.client.MouseHandler
 p net.minecraft.client.multiplayer.MultiPlayerGameMode
 p net.minecraft.client.renderer.PanoramaRenderer
 p net.minecraft.client.gui.screens.PauseScreen
@@ -211,7 +211,7 @@ p net.minecraft.client.gui.screens.Screen
 p net.minecraft.client.renderer.ScreenEffectRenderer
 p net.minecraft.client.sounds.SoundEngine
 net.minecraft.client.sounds.SoundEngine$PlayResult
-p net.minecraft.client.gui.screens.TitleScreen
+j net.minecraft.client.gui.screens.TitleScreen
 p net.minecraft.client.gui.components.toasts.ToastComponent
 c com.mojang.blaze3d.platform.Window
 net.minecraft.client.gui.GuiGraphicsExtractor
