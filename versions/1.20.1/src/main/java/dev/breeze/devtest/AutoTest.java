@@ -228,7 +228,7 @@ public final class AutoTest {
             for (GuiEventListener child : dev.breeze.compat.ActiveScreen.get(mc).children()) {
                 if (!(child instanceof AbstractWidget w) || !w.visible) continue;
                 items.add(item(w.getMessage().getString(), "widget",
-                        w.getX() + w.getWidth() / 2, w.getY() + w.getHeight() / 2, scale, w.active));
+                        dev.breeze.compat.Widgets.x(w) + w.getWidth() / 2, dev.breeze.compat.Widgets.y(w) + w.getHeight() / 2, scale, w.active));
             }
         }
         for (Map.Entry<String, int[]> e : Targets.snapshot().entrySet()) {

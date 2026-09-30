@@ -1,0 +1,6 @@
+# What Minecraft 1.19.3 renamed or moved, undone for 1.19.2 and older
+# (gradle/version.gradle, "Sources").
+net.minecraft.core.registries.BuiltInRegistries net.minecraft.core.Registry
+BuiltInRegistries Registry
+# True while a singleplayer server runs.
+.isSingleplayer .hasSingleplayerServer

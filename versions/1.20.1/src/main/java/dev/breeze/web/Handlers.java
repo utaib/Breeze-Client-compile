@@ -26,7 +26,6 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.metadata.ModMetadata;
 import net.fabricmc.loader.api.metadata.Person;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.TitleScreen;
@@ -85,7 +84,7 @@ final class Handlers {
         });
         on(r, "app.openExternal", p -> {
             var uri = ExternalLinks.check(p.str("url", 500));
-            Util.getPlatform().openUri(uri);
+            dev.breeze.compat.Links.open(uri);
             return Router.ok();
         });
 
@@ -313,7 +312,7 @@ final class Handlers {
         o.addProperty("serverAddress", server != null && mc.getSingleplayerServer() == null ? server.ip : null);
         o.addProperty("playerName", Self.name(mc));
         o.addProperty("dimension", mc.level != null ? dev.breeze.compat.Ids.keyName(mc.level.dimension()) : null);
-        o.addProperty("fps", mc.getFps());
+        o.addProperty("fps", dev.breeze.compat.Perf.fps(mc));
         Integer ping = null;
         if (inWorld && mc.getConnection() != null && mc.getSingleplayerServer() == null) {
             PlayerInfo info = mc.getConnection().getPlayerInfo(mc.player.getUUID());

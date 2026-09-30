@@ -28,9 +28,7 @@ public class AutoText extends Module {
     protected void onEnable() {
         try {
             Minecraft mc = Minecraft.getInstance();
-            if (mc.getConnection() != null && message != null && !message.isEmpty()) {
-                mc.getConnection().sendChat(message);
-            }
+            if (message != null && !message.isEmpty()) dev.breeze.compat.Chat.send(mc, message);
         } catch (Throwable ignored) {}
         setStateSilently(false);
     }

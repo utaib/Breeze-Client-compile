@@ -13,7 +13,7 @@ public class FpsHud extends AbstractHudModule {
 
     @Override
     protected void draw(Minecraft mc, GuiGraphics g, Font font) {
-        int fps = mc.getFps();
+        int fps = dev.breeze.compat.Perf.fps(mc);
         int color = fps >= 60 ? 0xFF55FF55 : fps >= 30 ? 0xFFFFFF55 : 0xFFFF5555;
         line(g, font, "FPS: " + fps, color);
     }

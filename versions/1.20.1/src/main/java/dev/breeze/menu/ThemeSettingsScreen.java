@@ -7,7 +7,6 @@ import dev.breeze.ui.Rect;
 import dev.breeze.ui.Theme;
 import dev.breeze.ui.UiRender;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
@@ -102,8 +101,7 @@ public class ThemeSettingsScreen extends BreezeScreen {
             sy += SLIDER_PITCH;
         }
 
-        addRenderableWidget(Button.builder(Component.literal("Done"), b -> dev.breeze.compat.ActiveScreen.set(this.minecraft, parent))
-                .bounds(panelX + panelW / 2 - 50, panelY + panelH - 24, 100, 18).build());
+        addRenderableWidget(dev.breeze.compat.Widgets.button(Component.literal("Done"), b -> dev.breeze.compat.ActiveScreen.set(this.minecraft, parent), panelX + panelW / 2 - 50, panelY + panelH - 24, 100, 18));
     }
 
     private void addSlider(String label, java.util.function.IntSupplier get, java.util.function.IntConsumer set, int max) {

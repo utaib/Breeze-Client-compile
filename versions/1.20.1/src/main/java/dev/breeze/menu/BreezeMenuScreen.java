@@ -13,7 +13,6 @@ import dev.breeze.ui.BreezeUi;
 import dev.breeze.ui.Theme;
 import dev.breeze.ui.UiRender;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -84,7 +83,7 @@ public class BreezeMenuScreen extends BreezeScreen {
         // Cycling Auto to Native to Web would throw the player into the web
         // interface halfway round and take this button with it; applying on the
         // next open is predictable, and the label says what will happen.
-        addRenderableWidget(Button.builder(Component.literal(uiModeLabel()), b -> {
+        addRenderableWidget(dev.breeze.compat.Widgets.button(Component.literal(uiModeLabel()), b -> {
             if (!BreezeUi.webPossible()) return;
             Theme.uiMode = switch (Theme.uiMode) {
                 case AUTO -> Theme.UiMode.NATIVE;
@@ -93,7 +92,7 @@ public class BreezeMenuScreen extends BreezeScreen {
             };
             Theme.save();
             rebuildWidgets();
-        }).bounds(mainX + mainW - 154 - 96, mainY + 9, 92, 20).build());
+        }, mainX + mainW - 154 - 96, mainY + 9, 92, 20));
     }
 
     /**
