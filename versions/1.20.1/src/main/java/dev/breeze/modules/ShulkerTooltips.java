@@ -3,11 +3,8 @@ package dev.breeze.modules;
 import dev.breeze.Category;
 import dev.breeze.Module;
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.NonNullList;
-import net.minecraft.nbt.CompoundTag;
+import dev.breeze.compat.Compat;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.ContainerHelper;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.ShulkerBoxBlock;
@@ -31,13 +28,8 @@ public class ShulkerTooltips extends Module {
         if (!active() || stack == null || stack.isEmpty()) return;
         try {
             if (!(Block.byItem(stack.getItem()) instanceof ShulkerBoxBlock)) return;
-            CompoundTag tag = BlockItem.getBlockEntityData(stack);
-            if (tag == null || !tag.contains("Items")) return;
-            NonNullList<ItemStack> items = NonNullList.withSize(27, ItemStack.EMPTY);
-            ContainerHelper.loadAllItems(tag, items);
             int shown = 0;
-            for (ItemStack s : items) {
-                if (s.isEmpty()) continue;
+            for (ItemStack s : Compat.shulkerContents(stack)) {
                 if (shown >= 5) {
                     lines.add(Component.literal(" ...").withStyle(ChatFormatting.DARK_GRAY));
                     break;

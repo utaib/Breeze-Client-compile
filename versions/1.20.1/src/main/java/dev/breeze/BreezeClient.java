@@ -8,7 +8,6 @@ import dev.breeze.net.BreezePresence;
 import dev.breeze.ui.Theme;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.ChatFormatting;
@@ -73,7 +72,7 @@ public class BreezeClient implements ClientModInitializer {
         HudRenderCallback.EVENT.register((g, partialTick) -> ModuleManager.renderAll(g, partialTick));
         WorldRenderEvents.AFTER_ENTITIES.register(ModuleManager::renderWorldAll);
 
-        ItemTooltipCallback.EVENT.register((stack, flag, lines) -> {
+        dev.breeze.compat.Compat.registerTooltips((stack, lines) -> {
             ShulkerTooltips.appendTo(stack, lines);
             if (!Tooltips.active() || stack == null || stack.isEmpty()) return;
             try {

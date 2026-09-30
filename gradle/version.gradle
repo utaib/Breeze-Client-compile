@@ -231,3 +231,62 @@ tasks.register('printApi') {
         proc.waitFor()
     }
 }
+
+// The same for every class in scripts/ci/api-classes.txt (what Breeze uses,
+// and where it moved to in later versions), into build/api.txt. A class this
+// version lacks is listed with the classes of the same simple name it has, and
+// the file ends with every class in the packages Breeze draws and hooks with,
+// which is where renames show.
+tasks.register('dumpApi') {
+    description = 'Writes build/api.txt: the signatures Breeze uses on this version.'
+    def classpath = configurations.compileClasspath
+    def listFile = rootProject.file('scripts/ci/api-classes.txt')
+    def out = layout.buildDirectory.file('api.txt').get().asFile
+    def javap = new File(System.getProperty('java.home'), 'bin/javap').absolutePath
+    doLast {
+        def all = new TreeSet<String>()
+        classpath.files.findAll { it.name.endsWith('.jar') }.each { f ->
+            new java.util.zip.ZipFile(f).withCloseable { z ->
+                z.entries().each { e ->
+                    if (e.name.endsWith('.class') && !e.name.startsWith('META-INF')) {
+                        all << e.name[0..-7].replace('/', '.')
+                    }
+                }
+            }
+        }
+        def simple = { String n -> n.substring(n.lastIndexOf('.') + 1) }
+        def bySimple = all.groupBy { simple(it) }
+        def entries = listFile.readLines().collect { it.trim() }.findAll { it && !it.startsWith('#') }
+        out.parentFile.mkdirs()
+        out.withWriter('UTF-8') { w ->
+            w << "== api of minecraft ${mc}\n"
+            def present = [], privateToo = []
+            entries.each { line ->
+                def priv = line.startsWith('p ')
+                def name = priv ? line.substring(2).trim() : line
+                if (all.contains(name)) {
+                    (priv ? privateToo : present) << name
+                } else {
+                    def alike = bySimple[simple(name)] ?: []
+                    w << "MISSING ${name}" << (alike ? " -> ${alike.join(', ')}" : '') << '\n'
+                }
+            }
+            [[present, '-public'], [privateToo, '-private']].each { names, level ->
+                names.collate(40).each { batch ->
+                    def proc = new ProcessBuilder([javap, level, '-cp', classpath.asPath] + batch)
+                            .redirectErrorStream(true).start()
+                    proc.inputStream.eachLine('UTF-8') { w << it << '\n' }
+                    proc.waitFor()
+                }
+            }
+            w << "== classes\n"
+            def packages = ['net.minecraft.client.gui.', 'net.minecraft.client.renderer.', 'net.minecraft.client.input.',
+                            'net.minecraft.resources.', 'net.minecraft.client.resources.', 'com.mojang.blaze3d.',
+                            'net.fabricmc.fabric.api.client.rendering.', 'net.fabricmc.fabric.api.client.item.',
+                            'net.fabricmc.fabric.api.client.keybinding.']
+            all.findAll { n -> !n.contains('$') && packages.any { n.startsWith(it) } && !n.contains('.impl.') }
+                    .each { w << it << '\n' }
+        }
+        println "wrote ${out} (${out.length()} bytes)"
+    }
+}

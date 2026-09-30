@@ -22,8 +22,9 @@ import java.util.List;
 import java.util.function.BiConsumer;
 
 /**
- * Minecraft calls whose shape differs between versions: this is the 1.20.1
- * form, and a version whose Minecraft differs has its own copy of this file
+ * Minecraft calls whose shape differs between versions: this is the 1.20.2
+ * form (see versions/1.20.1 for the base), and a version whose Minecraft
+ * differs has its own copy of this file
  * in its versions/ folder (see gradle/version.gradle, "Sources"). The rest of
  * the mod calls these instead of Minecraft directly, so a Minecraft change
  * means one small file per version rather than every caller.
@@ -37,14 +38,14 @@ public final class Compat {
 
     private Compat() {}
 
-    /** Tear down the current level before connecting elsewhere. */
+    /** Tear down the current level before connecting elsewhere. 1.20.2: disconnect. */
     public static void clearLevel(Minecraft mc) {
-        mc.clearLevel();
+        mc.disconnect();
     }
 
-    /** A ServerData for a direct connect. 1.20.1: (name, ip, lan). */
+    /** A ServerData for a direct connect. 1.20.2: (name, ip, Type). */
     public static ServerData serverData(String name, String address) {
-        return new ServerData(name, address, false);
+        return new ServerData(name, address, ServerData.Type.OTHER);
     }
 
     /** Connect to a server the player chose, returning to parent on failure. */
@@ -53,14 +54,22 @@ public final class Compat {
     }
 
     /**
-     * Draw the player model in a preview box, centred on (cx, cy).
-     * 1.20.1: (GuiGraphics, x, y, scale, lookX, lookY, LivingEntity).
+     * Draw the player model standing on (cx, cy), looking along (lookX, lookY)
+     * as 1.20.1's call took it. 1.20.2 takes a box around the model and the
+     * mouse position instead, so both are derived: the box from the model's
+     * proportions at this scale (vanilla's inventory box is 49 by 70 at scale
+     * 30), and the mouse from the eye height 1.20.1 measured the look from.
      */
     public static void renderPlayerPreview(GuiGraphics g, int cx, int cy, int size,
                                            float lookX, float lookY, LivingEntity e) {
         if (g == null || e == null) return;
         try {
-            InventoryScreen.renderEntityInInventoryFollowsMouse(g, cx, cy, size, lookX, lookY, e);
+            int halfW = Math.round(size * 0.82f);
+            int x1 = cx - halfW, x2 = cx + halfW;
+            int y1 = cy - Math.round(size * 2.33f), y2 = cy;
+            float mouseX = cx - lookX;
+            float mouseY = cy - size * 1.67f - lookY;
+            InventoryScreen.renderEntityInInventoryFollowsMouse(g, x1, y1, x2, y2, size, 0.0625f, mouseX, mouseY, e);
         } catch (Throwable ignored) {
             // A missing preview is cosmetic; never let it break the screen.
         }
@@ -89,6 +98,6 @@ public final class Compat {
 
     /** For a debug readout. */
     public static String status() {
-        return "direct calls (1.20.1)";
+        return "direct calls (1.20.2)";
     }
 }

@@ -21,7 +21,7 @@ public class HorseStatsHud extends AbstractHudModule {
         Entity vehicle = mc.player.getVehicle();
         if (!(vehicle instanceof AbstractHorse horse)) return;
         double speed = horse.getAttributeValue(Attributes.MOVEMENT_SPEED) * 43.17;
-        double jump = jumpToBlocks(horse.getCustomJump());
+        double jump = jumpToBlocks(dev.breeze.compat.Compat.horseJumpStrength(horse));
         line(g, font, "Speed: " + Fmt.d2(speed) + " m/s");
         line(g, font, "Jump: " + Fmt.d2(jump) + " blk");
         line(g, font, String.format("HP: %.0f/%.0f", horse.getHealth(), horse.getMaxHealth()));

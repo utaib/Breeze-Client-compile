@@ -28,7 +28,6 @@ import net.fabricmc.loader.api.metadata.Person;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.ConnectScreen;
 import net.minecraft.client.gui.screens.OptionsScreen;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.TitleScreen;
@@ -36,7 +35,6 @@ import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.worldselection.SelectWorldScreen;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.multiplayer.ServerData;
-import net.minecraft.client.multiplayer.resolver.ServerAddress;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -133,7 +131,7 @@ final class Handlers {
             // Only the server the player really joined last: the page cannot
             // send the game anywhere the player has not chosen to go.
             if (last == null || !address.equals(last.ip)) throw BridgeException.forbidden("That is not a server you have joined.");
-            screen.afterAnswer(() -> ConnectScreen.startConnecting(screen, mc, ServerAddress.parseString(last.ip), last, false));
+            screen.afterAnswer(() -> dev.breeze.compat.Compat.connect(screen, mc, last.ip, last));
             return Router.ok();
         });
         on(r, "game.options", p -> {

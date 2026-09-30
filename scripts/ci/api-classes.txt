@@ -1,0 +1,214 @@
+# Classes whose signatures scripts/ci/dump-api prints for each version (javap
+# -public; lines starting with 'p ' also print private members, for mixin
+# targets). A class missing from a version is reported with the classes of
+# the same simple name that do exist there.
+com.mojang.blaze3d.platform.GlStateManager
+com.mojang.blaze3d.platform.InputConstants
+com.mojang.blaze3d.platform.NativeImage
+com.mojang.blaze3d.platform.Window
+com.mojang.blaze3d.systems.RenderSystem
+com.mojang.blaze3d.vertex.BufferBuilder
+com.mojang.blaze3d.vertex.DefaultVertexFormat
+com.mojang.blaze3d.vertex.PoseStack
+com.mojang.blaze3d.vertex.Tesselator
+com.mojang.blaze3d.vertex.VertexConsumer
+com.mojang.blaze3d.vertex.VertexFormat
+com.mojang.math.Axis
+net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
+net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback
+net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper
+net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback
+net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext
+net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents
+net.minecraft.ChatFormatting
+net.minecraft.SharedConstants
+net.minecraft.Util
+net.minecraft.client.Camera
+net.minecraft.client.CameraType
+net.minecraft.client.KeyMapping
+net.minecraft.client.Minecraft
+net.minecraft.client.MouseHandler
+net.minecraft.client.OptionInstance
+net.minecraft.client.Screenshot
+net.minecraft.client.gui.Font
+net.minecraft.client.gui.Gui
+net.minecraft.client.gui.GuiGraphics
+net.minecraft.client.gui.components.AbstractButton
+net.minecraft.client.gui.components.AbstractWidget
+net.minecraft.client.gui.components.BossHealthOverlay
+net.minecraft.client.gui.components.Button
+net.minecraft.client.gui.components.ChatComponent
+net.minecraft.client.gui.components.EditBox
+net.minecraft.client.gui.components.ImageButton
+net.minecraft.client.gui.components.PlayerTabOverlay
+net.minecraft.client.gui.components.events.GuiEventListener
+net.minecraft.client.gui.components.toasts.AdvancementToast
+net.minecraft.client.gui.components.toasts.Toast
+net.minecraft.client.gui.components.toasts.ToastComponent
+net.minecraft.client.gui.screens.ConnectScreen
+net.minecraft.client.gui.screens.OptionsScreen
+net.minecraft.client.gui.screens.PauseScreen
+net.minecraft.client.gui.screens.Screen
+net.minecraft.client.gui.screens.TitleScreen
+net.minecraft.client.gui.screens.inventory.InventoryScreen
+net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen
+net.minecraft.client.gui.screens.worldselection.CreateWorldScreen
+net.minecraft.client.gui.screens.worldselection.SelectWorldScreen
+net.minecraft.client.multiplayer.ClientLevel
+net.minecraft.client.multiplayer.ClientPacketListener
+net.minecraft.client.multiplayer.MultiPlayerGameMode
+net.minecraft.client.multiplayer.PlayerInfo
+net.minecraft.client.multiplayer.ServerData
+net.minecraft.client.multiplayer.resolver.ServerAddress
+net.minecraft.client.player.AbstractClientPlayer
+net.minecraft.client.player.LocalPlayer
+net.minecraft.client.renderer.GameRenderer
+net.minecraft.client.renderer.ItemInHandRenderer
+net.minecraft.client.renderer.LevelRenderer
+net.minecraft.client.renderer.LightTexture
+net.minecraft.client.renderer.MultiBufferSource
+net.minecraft.client.renderer.PanoramaRenderer
+net.minecraft.client.renderer.RenderType
+net.minecraft.client.renderer.ScreenEffectRenderer
+net.minecraft.client.renderer.entity.EntityRenderer
+net.minecraft.client.renderer.entity.ItemEntityRenderer
+net.minecraft.client.renderer.entity.layers.CapeLayer
+net.minecraft.client.renderer.texture.DynamicTexture
+net.minecraft.client.resources.sounds.SoundInstance
+net.minecraft.client.server.IntegratedServer
+net.minecraft.client.sounds.SoundEngine
+net.minecraft.core.BlockPos
+net.minecraft.core.Direction
+net.minecraft.core.NonNullList
+net.minecraft.core.registries.BuiltInRegistries
+net.minecraft.nbt.CompoundTag
+net.minecraft.network.chat.Component
+net.minecraft.network.chat.TextColor
+net.minecraft.network.protocol.game.ClientboundSetTimePacket
+net.minecraft.resources.ResourceLocation
+net.minecraft.util.HttpUtil
+net.minecraft.util.Mth
+net.minecraft.world.ContainerHelper
+net.minecraft.world.effect.MobEffectInstance
+net.minecraft.world.entity.Entity
+net.minecraft.world.entity.EquipmentSlot
+net.minecraft.world.entity.LivingEntity
+net.minecraft.world.entity.Mob
+net.minecraft.world.entity.ai.attributes.Attributes
+net.minecraft.world.entity.animal.horse.AbstractHorse
+net.minecraft.world.entity.item.ItemEntity
+net.minecraft.world.entity.item.PrimedTnt
+net.minecraft.world.entity.player.Player
+net.minecraft.world.entity.player.PlayerModelPart
+net.minecraft.world.item.BlockItem
+net.minecraft.world.item.Item
+net.minecraft.world.item.ItemDisplayContext
+net.minecraft.world.item.ItemStack
+net.minecraft.world.item.Items
+net.minecraft.world.level.GameType
+net.minecraft.world.level.Level
+net.minecraft.world.level.LightLayer
+net.minecraft.world.level.block.Block
+net.minecraft.world.level.block.ShulkerBoxBlock
+net.minecraft.world.level.block.state.BlockState
+net.minecraft.world.level.storage.LevelResource
+net.minecraft.world.phys.AABB
+net.minecraft.world.phys.BlockHitResult
+net.minecraft.world.phys.HitResult
+net.minecraft.world.phys.Vec3
+net.minecraft.world.scores.Objective
+org.joml.Matrix4f
+net.minecraft.client.DeltaTracker
+net.minecraft.client.input.MouseButtonEvent
+net.minecraft.client.input.MouseButtonInfo
+net.minecraft.client.input.KeyEvent
+net.minecraft.client.input.CharacterEvent
+net.minecraft.client.input.InputWithModifiers
+net.minecraft.client.KeyMapping$Category
+net.minecraft.client.renderer.RenderPipelines
+com.mojang.blaze3d.pipeline.RenderPipeline
+net.minecraft.client.gui.components.toasts.ToastManager
+net.minecraft.core.component.DataComponents
+net.minecraft.world.item.component.ItemContainerContents
+net.minecraft.world.item.component.CustomData
+net.minecraft.world.item.TooltipFlag
+net.minecraft.world.item.Item$TooltipContext
+net.minecraft.client.gui.screens.options.OptionsScreen
+net.minecraft.resources.Identifier
+net.minecraft.util.Util
+net.minecraft.client.resources.PlayerSkin
+net.minecraft.world.entity.player.PlayerSkin
+net.minecraft.client.multiplayer.TransferState
+net.minecraft.client.multiplayer.ServerData$Type
+net.minecraft.client.renderer.entity.state.EntityRenderState
+net.minecraft.client.renderer.entity.state.PlayerRenderState
+net.minecraft.client.renderer.entity.state.AvatarRenderState
+net.minecraft.client.renderer.entity.state.ItemEntityRenderState
+net.minecraft.client.renderer.entity.state.LivingEntityRenderState
+net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderEvents
+net.fabricmc.fabric.api.client.rendering.v1.world.WorldRenderContext
+net.fabricmc.fabric.api.client.rendering.v1.world.WorldTerrainRenderContext
+net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry
+net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement
+net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements
+net.fabricmc.fabric.api.client.rendering.v1.HudLayerRegistrationCallback
+com.mojang.blaze3d.vertex.ByteBufferBuilder
+com.mojang.blaze3d.vertex.MeshData
+com.mojang.blaze3d.vertex.BufferUploader
+net.minecraft.client.renderer.CoreShaders
+net.minecraft.client.renderer.ShapeRenderer
+net.minecraft.client.renderer.SubmitNodeCollector
+net.minecraft.client.renderer.state.LevelRenderState
+net.minecraft.client.renderer.state.CameraRenderState
+net.minecraft.world.level.storage.ValueInput
+net.minecraft.world.level.storage.TagValueInput
+net.minecraft.util.ProblemReporter
+org.joml.Matrix3x2fStack
+org.joml.Matrix3x2f
+net.minecraft.client.gui.render.TextureSetup
+net.minecraft.client.gui.navigation.ScreenRectangle
+net.minecraft.client.renderer.texture.AbstractTexture
+net.minecraft.client.renderer.texture.TextureManager
+com.mojang.blaze3d.textures.GpuTexture
+com.mojang.blaze3d.systems.GpuDevice
+com.mojang.blaze3d.buffers.GpuBuffer
+net.minecraft.client.gui.components.Tooltip
+net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent
+net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner
+net.minecraft.client.renderer.entity.player.PlayerRenderer
+net.minecraft.client.renderer.entity.player.AvatarRenderer
+net.minecraft.client.renderer.entity.LivingEntityRenderer
+net.minecraft.client.renderer.entity.EntityRenderDispatcher
+net.minecraft.client.renderer.entity.ItemRenderer
+net.minecraft.client.renderer.item.ItemStackRenderState
+net.minecraft.client.gui.components.PlayerFaceRenderer
+net.minecraft.client.Options
+net.minecraft.world.entity.animal.equine.AbstractHorse
+net.minecraft.world.entity.EntityAttachment
+com.mojang.authlib.GameProfile
+p net.minecraft.client.gui.components.AbstractButton
+p net.minecraft.client.player.AbstractClientPlayer
+p net.minecraft.client.gui.components.BossHealthOverlay
+p net.minecraft.client.renderer.entity.layers.CapeLayer
+p net.minecraft.client.gui.components.ChatComponent
+p net.minecraft.client.multiplayer.ClientPacketListener
+p net.minecraft.world.entity.Entity
+p net.minecraft.client.renderer.entity.EntityRenderer
+p net.minecraft.client.renderer.GameRenderer
+p net.minecraft.client.gui.Gui
+p net.minecraft.client.renderer.entity.ItemEntityRenderer
+p net.minecraft.client.renderer.ItemInHandRenderer
+p net.minecraft.client.renderer.LightTexture
+p net.minecraft.client.player.LocalPlayer
+p net.minecraft.client.Minecraft
+p net.minecraft.client.MouseHandler
+p net.minecraft.client.multiplayer.MultiPlayerGameMode
+p net.minecraft.client.renderer.PanoramaRenderer
+p net.minecraft.client.gui.screens.PauseScreen
+p net.minecraft.client.gui.components.PlayerTabOverlay
+p net.minecraft.client.gui.screens.Screen
+p net.minecraft.client.renderer.ScreenEffectRenderer
+p net.minecraft.client.sounds.SoundEngine
+p net.minecraft.client.gui.screens.TitleScreen
+p net.minecraft.client.gui.components.toasts.ToastComponent
+p com.mojang.blaze3d.platform.Window

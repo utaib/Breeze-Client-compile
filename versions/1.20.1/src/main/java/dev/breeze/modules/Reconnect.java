@@ -4,10 +4,9 @@ import dev.breeze.Category;
 import dev.breeze.LastServer;
 import dev.breeze.Module;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.ConnectScreen;
+import dev.breeze.compat.Compat;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.multiplayer.ServerData;
-import net.minecraft.client.multiplayer.resolver.ServerAddress;
 
 public class Reconnect extends Module {
 
@@ -21,8 +20,7 @@ public class Reconnect extends Module {
             Minecraft mc = Minecraft.getInstance();
             ServerData last = LastServer.get();
             if (last != null) {
-                ServerAddress address = ServerAddress.parseString(last.ip);
-                ConnectScreen.startConnecting(new TitleScreen(), mc, address, last, false);
+                Compat.connect(new TitleScreen(), mc, last.ip, last);
             }
         } catch (Throwable ignored) {}
         setStateSilently(false);
