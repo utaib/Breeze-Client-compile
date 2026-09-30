@@ -6,6 +6,9 @@
 //   minecraft_version   the Minecraft release this jar is built against
 //   loader_version      Fabric Loader used to build and run it
 //   fabric_api_version  Fabric API build for this Minecraft version
+//   fabric_api_id       Fabric API's mod id in that build: "fabric" up to
+//                       1.19.1 (except 1.18.2's late builds), "fabric-api"
+//                       after; the default is "fabric-api"
 //   java_release        bytecode level Minecraft's own Java can load
 //   minecraft_range     what fabric.mod.json declares (the version itself)
 //   loader_min          the oldest Fabric Loader the jar accepts
@@ -192,6 +195,7 @@ processResources {
             'loader_min'     : project.loader_min,
             'java_release'   : project.java_release,
             'mixin_java'     : project.mixin_java,
+            'fabric_api_id'  : project.findProperty('fabric_api_id') ?: 'fabric-api',
     ]
     inputs.properties props
     filesMatching(['fabric.mod.json', 'breeze.mixins.json']) {
