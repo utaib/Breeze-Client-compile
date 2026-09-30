@@ -18,6 +18,11 @@ public final class Profiles {
         return profile.getName();
     }
 
+    /** The signed-in player's own id. */
+    public static UUID self(net.minecraft.client.Minecraft mc) {
+        return mc.getUser().getProfileId();
+    }
+
     public static UUID id(GameProfile profile) {
         return profile.getId();
     }

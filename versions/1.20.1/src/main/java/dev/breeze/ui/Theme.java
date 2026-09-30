@@ -5,7 +5,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import dev.breeze.BreezeClient;
 import net.minecraft.client.Minecraft;
 
@@ -119,7 +118,7 @@ public final class Theme {
         try {
             Path p = path();
             if (!Files.exists(p)) return;
-            JsonObject root = JsonParser.parseString(Files.readString(p)).getAsJsonObject();
+            JsonObject root = dev.breeze.Json.parse(Files.readString(p)).getAsJsonObject();
             if (root.has("primary")) primary = root.get("primary").getAsInt();
             if (root.has("secondary")) secondary = root.get("secondary").getAsInt();
             if (root.has("bgAlpha")) bgAlpha = root.get("bgAlpha").getAsInt();

@@ -3,7 +3,6 @@ package dev.breeze.ui;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import dev.breeze.BreezeClient;
 import net.minecraft.client.Minecraft;
 
@@ -44,9 +43,9 @@ public final class HudLayout {
         try {
             Path p = path();
             if (!Files.exists(p)) return;
-            JsonObject root = JsonParser.parseString(Files.readString(p)).getAsJsonObject();
+            JsonObject root = dev.breeze.Json.parse(Files.readString(p)).getAsJsonObject();
             POS.clear();
-            for (String key : root.keySet()) {
+            for (String key : dev.breeze.Json.keys(root)) {
                 JsonObject o = root.getAsJsonObject(key);
                 POS.put(key, new int[]{o.get("x").getAsInt(), o.get("y").getAsInt()});
             }

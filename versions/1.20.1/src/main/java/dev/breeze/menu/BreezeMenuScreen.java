@@ -70,7 +70,7 @@ public class BreezeMenuScreen extends BreezeScreen {
 
         String prev = search != null ? search.getValue() : "";
         search = new EditBox(this.font, mainX + mainW - 154, mainY + 11, 138, 16, Component.literal("Search"));
-        search.setHint(Component.literal("Search"));
+        dev.breeze.compat.Widgets.hint(search, Component.literal("Search"));
         search.setBordered(false);
         search.setValue(prev);
         search.setResponder(s -> scroll = 0);

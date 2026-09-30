@@ -3,7 +3,6 @@ package dev.breeze.web;
 import dev.breeze.Log;
 
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -111,7 +110,7 @@ public final class SkinLookup {
                         FAILED_AT.put(id, System.currentTimeMillis());
                         return;
                     }
-                    JsonObject root = JsonParser.parseString(res.body()).getAsJsonObject();
+                    JsonObject root = dev.breeze.Json.parse(res.body()).getAsJsonObject();
                     Info info = parse(root);
                     if (info != null) {
                         CACHE.put(id, info);
@@ -144,7 +143,7 @@ public final class SkinLookup {
                 if (!"textures".equals(prop.get("name").getAsString())) continue;
                 String decoded = new String(Base64.getDecoder().decode(prop.get("value").getAsString()),
                         java.nio.charset.StandardCharsets.UTF_8);
-                JsonObject tex = JsonParser.parseString(decoded).getAsJsonObject();
+                JsonObject tex = dev.breeze.Json.parse(decoded).getAsJsonObject();
 
                 String skin = null;
                 String cape = null;

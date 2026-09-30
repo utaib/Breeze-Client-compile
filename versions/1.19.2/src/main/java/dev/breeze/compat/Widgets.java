@@ -19,6 +19,10 @@ public final class Widgets {
         return new Button(x, y, w, h, label, onPress);
     }
 
+    /** Grey text an empty field shows: fields have none before 1.19.3, so nothing. */
+    public static void hint(net.minecraft.client.gui.components.EditBox box, Component hint) {
+    }
+
     public static int x(AbstractWidget w) {
         return w.x;
     }

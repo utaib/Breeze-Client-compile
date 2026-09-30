@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import dev.breeze.Log;
 import dev.breeze.bridge.BridgeException;
@@ -66,7 +65,7 @@ public final class UiSettings {
     public static UiSettings fromJson(JsonObject o) {
         UiSettings s = new UiSettings();
         if (o == null) return s;
-        for (String key : o.keySet()) {
+        for (String key : dev.breeze.Json.keys(o)) {
             try {
                 s.set(key, o.get(key));
             } catch (BridgeException | IllegalStateException | UnsupportedOperationException ignored) {
@@ -133,7 +132,7 @@ public final class UiSettings {
     public static UiSettings load(Path file) {
         try {
             if (!Files.isRegularFile(file)) return new UiSettings();
-            JsonElement root = JsonParser.parseString(Files.readString(file, StandardCharsets.UTF_8));
+            JsonElement root = dev.breeze.Json.parse(Files.readString(file, StandardCharsets.UTF_8));
             return fromJson(root.isJsonObject() ? root.getAsJsonObject() : null);
         } catch (Exception unreadable) {
             Log.warn("[Breeze] interface settings unreadable, using defaults: {}", unreadable.toString());

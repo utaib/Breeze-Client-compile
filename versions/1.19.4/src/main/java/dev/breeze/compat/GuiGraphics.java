@@ -46,7 +46,7 @@ public final class GuiGraphics {
     }
 
     public void fillGradient(int x1, int y1, int x2, int y2, int top, int bottom) {
-        Protected.fillGradient(pose, x1, y1, x2, y2, top, bottom);
+        Protected.gradient(pose, x1, y1, x2, y2, top, bottom);
     }
 
     public void enableScissor(int x1, int y1, int x2, int y2) {
@@ -126,7 +126,7 @@ public final class GuiGraphics {
 
     /** GuiComponent's protected drawing, reached from a subclass. */
     private static final class Protected extends GuiComponent {
-        static void fillGradient(PoseStack pose, int x1, int y1, int x2, int y2, int top, int bottom) {
+        static void gradient(PoseStack pose, int x1, int y1, int x2, int y2, int top, int bottom) {
             GuiComponent.fillGradient(pose, x1, y1, x2, y2, top, bottom);
         }
     }

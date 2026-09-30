@@ -5,7 +5,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import dev.breeze.settings.Renames;
 import dev.breeze.settings.Setting;
-import com.google.gson.JsonParser;
 import dev.breeze.BreezeClient;
 import dev.breeze.Module;
 import dev.breeze.ModuleManager;
@@ -39,7 +38,7 @@ public final class BreezeConfig {
         try {
             Path p = path();
             if (!Files.exists(p)) return;
-            JsonObject root = JsonParser.parseString(Files.readString(p)).getAsJsonObject();
+            JsonObject root = dev.breeze.Json.parse(Files.readString(p)).getAsJsonObject();
             // Not an early return on a missing "modules" key. Settings live in a
             // sibling key, and returning here would silently drop all of them
             // for any config that has settings but no enabled modules.

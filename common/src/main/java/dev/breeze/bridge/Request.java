@@ -2,7 +2,6 @@ package dev.breeze.bridge;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
@@ -37,7 +36,7 @@ public final class Request {
         if (raw.getBytes(StandardCharsets.UTF_8).length > MAX_BYTES) throw bad("Request too large.");
         JsonElement root;
         try {
-            root = JsonParser.parseString(raw);
+            root = dev.breeze.Json.parse(raw);
         } catch (RuntimeException notJson) {
             throw bad("Request is not JSON.");
         }

@@ -16,15 +16,15 @@ public class NoViewBobbing extends Module {
     protected void onEnable() {
         try {
             Minecraft mc = Minecraft.getInstance();
-            previous = mc.options.bobView().get();
-            mc.options.bobView().set(false);
+            previous = dev.breeze.compat.Toggles.bobView(mc);
+            dev.breeze.compat.Toggles.setBobView(mc, false);
         } catch (Throwable ignored) {}
     }
 
     @Override
     protected void onDisable() {
         try {
-            Minecraft.getInstance().options.bobView().set(previous);
+            dev.breeze.compat.Toggles.setBobView(Minecraft.getInstance(), previous);
         } catch (Throwable ignored) {}
     }
 }

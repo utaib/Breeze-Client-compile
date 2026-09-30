@@ -16,15 +16,15 @@ public class SubtitlesToggle extends Module {
     protected void onEnable() {
         try {
             Minecraft mc = Minecraft.getInstance();
-            previous = mc.options.showSubtitles().get();
-            mc.options.showSubtitles().set(true);
+            previous = dev.breeze.compat.Toggles.subtitles(mc);
+            dev.breeze.compat.Toggles.setSubtitles(mc, true);
         } catch (Throwable ignored) {}
     }
 
     @Override
     protected void onDisable() {
         try {
-            Minecraft.getInstance().options.showSubtitles().set(previous);
+            dev.breeze.compat.Toggles.setSubtitles(Minecraft.getInstance(), previous);
         } catch (Throwable ignored) {}
     }
 }

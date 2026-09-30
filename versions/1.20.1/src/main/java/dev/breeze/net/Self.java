@@ -30,7 +30,7 @@ public final class Self {
         }
         if (launchUuid != null) return launchUuid;
         try {
-            return Minecraft.getInstance().getUser().getProfileId();
+            return dev.breeze.compat.Profiles.self(Minecraft.getInstance());
         } catch (Throwable t) {
             return null;
         }
@@ -55,7 +55,7 @@ public final class Self {
     public static UUID uuid(Minecraft mc) {
         try {
             if (mc.player != null) return mc.player.getUUID();
-            return mc.getUser().getProfileId();
+            return dev.breeze.compat.Profiles.self(mc);
         } catch (Throwable t) {
             return null;
         }

@@ -18,6 +18,11 @@ public final class Widgets {
         return Button.builder(label, onPress).bounds(x, y, w, h).build();
     }
 
+    /** Grey text an empty field shows. */
+    public static void hint(net.minecraft.client.gui.components.EditBox box, Component hint) {
+        box.setHint(hint);
+    }
+
     public static int x(AbstractWidget w) {
         return w.getX();
     }
