@@ -24,7 +24,8 @@ public class BreezeClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        LOGGER.info("[Breeze] Initializing on Minecraft 1.20.1 (obfuscated branch, Mojang mappings)");
+        LOGGER.info("[Breeze] Initializing on Minecraft {}", net.fabricmc.loader.api.FabricLoader.getInstance()
+                .getModContainer("minecraft").map(c -> c.getMetadata().getVersion().getFriendlyString()).orElse("?"));
 
         ModuleManager.init();
         // Before the player's config is applied: these are the values

@@ -1,9 +1,12 @@
 # Third-party files
 
-`versions/1.20.1/libs/mcef-fabric-2.1.6-1.20.1.jar` is MCEF 2.1.6 for Fabric
-1.20.1 by CinemaMod Group, licensed under the GNU Lesser General Public License
-v2.1. It is used only to compile against and in the development client.
+MCEF (the embedded browser), by CinemaMod Group, is licensed under the GNU
+Lesser General Public License v2.1. The build fetches it from Modrinth's Maven
+for the Minecraft versions it publishes a Fabric build for, to compile against
+and for the development client; it is never part of Breeze's jar. The
+real-install tests download the same file into `mods/`.
 Source: https://github.com/CinemaMod/mcef
 
-This repository is a temporary build mirror of the Breeze Minecraft mod and
-will be deleted once its builds are done.
+This repository is the build server for the Breeze Minecraft mod. The source
+of truth is the private Breeze repository; changes are copied here to build
+and test.

@@ -91,7 +91,7 @@ grep -hE 'Exception|ERROR|FATAL' "$OUT/minecraft-latest.log" > "$OUT/errors.txt"
 # downloading the evidence: what the harness saw, and what Breeze, MCEF and
 # the error lines in the game log said.
 echo "== harness: screens, stages and failures"
-grep -E '"event":"(start|screen|menu-open|READY_FOR_INPUT|key|FAIL|stress-result|AUTOTEST_DONE)"' "$OUT/breeze-autotest.log" 2>/dev/null | head -80
+grep -E '"event":"(start|screen|menu-open|READY_FOR_INPUT|key|FAIL|stress-result|AUTOTEST_DONE|mixin-audit|module)"' "$OUT/breeze-autotest.log" 2>/dev/null | head -80
 if [ "$MODE" = prod ]; then
   echo "== launcher (tail)"
   tail -25 "$OUT/launcher.log" 2>/dev/null

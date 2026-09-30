@@ -60,7 +60,9 @@ if [ "$chain" != "$mc" ]; then
     link=${links[$i]}
     part="$stage/link-$i"
     mkdir -p "$part"
-    git -C "$top" archive --format=tar "$commit:${prefix}versions/$link/src/main" | tar -x -C "$part"
+    if git -C "$top" cat-file -e "$commit:${prefix}versions/$link/src/main" 2>/dev/null; then
+      git -C "$top" archive --format=tar "$commit:${prefix}versions/$link/src/main" | tar -x -C "$part"
+    fi
     (cd "$part" && find . -type f | sed 's#^\./##' | LC_ALL=C sort) | while IFS= read -r f; do
       grep -qxF "$f" "$dropped" && continue
       [ -e "$merged/$f" ] && continue

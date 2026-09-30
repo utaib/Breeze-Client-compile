@@ -70,6 +70,7 @@ public final class AutoTest {
     private static int targetsDue = -1;
     private static String lastTargets = "";
     private static final Map<String, Boolean> MODULES = new HashMap<>();
+    private static boolean audited;
     private static final int CYCLES = 20;
     // A first start in a real install downloads MCEF's Chromium build before
     // the menu can open, so the wait is longer there.
@@ -138,13 +139,18 @@ public final class AutoTest {
             logTargets(mc, true);
         }
         watchModules();
+        if (!audited && mc.screen != null && mc.getOverlay() == null) {
+            audited = true;
+            auditMixins();
+        }
 
         long age = System.currentTimeMillis() - stageStart;
         switch (stage) {
             case WAIT_MENU -> {
                 if (mc.screen instanceof BreezeWebScreen) {
                     next(Stage.WAIT_PAINT, "menu-open");
-                } else if (WebInit.state() == WebInit.State.UNAVAILABLE && mc.screen instanceof TitleScreen) {
+                } else if (WebInit.state() == WebInit.State.UNAVAILABLE && mc.screen instanceof TitleScreen
+                        && mc.getOverlay() == null) {
                     // No embedded browser here: Minecraft's title screen with
                     // Breeze's buttons is the menu, and the native screens open
                     // from it.
@@ -155,7 +161,12 @@ public final class AutoTest {
                 }
             }
             case WAIT_PAINT -> {
-                if (nativeMode ? age > 2_000 : painted(mc)) {
+                // Native: the title screen has been drawn with Breeze's button
+                // on it (the loading overlay hides it until resources load).
+                boolean ready = nativeMode
+                        ? age > 1_000 && Targets.snapshot().containsKey("breeze-button")
+                        : painted(mc);
+                if (ready) {
                     shot(mc, "autotest-title-menu");
                     logTargets(mc, true);
                     stage = Stage.WAIT_DRIVER;
@@ -242,6 +253,27 @@ public final class AutoTest {
         i.addProperty("y", (int) Math.round(guiY * scale));
         i.addProperty("active", active);
         return i;
+    }
+
+    /**
+     * Applies every mixin now instead of when its target class first loads.
+     * Some targets (the local player, the network handler) only load inside a
+     * world, so a mixin that no longer fits this Minecraft version would
+     * otherwise stay hidden until a player joins one. Mixin's audit loads each
+     * remaining target; a required injection that cannot apply throws here.
+     */
+    private static void auditMixins() {
+        long start = System.currentTimeMillis();
+        try {
+            org.spongepowered.asm.mixin.MixinEnvironment.getCurrentEnvironment().audit();
+            log("mixin-audit", "ok", "true", "ms", String.valueOf(System.currentTimeMillis() - start));
+        } catch (Throwable t) {
+            Throwable root = t;
+            while (root.getCause() != null && root.getCause() != root) root = root.getCause();
+            // Recorded, not fatal here, so the rest of the run still shows what
+            // else works; the driver counts it as a failed check.
+            log("mixin-audit", "ok", "false", "error", t.toString(), "cause", root.toString());
+        }
     }
 
     /** Logs every module that changes state, whoever changed it. */

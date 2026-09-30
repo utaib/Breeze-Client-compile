@@ -61,10 +61,13 @@ if (obfuscated) {
 def chain = ((project.findProperty('source_chain') ?: project.name) as String)
         .split(',').collect { it.trim() }.findAll { it }
 chain.each { entry ->
-    if (!rootProject.file("versions/$entry/src/main").isDirectory()) {
-        throw new GradleException("source_chain of ${project.name} names versions/$entry, which has no src/main")
+    def folder = rootProject.file("versions/$entry")
+    if (!folder.isDirectory()) {
+        throw new GradleException("source_chain of ${project.name} names versions/$entry, which does not exist")
     }
 }
+// A version folder may hold no source of its own (yet): it then adds nothing.
+chain = chain.findAll { rootProject.file("versions/$it/src/main").isDirectory() || rootProject.file("versions/$it/removed.txt").isFile() }
 
 if (chain == [project.name]) {
     // Sources are this folder's own src/main, as for any Gradle project.
@@ -78,7 +81,7 @@ if (chain == [project.name]) {
         chain.reverse().each { entry ->
             def dir = rootProject.file("versions/$entry/src/main")
             def dropped = removed.collect()
-            from(dir) { exclude dropped }
+            if (dir.isDirectory()) from(dir) { exclude dropped }
             def list = rootProject.file("versions/$entry/removed.txt")
             if (list.isFile()) {
                 removed.addAll(list.readLines().collect { it.trim() }.findAll { it && !it.startsWith('#') })
@@ -199,5 +202,27 @@ loom {
                 vmArg "-Dbreeze.autotest=${project.property('breeze.autotest')}"
             }
         }
+    }
+}
+
+// ── Porting aid ────────────────────────────────────────────────────────────
+//
+// Prints the public signatures of Minecraft (or any compile classpath) classes
+// for this version, so a port can be checked against the real API instead of
+// memory:
+//   ./gradlew -Pbreeze_versions=1.21.2 :versions:1.21.2:printApi \
+//       -Pclasses=net.minecraft.client.gui.GuiGraphics,net.minecraft.client.renderer.entity.layers.CapeLayer
+tasks.register('printApi') {
+    description = 'Prints javap -public for the classes in -Pclasses (comma-separated).'
+    def classpath = configurations.compileClasspath
+    def names = (project.findProperty('classes') ?: '').toString()
+    def javap = new File(System.getProperty('java.home'), 'bin/javap').absolutePath
+    doLast {
+        def list = names.split(',').collect { it.trim() }.findAll { it }
+        if (list.isEmpty()) throw new GradleException('name classes with -Pclasses=a.B,c.D')
+        def cmd = [javap, '-public', '-cp', classpath.asPath] + list
+        def proc = new ProcessBuilder(cmd).redirectErrorStream(true).start()
+        proc.inputStream.eachLine { println it }
+        proc.waitFor()
     }
 }

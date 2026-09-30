@@ -132,6 +132,16 @@ shot 06-after-cycles 3
 # the game process then exits.
 click "Quit Game" title '^quit game$'
 
+# Every Breeze mixin was applied up front by the self-test (Mixin's audit), so a
+# mixin that does not fit this Minecraft version shows here even though its
+# target only loads inside a world.
+audit=$(grep '"event":"mixin-audit"' "$LOG" | tail -1)
+case "$audit" in
+  *'"ok":"true"'*) pass "every Breeze mixin applies on this Minecraft version" ;;
+  '') fail "the mixin audit never ran" ;;
+  *) fail "a Breeze mixin does not apply: $audit" ;;
+esac
+
 grep '"event":"FAIL"' "$LOG" | while read -r line; do fail "harness: $line"; done
 say "done: $FAILED failed check(s)"
 exit "$FAILED"
