@@ -139,10 +139,14 @@ public final class GuiGraphics {
         if (screen != null) screen.renderTooltip(pose, text, x, y);
     }
 
-    /** GuiComponent's protected drawing, reached from a subclass. */
+    /**
+     * GuiComponent's protected drawing, reached from a subclass. Up to 1.19.3
+     * the seven-argument fillGradient is an instance method; the static one
+     * takes the z level as well, 0 here as on a fresh GuiComponent.
+     */
     private static final class Protected extends GuiComponent {
         static void gradient(PoseStack pose, int x1, int y1, int x2, int y2, int top, int bottom) {
-            GuiComponent.fillGradient(pose, x1, y1, x2, y2, top, bottom);
+            GuiComponent.fillGradient(pose, x1, y1, x2, y2, top, bottom, 0);
         }
     }
 }

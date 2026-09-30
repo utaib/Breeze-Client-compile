@@ -7,6 +7,41 @@ fixes bump PATCH. `scripts/check-version.sh` keeps `gradle.properties`,
 Each entry says what was verified and how. Anything not verified is marked
 **UNVERIFIED**.
 
+## [2.7.0] - 2026-09-30 (not released)
+
+Minecraft 26.1 to 26.3, and work towards 1.17 to 1.19.4.
+
+### Added
+- Jars for 26.1, 26.1.1, 26.1.2, 26.2 and 26.3 (native menus; MCEF has no
+  build for them). 26.x draws by "extracting" into render states: Breeze
+  screens keep their render() and BreezeScreen bridges it; the HUD is a Fabric
+  HUD element; world drawing uses the level render events (submitted to the
+  frame's node collector from 26.2). Time Changer holds the world clocks
+  (26.1 moved day time to clocks).
+- Version projects for 1.17, 1.17.1, 1.18, 1.18.1, 1.18.2, 1.19, 1.19.1,
+  1.19.2, 1.19.3 and 1.19.4. Minecraft before 1.20 has no GuiGraphics, so
+  Breeze brings its own with the calls it makes, over a PoseStack; each older
+  family holds only what differs from the next newer one.
+
+### Changed
+- Small adapters so versions can differ in one place: compat/Lan (Hosting's
+  LAN publish), Links (opening a web link), Widgets (buttons, field hints,
+  widget positions), Chat (sending a chat line), Perf (frame rate), Toggles
+  (view bobbing, subtitles), Profiles.self, and ActiveScreen.hudHidden (Auto
+  Hide HUD). The calls are the same as before on 1.20 to 1.21.11.
+- common compiles against the Java 16 API, and reads JSON through
+  dev.breeze.Json, which uses only Gson 2.8.0 calls (Minecraft 1.17 ships
+  Gson 2.8.0). 83 unit tests pass.
+
+### Verified
+- Mirror run 36705618640 (source `059b3a4`, numbered 2.6.0): 1.20 to 1.21.11,
+  26.1, 26.1.1, 26.1.2 and 26.2 each passed every check in a real Fabric
+  install, including the base changes above. The 2.7.0 jars come from the
+  next full run.
+- **UNVERIFIED**: 26.3 and 1.17 to 1.19.4 until they pass in CI; in-world
+  behaviour on every version (the test does not enter a world), including the
+  26.x world drawing, Zoom on 26.x (Camera.getFov) and Item Scale on 26.3.
+
 ## [2.6.0] - 2026-09-30 (not released)
 
 Minecraft 1.20.2 to 1.21.11 get their own jars.
