@@ -26,7 +26,7 @@ public abstract class TitleButtonMixin extends AbstractWidget {
     private void breeze$style(GuiGraphics g, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
         if (!MenuBg.useBreeze()) return;
         Minecraft mc = Minecraft.getInstance();
-        if (!(mc.screen instanceof TitleScreen)) return;
+        if (!(dev.breeze.compat.ActiveScreen.get(mc) instanceof TitleScreen)) return;
         Object self = this;
         if (self instanceof ImageButton) return;
         if (getMessage().getString().isEmpty()) return;

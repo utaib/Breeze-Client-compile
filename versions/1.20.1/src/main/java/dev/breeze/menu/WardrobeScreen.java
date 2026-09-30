@@ -347,7 +347,7 @@ public class WardrobeScreen extends BreezeScreen {
 
     @Override
     public void onClose() {
-        if (this.minecraft != null) this.minecraft.setScreen(parent);
+        if (this.minecraft != null) dev.breeze.compat.ActiveScreen.set(this.minecraft, parent);
     }
 
     @Override

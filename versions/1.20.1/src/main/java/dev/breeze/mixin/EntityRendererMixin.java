@@ -49,7 +49,7 @@ public class EntityRendererMixin {
 
             poseStack.pushPose();
             poseStack.translate(0.0, entity.getBbHeight() + 0.5 + 0.28, 0.0);
-            poseStack.mulPose(mc.getEntityRenderDispatcher().cameraOrientation());
+            poseStack.mulPose(mc.gameRenderer.getMainCamera().rotation());
             poseStack.scale(-0.025f, -0.025f, 0.025f);
             Matrix4f matrix = poseStack.last().pose();
 

@@ -262,7 +262,7 @@ public class ModuleSettingsScreen extends BreezeScreen {
     @Override
     public void onClose() {
         save();
-        if (this.minecraft != null) this.minecraft.setScreen(parent);
+        if (this.minecraft != null) dev.breeze.compat.ActiveScreen.set(this.minecraft, parent);
     }
 
     @Override

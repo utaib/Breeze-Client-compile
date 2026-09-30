@@ -12,4 +12,9 @@ import net.minecraft.world.phys.Vec3;
  * Fabric or Minecraft type that changes shape.
  */
 public record WorldCtx(PoseStack pose, MultiBufferSource consumers, Vec3 cam) {
+
+    /** Whether there is anything to draw into this frame. */
+    public boolean ready() {
+        return consumers != null;
+    }
 }

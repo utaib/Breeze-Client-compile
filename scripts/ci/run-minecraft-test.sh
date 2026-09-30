@@ -64,6 +64,7 @@ else
   ./gradlew --no-daemon ":versions:$MC:runClient" -Pbreeze.autotest="$OUT" > "$OUT/runclient.log" 2>&1 &
 fi
 GAME=$!
+export BREEZE_GAME_PID=$GAME
 
 scripts/ci/drive-minecraft.sh "$OUT"
 DRIVER_EXIT=$?
@@ -96,6 +97,12 @@ if [ "$MODE" = prod ]; then
   echo "== launcher (tail)"
   tail -25 "$OUT/launcher.log" 2>/dev/null
 fi
+for report in "$RUN"/crash-reports/*.txt; do
+  [ -f "$report" ] || continue
+  cp "$report" "$OUT/"
+  echo "== crash report $(basename "$report") (head)"
+  head -60 "$report"
+done
 echo "== game log: Loader, Breeze and MCEF"
 grep -E 'Loading [0-9]+ mods|\[Breeze|MCEF|mcef' "$OUT/minecraft-latest.log" 2>/dev/null | head -60
 echo "== game log: errors"

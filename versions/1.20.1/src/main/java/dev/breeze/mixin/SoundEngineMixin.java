@@ -16,7 +16,8 @@ public class SoundEngineMixin {
     private void breeze$filter(SoundInstance sound, CallbackInfo ci) {
         if (!SoundFilter.active() || MutedSounds.isEmpty()) return;
         try {
-            if (sound != null && sound.getLocation() != null && MutedSounds.isMuted(sound.getLocation().toString())) {
+            String name = sound == null ? null : dev.breeze.compat.Ids.soundName(sound);
+            if (name != null && MutedSounds.isMuted(name)) {
                 ci.cancel();
             }
         } catch (Throwable ignored) {}

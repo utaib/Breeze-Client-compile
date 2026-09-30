@@ -4,12 +4,12 @@ import dev.breeze.BreezeClient;
 import dev.breeze.Category;
 import dev.breeze.Module;
 import net.minecraft.client.Minecraft;
-import org.lwjgl.glfw.GLFW;
+import com.mojang.blaze3d.platform.InputConstants;
 
 public class ToggleSprint extends Module {
 
     public ToggleSprint() {
-        super("Toggle Sprint", Category.UTILITY, "Always sprint.", GLFW.GLFW_KEY_V);
+        super("Toggle Sprint", Category.UTILITY, "Always sprint.", InputConstants.KEY_V);
     }
 
     @Override

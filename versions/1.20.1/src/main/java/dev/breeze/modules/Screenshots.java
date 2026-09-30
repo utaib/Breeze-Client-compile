@@ -4,12 +4,12 @@ import dev.breeze.Category;
 import dev.breeze.Module;
 import net.minecraft.client.Minecraft;
 import dev.breeze.compat.Game;
-import org.lwjgl.glfw.GLFW;
+import com.mojang.blaze3d.platform.InputConstants;
 
 public class Screenshots extends Module {
 
     public Screenshots() {
-        super("Screenshots", Category.UTILITY, "Takes a screenshot on its keybind.", GLFW.GLFW_KEY_F8);
+        super("Screenshots", Category.UTILITY, "Takes a screenshot on its keybind.", InputConstants.KEY_F8);
     }
 
     @Override

@@ -33,7 +33,7 @@ public class PlayerTabOverlayMixin {
     private void breeze$tabTag(PlayerInfo info, CallbackInfoReturnable<Component> cir) {
         try {
             if (info == null || info.getProfile() == null) return;
-            UUID id = info.getProfile().getId();
+            UUID id = dev.breeze.compat.Profiles.id(info.getProfile());
             Minecraft mc = Minecraft.getInstance();
             if (NicknameHider.active() && mc.player != null && id != null && id.equals(mc.player.getUUID())) {
                 cir.setReturnValue(Component.literal(NicknameHider.mask()));
@@ -73,7 +73,7 @@ public class PlayerTabOverlayMixin {
     private void breeze$roleIcon(GuiGraphics g, int width, int x, int y, PlayerInfo info, CallbackInfo ci) {
         try {
             if (info == null || info.getProfile() == null) return;
-            Roles.Role role = BreezeTag.role(info.getProfile().getId());
+            Roles.Role role = BreezeTag.role(dev.breeze.compat.Profiles.id(info.getProfile()));
             // Null means not a Breeze player at all. Their row stays vanilla.
             if (role == null) return;
             UiRender.windCharge(g, x + width - 22, y + 1, 9, role.color);

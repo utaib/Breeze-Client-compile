@@ -18,7 +18,7 @@ public class LootBeams extends Module {
     @Override
     protected void onWorldRender(WorldCtx ctx) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.level == null || ctx.consumers() == null) return;
+        if (mc.level == null || !ctx.ready()) return;
         for (Entity e : mc.level.entitiesForRendering()) {
             if (!(e instanceof ItemEntity)) continue;
             double x = e.getX();

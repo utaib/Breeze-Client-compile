@@ -21,7 +21,7 @@ public class BlockOverlay extends Module {
         Minecraft mc = Minecraft.getInstance();
         HitResult hr = mc.hitResult;
         if (hr == null || hr.getType() != HitResult.Type.BLOCK || !(hr instanceof BlockHitResult bhr)) return;
-        if (ctx.consumers() == null) return;
+        if (!ctx.ready()) return;
         BlockPos pos = bhr.getBlockPos();
         WorldRender.lineBox(ctx, new AABB(pos), 0.2f, 1.0f, 0.8f, 1.0f);
     }

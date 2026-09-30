@@ -121,10 +121,10 @@ public final class AutoTest {
     }
 
     private static void tick(Minecraft mc) {
-        String screen = mc.screen == null ? "none" : mc.screen.getClass().getName();
+        String screen = dev.breeze.compat.ActiveScreen.get(mc) == null ? "none" : dev.breeze.compat.ActiveScreen.get(mc).getClass().getName();
         if (!screen.equals(lastScreen)) {
             lastScreen = screen;
-            log("screen", "class", screen, "kind", kind(mc.screen),
+            log("screen", "class", screen, "kind", kind(dev.breeze.compat.ActiveScreen.get(mc)),
                     "liveBrowsers", String.valueOf(BreezeBrowser.live()));
             Targets.clear();
             targetsDue = 10;
@@ -138,7 +138,7 @@ public final class AutoTest {
             logTargets(mc, true);
         }
         watchModules();
-        if (!audited && mc.screen != null && mc.getOverlay() == null) {
+        if (!audited && dev.breeze.compat.ActiveScreen.get(mc) != null && dev.breeze.compat.ActiveScreen.overlay(mc) == null) {
             audited = true;
             auditMixins();
         }
@@ -146,10 +146,10 @@ public final class AutoTest {
         long age = System.currentTimeMillis() - stageStart;
         switch (stage) {
             case WAIT_MENU -> {
-                if (mc.screen instanceof BreezeWebScreen) {
+                if (dev.breeze.compat.ActiveScreen.get(mc) instanceof BreezeWebScreen) {
                     next(Stage.WAIT_PAINT, "menu-open");
-                } else if (WebInit.state() == WebInit.State.UNAVAILABLE && mc.screen instanceof TitleScreen
-                        && mc.getOverlay() == null) {
+                } else if (WebInit.state() == WebInit.State.UNAVAILABLE && dev.breeze.compat.ActiveScreen.get(mc) instanceof TitleScreen
+                        && dev.breeze.compat.ActiveScreen.overlay(mc) == null) {
                     // No embedded browser here: Minecraft's title screen with
                     // Breeze's buttons is the menu, and the native screens open
                     // from it.
@@ -180,17 +180,17 @@ public final class AutoTest {
                 else if (age > 600_000) fail("the input driver never finished");
             }
             case STRESS_OPEN -> {
-                mc.setScreen(nativeMode ? new BreezeMenuScreen() : new BreezeWebScreen(false));
+                dev.breeze.compat.ActiveScreen.set(mc, nativeMode ? new BreezeMenuScreen() : new BreezeWebScreen(false));
                 next(Stage.STRESS_WAIT_PAINT, null);
             }
             case STRESS_WAIT_PAINT -> {
-                boolean open = nativeMode ? mc.screen instanceof BreezeMenuScreen : painted(mc);
+                boolean open = nativeMode ? dev.breeze.compat.ActiveScreen.get(mc) instanceof BreezeMenuScreen : painted(mc);
                 if (open || age > 15_000) {
                     log("cycle-open", "cycle", String.valueOf(cycle), "painted", String.valueOf(open),
                             "ms", String.valueOf(age), "liveBrowsers", String.valueOf(BreezeBrowser.live()));
                     // Leave through a vanilla screen so removed() runs exactly as
                     // it does when a player opens Options from the menu.
-                    mc.setScreen(dev.breeze.compat.Screens.options(new TitleScreen(), mc));
+                    dev.breeze.compat.ActiveScreen.set(mc, dev.breeze.compat.Screens.options(new TitleScreen(), mc));
                     next(Stage.STRESS_CLOSE, null);
                 }
             }
@@ -207,7 +207,7 @@ public final class AutoTest {
                     log("stress-result", "cycles", String.valueOf(CYCLES), "maxLiveAfterClose",
                             String.valueOf(maxLiveAfterClose), "heapMb", String.valueOf(heapMb()),
                             "pass", String.valueOf(maxLiveAfterClose == 0));
-                    mc.setScreen(nativeMode ? new TitleScreen() : new BreezeWebScreen(false));
+                    dev.breeze.compat.ActiveScreen.set(mc, nativeMode ? new TitleScreen() : new BreezeWebScreen(false));
                     next(Stage.DONE, "AUTOTEST_DONE");
                 }
             }
@@ -224,8 +224,8 @@ public final class AutoTest {
     private static void logTargets(Minecraft mc, boolean force) {
         double scale = mc.getWindow().getGuiScale();
         JsonArray items = new JsonArray();
-        if (mc.screen != null) {
-            for (GuiEventListener child : mc.screen.children()) {
+        if (dev.breeze.compat.ActiveScreen.get(mc) != null) {
+            for (GuiEventListener child : dev.breeze.compat.ActiveScreen.get(mc).children()) {
                 if (!(child instanceof AbstractWidget w) || !w.visible) continue;
                 items.add(item(w.getMessage().getString(), "widget",
                         w.getX() + w.getWidth() / 2, w.getY() + w.getHeight() / 2, scale, w.active));
@@ -235,7 +235,7 @@ public final class AutoTest {
             items.add(item(e.getKey(), "target", e.getValue()[0], e.getValue()[1], scale, true));
         }
         JsonObject o = new JsonObject();
-        o.addProperty("kind", kind(mc.screen));
+        o.addProperty("kind", kind(dev.breeze.compat.ActiveScreen.get(mc)));
         o.addProperty("scale", scale);
         o.add("items", items);
         String key = o.toString();
@@ -287,7 +287,7 @@ public final class AutoTest {
     }
 
     private static boolean painted(Minecraft mc) {
-        return mc.screen instanceof BreezeWebScreen s && s.painted();
+        return dev.breeze.compat.ActiveScreen.get(mc) instanceof BreezeWebScreen s && s.painted();
     }
 
     private static long heapMb() {

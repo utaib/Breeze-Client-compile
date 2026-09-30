@@ -1,18 +1,24 @@
 package dev.breeze.menu;
 
+import dev.breeze.compat.BreezeScreen;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
-public class KeybindSearchScreen extends Screen {
+public class KeybindSearchScreen extends BreezeScreen {
 
     private EditBox search;
 
     public KeybindSearchScreen() {
         super(Component.literal("Keybind Search"));
+    }
+
+    /** A plain list over Minecraft's own dimmed background, not a Breeze panel. */
+    @Override
+    protected boolean vanillaBackground() {
+        return true;
     }
 
     @Override

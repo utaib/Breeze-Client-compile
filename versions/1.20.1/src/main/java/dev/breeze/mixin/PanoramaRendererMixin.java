@@ -13,8 +13,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class PanoramaRendererMixin {
 
     @Inject(method = "render", at = @At("HEAD"), cancellable = true)
-    private void breeze$noPanorama(float deltaT, float alpha, CallbackInfo ci) {
-        if (MenuBg.useBreeze() && Minecraft.getInstance().screen instanceof TitleScreen) {
+    private void breeze$noPanorama(CallbackInfo ci) {
+        if (MenuBg.useBreeze() && dev.breeze.compat.ActiveScreen.get(Minecraft.getInstance()) instanceof TitleScreen) {
             ci.cancel();
         }
     }

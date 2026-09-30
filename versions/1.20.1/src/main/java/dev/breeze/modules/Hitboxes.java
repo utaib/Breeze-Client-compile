@@ -13,14 +13,14 @@ public class Hitboxes extends Module {
     @Override
     protected void onEnable() {
         try {
-            Minecraft.getInstance().getEntityRenderDispatcher().setRenderHitBoxes(true);
+            dev.breeze.compat.Debug.setHitboxes(Minecraft.getInstance(), true);
         } catch (Throwable ignored) {}
     }
 
     @Override
     protected void onDisable() {
         try {
-            Minecraft.getInstance().getEntityRenderDispatcher().setRenderHitBoxes(false);
+            dev.breeze.compat.Debug.setHitboxes(Minecraft.getInstance(), false);
         } catch (Throwable ignored) {}
     }
 }

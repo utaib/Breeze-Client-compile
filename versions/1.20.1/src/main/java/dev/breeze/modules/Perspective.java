@@ -4,12 +4,12 @@ import dev.breeze.Category;
 import dev.breeze.Module;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
-import org.lwjgl.glfw.GLFW;
+import com.mojang.blaze3d.platform.InputConstants;
 
 public class Perspective extends Module {
 
     public Perspective() {
-        super("Perspective", Category.UTILITY, "Cycles the camera perspective.", GLFW.GLFW_KEY_P);
+        super("Perspective", Category.UTILITY, "Cycles the camera perspective.", InputConstants.KEY_P);
     }
 
     @Override

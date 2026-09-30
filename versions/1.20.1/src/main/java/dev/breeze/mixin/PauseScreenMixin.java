@@ -20,7 +20,7 @@ public abstract class PauseScreenMixin extends Screen {
 
     @Inject(method = "init", at = @At("RETURN"))
     private void breeze$buttons(CallbackInfo ci) {
-        addRenderableWidget(Button.builder(Component.literal("Friends"), b -> this.minecraft.setScreen(new FriendsScreen(this))).bounds(4, 4, 70, 20).build());
+        addRenderableWidget(Button.builder(Component.literal("Friends"), b -> dev.breeze.compat.ActiveScreen.set(this.minecraft, new FriendsScreen(this))).bounds(4, 4, 70, 20).build());
         addRenderableWidget(Button.builder(Component.literal("Breeze"), b -> dev.breeze.ui.BreezeUi.open(this.minecraft)).bounds(4, 26, 70, 20).build());
     }
 }

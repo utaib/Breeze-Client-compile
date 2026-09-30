@@ -33,6 +33,14 @@ public final class Hooks {
         HudRenderCallback.EVENT.register((g, delta) -> painter.paint(g, delta.getGameTimeDeltaPartialTick(true)));
     }
 
+    /**
+     * Whether this Minecraft's Fabric API has a world drawing event. Modules
+     * that draw in the world are only offered where it does.
+     */
+    public static boolean worldDrawing() {
+        return true;
+    }
+
     /** Draws in the world after entities, every frame a world is shown. */
     public static void world(Consumer<WorldCtx> painter) {
         WorldRenderEvents.AFTER_ENTITIES.register(ctx ->

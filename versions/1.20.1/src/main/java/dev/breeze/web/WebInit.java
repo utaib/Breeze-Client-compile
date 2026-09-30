@@ -156,8 +156,8 @@ public final class WebInit {
             return;
         }
         net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
-        if (mc.screen instanceof net.minecraft.client.gui.screens.TitleScreen && UiState.replaceTitle()) {
-            mc.setScreen(new BreezeWebScreen(false));
+        if (dev.breeze.compat.ActiveScreen.get(mc) instanceof net.minecraft.client.gui.screens.TitleScreen && UiState.replaceTitle()) {
+            dev.breeze.compat.ActiveScreen.set(mc, new BreezeWebScreen(false));
         }
     }
 

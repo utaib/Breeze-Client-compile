@@ -2,7 +2,7 @@ package dev.breeze.modules;
 
 import dev.breeze.Category;
 import dev.breeze.Module;
-import org.lwjgl.glfw.GLFW;
+import com.mojang.blaze3d.platform.InputConstants;
 
 /**
  * Lights the world fully without changing the player's brightness setting;
@@ -25,7 +25,7 @@ public class Fullbright extends Module {
     private static Fullbright instance;
 
     public Fullbright() {
-        super("Fullbright", Category.UTILITY, "Lights everything up fully, without changing your brightness setting.", GLFW.GLFW_KEY_G);
+        super("Fullbright", Category.UTILITY, "Lights everything up fully, without changing your brightness setting.", InputConstants.KEY_G);
         instance = this;
     }
 

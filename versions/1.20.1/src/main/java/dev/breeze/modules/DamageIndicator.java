@@ -51,7 +51,7 @@ public class DamageIndicator extends Module {
 
     @Override
     protected void onWorldRender(WorldCtx ctx) {
-        if (ctx.consumers() == null) return;
+        if (!ctx.ready()) return;
         long now = System.currentTimeMillis();
         for (Popup p : popups) {
             double rise = (now - p.start) / 1000.0 * 0.5;

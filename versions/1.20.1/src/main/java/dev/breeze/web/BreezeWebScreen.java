@@ -8,7 +8,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.network.chat.Component;
-import org.lwjgl.glfw.GLFW;
+import com.mojang.blaze3d.platform.InputConstants;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -86,10 +86,10 @@ public final class BreezeWebScreen extends BreezeScreen {
         BreezeClient.LOGGER.warn("[Breeze] web menu unavailable ({}); using {}", why, ingame ? "the native menu" : "Minecraft's title screen");
         Minecraft mc = Minecraft.getInstance();
         if (ingame) {
-            afterAnswer(() -> mc.setScreen(new BreezeMenuScreen()));
+            afterAnswer(() -> dev.breeze.compat.ActiveScreen.set(mc, new BreezeMenuScreen()));
         } else {
             UiState.useVanillaTitle(true);
-            afterAnswer(() -> mc.setScreen(new TitleScreen()));
+            afterAnswer(() -> dev.breeze.compat.ActiveScreen.set(mc, new TitleScreen()));
         }
     }
 
@@ -149,7 +149,7 @@ public final class BreezeWebScreen extends BreezeScreen {
     @Override
     protected boolean onKeyPressed(int key, int scanCode, int modifiers) {
         dev.breeze.devtest.AutoTest.key(key);
-        if (key == GLFW.GLFW_KEY_ESCAPE) {
+        if (key == InputConstants.KEY_ESCAPE) {
             if (browser == null) {
                 if (ingame) onClose();
                 return true;
@@ -165,14 +165,14 @@ public final class BreezeWebScreen extends BreezeScreen {
             browser.keyPressed(key, scanCode, modifiers);
             // Chromium presses a focused button on Enter's character event,
             // not its key-down, and Minecraft sends no character for Enter.
-            if (key == GLFW.GLFW_KEY_ENTER || key == GLFW.GLFW_KEY_KP_ENTER) browser.charTyped('\r', modifiers);
+            if (key == InputConstants.KEY_RETURN || key == InputConstants.KEY_NUMPADENTER) browser.charTyped('\r', modifiers);
         }
         return true;
     }
 
     @Override
     protected boolean onKeyReleased(int key, int scanCode, int modifiers) {
-        if (key != GLFW.GLFW_KEY_ESCAPE && browser != null) browser.keyReleased(key, scanCode, modifiers);
+        if (key != InputConstants.KEY_ESCAPE && browser != null) browser.keyReleased(key, scanCode, modifiers);
         return true;
     }
 
@@ -242,7 +242,7 @@ public final class BreezeWebScreen extends BreezeScreen {
     @Override
     public void onClose() {
         if (!ingame) return; // the title menu is only left by choosing something
-        Minecraft.getInstance().setScreen(null);
+        dev.breeze.compat.ActiveScreen.set(Minecraft.getInstance(), null);
     }
 
     @Override

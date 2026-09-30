@@ -57,7 +57,7 @@ public class LightLevelOverlay extends Module {
     @Override
     protected void onWorldRender(WorldCtx ctx) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.level == null || mc.player == null || ctx.consumers() == null) return;
+        if (mc.level == null || mc.player == null || !ctx.ready()) return;
         BlockPos center = mc.player.blockPosition();
         long key = center.asLong();
         long now = System.currentTimeMillis();

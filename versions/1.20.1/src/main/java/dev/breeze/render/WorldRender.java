@@ -26,7 +26,7 @@ public final class WorldRender {
         PoseStack ps = ctx.pose();
         ps.pushPose();
         ps.translate(wx - cam.x, wy - cam.y, wz - cam.z);
-        ps.mulPose(mc.getEntityRenderDispatcher().cameraOrientation());
+        ps.mulPose(mc.gameRenderer.getMainCamera().rotation());
         ps.scale(-0.025f, -0.025f, 0.025f);
         float x = -font.width(s) / 2.0f;
         font.drawInBatch(s, x, 0.0f, color, false, ps.last().pose(), ctx.consumers(), Font.DisplayMode.NORMAL, 0, 0xF000F0);
