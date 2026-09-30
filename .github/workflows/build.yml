@@ -105,6 +105,21 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
       - uses: gradle/actions/setup-gradle@v4
+      - name: Ask Google's Maven Central mirror first (Maven Central answers shared runners with 429)
+        run: |
+          mkdir -p ~/.gradle/init.d
+          cat > ~/.gradle/init.d/central-mirror.gradle <<'EOF'
+          allprojects {
+              repositories {
+                  maven { url 'https://maven-central.storage-download.googleapis.com/maven2/' }
+              }
+          }
+          settingsEvaluated { settings ->
+              settings.pluginManagement.repositories {
+                  maven { url 'https://maven-central.storage-download.googleapis.com/maven2/' }
+              }
+          }
+          EOF
       - name: Package and extract the source ZIP
         run: |
           scripts/package-source.sh "$MC"
@@ -118,7 +133,14 @@ jobs:
           cd "$SRC/frontend" && npm ci --silent
           cd "$SRC"
           set -o pipefail
-          ./gradlew --no-daemon :common:test ":versions:$MC:build" 2>&1 | tee "$RUNNER_TEMP/gradle.log"
+          # A download refused with 429 is retried once after a pause; nothing
+          # else is retried.
+          if ! ./gradlew --no-daemon :common:test ":versions:$MC:build" 2>&1 | tee "$RUNNER_TEMP/gradle.log"; then
+            grep -q 'status code 429' "$RUNNER_TEMP/gradle.log" || exit 1
+            echo "== Maven Central refused a download (429); retrying once in 60 s"
+            sleep 60
+            ./gradlew --no-daemon :common:test ":versions:$MC:build" 2>&1 | tee "$RUNNER_TEMP/gradle.log"
+          fi
       - name: Compile errors, one per line
         if: failure()
         run: |
