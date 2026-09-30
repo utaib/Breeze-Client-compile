@@ -38,7 +38,9 @@ import java.util.Map;
 public class HudEditorScreen extends BreezeScreen {
 
     private static final int SNAP = 4;
-    private static final int LIST_W = 110;
+    private static final int LIST_W = 120;
+    /** Where the element list starts in the panel, below the buttons. */
+    private static final int LIST_TOP = 66;
     private static final int ROW_H = 12;
 
     private final Screen parent;
@@ -56,6 +58,8 @@ public class HudEditorScreen extends BreezeScreen {
     private List<Integer> guidesY = List.of();
     private int listScroll;
 
+    private boolean panelShown = true;
+    private Button showPanel;
     private Button snapButton;
     private Button smaller;
     private Button bigger;
@@ -92,30 +96,56 @@ public class HudEditorScreen extends BreezeScreen {
 
     @Override
     protected void init() {
-        int bw = 58;
-        int gap = 4;
-        int total = bw * 5 + gap * 4;
-        int x = (this.width - LIST_W - total) / 2;
-        int y = 4;
-        addRenderableWidget(Widgets.button(Component.literal("Done"), b -> done(), x, y, bw, 16));
-        addRenderableWidget(Widgets.button(Component.literal("Cancel"), b -> cancel(), x + (bw + gap), y, bw, 16));
-        addRenderableWidget(Widgets.button(Component.literal("Arrange"), b -> arrange(), x + (bw + gap) * 2, y, bw, 16));
-        addRenderableWidget(Widgets.button(Component.literal("Reset all"), b -> resetAll(), x + (bw + gap) * 3, y, bw, 16));
+        clearHudButtons();
+        if (!panelShown) {
+            // Collapsed: one small button in the bottom-right corner.
+            showPanel = addRenderableWidget(Widgets.button(Component.literal("Panel"), b -> setPanel(true),
+                    this.width - 44, this.height - 18, 40, 14));
+            return;
+        }
+        int lx = this.width - LIST_W + 4;
+        int bw = (LIST_W - 12) / 2;
+        int bh = 14;
+        addRenderableWidget(Widgets.button(Component.literal("Done"), b -> done(), lx, 4, bw, bh));
+        addRenderableWidget(Widgets.button(Component.literal("Cancel"), b -> cancel(), lx + bw + 4, 4, bw, bh));
+        addRenderableWidget(Widgets.button(Component.literal("Arrange"), b -> arrange(), lx, 20, bw, bh));
+        addRenderableWidget(Widgets.button(Component.literal("Reset all"), b -> resetAll(), lx + bw + 4, 20, bw, bh));
         snapButton = addRenderableWidget(Widgets.button(snapLabel(), b -> {
             snap = !snap;
             b.setMessage(snapLabel());
-        }, x + (bw + gap) * 4, y, bw, 16));
+        }, lx, 36, bw, bh));
+        addRenderableWidget(Widgets.button(Component.literal("Hide"), b -> setPanel(false), lx + bw + 4, 36, bw, bh));
 
-        int by = this.height - 20;
-        int bx = (this.width - LIST_W) / 2 - 2 * (bw + gap) + gap / 2;
-        smaller = addRenderableWidget(Widgets.button(Component.literal("Smaller"), b -> scaleSelected(-10), bx, by, bw, 16));
-        bigger = addRenderableWidget(Widgets.button(Component.literal("Bigger"), b -> scaleSelected(10), bx + (bw + gap), by, bw, 16));
-        resetOne = addRenderableWidget(Widgets.button(Component.literal("Reset"), b -> resetSelected(), bx + (bw + gap) * 2, by, bw, 16));
+        int by = this.height - 36;
+        smaller = addRenderableWidget(Widgets.button(Component.literal("Smaller"), b -> scaleSelected(-10), lx, by, bw, bh));
+        bigger = addRenderableWidget(Widgets.button(Component.literal("Bigger"), b -> scaleSelected(10), lx + bw + 4, by, bw, bh));
+        resetOne = addRenderableWidget(Widgets.button(Component.literal("Reset"), b -> resetSelected(), lx, by + 16, bw, bh));
         settings = addRenderableWidget(Widgets.button(Component.literal("Settings"), b -> {
             if (selected != null && selected.hasSettings()) {
                 dev.breeze.compat.ActiveScreen.set(this.minecraft, new ModuleSettingsScreen(this, selected));
             }
-        }, bx + (bw + gap) * 3, by, bw, 16));
+        }, lx + bw + 4, by + 16, bw, bh));
+    }
+
+    /** Shows or hides the side panel; hidden, the whole screen is HUD. */
+    private void setPanel(boolean shown) {
+        panelShown = shown;
+        clearWidgets();
+        init();
+    }
+
+    private void clearHudButtons() {
+        snapButton = null;
+        smaller = null;
+        bigger = null;
+        resetOne = null;
+        settings = null;
+        showPanel = null;
+    }
+
+    /** Where the HUD can be edited: the screen, less the panel when it is shown. */
+    private int areaW() {
+        return panelShown ? this.width - LIST_W : this.width;
     }
 
     private Component snapLabel() {
@@ -147,16 +177,17 @@ public class HudEditorScreen extends BreezeScreen {
 
         int guide = Palette.alpha(Theme.primary(), 0xB0);
         for (int gx : guidesX) g.fill(gx, 0, gx + 1, this.height, guide);
-        for (int gy : guidesY) g.fill(0, gy, this.width - LIST_W, gy + 1, guide);
+        for (int gy : guidesY) g.fill(0, gy, areaW(), gy + 1, guide);
 
-        drawList(g, mouseX, mouseY);
+        if (panelShown) {
+            drawList(g, mouseX, mouseY);
+            boolean has = selected != null;
+            smaller.active = has && selected.style().scale.value > selected.style().scale.min;
+            bigger.active = has && selected.style().scale.value < selected.style().scale.max;
+            resetOne.active = has;
+            settings.active = has && selected.hasSettings();
+        }
         drawStatus(g);
-
-        boolean has = selected != null;
-        smaller.active = has && selected.style().scale.value > selected.style().scale.min;
-        bigger.active = has && selected.style().scale.value < selected.style().scale.max;
-        resetOne.active = has;
-        settings.active = has && selected.hasSettings();
 
         super.render(g, mouseX, mouseY, partialTick);
     }
@@ -172,21 +203,21 @@ public class HudEditorScreen extends BreezeScreen {
             line = "Click an element to select it. Drag to move, scroll to resize.";
         }
         int w = this.font.width(line);
-        int cx = (this.width - LIST_W) / 2;
-        g.drawString(this.font, line, cx - w / 2, this.height - 32, Palette.TEXT_PRIMARY, true);
+        int cx = areaW() / 2;
+        g.drawString(this.font, line, cx - w / 2, this.height - 12, Palette.TEXT_PRIMARY, true);
     }
 
     private void drawList(GuiGraphics g, int mouseX, int mouseY) {
         int lx = this.width - LIST_W;
         g.fill(lx, 0, this.width, this.height, Palette.alpha(Palette.BG, 0xE0));
         g.fill(lx, 0, lx + 1, this.height, Palette.BORDER_HOVER);
-        g.drawString(this.font, "HUD elements", lx + 6, 6, Palette.TEXT_PRIMARY, false);
+        g.drawString(this.font, "HUD elements", lx + 6, LIST_TOP - 12, Palette.TEXT_SECONDARY, false);
         List<AbstractHudModule> all = hudModules();
-        int top = 20;
-        int visible = (this.height - top - 4) / ROW_H;
+        int top = LIST_TOP;
+        int visible = (this.height - 40 - top) / ROW_H;
         listScroll = Math.max(0, Math.min(listScroll, Math.max(0, all.size() - visible)));
-        g.enableScissor(lx, top, this.width, this.height - 4);
-        for (int i = listScroll; i < all.size() && i - listScroll < visible + 1; i++) {
+        g.enableScissor(lx, top, this.width, top + visible * ROW_H);
+        for (int i = listScroll; i < all.size() && i - listScroll < visible; i++) {
             AbstractHudModule h = all.get(i);
             int ry = top + (i - listScroll) * ROW_H;
             boolean over = mouseX >= lx && mouseY >= ry && mouseY < ry + ROW_H;
@@ -205,7 +236,7 @@ public class HudEditorScreen extends BreezeScreen {
     protected boolean onMouseClicked(double mx, double my, int button) {
         if (superMouseClicked(mx, my, button)) return true;
         if (button != 0) return false;
-        if (mx >= this.width - LIST_W) {
+        if (panelShown && mx >= this.width - LIST_W) {
             AbstractHudModule h = listRow(my);
             if (h != null) {
                 h.toggle();
@@ -230,9 +261,11 @@ public class HudEditorScreen extends BreezeScreen {
     }
 
     private AbstractHudModule listRow(double my) {
-        int i = (int) ((my - 20) / ROW_H) + listScroll;
+        int visible = (this.height - 40 - LIST_TOP) / ROW_H;
+        if (my < LIST_TOP || my >= LIST_TOP + visible * ROW_H) return null;
+        int i = (int) ((my - LIST_TOP) / ROW_H) + listScroll;
         List<AbstractHudModule> all = hudModules();
-        return my >= 20 && i >= 0 && i < all.size() ? all.get(i) : null;
+        return i >= 0 && i < all.size() ? all.get(i) : null;
     }
 
     @Override
@@ -242,7 +275,7 @@ public class HudEditorScreen extends BreezeScreen {
         int h = dragging.getHudH();
         int nx = (int) mx - dragOffX;
         int ny = (int) my - dragOffY;
-        int areaW = this.width - LIST_W;
+        int areaW = areaW();
         if (snap) {
             HudPlacement.Snap s = HudPlacement.snap(nx, ny, w, h, areaW, this.height, othersThan(dragging), SNAP);
             nx = s.x();
@@ -270,7 +303,7 @@ public class HudEditorScreen extends BreezeScreen {
 
     @Override
     protected boolean onMouseScrolled(double mx, double my, double scrollX, double scrollY) {
-        if (mx >= this.width - LIST_W) {
+        if (panelShown && mx >= this.width - LIST_W) {
             listScroll -= (int) Math.signum(scrollY) * 2;
             return true;
         }
@@ -288,6 +321,10 @@ public class HudEditorScreen extends BreezeScreen {
     protected boolean onKeyPressed(int key, int scanCode, int modifiers) {
         if (key == InputConstants.KEY_ESCAPE || key == InputConstants.KEY_RETURN) {
             done();
+            return true;
+        }
+        if (key == InputConstants.KEY_H) {
+            setPanel(!panelShown);
             return true;
         }
         if (key == InputConstants.KEY_TAB) {
