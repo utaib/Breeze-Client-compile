@@ -24,7 +24,8 @@ game_window() { # driver-log
     for w in $(xdotool search --name '.' 2>/dev/null | head -40); do
       echo "  $w '$(xdotool getwindowname "$w" 2>/dev/null)' $(xwininfo -id "$w" 2>/dev/null | grep -E 'Map State|-geometry' | tr -s ' \n' ' ')"
     done
+    echo "[driver] window tree:"; xwininfo -root -tree 2>&1 | grep -v '^$' | head -60 | sed 's/^/  /'
     echo "[driver] managed windows:"; wmctrl -l 2>&1 | sed 's/^/  /'
-  } >> "$1"
+  } | tee -a "$1" >&2
   return 1
 }
