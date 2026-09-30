@@ -14,6 +14,7 @@ import dev.breeze.web.WebInit;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
@@ -227,8 +228,11 @@ public final class AutoTest {
         if (dev.breeze.compat.ActiveScreen.get(mc) != null) {
             for (GuiEventListener child : dev.breeze.compat.ActiveScreen.get(mc).children()) {
                 if (!(child instanceof AbstractWidget w) || !w.visible) continue;
-                items.add(item(w.getMessage().getString(), "widget",
-                        dev.breeze.compat.Widgets.x(w) + w.getWidth() / 2, dev.breeze.compat.Widgets.y(w) + w.getHeight() / 2, scale, w.active));
+                JsonObject it = item(w.getMessage().getString(), "widget",
+                        dev.breeze.compat.Widgets.x(w) + w.getWidth() / 2, dev.breeze.compat.Widgets.y(w) + w.getHeight() / 2, scale, w.active);
+                // A text field's contents, so the driver can check that typing arrived.
+                if (w instanceof EditBox box) it.addProperty("value", box.getValue());
+                items.add(it);
             }
         }
         for (Map.Entry<String, int[]> e : Targets.snapshot().entrySet()) {

@@ -97,6 +97,9 @@ shot 02-breeze-menu
 # first card switches that module, which the harness sees from the module
 # itself, not from the screen.
 click "focus search" breeze-native '^search$' && xdotool type --delay 90 'fps'
+sleep 0.5
+typed=$(fresh_targets breeze-native | jq -r '[.items[] | select(.name | test("^search$"; "i")) | .value][0] // "(no search field)"')
+if [ "$typed" = fps ]; then pass "typing reached the search field"; else fail "typing reached the search field (it holds '$typed')"; fi
 shot 03-search-typed
 b=$(count '"event":"module"')
 click "switch the first module" breeze-native '^module-card-0$' \
