@@ -37,15 +37,15 @@ Minecraft 1.20.2 to 1.21.11 get their own jars.
   (1.21.9).
 
 ### Verified
-- Mirror run 36679862098 (source `57ca1c8`, still numbered 2.5.0): each jar
-  built from its source ZIP and launched in a real Fabric install with every
-  check passing on 1.20.1, 1.20.2, 1.20.3, 1.20.4, 1.20.5, 1.20.6, 1.21,
-  1.21.1, 1.21.2, 1.21.3, 1.21.4 and 1.21.5. These jars are in
-  `Breeze Jars/`.
-- 1.21.6 to 1.21.11: **UNVERIFIED** until the next run (the startup crash
-  above stopped them in 36679862098).
-- World drawing modules are switched off on 1.21.9, where Fabric API has no
-  world render event; line width on 1.21.11 is **UNVERIFIED**.
+- Mirror run 36702996724 (source `ab5fdc2`): each of the 19 jars, 1.20 to
+  1.21.11, built from its source ZIP and launched in a real Fabric install
+  with 0 failed checks, including that every Breeze mixin applies. Web menu
+  on 1.20.1 to 1.20.4, 1.20.6 and 1.21 to 1.21.4; native menus on the rest.
+  The jars are in `Breeze Jars/` with their SHA-256.
+- The test does not enter a world, so module behaviour in a world (HUD,
+  world drawing, capes, zoom, sound filter) is **UNVERIFIED** on every
+  version. World drawing modules are switched off on 1.21.9, where Fabric
+  API has no world render event; line width on 1.21.11 is **UNVERIFIED**.
 
 ## [2.5.0] - 2026-09-30 (not released)
 
