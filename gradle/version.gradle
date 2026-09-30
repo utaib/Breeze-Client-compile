@@ -25,6 +25,10 @@ if (!plugins.hasPlugin(loomPlugin)) {
 version = rootProject.mod_version
 group = rootProject.maven_group
 
+// The jar takes common's classes (see jar below), so common is configured
+// first even when a build asks for this project alone.
+evaluationDependsOn(':common')
+
 // The sources jar exists before anything below names it.
 java {
     withSourcesJar()
