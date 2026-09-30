@@ -7,6 +7,66 @@ fixes bump PATCH. `scripts/check-version.sh` keeps `gradle.properties`,
 Each entry says what was verified and how. Anything not verified is marked
 **UNVERIFIED**.
 
+## [2.8.0] - 2026-09-30 (not released)
+
+The HUD editor to the spec, 3D cosmetics drawn on players, and an in-world
+test on every version.
+
+### Added
+- HUD editor (every version): click to select, drag with snapping to the
+  screen's edges and centre and to other elements (guide lines, Snap on or
+  off), scroll or +/- to scale, arrow keys to nudge, Delete to reset one,
+  Reset all, Arrange (stacks visible elements with no overlap), a side list
+  that switches HUD elements on and off, Settings for the selected element,
+  Done (also Escape and Enter) and Cancel, which puts everything back.
+  Overlapping elements get an amber frame. Every control sits in a side
+  panel clear of the HUD; Hide (or H) folds it to one small button.
+- HUD positions are anchored to the screen (common/HudPlacement, unit
+  tested): an element against the right edge stays there when the window
+  or GUI scale changes, and every element is kept wholly on screen.
+  Saved as {"at": ..} in config/breeze_hud.json; old {x, y} files load as
+  top-left offsets.
+- 3D cosmetics drawn on players, every version. What a player wears comes
+  from GET /cosmetics/equipped/:uuid; each GLB is downloaded once, only
+  from the Breeze API's own host over https, read off the render thread,
+  posed at the moment's animation time and placed as the launcher's
+  Wardrobe places it (head, shoulder, back, hand, feet, side, flying pet,
+  trail). Flying pets circle and bob, trails leave fading copies, side pets
+  walk while the player walks (common/GlbReader, Pose, CosmeticRig,
+  CosmeticMotion; unit tested with GLBs built in code).
+
+### Fixed
+- 26.3: entering a world crashed the game. 26.3 reads keys through SDL,
+  where "no key" is 0; Breeze's unbound keys were -1, and Minecraft asked
+  the keyboard state for index -1 when it grabbed the mouse. Unbound keys
+  are now registered as Minecraft's own unknown key.
+- Friends: Backspace and Enter in the add-friend and message fields used
+  GLFW's numbers, which 26.3 no longer uses; they now use Minecraft's
+  constants for each version.
+- Inventory HUD draws at its own position (default top right) and reports
+  its size, so the HUD editor can move it.
+
+### Test harness
+- In-world test on every version (scripts/ci/drive-world.sh, AutoTest):
+  create a singleplayer world with Minecraft's own button; switch on FPS,
+  Coordinates, CPS, Keystrokes, Direction and Inventory HUD and check each
+  drew; put a test cape image in breeze_capes, switch on Custom Cape, look
+  from behind and check Breeze's cape is the one Minecraft draws; wear a
+  GLB hat built in code and check it was drawn; drag FPS in the HUD editor
+  with the real mouse, press Done and check the move was saved; save and
+  quit to the title screen.
+
+### Verified
+- In-world test passed (world, six HUD elements drawn, cape, HUD editor
+  drag saved): 1.17, 1.19.4, 1.20.1, 1.21.4, 1.21.8, 1.21.11, 26.1 (run
+  36755606757). With the test hat as well (cosmetic drawn, 17 draws on
+  1.21.9): 1.17, 1.19.2, 1.20.1, 1.20.6, 1.21, 1.21.4, 1.21.9, 1.21.11,
+  26.1 (run 36756371829).
+- **UNVERIFIED**: the 26.3 fix until it passes in CI; how a cosmetic looks
+  (the test counts draws, it does not judge the picture); real Breeze
+  cosmetics from the API (needs a signed-in account); flying pets and
+  trails in game.
+
 ## [2.7.0] - 2026-09-30 (not released)
 
 Minecraft 26.1 to 26.3 and 1.17 to 1.19.4.
@@ -41,6 +101,9 @@ Minecraft 26.1 to 26.3 and 1.17 to 1.19.4.
 ### Fixed
 - 1.17 to 1.19.3: gradients (GuiComponent's seven-argument fillGradient is an
   instance method before 1.19.4; the static one with z = 0 is used).
+- 26.3: mouse buttons. Minecraft now passes SDL's button numbers (left 1,
+  middle 2, right 3); compat/Buttons maps them to the numbers Breeze's
+  screens and click counters use.
 
 ### Test harness
 - Fabric API comes from Modrinth, as players get it, and must bundle its
@@ -51,6 +114,7 @@ Minecraft 26.1 to 26.3 and 1.17 to 1.19.4.
   4.5 with an sRGB back buffer).
 - The drivers find the game window from xwininfo's tree (on 26.3 in CI,
   xdotool search listed no windows at all).
+- SDL_VIDEO_X11_XINPUT2=0 on 26.3 so each test click arrives once.
 
 ### Verified
 - Mirror run 36705618640 (source `059b3a4`, numbered 2.6.0): 1.20 to 1.21.11,
@@ -58,12 +122,13 @@ Minecraft 26.1 to 26.3 and 1.17 to 1.19.4.
   install, including the base changes above.
 - Real-install test passed at 2.7.0: 1.19.2, 1.19.3, 1.19.4 (run
   36739211954), 1.18.2 (run 36741374246), 1.17, 1.17.1, 1.18, 1.18.1, 1.19,
-  1.19.1 (run 36742564206). The 2.7.0 jars for Breeze Jars come from one
-  full run.
-- **UNVERIFIED**: 26.3 until it passes in CI (it reaches the Breeze menu with
-  every mixin applied); in-world
-  behaviour on every version (the test does not enter a world), including the
-  26.x world drawing, Zoom on 26.x (Camera.getFov) and Item Scale on 26.3.
+  1.19.1 (run 36742564206).
+- Full run 36753770065 (source `0e9f25e`): all 34 versions from 1.17 to
+  26.3 passed the real-install menu test. 33 of those jars are in Breeze
+  Jars; 26.3's is not, because entering a world crashes it (fixed in 2.8.0).
+- **UNVERIFIED**: in-world behaviour (the 2.7.0 test does not enter a
+  world), including the 26.x world drawing, Zoom on 26.x (Camera.getFov)
+  and Item Scale on 26.3.
 
 ## [2.6.0] - 2026-09-30 (not released)
 

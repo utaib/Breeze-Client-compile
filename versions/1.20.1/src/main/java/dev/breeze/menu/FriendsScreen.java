@@ -1,5 +1,6 @@
 package dev.breeze.menu;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import dev.breeze.compat.BreezeScreen;
 import dev.breeze.ui.Glass;
 import dev.breeze.ui.Palette;
@@ -297,12 +298,12 @@ public class FriendsScreen extends BreezeScreen {
 
     private boolean typeKey(int key) {
         if (focus == 0) return false;
-        if (key == 259) {
+        if (key == InputConstants.KEY_BACKSPACE) {
             if (focus == 1 && !addInput.isEmpty()) addInput = addInput.substring(0, addInput.length() - 1);
             if (focus == 2 && !dmInput.isEmpty()) dmInput = dmInput.substring(0, dmInput.length() - 1);
             return true;
         }
-        if (key == 257 || key == 335) {
+        if (key == InputConstants.KEY_RETURN || key == InputConstants.KEY_NUMPADENTER) {
             Minecraft mc = Minecraft.getInstance();
             if (focus == 1) doAdd(mc);
             if (focus == 2) doSend(mc);

@@ -1,5 +1,6 @@
 package dev.breeze.compat;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.KeyMapping;
 
@@ -10,6 +11,11 @@ import net.minecraft.client.KeyMapping;
  * is the 26.3 form: as 1.21.9, and a keyboard binding is made without naming
  * the input type (InputConstants.Type no longer has KEYSYM by that name). The category's label is the translation
  * key.category.breeze.breeze.
+ *
+ * 26.3 reads keys from SDL: key codes are SDL scancodes and "no key" is 0,
+ * where GLFW had -1 (Breeze's Module.KEY_NONE). A binding left at -1 is not
+ * seen as unbound, and KeyMapping.setAll (run when the mouse is grabbed, so
+ * on entering a world) asks the keyboard state for index -1 and throws.
  */
 public final class Keys {
 
@@ -19,7 +25,8 @@ public final class Keys {
 
     /** A keyboard binding named by its translation key, registered with Fabric API. */
     public static KeyMapping register(String name, int defaultKey) {
-        KeyMapping km = new KeyMapping(name, defaultKey, CATEGORY);
+        int key = defaultKey < 0 ? InputConstants.UNKNOWN.getValue() : defaultKey;
+        KeyMapping km = new KeyMapping(name, key, CATEGORY);
         return KeyBindingHelper.registerKeyBinding(km);
     }
 }
