@@ -37,8 +37,8 @@ for id in $ids; do
   java=$(jq -r '.javaVersion.majorVersion // "?"' "$tmp/v.json")
   obf=$(jq -r 'if .downloads.client_mappings then "yes" else "no" end' "$tmp/v.json")
   fabric=$(jq -r --arg id "$id" 'if any(.[]; .version==$id) then "yes" else "no" end' "$tmp/game.json")
-  inter=$(get "https://meta.fabricmc.net/v2/versions/intermediary/$id" | jq -r 'if length > 0 then "yes" else "no" end')
-  fapi=$(grep -o "<version>[^<]*+$id</version>" "$tmp/fapi.xml" | sed 's/<[^>]*>//g' | tail -1)
+  inter=$(get "https://meta.fabricmc.net/v2/versions/intermediary/$id" | jq -r 'if length > 0 then "yes" else "no" end' || echo "?")
+  fapi=$(grep -o "<version>[^<]*+$id</version>" "$tmp/fapi.xml" | sed 's/<[^>]*>//g' | tail -1 || true)
   mcef=$(jq -r --arg id "$id" '[.[] | select(.loaders | index("fabric")) | select(.game_versions | index($id)) | .version_number] | first // "-"' "$tmp/mcef.json")
   printf '%-8s %-5s %-11s %-7s %-12s %-26s %s\n' "$id" "$java" "$obf" "$fabric" "$inter" "${fapi:--}" "$mcef"
   [ "$id" = "$OLDEST" ] && break
@@ -49,10 +49,15 @@ jq -r '.[] | select(.loaders | index("fabric")) | "\(.version_number)\t\(.game_v
 
 if [ -n "${GITHUB_TOKEN:-}" ]; then
   echo "== Fabric example mod branches"
-  get -H "Authorization: Bearer $GITHUB_TOKEN" 'https://api.github.com/repos/FabricMC/fabric-example-mod/branches?per_page=100' \
-    | jq -r '.[].name' | tr '\n' ' '
-  echo
-  for branch in ${EXAMPLE_BRANCHES:-}; do
+  api=https://api.github.com/repos/FabricMC/fabric-example-mod
+  branches=$(get -H "Authorization: Bearer $GITHUB_TOKEN" "$api/branches?per_page=100" | jq -r '.[].name')
+  echo $branches
+  default=$(get -H "Authorization: Bearer $GITHUB_TOKEN" "$api" | jq -r '.default_branch')
+  echo "default branch: $default"
+  # Unless told which, show the default branch and the newest 1.21 and 1.20
+  # branches: enough to see how the build setup changed.
+  pick=${EXAMPLE_BRANCHES:-"$default $(printf '%s\n' $branches | grep -E '^1\.21' | sort -V | tail -1) $(printf '%s\n' $branches | grep -E '^1\.20' | sort -V | tail -1)"}
+  for branch in $pick; do
     for f in gradle.properties build.gradle settings.gradle gradle/wrapper/gradle-wrapper.properties; do
       echo "-- fabric-example-mod $branch: $f"
       get "https://raw.githubusercontent.com/FabricMC/fabric-example-mod/$branch/$f" || echo "(none)"
