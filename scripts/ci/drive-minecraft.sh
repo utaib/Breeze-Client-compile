@@ -84,7 +84,8 @@ if grep '"event":"READY_FOR_INPUT"' "$LOG" | tail -1 | grep -q '"mode":"native"'
   exit $?
 fi
 
-WID=$(xdotool search --onlyvisible --name 'Minecraft' | head -1)
+. "$(dirname "$0")/game-window.sh"
+WID=$(game_window "$DRIVER")
 [ -n "$WID" ] || { fail "no Minecraft window"; exit 98; }
 xdotool windowactivate --sync "$WID" 2>/dev/null || xdotool windowfocus "$WID"
 eval "$(xdotool getwindowgeometry --shell "$WID")"

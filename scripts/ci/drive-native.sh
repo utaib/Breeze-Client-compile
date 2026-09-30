@@ -52,7 +52,8 @@ where() { # targets-json pattern
     '[.items[] | select(.active) | select(.name | test($re; "i"))][0] | select(. != null) | "\(.x) \(.y)"'
 }
 
-WID=$(xdotool search --onlyvisible --name 'Minecraft' | head -1)
+. "$(dirname "$0")/game-window.sh"
+WID=$(game_window "$DRIVER")
 [ -n "$WID" ] || { fail "no Minecraft window"; exit 98; }
 xdotool windowactivate --sync "$WID" 2>/dev/null || xdotool windowfocus "$WID"
 eval "$(xdotool getwindowgeometry --shell "$WID")"
