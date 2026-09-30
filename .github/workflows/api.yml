@@ -2,7 +2,9 @@ name: API dump
 
 # For porting: the signatures of every Minecraft class Breeze uses, per
 # version (gradle/version.gradle, dumpApi; scripts/ci/api-classes.txt), printed
-# in each job's log. Nothing is built or published.
+# in each job's log, gzipped and base64-encoded between BEGIN and END lines so
+# a log reader limited to a few thousand lines gets all of it. Nothing is built
+# or published.
 on:
   workflow_dispatch:
     inputs:
@@ -41,4 +43,9 @@ jobs:
           java-version: 25
       - uses: gradle/actions/setup-gradle@v4
       - run: ./gradlew --no-daemon -q -Pbreeze_versions="${{ matrix.v.mc }}" ":versions:${{ matrix.v.mc }}:dumpApi"
-      - run: cat "versions/${{ matrix.v.mc }}/build/api.txt"
+      - run: |
+          f="versions/${{ matrix.v.mc }}/build/api.txt"
+          wc -c "$f"
+          echo "BEGIN api ${{ matrix.v.mc }}"
+          gzip -9c "$f" | base64 -w 4000
+          echo "END api ${{ matrix.v.mc }}"
