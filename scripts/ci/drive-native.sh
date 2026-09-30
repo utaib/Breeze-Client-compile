@@ -60,6 +60,14 @@ eval "$(xdotool getwindowgeometry --shell "$WID")"
 say "window $WID at ${X},${Y} size ${WIDTH}x${HEIGHT}, native menus"
 click_at() { xdotool mousemove --window "$WID" "$1" "$2"; sleep 0.25; xdotool click 1; }
 
+# The first click into a window that is not yet focused can be taken by the
+# window system as "focus this window" and never reach the game (seen on 26.3,
+# where SDL 3 opens the window: Breeze's button missed its click, every later
+# click worked). One click in the empty top-left corner first, where no
+# vanilla or Breeze control sits.
+click_at 4 4
+sleep 1
+
 # click <description> <screen kind> <pattern>: click the named control.
 click() {
   local t xy
