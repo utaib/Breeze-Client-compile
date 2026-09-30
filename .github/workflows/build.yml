@@ -171,11 +171,22 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y -qq xvfb openbox xdotool imagemagick ffmpeg mesa-utils x11-utils libnss3 libgbm1 libxkbcommon0 jq
           pipx install "portablemc<5"
-      - name: Other mods (Fabric API from Fabric's Maven, MCEF from Modrinth where it exists)
+      - name: Other mods (Fabric API and MCEF, as players download them)
         run: |
           mkdir -p "$RUNNER_TEMP/mods"
           enc=${FABRIC_API//+/%2B}
-          curl -sSfL -o "$RUNNER_TEMP/mods/fabric-api-$FABRIC_API.jar" "https://maven.fabricmc.net/net/fabricmc/fabric-api/fabric-api/$enc/fabric-api-$enc.jar"
+          api="$RUNNER_TEMP/mods/fabric-api-$FABRIC_API.jar"
+          # The jar players install bundles every Fabric API module under
+          # META-INF/jars. Fabric's Maven has served a small stub without them
+          # for some versions (0.77.0+1.18.2: 4877 bytes, so no
+          # ClientTickEvents at runtime), so Modrinth comes first.
+          bundled() { unzip -l "$1" 2>/dev/null | grep -q 'META-INF/jars/.*\.jar'; }
+          for url in "https://api.modrinth.com/maven/maven/modrinth/fabric-api/$enc/fabric-api-$enc.jar" \
+                     "https://maven.fabricmc.net/net/fabricmc/fabric-api/fabric-api/$enc/fabric-api-$enc.jar"; do
+            if curl -sSfL -o "$api" "$url" && bundled "$api"; then echo "Fabric API from $url"; break; fi
+            echo "no bundled Fabric API at $url"; rm -f "$api"
+          done
+          [ -f "$api" ] || { echo "::error::no Fabric API $FABRIC_API jar with its modules"; exit 1; }
           if [ -n "$MCEF" ]; then
             curl -sSfL -o "$RUNNER_TEMP/mods/mcef-$MCEF.jar" "https://api.modrinth.com/maven/maven/modrinth/mcef/$MCEF/mcef-$MCEF.jar"
           fi

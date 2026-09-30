@@ -22,6 +22,13 @@ MC="${BREEZE_MC:-1.20.1}"
 mkdir -p "$OUT"
 rm -f "$OUT/driver-done" "$OUT/breeze-autotest.log"
 export DISPLAY=:99
+# Minecraft 26.3 opens its window through SDL 3 and asks for an sRGB-capable
+# OpenGL framebuffer. Xvfb's GLX offers no visual with that, so SDL's GLX path
+# fails ("Couldn't find matching GLX visual"); through EGL the same software
+# renderer gives one. Only this virtual display needs it; GLFW (every version
+# before 26.3) ignores the variable.
+export SDL_VIDEO_FORCE_EGL=1
+export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-$(mktemp -d)}"
 
 Xvfb :99 -screen 0 1280x800x24 -nolisten tcp > "$OUT/xvfb.log" 2>&1 &
 XVFB=$!
