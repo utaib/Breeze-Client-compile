@@ -11,7 +11,10 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 @Mixin(ChatComponent.class)
 public class ChatComponentMixin {
 
-    @ModifyVariable(method = "addMessage(Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/MessageSignature;ILnet/minecraft/client/GuiMessageTag;Z)V", at = @At("HEAD"), argsOnly = true, ordinal = 0)
+    // The public three-argument addMessage: every new chat line passes through
+    // it (the one-argument form calls it), and it has kept this shape from
+    // 1.20.1 to 1.21.11, unlike the private form behind it.
+    @ModifyVariable(method = "addMessage(Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/MessageSignature;Lnet/minecraft/client/GuiMessageTag;)V", at = @At("HEAD"), argsOnly = true, ordinal = 0)
     private Component breeze$chatTag(Component msg) {
         try {
             if (msg == null) return msg;

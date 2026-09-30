@@ -57,6 +57,15 @@ public abstract class BreezeScreen extends Screen {
         return superCharTyped(codePoint, modifiers);
     }
 
+    /**
+     * Whether Minecraft draws its own background (panorama, dirt or blur)
+     * under this screen, where Minecraft draws one from render(): 1.20.2 and
+     * later. Breeze screens paint their own and say no.
+     */
+    protected boolean vanillaBackground() {
+        return false;
+    }
+
     /** After Minecraft has laid the screen out again for a new window size. */
     protected void onResized(int width, int height) {
     }

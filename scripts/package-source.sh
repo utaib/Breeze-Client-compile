@@ -82,7 +82,7 @@ if [ "$chain" != "$mc" ]; then
       | while read -r from to extra; do
         [ -n "$to" ] && [ -z "$extra" ] || { echo "versions/$link/renames.txt: expected 'old new'"; exit 1; }
         find "$merged" -name '*.java' -type f -print0 \
-          | FROM="$from" TO="$to" xargs -0 perl -pi -e 's/(?<![\w\$])\Q$ENV{FROM}\E(?![\w\$])/$ENV{TO}/g'
+          | FROM="$from" TO="$to" xargs -0 perl -pi -e 'my $b = substr($ENV{FROM}, 0, 1) eq "." ? "" : q{(?<![\w\$])}; s/$b\Q$ENV{FROM}\E(?![\w\$])/$ENV{TO}/g'
       done
   done
   rm -rf "$root/versions/$mc/src"

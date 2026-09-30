@@ -7,6 +7,46 @@ fixes bump PATCH. `scripts/check-version.sh` keeps `gradle.properties`,
 Each entry says what was verified and how. Anything not verified is marked
 **UNVERIFIED**.
 
+## [2.6.0] - 2026-09-30 (not released)
+
+Minecraft 1.20.2 to 1.21.11 get their own jars.
+
+### Added
+- Jars for 1.20.2, 1.20.3, 1.20.4, 1.20.5, 1.20.6, 1.21, 1.21.1, 1.21.2,
+  1.21.3, 1.21.4, 1.21.5, 1.21.6, 1.21.7, 1.21.8, 1.21.9, 1.21.10 and
+  1.21.11. The web menu where MCEF has a build (1.20.2 to 1.20.4, 1.20.6,
+  1.21 to 1.21.4), the native menus everywhere else.
+- A thin adapter layer (`dev.breeze.compat`, `dev.breeze.render`) so the
+  modules and screens keep one shape while Minecraft's screen input, drawing,
+  HUD and world render hooks, networking, item data, key mappings and
+  identifiers change between versions. Each version folder holds only the
+  adapters and mixins that differ from the one before.
+- `renames.txt` in a version folder renames classes (and, with a leading dot,
+  methods) in the merged source, for moves such as `ResourceLocation` to
+  `Identifier` in 1.21.11.
+
+### Fixed
+- 1.20.5 and later crashed at startup: the chat mixin targeted a private
+  `addMessage` whose parameters changed. It now targets the public
+  three-argument form every version has.
+- 1.21.6 and later crashed at startup: `SoundEngine.play` returns a result
+  from 1.21.6, so the Sound Filter mixin must use `CallbackInfoReturnable`.
+  A muted sound now returns `NOT_STARTED` there.
+- Renderer mixins follow render states (1.21.2), the fire overlay (1.21.4),
+  the held item (1.21.5), and submit calls, input events and title clicks
+  (1.21.9).
+
+### Verified
+- Mirror run 36679862098 (source `57ca1c8`, still numbered 2.5.0): each jar
+  built from its source ZIP and launched in a real Fabric install with every
+  check passing on 1.20.1, 1.20.2, 1.20.3, 1.20.4, 1.20.5, 1.20.6, 1.21,
+  1.21.1, 1.21.2, 1.21.3, 1.21.4 and 1.21.5. These jars are in
+  `Breeze Jars/`.
+- 1.21.6 to 1.21.11: **UNVERIFIED** until the next run (the startup crash
+  above stopped them in 36679862098).
+- World drawing modules are switched off on 1.21.9, where Fabric API has no
+  world render event; line width on 1.21.11 is **UNVERIFIED**.
+
 ## [2.5.0] - 2026-09-30 (not released)
 
 One build for every Minecraft version, and the first new version: 1.20.
@@ -39,7 +79,9 @@ One build for every Minecraft version, and the first new version: 1.20.
   sets up Minecraft for every version it configures.
 
 ### Verified
-- Pending CI.
+- Mirror run 36667483385: `1.20.jar` (native menus) and `1.20.1.jar` (web
+  menu) built from their source ZIPs and passed every check in a real Fabric
+  install.
 
 ## [2.4.1] - 2026-09-30 (not released)
 

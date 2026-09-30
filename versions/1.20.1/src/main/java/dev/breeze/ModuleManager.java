@@ -182,7 +182,13 @@ public final class ModuleManager {
         BreezeClient.LOGGER.info("[Breeze] Registered {} modules", modules.size());
     }
 
-    public static void register(Module m) { modules.add(m); }
+    public static void register(Module m) {
+        if (!dev.breeze.compat.Hooks.worldDrawing() && breeze$overrides(m, "onWorldRender")) {
+            BreezeClient.LOGGER.info("[Breeze] '{}' is not offered on this Minecraft version: its Fabric API has no world drawing event", m.getName());
+            return;
+        }
+        modules.add(m);
+    }
 
     public static List<Module> getModules() { return Collections.unmodifiableList(modules); }
 

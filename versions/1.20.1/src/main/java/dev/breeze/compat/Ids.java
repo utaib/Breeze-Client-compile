@@ -1,5 +1,7 @@
 package dev.breeze.compat;
 
+import net.minecraft.client.resources.sounds.SoundInstance;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 
 /**
@@ -24,5 +26,16 @@ public final class Ids {
     /** Everything Breeze owns lives under the "breeze" namespace. */
     public static ResourceLocation breeze(String path) {
         return of("breeze", path);
+    }
+
+    /** A registry key's id as text, such as minecraft:overworld. */
+    public static String keyName(ResourceKey<?> key) {
+        return key.location().toString();
+    }
+
+    /** The id of the sound a sound instance plays, or null. */
+    public static String soundName(SoundInstance sound) {
+        Object id = sound.getLocation();
+        return id == null ? null : id.toString();
     }
 }

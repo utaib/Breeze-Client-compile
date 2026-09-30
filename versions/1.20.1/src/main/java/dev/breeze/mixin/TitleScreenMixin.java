@@ -65,7 +65,7 @@ public abstract class TitleScreenMixin extends Screen {
                 } else if (i == 1) {
                     MenuBg.toggle();
                 } else {
-                    this.minecraft.setScreen(new dev.breeze.menu.FriendsScreen((net.minecraft.client.gui.screens.Screen) (Object) this));
+                    dev.breeze.compat.ActiveScreen.set(this.minecraft, new dev.breeze.menu.FriendsScreen((net.minecraft.client.gui.screens.Screen) (Object) this));
                 }
                 cir.setReturnValue(true);
                 return;

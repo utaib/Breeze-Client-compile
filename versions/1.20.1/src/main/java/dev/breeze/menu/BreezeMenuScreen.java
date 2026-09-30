@@ -321,7 +321,7 @@ public class BreezeMenuScreen extends BreezeScreen {
                 int cy = (int) (gridY + (i / COLS) * (CARD_H + GAP) - scroll);
                 if (!inside(mx, my, cx, cy, cardW, CARD_H)) continue;
                 Module m = list.get(i);
-                if (m.hasSettings()) this.minecraft.setScreen(new ModuleSettingsScreen(this, m));
+                if (m.hasSettings()) dev.breeze.compat.ActiveScreen.set(this.minecraft, new ModuleSettingsScreen(this, m));
                 return true;
             }
         }
@@ -334,15 +334,15 @@ public class BreezeMenuScreen extends BreezeScreen {
             // literals the hit areas drifted from what was drawn, so a click
             // near the bottom of the tab stack opened the HUD editor instead.
             if (inside(mx, my, iconX(), wardrobeIconY(), Spacing.HIT, Spacing.HIT)) {
-                this.minecraft.setScreen(new WardrobeScreen(this));
+                dev.breeze.compat.ActiveScreen.set(this.minecraft, new WardrobeScreen(this));
                 return true;
             }
             if (inside(mx, my, iconX(), hudIconY(), Spacing.HIT, Spacing.HIT)) {
-                this.minecraft.setScreen(new HudEditorScreen(this));
+                dev.breeze.compat.ActiveScreen.set(this.minecraft, new HudEditorScreen(this));
                 return true;
             }
             if (inside(mx, my, iconX(), gearIconY(), Spacing.HIT, Spacing.HIT)) {
-                this.minecraft.setScreen(new ThemeSettingsScreen(this));
+                dev.breeze.compat.ActiveScreen.set(this.minecraft, new ThemeSettingsScreen(this));
                 return true;
             }
             int th = tabH();

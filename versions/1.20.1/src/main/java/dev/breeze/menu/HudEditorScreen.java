@@ -96,7 +96,7 @@ public class HudEditorScreen extends BreezeScreen {
 
     @Override
     public void onClose() {
-        this.minecraft.setScreen(parent);
+        dev.breeze.compat.ActiveScreen.set(this.minecraft, parent);
     }
 
     @Override

@@ -12,7 +12,6 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import dev.breeze.ui.BreezeUi;
-import org.lwjgl.glfw.GLFW;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +38,7 @@ public final class KeybindManager {
             }
         }
         try {
-            menuKey = Keys.register("key.breeze.menu", GLFW.GLFW_KEY_RIGHT_SHIFT);
+            menuKey = Keys.register("key.breeze.menu", InputConstants.KEY_RSHIFT);
         } catch (Throwable t) {
             BreezeClient.LOGGER.warn("[Breeze] Could not register menu keybind: {}", t.toString());
         }

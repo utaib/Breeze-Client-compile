@@ -63,10 +63,12 @@ if (obfuscated) {
 // this version must not. versions/shared/no-browser is the chain's last link on
 // versions MCEF does not cover.
 //
-// A folder's renames.txt handles classes Minecraft only renamed or moved: each
+// A folder's renames.txt handles what Minecraft only renamed or moved: each
 // line is "old new", a class name or a qualified name, and every Java file of
 // the merged source has old replaced by new wherever it stands as a whole name
-// (so a simple name also renames it in imports). Renames apply in chain order.
+// (so a simple name also renames it in imports). A name starting with a dot
+// (".drawString .text") renames a method or field where it is called on
+// something. Renames apply in chain order.
 //
 // A version whose chain is just itself compiles its own folder directly. Any
 // other is merged into build/merged-src first; edit the files in versions/,
@@ -97,8 +99,11 @@ if (chain == [project.name]) {
             renames << parts
         }
     }
+    // A name starting with a dot is a member (.drawString): it matches only
+    // after an expression, so a mixin's target string of the same name stays.
     def patterns = renames.collect { r ->
-        [java.util.regex.Pattern.compile('(?<![\\w$])' + java.util.regex.Pattern.quote(r[0]) + '(?![\\w$])'),
+        def before = r[0].startsWith('.') ? '' : '(?<![\\w$])'
+        [java.util.regex.Pattern.compile(before + java.util.regex.Pattern.quote(r[0]) + '(?![\\w$])'),
          java.util.regex.Matcher.quoteReplacement(r[1])]
     }
     def merge = tasks.register('mergeSources', Sync) {
@@ -308,7 +313,7 @@ tasks.register('dumpApi') {
             }
             w << "== classes\n"
             def packages = ['net.minecraft.client.', 'net.minecraft.resources.', 'net.minecraft.core.', 'com.mojang.blaze3d.',
-                            'net.fabricmc.fabric.api.client.', 'org.lwjgl.glfw.']
+                            'net.fabricmc.fabric.api.client.', 'org.lwjgl.glfw.', 'net.minecraft.world.clock.']
             all.findAll { n -> !n.contains('$') && packages.any { n.startsWith(it) } && !n.contains('.impl.') }
                     .each { w << it << '\n' }
         }

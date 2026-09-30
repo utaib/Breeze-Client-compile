@@ -56,9 +56,9 @@ public final class BreezeUi {
                 // Asking for Breeze from Minecraft's own title screen means the
                 // player wants it back, so stop preferring vanilla this session.
                 if (!ingame) dev.breeze.web.UiState.useVanillaTitle(false);
-                mc.setScreen(new BreezeWebScreen(ingame));
+                dev.breeze.compat.ActiveScreen.set(mc, new BreezeWebScreen(ingame));
             } else {
-                mc.setScreen(new BreezeMenuScreen());
+                dev.breeze.compat.ActiveScreen.set(mc, new BreezeMenuScreen());
             }
         } catch (Throwable failed) {
             // Falling back rather than leaving the player with nothing. If the
@@ -66,7 +66,7 @@ public final class BreezeUi {
             // player locked out of their own settings has no way to fix it.
             BreezeClient.LOGGER.warn("[Breeze] Could not open the web menu, using the native one: {}", failed.toString());
             try {
-                mc.setScreen(new BreezeMenuScreen());
+                dev.breeze.compat.ActiveScreen.set(mc, new BreezeMenuScreen());
             } catch (Throwable alsoFailed) {
                 BreezeClient.LOGGER.error("[Breeze] Could not open any menu", alsoFailed);
             }

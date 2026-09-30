@@ -51,13 +51,18 @@ shot() {
   import -window root "$OUT/$1.png" && say "screenshot $1.png"
 }
 
-# Stops early when the harness reports a failure, rather than waiting out the
-# full timeout for a menu it has already said will not come.
+# Stops early when the harness reports a failure, or the game has exited
+# (BREEZE_GAME_PID, from run-minecraft-test.sh), rather than waiting out the
+# full timeout for a menu that will not come.
 wait_ready() { # timeout_seconds
   local i=0
   while [ "$i" -lt "$1" ]; do
     grep -q '"event":"READY_FOR_INPUT"' "$LOG" 2>/dev/null && return 0
     grep -q '"event":"FAIL"' "$LOG" 2>/dev/null && return 1
+    if [ -n "${BREEZE_GAME_PID:-}" ] && ! kill -0 "$BREEZE_GAME_PID" 2>/dev/null; then
+      say "the game exited before its menu was ready"
+      return 1
+    fi
     sleep 1; i=$((i + 1))
   done
   return 1

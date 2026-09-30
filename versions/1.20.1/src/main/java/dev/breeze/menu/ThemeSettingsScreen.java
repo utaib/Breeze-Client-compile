@@ -102,7 +102,7 @@ public class ThemeSettingsScreen extends BreezeScreen {
             sy += SLIDER_PITCH;
         }
 
-        addRenderableWidget(Button.builder(Component.literal("Done"), b -> this.minecraft.setScreen(parent))
+        addRenderableWidget(Button.builder(Component.literal("Done"), b -> dev.breeze.compat.ActiveScreen.set(this.minecraft, parent))
                 .bounds(panelX + panelW / 2 - 50, panelY + panelH - 24, 100, 18).build());
     }
 
@@ -201,7 +201,7 @@ public class ThemeSettingsScreen extends BreezeScreen {
 
     @Override
     public void onClose() {
-        this.minecraft.setScreen(parent);
+        dev.breeze.compat.ActiveScreen.set(this.minecraft, parent);
     }
 
     @Override

@@ -59,17 +59,18 @@ public abstract class BreezeScreen extends Screen {
     }
 
     /**
-     * Breeze screens paint their own backdrop. From 1.20.2 Minecraft's render()
-     * draws its background (panorama, dirt or blur) first; this keeps the look
-     * Breeze screens have on 1.20.1. A screen that wants it calls
-     * superRenderBackground.
+     * Whether Minecraft draws its own background (panorama, dirt or blur)
+     * under this screen. From 1.20.2 Minecraft's render() draws it first;
+     * Breeze screens paint their own and say no, which keeps the look they
+     * have on 1.20.1.
      */
-    @Override
-    public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
+    protected boolean vanillaBackground() {
+        return false;
     }
 
-    protected final void superRenderBackground(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
-        super.renderBackground(g, mouseX, mouseY, partialTick);
+    @Override
+    public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
+        if (vanillaBackground()) super.renderBackground(g, mouseX, mouseY, partialTick);
     }
 
     /** After Minecraft has laid the screen out again for a new window size. */

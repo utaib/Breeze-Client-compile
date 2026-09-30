@@ -92,7 +92,7 @@ final class Handlers {
         // ── ui ───────────────────────────────────────────────────────────────
         on(r, "ui.close", p -> {
             if (!ingame) throw BridgeException.forbidden("The title menu stays open. Use Quit to leave Minecraft.");
-            screen.afterAnswer(() -> mc.setScreen(null));
+            screen.afterAnswer(() -> dev.breeze.compat.ActiveScreen.set(mc, null));
             return Router.ok();
         });
         on(r, "ui.escapeAck", p -> {
@@ -108,7 +108,7 @@ final class Handlers {
         on(r, "ui.vanillaMenu", p -> {
             if (ingame) throw BridgeException.forbidden("Minecraft's title screen is only available from the title menu.");
             UiState.useVanillaTitle(true);
-            screen.afterAnswer(() -> mc.setScreen(new TitleScreen()));
+            screen.afterAnswer(() -> dev.breeze.compat.ActiveScreen.set(mc, new TitleScreen()));
             return Router.ok();
         });
 
@@ -116,12 +116,12 @@ final class Handlers {
         on(r, "game.state", p -> gameState(mc));
         on(r, "game.singleplayer", p -> {
             if (ingame) throw BridgeException.forbidden("Leave this world first.");
-            screen.afterAnswer(() -> mc.setScreen(new SelectWorldScreen(screen)));
+            screen.afterAnswer(() -> dev.breeze.compat.ActiveScreen.set(mc, new SelectWorldScreen(screen)));
             return Router.ok();
         });
         on(r, "game.multiplayer", p -> {
             if (ingame) throw BridgeException.forbidden("Leave this world first.");
-            screen.afterAnswer(() -> mc.setScreen(new JoinMultiplayerScreen(screen)));
+            screen.afterAnswer(() -> dev.breeze.compat.ActiveScreen.set(mc, new JoinMultiplayerScreen(screen)));
             return Router.ok();
         });
         on(r, "game.joinServer", p -> {
@@ -135,12 +135,12 @@ final class Handlers {
             return Router.ok();
         });
         on(r, "game.options", p -> {
-            screen.afterAnswer(() -> mc.setScreen(dev.breeze.compat.Screens.options(screen, mc)));
+            screen.afterAnswer(() -> dev.breeze.compat.ActiveScreen.set(mc, dev.breeze.compat.Screens.options(screen, mc)));
             return Router.ok();
         });
         on(r, "game.pauseMenu", p -> {
             if (!ingame || mc.level == null) throw BridgeException.forbidden("There is no game to pause.");
-            screen.afterAnswer(() -> mc.setScreen(new PauseScreen(true)));
+            screen.afterAnswer(() -> dev.breeze.compat.ActiveScreen.set(mc, new PauseScreen(true)));
             return Router.ok();
         });
         on(r, "game.quit", p -> {
@@ -186,7 +186,7 @@ final class Handlers {
             if (mc.level == null || mc.player == null) {
                 throw BridgeException.unavailable("Open a world to edit the HUD, so you can see it while you move it.");
             }
-            screen.afterAnswer(() -> mc.setScreen(new HudEditorScreen(screen)));
+            screen.afterAnswer(() -> dev.breeze.compat.ActiveScreen.set(mc, new HudEditorScreen(screen)));
             return Router.ok();
         });
 
@@ -312,7 +312,7 @@ final class Handlers {
         o.addProperty("serverName", server != null && mc.getSingleplayerServer() == null ? server.name : null);
         o.addProperty("serverAddress", server != null && mc.getSingleplayerServer() == null ? server.ip : null);
         o.addProperty("playerName", Self.name(mc));
-        o.addProperty("dimension", mc.level != null ? mc.level.dimension().location().toString() : null);
+        o.addProperty("dimension", mc.level != null ? dev.breeze.compat.Ids.keyName(mc.level.dimension()) : null);
         o.addProperty("fps", mc.getFps());
         Integer ping = null;
         if (inWorld && mc.getConnection() != null && mc.getSingleplayerServer() == null) {

@@ -209,6 +209,7 @@ p net.minecraft.client.gui.components.PlayerTabOverlay
 p net.minecraft.client.gui.screens.Screen
 p net.minecraft.client.renderer.ScreenEffectRenderer
 p net.minecraft.client.sounds.SoundEngine
+net.minecraft.client.sounds.SoundEngine$PlayResult
 p net.minecraft.client.gui.screens.TitleScreen
 p net.minecraft.client.gui.components.toasts.ToastComponent
 p com.mojang.blaze3d.platform.Window
@@ -240,3 +241,19 @@ net.minecraft.client.renderer.OrderedSubmitNodeCollector
 net.minecraft.client.gui.components.events.ContainerEventHandler
 net.minecraft.client.renderer.feature.ModelFeatureRenderer
 p net.minecraft.client.renderer.LevelRenderer
+net.minecraft.client.renderer.state.level.CameraRenderState
+net.minecraft.client.renderer.state.level.LevelRenderState
+net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$AfterSolidFeatures
+net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$AfterTranslucentFeatures
+net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$EndMain
+net.minecraft.client.renderer.SubmitNodeCollector$CustomGeometryRenderer
+net.minecraft.client.gui.components.Renderable
+p net.minecraft.client.renderer.Lightmap
+p net.minecraft.client.renderer.LightmapRenderStateExtractor
+p net.minecraft.client.renderer.Panorama
+net.minecraft.client.ClientClockManager
+net.minecraft.world.clock.ClockManager
+net.minecraft.world.clock.WorldClock
+net.minecraft.world.clock.ClockNetworkState
+net.minecraft.world.clock.WorldClocks
+net.minecraft.world.entity.Avatar
