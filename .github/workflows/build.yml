@@ -74,20 +74,25 @@ jobs:
             frontend/playwright-report/
           retention-days: 7
 
-  # Builds from the version's release source ZIP rather than the checkout, so
-  # one build proves both the code and the ZIP. Extracted under a path with
-  # spaces.
-  build:
-    name: Build ${{ matrix.v.mc }} (source ZIP, JUnit, jar)
+  # One job per Minecraft version: build its release source ZIP (extracted
+  # under a path with spaces, so one build proves both the code and the ZIP),
+  # then run that exact jar in a real Fabric install: vanilla Minecraft,
+  # Fabric Loader and mods/ as a launcher sets them up (portablemc, with
+  # Mojang's own Java for that version), intermediary names as for a player.
+  version:
+    name: Minecraft ${{ matrix.v.mc }}
     needs: plan
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
         v: ${{ fromJSON(needs.plan.outputs.matrix) }}
     env:
       MC: ${{ matrix.v.mc }}
+      LOADER: ${{ matrix.v.loader }}
+      FABRIC_API: ${{ matrix.v.fabric_api }}
+      MCEF: ${{ matrix.v.mcef }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -110,8 +115,21 @@ jobs:
           unzip -p "build/release/Breeze Mod for $MC.zip" "Breeze Mod for $MC/SOURCE.txt"
       - name: Build and test the extracted source
         run: |
-          cd "$SRC/frontend" && npm ci
-          cd "$SRC" && ./gradlew --no-daemon :common:test ":versions:$MC:build" --stacktrace
+          cd "$SRC/frontend" && npm ci --silent
+          cd "$SRC"
+          set -o pipefail
+          ./gradlew --no-daemon :common:test ":versions:$MC:build" 2>&1 | tee "$RUNNER_TEMP/gradle.log"
+      - name: Compile errors, one per line
+        if: failure()
+        run: |
+          grep -E '\.java:[0-9]+: error:' "$RUNNER_TEMP/gradle.log" \
+            | sed -E 's#^.*/src/main/java/##' | sort | uniq > "$RUNNER_TEMP/errors.txt" || true
+          echo "== $(wc -l < "$RUNNER_TEMP/errors.txt") compile errors in $(cut -d: -f1 "$RUNNER_TEMP/errors.txt" | sort -u | wc -l) files"
+          cat "$RUNNER_TEMP/errors.txt"
+          echo "== with context"
+          grep -E -A3 '\.java:[0-9]+: error:' "$RUNNER_TEMP/gradle.log" | sed -E 's#^.*/src/main/java/##' | head -600
+          echo "== other failures"
+          grep -E -A12 '^\* What went wrong' "$RUNNER_TEMP/gradle.log" | head -40
       - name: Inspect the jar
         run: |
           jar="$SRC/versions/$MC/build/libs/$MC.jar"
@@ -119,44 +137,13 @@ jobs:
           unzip -l "$jar" | grep -E 'fabric.mod.json|assets/breeze/html/index.html|dev/breeze/bridge/Router.class|dev/breeze/web/BreezeWebScreen.class|dev/breeze/devtest/AutoTest.class'
           unzip -p "$jar" fabric.mod.json
           unzip -p "$jar" breeze.mixins.json | head -8
-          cp "$jar" "$RUNNER_TEMP/out/"
-          cp -r "$SRC/common/build/test-results" "$RUNNER_TEMP/out/common-test-results" 2>/dev/null || true
+          mkdir -p dist && cp "$jar" dist/ && cp "$jar" "$RUNNER_TEMP/out/"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: build-${{ matrix.v.mc }}
           path: ${{ runner.temp }}/out/
           retention-days: 7
-      - uses: actions/upload-artifact@v4
-        with:
-          name: jar-${{ matrix.v.mc }}
-          path: ${{ runner.temp }}/out/${{ matrix.v.mc }}.jar
-          retention-days: 30
-
-  # The jar players get, in a real Fabric install: vanilla Minecraft, Fabric
-  # Loader and mods/ as a launcher sets them up (portablemc, with Mojang's own
-  # Java for that version), so the game runs with intermediary names exactly as
-  # for a player.
-  release:
-    name: ${{ matrix.v.mc }} jar in a real Fabric install
-    needs: [plan, build]
-    runs-on: ubuntu-latest
-    timeout-minutes: 45
-    strategy:
-      fail-fast: false
-      matrix:
-        v: ${{ fromJSON(needs.plan.outputs.matrix) }}
-    env:
-      MC: ${{ matrix.v.mc }}
-      LOADER: ${{ matrix.v.loader }}
-      FABRIC_API: ${{ matrix.v.fabric_api }}
-      MCEF: ${{ matrix.v.mcef }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
-        with:
-          name: jar-${{ matrix.v.mc }}
-          path: dist
       - name: Display, input and capture tools
         run: |
           sudo apt-get update -qq
@@ -171,7 +158,7 @@ jobs:
             curl -sSfL -o "$RUNNER_TEMP/mods/mcef-$MCEF.jar" "https://api.modrinth.com/maven/maven/modrinth/mcef/$MCEF/mcef-$MCEF.jar"
           fi
           ls -la "$RUNNER_TEMP/mods" dist
-      - name: Launch, drive and check
+      - name: Launch in a real Fabric install, drive and check
         run: |
           BREEZE_LAUNCH=prod BREEZE_MC="$MC" BREEZE_LOADER="$LOADER" \
           BREEZE_JAR="dist/$MC.jar" BREEZE_MODS="$RUNNER_TEMP/mods" \
@@ -180,9 +167,9 @@ jobs:
         if: always()
         run: |
           {
-            echo "## $MC jar in a real Fabric install"
+            echo "## Minecraft $MC"
             echo '```'
-            cat release-test/driver.log 2>/dev/null || echo 'no driver log'
+            cat release-test/driver.log 2>/dev/null || echo 'not launched'
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
@@ -193,6 +180,7 @@ jobs:
             ${{ github.workspace }}/release-test/
             !${{ github.workspace }}/release-test/game/
           retention-days: 7
+          if-no-files-found: ignore
       - uses: actions/upload-artifact@v4
         with:
           name: tested-${{ matrix.v.mc }}
@@ -204,7 +192,7 @@ jobs:
   # every machine). A version that failed publishes nothing.
   publish:
     name: Publish tested jars
-    needs: [release, frontend]
+    needs: [version, frontend]
     if: ${{ always() && !cancelled() && github.ref == 'refs/heads/main' && needs.frontend.result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
