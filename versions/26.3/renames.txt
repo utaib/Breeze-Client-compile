@@ -1,0 +1,6 @@
+# What Minecraft 26.3 renamed without changing what Breeze uses of it
+# (gradle/version.gradle, "Sources").
+# A key event's second value (the platform scancode) is now called keycode.
+.scancode .keycode
+# A pose is turned by a quaternion with rotate; mulPose now takes matrices.
+.mulPose .rotate
