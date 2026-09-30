@@ -1,5 +1,6 @@
 package dev.breeze.keybind;
 
+
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.breeze.BreezeClient;
 import dev.breeze.Module;
@@ -76,7 +77,7 @@ public final class KeybindManager {
         try {
             Minecraft mc = Minecraft.getInstance();
             if (mc.player != null) {
-                mc.player.sendSystemMessage(Component.literal("§b[Breeze]§r " + msg));
+                dev.breeze.compat.Game.message(mc, Component.literal("§b[Breeze]§r " + msg));
             } else {
                 BreezeClient.LOGGER.info("[Breeze] {}", msg);
             }

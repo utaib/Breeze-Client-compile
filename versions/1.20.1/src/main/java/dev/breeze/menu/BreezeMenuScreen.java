@@ -1,5 +1,6 @@
 package dev.breeze.menu;
 
+import dev.breeze.compat.BreezeScreen;
 import dev.breeze.Category;
 import dev.breeze.Module;
 import dev.breeze.ModuleManager;
@@ -20,7 +21,7 @@ import net.minecraft.network.chat.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BreezeMenuScreen extends Screen {
+public class BreezeMenuScreen extends BreezeScreen {
 
     private static final int SIDEBAR_W = 104;
     private static final int PANEL_GAP = 10;
@@ -279,7 +280,7 @@ public class BreezeMenuScreen extends Screen {
         super.render(g, mouseX, mouseY, partialTick);
 
         if (hovered != null && hovered.getDescription() != null && !hovered.getDescription().isEmpty()) {
-            g.renderTooltip(this.font, Component.literal(hovered.getDescription()), mouseX, mouseY);
+            dev.breeze.compat.Draw.tooltip(g, this.font, Component.literal(hovered.getDescription()), mouseX, mouseY);
         }
     }
 
@@ -308,7 +309,7 @@ public class BreezeMenuScreen extends Screen {
     }
 
     @Override
-    public boolean mouseClicked(double mx, double my, int button) {
+    protected boolean onMouseClicked(double mx, double my, int button) {
         // Right-click a card to configure it. A dedicated cog on every card
         // would need ~14px of a 46px-tall card that already carries a name, a
         // category, a toggle and a favourite star, and would be a small target
@@ -371,28 +372,11 @@ public class BreezeMenuScreen extends Screen {
                 }
             }
         }
-        return super.mouseClicked(mx, my, button);
+        return superMouseClicked(mx, my, button);
     }
 
-    // Scroll handling, written to compile on every supported version.
-    //
-    // Minecraft changed this signature in 1.20.2 to carry a horizontal axis:
-    //   1.20.1   mouseScrolled(x, y, delta)
-    //   1.20.2+  mouseScrolled(x, y, scrollX, scrollY)
-    //
-    // Neither form exists on both sides, so one @Override cannot satisfy both.
-    // Both are declared and NEITHER carries @Override: on each version the
-    // matching signature binds as the real override and the other is an inert
-    // method the game never calls. Both delegate to breeze$scroll so the
-    // behaviour cannot drift apart.
-    //
-    // Do not add @Override to either. It will compile on exactly one version
-    // and break the other.
-    public boolean mouseScrolled(double mx, double my, double delta) {
-        return breeze$scroll(mx, my, delta);
-    }
-
-    public boolean mouseScrolled(double mx, double my, double scrollX, double scrollY) {
+    @Override
+    protected boolean onMouseScrolled(double mx, double my, double scrollX, double scrollY) {
         return breeze$scroll(mx, my, scrollY);
     }
 

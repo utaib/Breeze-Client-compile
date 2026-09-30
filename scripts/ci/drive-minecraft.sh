@@ -90,7 +90,9 @@ shot 01-title-menu 2
 # Keyboard: Tab through the rail (Home, Singleplayer, Multiplayer, Mods) and
 # press Enter. The Mods page focuses its search field, so typing filters.
 b=$(count '"route":"mods/modules"')
-xdotool key Tab Tab Tab Tab Return
+# At a person's pace. With xdotool's default of about 10 ms between keys, one
+# 1.20.3 run did not reach Mods although Java received every key.
+xdotool key --delay 120 Tab Tab Tab Tab Return
 expect_new "keyboard Tab and Enter opened Mods" '"route":"mods/modules"' 8 "$b"
 shot 02-mods
 xdotool type --delay 90 'armor'

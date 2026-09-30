@@ -1,5 +1,6 @@
 package dev.breeze.web;
 
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -28,7 +29,6 @@ import net.fabricmc.loader.api.metadata.Person;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.OptionsScreen;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
@@ -131,11 +131,11 @@ final class Handlers {
             // Only the server the player really joined last: the page cannot
             // send the game anywhere the player has not chosen to go.
             if (last == null || !address.equals(last.ip)) throw BridgeException.forbidden("That is not a server you have joined.");
-            screen.afterAnswer(() -> dev.breeze.compat.Compat.connect(screen, mc, last.ip, last));
+            screen.afterAnswer(() -> dev.breeze.compat.Net.connect(screen, mc, last.ip, last));
             return Router.ok();
         });
         on(r, "game.options", p -> {
-            screen.afterAnswer(() -> mc.setScreen(new OptionsScreen(screen, mc.options)));
+            screen.afterAnswer(() -> mc.setScreen(dev.breeze.compat.Screens.options(screen, mc)));
             return Router.ok();
         });
         on(r, "game.pauseMenu", p -> {

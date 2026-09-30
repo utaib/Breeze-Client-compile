@@ -45,8 +45,8 @@ git -C "$top" archive --format=tar "$commit:$prefix" -- \
   | tar -x -C "$root"
 
 # The version's source: its source_chain merged, newest folder first, each
-# folder's removed.txt dropping files of the folders before it. The same rule
-# as gradle/version.gradle's mergeSources.
+# folder's removed.txt dropping files of the folders before it, then renames.
+# The same rules as gradle/version.gradle's mergeSources.
 props="$root/versions/$mc/gradle.properties"
 chain=$(sed -n 's/^source_chain=//p' "$props" | tr -d ' ')
 [ -n "$chain" ] || chain=$mc
@@ -73,6 +73,17 @@ if [ "$chain" != "$mc" ]; then
       git -C "$top" show "$commit:${prefix}versions/$link/removed.txt" | sed 's/[[:space:]]*$//' \
         | grep -vE '^(#|$)' >> "$dropped" || true
     fi
+  done
+  # Renames (renames.txt), in chain order, on every Java file: the same rule
+  # as mergeSources.
+  for link in "${links[@]}"; do
+    git -C "$top" cat-file -e "$commit:${prefix}versions/$link/renames.txt" 2>/dev/null || continue
+    git -C "$top" show "$commit:${prefix}versions/$link/renames.txt" | sed 's/[[:space:]]*$//' | { grep -vE '^(#|$)' || true; } \
+      | while read -r from to extra; do
+        [ -n "$to" ] && [ -z "$extra" ] || { echo "versions/$link/renames.txt: expected 'old new'"; exit 1; }
+        find "$merged" -name '*.java' -type f -print0 \
+          | FROM="$from" TO="$to" xargs -0 perl -pi -e 's/(?<![\w\$])\Q$ENV{FROM}\E(?![\w\$])/$ENV{TO}/g'
+      done
   done
   rm -rf "$root/versions/$mc/src"
   mkdir -p "$root/versions/$mc/src"

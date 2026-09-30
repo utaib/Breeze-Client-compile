@@ -3,7 +3,7 @@ package dev.breeze.modules;
 import dev.breeze.Category;
 import dev.breeze.Module;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.Screenshot;
+import dev.breeze.compat.Game;
 import org.lwjgl.glfw.GLFW;
 
 public class Screenshots extends Module {
@@ -16,9 +16,7 @@ public class Screenshots extends Module {
     protected void onEnable() {
         try {
             Minecraft mc = Minecraft.getInstance();
-            Screenshot.grab(mc.gameDirectory, mc.getMainRenderTarget(), component -> {
-                if (mc.player != null) mc.player.displayClientMessage(component, false);
-            });
+            Game.screenshot(mc, null, component -> Game.message(mc, component));
         } catch (Throwable ignored) {}
         setStateSilently(false);
     }

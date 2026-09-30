@@ -1,5 +1,6 @@
 package dev.breeze.web;
 
+import dev.breeze.compat.BreezeScreen;
 import dev.breeze.BreezeClient;
 import dev.breeze.menu.BreezeMenuScreen;
 import net.minecraft.client.Minecraft;
@@ -32,7 +33,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * Coming back (a parent returning here) runs init again and opens a fresh
  * browser on the route the page last reported.
  */
-public final class BreezeWebScreen extends Screen {
+public final class BreezeWebScreen extends BreezeScreen {
 
     private static final long ESCAPE_FAILSAFE_NANOS = 500_000_000L;
     private static final int TITLE_BACKDROP = 0xFF0B0F18;
@@ -146,7 +147,7 @@ public final class BreezeWebScreen extends Screen {
     }
 
     @Override
-    public boolean keyPressed(int key, int scanCode, int modifiers) {
+    protected boolean onKeyPressed(int key, int scanCode, int modifiers) {
         dev.breeze.devtest.AutoTest.key(key);
         if (key == GLFW.GLFW_KEY_ESCAPE) {
             if (browser == null) {
@@ -170,55 +171,48 @@ public final class BreezeWebScreen extends Screen {
     }
 
     @Override
-    public boolean keyReleased(int key, int scanCode, int modifiers) {
+    protected boolean onKeyReleased(int key, int scanCode, int modifiers) {
         if (key != GLFW.GLFW_KEY_ESCAPE && browser != null) browser.keyReleased(key, scanCode, modifiers);
         return true;
     }
 
     @Override
-    public boolean charTyped(char c, int modifiers) {
-        if (browser != null) browser.charTyped(c, modifiers);
+    protected boolean onCharTyped(int c, int modifiers) {
+        if (browser != null && Character.isBmpCodePoint(c)) browser.charTyped((char) c, modifiers);
         return true;
     }
 
     @Override
-    public void mouseMoved(double x, double y) {
+    protected void onMouseMoved(double x, double y) {
         if (browser != null) browser.mouseMoved(x, y);
     }
 
     @Override
-    public boolean mouseClicked(double x, double y, int button) {
+    protected boolean onMouseClicked(double x, double y, int button) {
         if (browser != null) browser.mousePressed(x, y, button);
         return true;
     }
 
     @Override
-    public boolean mouseReleased(double x, double y, int button) {
+    protected boolean onMouseReleased(double x, double y, int button) {
         if (browser != null) browser.mouseReleased(x, y, button);
         return true;
     }
 
     @Override
-    public boolean mouseDragged(double x, double y, int button, double dx, double dy) {
+    protected boolean onMouseDragged(double x, double y, int button, double dx, double dy) {
         if (browser != null) browser.mouseMoved(x, y);
         return true;
     }
 
-    // Minecraft 1.20.2 added a horizontal axis to this method. Both forms, and
-    // no @Override, so the same source compiles on either side of that change:
-    // whichever Minecraft calls overrides, the other is never called.
-    public boolean mouseScrolled(double x, double y, double amount) {
-        if (browser != null) browser.mouseScrolled(x, y, amount);
+    @Override
+    protected boolean onMouseScrolled(double x, double y, double scrollX, double scrollY) {
+        if (browser != null) browser.mouseScrolled(x, y, scrollY);
         return true;
     }
 
-    public boolean mouseScrolled(double x, double y, double scrollX, double scrollY) {
-        return mouseScrolled(x, y, scrollY);
-    }
-
     @Override
-    public void resize(Minecraft mc, int w, int h) {
-        super.resize(mc, w, h);
+    protected void onResized(int w, int h) {
         if (browser != null) browser.resize(w, h);
     }
 

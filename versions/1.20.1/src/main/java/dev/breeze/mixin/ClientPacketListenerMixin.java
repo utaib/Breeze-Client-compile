@@ -1,5 +1,6 @@
 package dev.breeze.mixin;
 
+
 import dev.breeze.TpsTracker;
 import dev.breeze.modules.TimeChanger;
 import net.minecraft.client.Minecraft;
@@ -18,7 +19,7 @@ public class ClientPacketListenerMixin {
         TpsTracker.onTimeUpdate();
         if (TimeChanger.active()) {
             Minecraft mc = Minecraft.getInstance();
-            if (mc.level != null) mc.level.setDayTime(TimeChanger.time());
+            if (mc.level != null) dev.breeze.compat.Game.setDayTime(mc.level, TimeChanger.time());
         }
     }
 }

@@ -1,5 +1,6 @@
 package dev.breeze.devtest;
 
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import dev.breeze.BreezeClient;
@@ -12,10 +13,8 @@ import dev.breeze.web.BreezeWebScreen;
 import dev.breeze.web.WebInit;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.screens.OptionsScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
@@ -91,7 +90,7 @@ public final class AutoTest {
         if (s instanceof SelectWorldScreen) return "world-select";
         if (s instanceof CreateWorldScreen) return "create-world";
         if (s instanceof JoinMultiplayerScreen) return "multiplayer";
-        if (s instanceof OptionsScreen) return "options";
+        if (dev.breeze.compat.Screens.isOptions(s)) return "options";
         return "other";
     }
 
@@ -191,7 +190,7 @@ public final class AutoTest {
                             "ms", String.valueOf(age), "liveBrowsers", String.valueOf(BreezeBrowser.live()));
                     // Leave through a vanilla screen so removed() runs exactly as
                     // it does when a player opens Options from the menu.
-                    mc.setScreen(new OptionsScreen(new TitleScreen(), mc.options));
+                    mc.setScreen(dev.breeze.compat.Screens.options(new TitleScreen(), mc));
                     next(Stage.STRESS_CLOSE, null);
                 }
             }
@@ -298,7 +297,7 @@ public final class AutoTest {
 
     private static void shot(Minecraft mc, String name) {
         try {
-            Screenshot.grab(mc.gameDirectory, name + ".png", mc.getMainRenderTarget(), msg -> {});
+            dev.breeze.compat.Game.screenshot(mc, name + ".png", msg -> {});
             log("screenshot", "file", "screenshots/" + name + ".png");
         } catch (Throwable t) {
             log("screenshot-failed", "error", t.toString());

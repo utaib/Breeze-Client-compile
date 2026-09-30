@@ -2,9 +2,9 @@ package dev.breeze.cape;
 
 import dev.breeze.compat.Ids;
 import com.mojang.blaze3d.platform.NativeImage;
+import dev.breeze.compat.Images;
 import dev.breeze.BreezeClient;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.ResourceLocation;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -134,13 +134,11 @@ public final class CapeManager {
         NativeImage img = new NativeImage(w, h, true);
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
-                int argb = bi.getRGB(x, y);
-                int abgr = (argb & 0xFF00FF00) | ((argb & 0xFF) << 16) | ((argb >> 16) & 0xFF);
-                img.setPixelRGBA(x, y, abgr);
+                Images.setPixelArgb(img, x, y, bi.getRGB(x, y));
             }
         }
         ResourceLocation id = Ids.breeze("capes/frame_" + index);
-        Minecraft.getInstance().getTextureManager().register(id, new DynamicTexture(img));
+        Images.register(id, img);
         FRAMES.add(id);
         DELAYS.add(delayMs);
         totalDuration += delayMs;

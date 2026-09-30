@@ -36,7 +36,7 @@ public abstract class TitleScreenMixin extends Screen {
     @Inject(method = "render", at = @At("HEAD"))
     private void breeze$bg(GuiGraphics g, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
         if (!MenuBg.useBreeze()) return;
-        g.blit(BREEZE_BG, 0, 0, this.width, this.height, 0f, 0f, 16, 16, 16, 16);
+        dev.breeze.compat.Draw.blit(g, BREEZE_BG, 0, 0, this.width, this.height, 0f, 0f, 16, 16, 16, 16);
         g.fill(0, 0, this.width, this.height, Palette.alpha(Palette.BG_DEEP, 0x50));
     }
 

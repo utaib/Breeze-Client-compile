@@ -5,13 +5,13 @@ import dev.breeze.cosmetics.CapeTextures;
 import dev.breeze.cosmetics.CosmeticState;
 import dev.breeze.compat.Ids;
 import com.mojang.blaze3d.platform.NativeImage;
+import dev.breeze.compat.Images;
 import dev.breeze.BreezeUsers;
 import dev.breeze.modules.CustomCape;
 import dev.breeze.net.BreezeApi;
 import dev.breeze.net.BreezePresence;
 import dev.breeze.net.Self;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.ResourceLocation;
 
 import javax.imageio.ImageIO;
@@ -125,14 +125,12 @@ public final class RemoteCapes {
                 img = new NativeImage(bi.getWidth(), bi.getHeight(), true);
                 for (int y = 0; y < bi.getHeight(); y++) {
                     for (int x = 0; x < bi.getWidth(); x++) {
-                        int argb = bi.getRGB(x, y);
-                        int abgr = (argb & 0xFF00FF00) | ((argb & 0xFF) << 16) | ((argb >> 16) & 0xFF);
-                        img.setPixelRGBA(x, y, abgr);
+                        Images.setPixelArgb(img, x, y, bi.getRGB(x, y));
                     }
                 }
             }
             ResourceLocation rl = Ids.breeze("remote_capes/" + id.toString().replace("-", ""));
-            Minecraft.getInstance().getTextureManager().register(rl, new DynamicTexture(img));
+            Images.register(rl, img);
             return rl;
         } catch (Throwable t) {
             return null;

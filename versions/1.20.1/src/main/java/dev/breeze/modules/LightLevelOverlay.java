@@ -3,7 +3,7 @@ package dev.breeze.modules;
 import dev.breeze.Category;
 import dev.breeze.Module;
 import dev.breeze.render.WorldRender;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
+import dev.breeze.render.WorldCtx;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -55,7 +55,7 @@ public class LightLevelOverlay extends Module {
     }
 
     @Override
-    protected void onWorldRender(WorldRenderContext ctx) {
+    protected void onWorldRender(WorldCtx ctx) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null || mc.player == null || ctx.consumers() == null) return;
         BlockPos center = mc.player.blockPosition();

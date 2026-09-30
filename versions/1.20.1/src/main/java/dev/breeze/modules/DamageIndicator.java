@@ -4,7 +4,7 @@ import dev.breeze.hud.Fmt;
 import dev.breeze.Category;
 import dev.breeze.Module;
 import dev.breeze.render.WorldRender;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
+import dev.breeze.render.WorldCtx;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -50,7 +50,7 @@ public class DamageIndicator extends Module {
     }
 
     @Override
-    protected void onWorldRender(WorldRenderContext ctx) {
+    protected void onWorldRender(WorldCtx ctx) {
         if (ctx.consumers() == null) return;
         long now = System.currentTimeMillis();
         for (Popup p : popups) {

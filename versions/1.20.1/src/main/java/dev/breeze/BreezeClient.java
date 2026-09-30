@@ -8,8 +8,6 @@ import dev.breeze.net.BreezePresence;
 import dev.breeze.ui.Theme;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -69,10 +67,9 @@ public class BreezeClient implements ClientModInitializer {
             ModuleManager.tickAll(mc);
         });
 
-        HudRenderCallback.EVENT.register((g, partialTick) -> ModuleManager.renderAll(g, partialTick));
-        WorldRenderEvents.AFTER_ENTITIES.register(ModuleManager::renderWorldAll);
-
-        dev.breeze.compat.Compat.registerTooltips((stack, lines) -> {
+        dev.breeze.compat.Hooks.hud(ModuleManager::renderAll);
+        dev.breeze.compat.Hooks.world(ModuleManager::renderWorldAll);
+        dev.breeze.compat.Hooks.tooltips((stack, lines) -> {
             ShulkerTooltips.appendTo(stack, lines);
             if (!Tooltips.active() || stack == null || stack.isEmpty()) return;
             try {

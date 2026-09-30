@@ -6,11 +6,11 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.mojang.blaze3d.platform.NativeImage;
+import dev.breeze.compat.Images;
 import dev.breeze.net.BreezeApi;
 import dev.breeze.net.BreezePresence;
 import dev.breeze.net.Self;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.ResourceLocation;
 
 import javax.imageio.ImageIO;
@@ -202,15 +202,13 @@ public final class ServerCapes {
                 img = new NativeImage(bi.getWidth(), bi.getHeight(), true);
                 for (int y = 0; y < bi.getHeight(); y++) {
                     for (int x = 0; x < bi.getWidth(); x++) {
-                        int argb = bi.getRGB(x, y);
-                        int abgr = (argb & 0xFF00FF00) | ((argb & 0xFF) << 16) | ((argb >> 16) & 0xFF);
-                        img.setPixelRGBA(x, y, abgr);
+                        Images.setPixelArgb(img, x, y, bi.getRGB(x, y));
                     }
                 }
             }
             // Cape names can hold spaces and capitals, which a resource id refuses.
             ResourceLocation rl = Ids.breeze("server_capes/" + TextureNames.segment(name));
-            Minecraft.getInstance().getTextureManager().register(rl, new DynamicTexture(img));
+            Images.register(rl, img);
             return rl;
         } catch (Throwable t) {
             return null;

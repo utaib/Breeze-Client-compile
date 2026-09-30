@@ -1,4 +1,6 @@
 package dev.breeze.menu;
+
+import dev.breeze.compat.BreezeScreen;
 import dev.breeze.ui.Glass;
 import dev.breeze.ui.Palette;
 import dev.breeze.ui.Rect;
@@ -16,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class FriendsScreen extends Screen {
+public class FriendsScreen extends BreezeScreen {
 
     private final Screen parent;
     private int px;
@@ -310,7 +312,7 @@ public class FriendsScreen extends Screen {
     }
 
     @Override
-    public boolean mouseClicked(double mx, double my, int button) {
+    protected boolean onMouseClicked(double mx, double my, int button) {
         if (button == 1) {
             handleRight(mx, my);
             return true;
@@ -319,19 +321,19 @@ public class FriendsScreen extends Screen {
             handleClick(mx, my);
             return true;
         }
-        return super.mouseClicked(mx, my, button);
+        return superMouseClicked(mx, my, button);
     }
 
     @Override
-    public boolean charTyped(char c, int mods) {
-        if (typeChar(c)) return true;
-        return super.charTyped(c, mods);
+    protected boolean onCharTyped(int c, int mods) {
+        if (Character.isBmpCodePoint(c) && typeChar((char) c)) return true;
+        return superCharTyped(c, mods);
     }
 
     @Override
-    public boolean keyPressed(int key, int scan, int mods) {
+    protected boolean onKeyPressed(int key, int scan, int mods) {
         if (typeKey(key)) return true;
-        return super.keyPressed(key, scan, mods);
+        return superKeyPressed(key, scan, mods);
     }
 
     @Override

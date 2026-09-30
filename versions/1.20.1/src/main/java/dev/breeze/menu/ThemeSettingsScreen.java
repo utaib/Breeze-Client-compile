@@ -1,5 +1,6 @@
 package dev.breeze.menu;
 
+import dev.breeze.compat.BreezeScreen;
 import dev.breeze.ui.Glass;
 import dev.breeze.ui.Palette;
 import dev.breeze.ui.Rect;
@@ -13,7 +14,7 @@ import net.minecraft.network.chat.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ThemeSettingsScreen extends Screen {
+public class ThemeSettingsScreen extends BreezeScreen {
 
     private interface IntRef {
         int get();
@@ -150,7 +151,7 @@ public class ThemeSettingsScreen extends Screen {
     }
 
     @Override
-    public boolean mouseClicked(double mx, double my, int button) {
+    protected boolean onMouseClicked(double mx, double my, int button) {
         if (button == 0) {
             for (int i = 0; i < sliders.size(); i++) {
                 Slider s = sliders.get(i);
@@ -171,26 +172,26 @@ public class ThemeSettingsScreen extends Screen {
                 }
             }
         }
-        return super.mouseClicked(mx, my, button);
+        return superMouseClicked(mx, my, button);
     }
 
     @Override
-    public boolean mouseDragged(double mx, double my, int button, double dx, double dy) {
+    protected boolean onMouseDragged(double mx, double my, int button, double dx, double dy) {
         if (dragging >= 0 && dragging < sliders.size()) {
             applySlider(sliders.get(dragging), mx);
             return true;
         }
-        return super.mouseDragged(mx, my, button, dx, dy);
+        return superMouseDragged(mx, my, button, dx, dy);
     }
 
     @Override
-    public boolean mouseReleased(double mx, double my, int button) {
+    protected boolean onMouseReleased(double mx, double my, int button) {
         if (dragging >= 0) {
             Theme.save();
             dragging = -1;
             return true;
         }
-        return super.mouseReleased(mx, my, button);
+        return superMouseReleased(mx, my, button);
     }
 
     private void applySlider(Slider s, double mx) {

@@ -1,5 +1,6 @@
 package dev.breeze.net;
 
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -339,7 +340,7 @@ public final class HostManager {
 
     private static void chat(Minecraft mc, String s) {
         try {
-            if (mc.player != null) mc.player.displayClientMessage(Component.literal("§b[Breeze]§r " + s), false);
+            dev.breeze.compat.Game.message(mc, Component.literal("§b[Breeze]§r " + s));
         } catch (Throwable ignored) {}
     }
 }

@@ -1,6 +1,5 @@
 package dev.breeze.modules;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import dev.breeze.BreezeClient;
 import dev.breeze.Category;
 import dev.breeze.Module;
@@ -58,16 +57,12 @@ public abstract class AbstractHudModule extends Module {
         Minecraft mc = Minecraft.getInstance();
         Font font = mc.font;
 
-        PoseStack pose = g.pose();
         float s = style.scaleFactor();
         boolean scaled = Math.abs(s - 1f) > 0.001f;
         if (scaled) {
             // Scale about the module's own origin, so changing the scale grows
             // the block in place instead of sliding it toward the screen corner.
-            pose.pushPose();
-            pose.translate(x, y, 0);
-            pose.scale(s, s, 1f);
-            pose.translate(-x, -y, 0);
+            dev.breeze.compat.Draw.pushScaled(g, x, y, s);
         }
 
         if (drawsShapes()) {
@@ -130,7 +125,7 @@ public abstract class AbstractHudModule extends Module {
             }
         } catch (Throwable ignored) {}
 
-        if (scaled) pose.popPose();
+        if (scaled) dev.breeze.compat.Draw.pop(g);
     }
 
     protected abstract void draw(Minecraft mc, GuiGraphics g, Font font);

@@ -1,5 +1,6 @@
 package dev.breeze.modules;
 
+
 import dev.breeze.hud.Fmt;
 import dev.breeze.Category;
 import net.minecraft.client.Minecraft;
@@ -21,7 +22,7 @@ public class HorseStatsHud extends AbstractHudModule {
         Entity vehicle = mc.player.getVehicle();
         if (!(vehicle instanceof AbstractHorse horse)) return;
         double speed = horse.getAttributeValue(Attributes.MOVEMENT_SPEED) * 43.17;
-        double jump = jumpToBlocks(dev.breeze.compat.Compat.horseJumpStrength(horse));
+        double jump = jumpToBlocks(dev.breeze.compat.ItemData.horseJumpStrength(horse));
         line(g, font, "Speed: " + Fmt.d2(speed) + " m/s");
         line(g, font, "Jump: " + Fmt.d2(jump) + " blk");
         line(g, font, String.format("HP: %.0f/%.0f", horse.getHealth(), horse.getMaxHealth()));

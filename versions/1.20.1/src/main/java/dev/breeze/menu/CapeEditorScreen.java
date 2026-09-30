@@ -1,5 +1,7 @@
 package dev.breeze.menu;
-import dev.breeze.compat.Compat;
+
+import dev.breeze.compat.BreezeScreen;
+import dev.breeze.compat.Screens;
 import dev.breeze.ui.Spacing;
 import dev.breeze.ui.Glass;
 import dev.breeze.ui.Palette;
@@ -17,7 +19,7 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CapeEditorScreen extends Screen {
+public class CapeEditorScreen extends BreezeScreen {
 
     private final Screen parent;
     private int panelX;
@@ -110,7 +112,7 @@ public class CapeEditorScreen extends Screen {
         if (this.minecraft.player != null) {
             // Via the shim: 1.20.2 replaced the centre-point signature with a
             // bounding-box one, so the arguments differ by version.
-            Compat.renderPlayerPreview(g, panelX + 64, panelY + panelH - 36, 55,
+            Screens.renderPlayerPreview(g, panelX + 64, panelY + panelH - 36, 55,
                     panelX + 64 - mouseX, panelY + 90 - mouseY, this.minecraft.player);
         }
 
@@ -134,7 +136,7 @@ public class CapeEditorScreen extends Screen {
             if (!isNone) {
                 ResourceLocation tex = ServerCapes.textureFor(name);
                 if (tex != null) {
-                    g.blit(tex, cx + 11, cy + 8, 40, 64, 1f, 1f, 10, 16, 64, 32);
+                    dev.breeze.compat.Draw.blit(g, tex, cx + 11, cy + 8, 40, 64, 1f, 1f, 10, 16, 64, 32);
                 } else {
                     g.drawString(this.font, "...", cx + 27, cy + 36, Palette.TEXT_SECONDARY, false);
                 }
@@ -165,25 +167,8 @@ public class CapeEditorScreen extends Screen {
 
         super.render(g, mouseX, mouseY, partialTick);
     }
-    // Scroll handling, written to compile on every supported version.
-    //
-    // Minecraft changed this signature in 1.20.2 to carry a horizontal axis:
-    //   1.20.1   mouseScrolled(x, y, delta)
-    //   1.20.2+  mouseScrolled(x, y, scrollX, scrollY)
-    //
-    // Neither form exists on both sides, so one @Override cannot satisfy both.
-    // Both are declared and NEITHER carries @Override: on each version the
-    // matching signature binds as the real override and the other is an inert
-    // method the game never calls. Both delegate to breeze$scroll so the
-    // behaviour cannot drift apart.
-    //
-    // Do not add @Override to either. It will compile on exactly one version
-    // and break the other.
-    public boolean mouseScrolled(double mx, double my, double delta) {
-        return breeze$scroll(mx, my, delta);
-    }
-
-    public boolean mouseScrolled(double mx, double my, double scrollX, double scrollY) {
+    @Override
+    protected boolean onMouseScrolled(double mx, double my, double scrollX, double scrollY) {
         return breeze$scroll(mx, my, scrollY);
     }
 
@@ -196,7 +181,7 @@ public class CapeEditorScreen extends Screen {
     }
 
     @Override
-    public boolean mouseClicked(double mx, double my, int button) {
+    protected boolean onMouseClicked(double mx, double my, int button) {
         if (button == 0) {
             List<String> list = entries();
             for (int i = 0; i < list.size(); i++) {
@@ -212,7 +197,7 @@ public class CapeEditorScreen extends Screen {
                 }
             }
         }
-        return super.mouseClicked(mx, my, button);
+        return superMouseClicked(mx, my, button);
     }
 
     @Override

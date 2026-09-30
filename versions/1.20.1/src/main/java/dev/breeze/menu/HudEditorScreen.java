@@ -1,5 +1,6 @@
 package dev.breeze.menu;
 
+import dev.breeze.compat.BreezeScreen;
 import dev.breeze.ui.Palette;
 import dev.breeze.Module;
 import dev.breeze.ModuleManager;
@@ -11,7 +12,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
-public class HudEditorScreen extends Screen {
+public class HudEditorScreen extends BreezeScreen {
 
     private final Screen parent;
     private AbstractHudModule dragging;
@@ -45,7 +46,7 @@ public class HudEditorScreen extends Screen {
     }
 
     @Override
-    public boolean mouseClicked(double mx, double my, int button) {
+    protected boolean onMouseClicked(double mx, double my, int button) {
         if (button == 0) {
             for (Module m : ModuleManager.getModules()) {
                 if (!(m instanceof AbstractHudModule h) || !m.isEnabled()) continue;
@@ -59,11 +60,11 @@ public class HudEditorScreen extends Screen {
                 }
             }
         }
-        return super.mouseClicked(mx, my, button);
+        return superMouseClicked(mx, my, button);
     }
 
     @Override
-    public boolean mouseDragged(double mx, double my, int button, double dx, double dy) {
+    protected boolean onMouseDragged(double mx, double my, int button, double dx, double dy) {
         if (dragging != null) {
             // Clamp the whole element on screen, not just its corner.
             //
@@ -80,17 +81,17 @@ public class HudEditorScreen extends Screen {
             dragging.setHudPos(nx, ny);
             return true;
         }
-        return super.mouseDragged(mx, my, button, dx, dy);
+        return superMouseDragged(mx, my, button, dx, dy);
     }
 
     @Override
-    public boolean mouseReleased(double mx, double my, int button) {
+    protected boolean onMouseReleased(double mx, double my, int button) {
         if (dragging != null) {
             HudLayout.set(dragging.getName(), dragging.getHudX(), dragging.getHudY());
             dragging = null;
             return true;
         }
-        return super.mouseReleased(mx, my, button);
+        return superMouseReleased(mx, my, button);
     }
 
     @Override

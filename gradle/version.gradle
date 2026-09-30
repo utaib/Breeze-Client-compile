@@ -63,6 +63,11 @@ if (obfuscated) {
 // this version must not. versions/shared/no-browser is the chain's last link on
 // versions MCEF does not cover.
 //
+// A folder's renames.txt handles classes Minecraft only renamed or moved: each
+// line is "old new", a class name or a qualified name, and every Java file of
+// the merged source has old replaced by new wherever it stands as a whole name
+// (so a simple name also renames it in imports). Renames apply in chain order.
+//
 // A version whose chain is just itself compiles its own folder directly. Any
 // other is merged into build/merged-src first; edit the files in versions/,
 // never the merged copy. The source ZIP (scripts/package-source.sh) ships the
@@ -76,16 +81,38 @@ chain.each { entry ->
     }
 }
 // A version folder may hold no source of its own (yet): it then adds nothing.
-chain = chain.findAll { rootProject.file("versions/$it/src/main").isDirectory() || rootProject.file("versions/$it/removed.txt").isFile() }
+chain = chain.findAll { ['src/main', 'removed.txt', 'renames.txt'].any { f -> rootProject.file("versions/$it/$f").exists() } }
 
 if (chain == [project.name]) {
     // Sources are this folder's own src/main, as for any Gradle project.
 } else {
     def merged = layout.buildDirectory.dir('merged-src').get().asFile
+    def renames = []
+    chain.each { entry ->
+        def list = rootProject.file("versions/$entry/renames.txt")
+        if (!list.isFile()) return
+        list.readLines().collect { it.trim() }.findAll { it && !it.startsWith('#') }.each { line ->
+            def parts = line.split(/\s+/)
+            if (parts.length != 2) throw new GradleException("versions/$entry/renames.txt: expected 'old new', got '$line'")
+            renames << parts
+        }
+    }
+    def patterns = renames.collect { r ->
+        [java.util.regex.Pattern.compile('(?<![\\w$])' + java.util.regex.Pattern.quote(r[0]) + '(?![\\w$])'),
+         java.util.regex.Matcher.quoteReplacement(r[1])]
+    }
     def merge = tasks.register('mergeSources', Sync) {
         description = "Merges ${chain.join(' < ')} into build/merged-src."
         into merged
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        inputs.property('renames', renames.collect { it.join(' ') })
+        if (patterns) {
+            filesMatching('**/*.java') {
+                filter { String line ->
+                    patterns.inject(line) { String l, p -> p[0].matcher(l).replaceAll(p[1]) }
+                }
+            }
+        }
         def removed = []
         chain.reverse().each { entry ->
             def dir = rootProject.file("versions/$entry/src/main")

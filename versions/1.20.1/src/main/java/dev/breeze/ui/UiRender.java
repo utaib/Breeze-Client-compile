@@ -1,7 +1,6 @@
 package dev.breeze.ui;
 
 import dev.breeze.compat.Ids;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.Font;
 import net.minecraft.resources.ResourceLocation;
@@ -296,13 +295,6 @@ public final class UiRender {
     private static final int LOGO_PX = 256;
 
     public static void logo(GuiGraphics g, int x, int y, int size, float alpha) {
-        RenderSystem.enableBlend();
-        g.setColor(1f, 1f, 1f, alpha);
-        g.blit(LOGO, x, y, size, size, 0f, 0f, LOGO_PX, LOGO_PX, LOGO_PX, LOGO_PX);
-        g.setColor(1f, 1f, 1f, 1f);
-        // Blend was enabled above and left on. Leaving global GL state modified
-        // after a draw leaks into everything rendered afterwards, which is a
-        // classic source of both visual artifacts and wasted state changes.
-        RenderSystem.disableBlend();
+        dev.breeze.compat.Draw.blit(g, LOGO, x, y, size, size, 0f, 0f, LOGO_PX, LOGO_PX, LOGO_PX, LOGO_PX, alpha);
     }
 }

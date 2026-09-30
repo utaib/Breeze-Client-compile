@@ -1,5 +1,6 @@
 package dev.breeze.menu;
 
+import dev.breeze.compat.BreezeScreen;
 import dev.breeze.Module;
 import dev.breeze.config.BreezeConfig;
 import dev.breeze.settings.Setting;
@@ -29,7 +30,7 @@ import java.util.List;
  * a module carrying the fourteen shared appearance settings reads as three short
  * sections rather than one long list.
  */
-public class ModuleSettingsScreen extends Screen {
+public class ModuleSettingsScreen extends BreezeScreen {
 
     private static final int SLIDER_W = 90;
 
@@ -169,7 +170,7 @@ public class ModuleSettingsScreen extends Screen {
     }
 
     @Override
-    public boolean mouseClicked(double mx, double my, int button) {
+    protected boolean onMouseClicked(double mx, double my, int button) {
         for (Row r : rows) {
             if (r.isHeading() || !r.box.contains(mx, my)) continue;
             Setting s = r.setting;
@@ -197,7 +198,7 @@ public class ModuleSettingsScreen extends Screen {
             save();
             return true;
         }
-        return super.mouseClicked(mx, my, button);
+        return superMouseClicked(mx, my, button);
     }
 
     /**
@@ -230,33 +231,26 @@ public class ModuleSettingsScreen extends Screen {
     }
 
     @Override
-    public boolean mouseDragged(double mx, double my, int button, double dx, double dy) {
+    protected boolean onMouseDragged(double mx, double my, int button, double dx, double dy) {
         if (dragging != null) {
             dragTo(mx);
             return true;
         }
-        return super.mouseDragged(mx, my, button, dx, dy);
+        return superMouseDragged(mx, my, button, dx, dy);
     }
 
     @Override
-    public boolean mouseReleased(double mx, double my, int button) {
+    protected boolean onMouseReleased(double mx, double my, int button) {
         if (dragging != null) {
             dragging = null;
             save();
             return true;
         }
-        return super.mouseReleased(mx, my, button);
+        return superMouseReleased(mx, my, button);
     }
 
-    // 1.20.1 takes three arguments; 1.20.2 and later take four. Neither carries
-    // @Override, so whichever one exists on the target version binds and the
-    // other is simply an unused method.
-    public boolean mouseScrolled(double mx, double my, double delta) {
-        scroll -= delta * 18;
-        return true;
-    }
-
-    public boolean mouseScrolled(double mx, double my, double dx, double dy) {
+    @Override
+    protected boolean onMouseScrolled(double mx, double my, double dx, double dy) {
         scroll -= dy * 18;
         return true;
     }

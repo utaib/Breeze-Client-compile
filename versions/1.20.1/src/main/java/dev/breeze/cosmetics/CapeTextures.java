@@ -1,10 +1,10 @@
 package dev.breeze.cosmetics;
 
 import com.mojang.blaze3d.platform.NativeImage;
+import dev.breeze.compat.Images;
 import dev.breeze.compat.Ids;
 import dev.breeze.net.BreezeApi;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.ResourceLocation;
 
 import javax.imageio.ImageIO;
@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * them; see {@link CosmeticState}.
  *
  * Animation here is a texture swap, not a shader: each frame is uploaded once
- * as its own {@link DynamicTexture} and the renderer is handed whichever one
+ * as its own {@code DynamicTexture} and the renderer is handed whichever one
  * the clock says is current. That is cheap per frame (a texture bind, which
  * happens anyway) at the cost of holding N textures resident.
  *
@@ -173,7 +173,7 @@ public final class CapeTextures {
 
                 ResourceLocation rl = Ids.breeze(
                         "cosmetic_capes/" + sanitize(cape.id) + "_" + i);
-                Minecraft.getInstance().getTextureManager().register(rl, new DynamicTexture(img));
+                Images.register(rl, img);
                 out.add(rl);
                 owned.add(rl);
             }
@@ -226,18 +226,16 @@ public final class CapeTextures {
             return NativeImage.read(new ByteArrayInputStream(bytes));
         } catch (Throwable notPng) {
             // Some capes arrive as formats NativeImage cannot read directly.
-            // ImageIO handles them, but its ARGB order has to be swapped to the
-            // ABGR NativeImage expects, or every cape comes out with red and
-            // blue exchanged.
+            // ImageIO handles them; Images.setPixelArgb puts its ARGB pixels in
+            // the order this Minecraft's NativeImage stores, or every cape
+            // would come out with red and blue exchanged.
             try {
                 BufferedImage bi = ImageIO.read(new ByteArrayInputStream(bytes));
                 if (bi == null) return null;
                 NativeImage img = new NativeImage(bi.getWidth(), bi.getHeight(), true);
                 for (int y = 0; y < bi.getHeight(); y++) {
                     for (int x = 0; x < bi.getWidth(); x++) {
-                        int argb = bi.getRGB(x, y);
-                        int abgr = (argb & 0xFF00FF00) | ((argb & 0xFF) << 16) | ((argb >> 16) & 0xFF);
-                        img.setPixelRGBA(x, y, abgr);
+                        Images.setPixelArgb(img, x, y, bi.getRGB(x, y));
                     }
                 }
                 return img;

@@ -3,7 +3,7 @@ package dev.breeze.modules;
 import dev.breeze.Category;
 import dev.breeze.Module;
 import net.minecraft.ChatFormatting;
-import dev.breeze.compat.Compat;
+import dev.breeze.compat.ItemData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
@@ -29,7 +29,7 @@ public class ShulkerTooltips extends Module {
         try {
             if (!(Block.byItem(stack.getItem()) instanceof ShulkerBoxBlock)) return;
             int shown = 0;
-            for (ItemStack s : Compat.shulkerContents(stack)) {
+            for (ItemStack s : ItemData.shulkerContents(stack)) {
                 if (shown >= 5) {
                     lines.add(Component.literal(" ...").withStyle(ChatFormatting.DARK_GRAY));
                     break;

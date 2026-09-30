@@ -1,6 +1,7 @@
 package dev.breeze.menu;
 
-import dev.breeze.compat.Compat;
+import dev.breeze.compat.BreezeScreen;
+import dev.breeze.compat.Screens;
 import dev.breeze.cosmetics.CapeTextures;
 import dev.breeze.cosmetics.CosmeticState;
 import dev.breeze.cosmetics.CosmeticActions;
@@ -33,7 +34,7 @@ import java.util.List;
  * Designed to grow: the right column is a tab strip, so hats, shoulder pets and
  * accessories become another tab and another list rather than another screen.
  */
-public class WardrobeScreen extends Screen {
+public class WardrobeScreen extends BreezeScreen {
 
     private static final String[] TABS = { "Capes", "Tags" };
 
@@ -129,7 +130,7 @@ public class WardrobeScreen extends Screen {
         Glass.roundedBorder(g, preview.x, preview.y, preview.right(), preview.bottom(), Glass.RADIUS_SM, Palette.BORDER);
 
         if (this.minecraft != null && this.minecraft.player != null) {
-            Compat.renderPlayerPreview(g,
+            Screens.renderPlayerPreview(g,
                     preview.centerX(), preview.bottom() - 26, 62,
                     preview.centerX() - mouseX, preview.y + 90 - mouseY,
                     this.minecraft.player);
@@ -143,7 +144,7 @@ public class WardrobeScreen extends Screen {
                 int w = 40, h = 64;
                 int x = preview.x + Spacing.SM;
                 int y = preview.y + Spacing.SM;
-                g.blit(tex, x, y, w, h, 1f, 1f, 10, 16, 64, 32);
+                dev.breeze.compat.Draw.blit(g, tex, x, y, w, h, 1f, 1f, 10, 16, 64, 32);
                 Glass.roundedBorder(g, x - 1, y - 1, x + w + 1, y + h + 1, Glass.RADIUS_SM, Palette.BORDER);
                 if (s.cape.animated) {
                     Glass.badge(g, this.font, "animated", x, y + h + 3, Palette.ACCENT_DIM, Palette.ACCENT);
@@ -280,7 +281,7 @@ public class WardrobeScreen extends Screen {
     // ── input ───────────────────────────────────────────────────────────────
 
     @Override
-    public boolean mouseClicked(double mx, double my, int button) {
+    protected boolean onMouseClicked(double mx, double my, int button) {
         if (button == 0) {
             int x = tabStrip.x;
             for (String tab : TABS) {
@@ -304,7 +305,7 @@ public class WardrobeScreen extends Screen {
                 }
             }
         }
-        return super.mouseClicked(mx, my, button);
+        return superMouseClicked(mx, my, button);
     }
 
     private void clickCape(CosmeticState.Entry s, int i) {
@@ -331,13 +332,8 @@ public class WardrobeScreen extends Screen {
         CosmeticActions.equipTag(tag.id, ok -> busyId = null);
     }
 
-    // Both signatures, neither with @Override: 1.20.1 takes three arguments and
-    // 1.20.2+ takes four. See BreezeMenuScreen for the full explanation.
-    public boolean mouseScrolled(double mx, double my, double delta) {
-        return breeze$scroll(mx, my, delta);
-    }
-
-    public boolean mouseScrolled(double mx, double my, double scrollX, double scrollY) {
+    @Override
+    protected boolean onMouseScrolled(double mx, double my, double scrollX, double scrollY) {
         return breeze$scroll(mx, my, scrollY);
     }
 

@@ -82,7 +82,7 @@ import dev.breeze.modules.DayCounterHud;
 import dev.breeze.modules.NoHurtCam;
 import dev.breeze.modules.LowFire;
 import dev.breeze.modules.Hitboxes;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
+import dev.breeze.render.WorldCtx;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 
@@ -208,7 +208,7 @@ public final class ModuleManager {
         }
     }
 
-    public static void renderWorldAll(WorldRenderContext ctx) {
+    public static void renderWorldAll(WorldCtx ctx) {
         for (Module m : breeze$dispatch(2)) {
             if (!m.isEnabled()) continue;
             try {

@@ -1,7 +1,7 @@
 package dev.breeze;
 
 import dev.breeze.settings.Setting;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
+import dev.breeze.render.WorldCtx;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -34,7 +34,7 @@ public abstract class Module {
     protected void onDisable() {}
     protected void onTick(Minecraft mc) {}
     protected void onHudRender(GuiGraphics g, float partialTick) {}
-    protected void onWorldRender(WorldRenderContext ctx) {}
+    protected void onWorldRender(WorldCtx ctx) {}
 
     public final String getName() { return name; }
     public final Category getCategory() { return category; }

@@ -2,6 +2,7 @@ package dev.breeze.modules;
 
 import dev.breeze.Category;
 import dev.breeze.Module;
+import dev.breeze.compat.Game;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.PlayerModelPart;
 
@@ -22,7 +23,7 @@ public class PlayerModel extends Module {
             wasEnabled.clear();
             for (PlayerModelPart part : PlayerModelPart.values()) {
                 if (mc.options.isModelPartEnabled(part)) wasEnabled.add(part);
-                mc.options.toggleModelPart(part, true);
+                Game.setModelPart(mc.options, part, true);
             }
         } catch (Throwable ignored) {}
     }
@@ -32,7 +33,7 @@ public class PlayerModel extends Module {
         try {
             Minecraft mc = Minecraft.getInstance();
             for (PlayerModelPart part : PlayerModelPart.values()) {
-                mc.options.toggleModelPart(part, wasEnabled.contains(part));
+                Game.setModelPart(mc.options, part, wasEnabled.contains(part));
             }
         } catch (Throwable ignored) {}
     }

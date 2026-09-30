@@ -4,22 +4,14 @@ import com.cinemamod.mcef.MCEF;
 import com.cinemamod.mcef.MCEFBrowser;
 import com.cinemamod.mcef.MCEFRenderer;
 import com.google.gson.JsonElement;
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.breeze.BreezeClient;
 import dev.breeze.bridge.Events;
 import dev.breeze.bridge.PageOrigin;
 import dev.breeze.bridge.Router;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.GameRenderer;
 import org.cef.browser.CefBrowser;
 import org.cef.callback.CefQueryCallback;
-import org.joml.Matrix4f;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -192,26 +184,7 @@ public final class BreezeBrowser {
             focusedOnPaint = true;
             browser.setFocus(true);
         }
-        int texture = browser.getRenderer().getTextureID();
-        Matrix4f pose = g.pose().last().pose();
-        RenderSystem.disableDepthTest();
-        RenderSystem.enableBlend();
-        RenderSystem.blendFuncSeparate(
-                GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-                GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
-        RenderSystem.setShaderTexture(0, texture);
-        BufferBuilder buffer = Tesselator.getInstance().getBuilder();
-        buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-        buffer.vertex(pose, 0, guiHeight, 0).uv(0f, 1f).color(255, 255, 255, 255).endVertex();
-        buffer.vertex(pose, guiWidth, guiHeight, 0).uv(1f, 1f).color(255, 255, 255, 255).endVertex();
-        buffer.vertex(pose, guiWidth, 0, 0).uv(1f, 0f).color(255, 255, 255, 255).endVertex();
-        buffer.vertex(pose, 0, 0, 0).uv(0f, 0f).color(255, 255, 255, 255).endVertex();
-        Tesselator.getInstance().end();
-        RenderSystem.setShaderTexture(0, 0);
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.disableBlend();
-        RenderSystem.enableDepthTest();
+        dev.breeze.compat.Draw.browserFrame(g, browser.getRenderer().getTextureID(), guiWidth, guiHeight);
     }
 
     /** Idempotent, any thread. */
