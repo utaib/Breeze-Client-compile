@@ -3,15 +3,15 @@ package dev.breeze.render;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.ShapeRenderer;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /**
  * Drawing in the world for modules. The calls that differ between Minecraft
- * versions live here (versions/ has a copy per change); this is the 1.20.1
- * form.
+ * versions live here (versions/ has a copy per change); this is the 1.21.9
+ * form: line boxes take the current pose rather than the stack.
  */
 public final class WorldRender {
 
@@ -40,7 +40,7 @@ public final class WorldRender {
         PoseStack ps = ctx.pose();
         ps.pushPose();
         ps.translate(-cam.x, -cam.y, -cam.z);
-        LevelRenderer.renderLineBox(ps, ctx.consumers().getBuffer(RenderType.lines()), box, r, g, b, a);
+        ShapeRenderer.renderLineBox(ps.last(), ctx.consumers().getBuffer(RenderType.lines()), box, r, g, b, a);
         ps.popPose();
     }
 }

@@ -5,6 +5,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 
 public class ItemCounterHud extends AbstractHudModule {
@@ -23,12 +24,13 @@ public class ItemCounterHud extends AbstractHudModule {
         }
         Item type = held.getItem();
         int count = 0;
-        for (ItemStack s : mc.player.getInventory().items) {
+        Inventory inv = mc.player.getInventory();
+        for (int i = 0; i < InventoryHud.MAIN_SLOTS; i++) {
+            ItemStack s = inv.getItem(i);
             if (s.getItem() == type) count += s.getCount();
         }
-        for (ItemStack s : mc.player.getInventory().offhand) {
-            if (s.getItem() == type) count += s.getCount();
-        }
+        ItemStack off = mc.player.getOffhandItem();
+        if (off.getItem() == type) count += off.getCount();
         line(g, font, held.getHoverName().getString() + ": " + count);
     }
 }

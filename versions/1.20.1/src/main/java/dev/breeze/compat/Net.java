@@ -20,8 +20,9 @@ public final class Net {
 
     private Net() {}
 
-    /** Tear down the current level before connecting elsewhere. */
-    public static void clearLevel(Minecraft mc) {
+    /** Leave the world the player is in (a server or singleplayer) before connecting elsewhere. */
+    public static void leaveWorld(Minecraft mc) {
+        if (mc.level != null) mc.level.disconnect();
         mc.clearLevel();
     }
 

@@ -138,8 +138,8 @@ public final class BreezeTag {
         try {
             for (PlayerInfo info : mc.getConnection().getOnlinePlayers()) {
                 if (info == null || info.getProfile() == null) continue;
-                String n = info.getProfile().getName();
-                UUID pid = info.getProfile().getId();
+                String n = dev.breeze.compat.Profiles.name(info.getProfile());
+                UUID pid = dev.breeze.compat.Profiles.id(info.getProfile());
                 if (n == null || pid == null) continue;
                 String key = n.toLowerCase();
                 NAME_TO_UUID.put(key, pid);

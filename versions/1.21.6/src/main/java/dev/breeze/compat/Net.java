@@ -3,13 +3,14 @@ package dev.breeze.compat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ConnectScreen;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
 
 /**
  * Leaving a world and joining a server. These calls change shape between
  * Minecraft versions, so the rest of the mod calls them here, and versions/
- * has a copy of this file per change. This is the 1.20.5 form.
+ * has a copy of this file per change. This is the 1.21.6 form.
  *
  * Everything here is a plain call the compiler checks and the remapper
  * renames. (Breeze once resolved these by reflection on Mojang names, which
@@ -22,8 +23,8 @@ public final class Net {
 
     /** Leave the world the player is in (a server or singleplayer) before connecting elsewhere. */
     public static void leaveWorld(Minecraft mc) {
-        if (mc.level != null) mc.level.disconnect();
-        mc.disconnect();
+        if (mc.level != null) mc.level.disconnect(ClientLevel.DEFAULT_QUIT_MESSAGE);
+        mc.disconnectWithProgressScreen();
     }
 
     /** A ServerData for a direct connect. */

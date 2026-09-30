@@ -307,10 +307,8 @@ tasks.register('dumpApi') {
                 }
             }
             w << "== classes\n"
-            def packages = ['net.minecraft.client.gui.', 'net.minecraft.client.renderer.', 'net.minecraft.client.input.',
-                            'net.minecraft.resources.', 'net.minecraft.client.resources.', 'com.mojang.blaze3d.',
-                            'net.fabricmc.fabric.api.client.rendering.', 'net.fabricmc.fabric.api.client.item.',
-                            'net.fabricmc.fabric.api.client.keybinding.']
+            def packages = ['net.minecraft.client.', 'net.minecraft.resources.', 'net.minecraft.core.', 'com.mojang.blaze3d.',
+                            'net.fabricmc.fabric.api.client.', 'org.lwjgl.glfw.']
             all.findAll { n -> !n.contains('$') && packages.any { n.startsWith(it) } && !n.contains('.impl.') }
                     .each { w << it << '\n' }
         }

@@ -26,7 +26,6 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.api.metadata.ModMetadata;
 import net.fabricmc.loader.api.metadata.Person;
-import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.PauseScreen;
@@ -70,7 +69,8 @@ final class Handlers {
             JsonObject o = new JsonObject();
             o.addProperty("protocol", Request.PROTOCOL);
             o.addProperty("modVersion", version("breeze"));
-            o.addProperty("minecraftVersion", SharedConstants.getCurrentVersion().getName());
+            o.addProperty("minecraftVersion", net.fabricmc.loader.api.FabricLoader.getInstance()
+                    .getModContainer("minecraft").map(c -> c.getMetadata().getVersion().getFriendlyString()).orElse("?"));
             o.addProperty("loaderVersion", version("fabricloader"));
             o.addProperty("chromiumVersion", WebInit.chromiumVersion());
             o.addProperty("context", ingame ? "ingame" : "title");

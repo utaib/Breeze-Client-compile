@@ -95,8 +95,8 @@ public final class BreezeUsers {
         try {
             for (PlayerInfo info : mc.getConnection().getOnlinePlayers()) {
                 if (info == null || info.getProfile() == null) continue;
-                String n = info.getProfile().getName();
-                if (n != null && NAMES.contains(n.toLowerCase())) add(info.getProfile().getId());
+                String n = dev.breeze.compat.Profiles.name(info.getProfile());
+                if (n != null && NAMES.contains(n.toLowerCase())) add(dev.breeze.compat.Profiles.id(info.getProfile()));
             }
         } catch (Throwable ignored) {}
     }

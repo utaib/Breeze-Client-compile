@@ -13,10 +13,7 @@ public final class Connector {
     public static void connect(String address) {
         try {
             Minecraft mc = Minecraft.getInstance();
-            if (mc.level != null) {
-                mc.level.disconnect();
-                Net.clearLevel(mc);
-            }
+            if (mc.level != null) Net.leaveWorld(mc);
             BreezeClient.LOGGER.info("[Breeze] join: connecting to {}", address);
             // Both calls differ between Minecraft versions: see compat/Net.
             ServerData data = Net.serverData("Breeze World", address);
