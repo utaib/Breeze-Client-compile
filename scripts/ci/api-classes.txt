@@ -258,6 +258,7 @@ net.minecraft.world.clock.ClockNetworkState
 net.minecraft.world.clock.WorldClocks
 net.minecraft.world.entity.Avatar
 p net.minecraft.client.gui.Hud
-p net.minecraft.client.renderer.FirstPersonHandsAndItemsRenderer
 net.minecraft.client.player.FirstPersonHandsAndItems
 p net.minecraft.client.Camera
+c net.minecraft.client.renderer.FirstPersonHandsAndItemsRenderer
+net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$CollectSubmits

@@ -18,7 +18,8 @@ import net.minecraft.network.chat.Component;
  *
  * An on* method that does not handle the input passes it on with the matching
  * super* method, the way an override would call super. This is the 26.1
- * form: input as on 1.21.11 (event records, which this class unpacks), and
+ * form: input as on 1.21.11 (event records, which this class unpacks; a
+ * typed character no longer carries modifier keys, so they read 0), and
  * drawing is "extracting" into a render state: Minecraft calls
  * extractRenderState and extractBackground. Breeze screens keep overriding
  * render(), which extractRenderState calls, so their code stays the same.
@@ -132,7 +133,8 @@ public abstract class BreezeScreen extends Screen {
     }
 
     protected final boolean superCharTyped(int codePoint, int modifiers) {
-        return super.charTyped(new CharacterEvent(codePoint, modifiers));
+        // 26.1: a typed character carries no modifier keys.
+        return super.charTyped(new CharacterEvent(codePoint));
     }
 
     // ── Minecraft's calls (26.1) ───────────────────────────────────────────
@@ -178,7 +180,7 @@ public abstract class BreezeScreen extends Screen {
 
     @Override
     public final boolean charTyped(CharacterEvent e) {
-        return onCharTyped(e.codepoint(), e.modifiers());
+        return onCharTyped(e.codepoint(), 0);
     }
 
     @Override

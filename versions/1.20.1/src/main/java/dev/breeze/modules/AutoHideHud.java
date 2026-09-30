@@ -2,6 +2,7 @@ package dev.breeze.modules;
 
 import dev.breeze.Category;
 import dev.breeze.Module;
+import dev.breeze.compat.ActiveScreen;
 import net.minecraft.client.Minecraft;
 
 public class AutoHideHud extends Module {
@@ -16,15 +17,15 @@ public class AutoHideHud extends Module {
     protected void onEnable() {
         try {
             Minecraft mc = Minecraft.getInstance();
-            previous = mc.options.hideGui;
-            mc.options.hideGui = true;
+            previous = ActiveScreen.hudHidden(mc);
+            ActiveScreen.setHudHidden(mc, true);
         } catch (Throwable ignored) {}
     }
 
     @Override
     protected void onDisable() {
         try {
-            Minecraft.getInstance().options.hideGui = previous;
+            ActiveScreen.setHudHidden(Minecraft.getInstance(), previous);
         } catch (Throwable ignored) {}
     }
 }

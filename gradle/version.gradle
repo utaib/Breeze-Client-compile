@@ -265,7 +265,9 @@ tasks.register('printApi') {
 }
 
 // The same for every class in scripts/ci/api-classes.txt (what Breeze uses,
-// and where it moved to in later versions), into build/api.txt. A class this
+// and where it moved to in later versions), into build/api.txt. A line "p X"
+// includes X's private members; "c X" also lists, per method of X, the calls
+// it makes (for a mixin that hooks a call inside a method). A class this
 // version lacks is listed with the classes of the same simple name it has, and
 // the file ends with every class in the packages Breeze draws and hooks with,
 // which is where renames show.
@@ -292,12 +294,13 @@ tasks.register('dumpApi') {
         out.parentFile.mkdirs()
         out.withWriter('UTF-8') { w ->
             w << "== api of minecraft ${mc}\n"
-            def present = [], privateToo = []
+            def present = [], privateToo = [], calls = []
             entries.each { line ->
-                def priv = line.startsWith('p ')
+                def priv = line.startsWith('p ') || line.startsWith('c ')
                 def name = priv ? line.substring(2).trim() : line
                 if (all.contains(name)) {
                     (priv ? privateToo : present) << name
+                    if (line.startsWith('c ')) calls << name
                 } else {
                     def alike = bySimple[simple(name)] ?: []
                     w << "MISSING ${name}" << (alike ? " -> ${alike.join(', ')}" : '') << '\n'
@@ -310,6 +313,18 @@ tasks.register('dumpApi') {
                     proc.inputStream.eachLine('UTF-8') { w << it << '\n' }
                     proc.waitFor()
                 }
+            }
+            calls.each { name ->
+                w << "== calls ${name}\n"
+                def proc = new ProcessBuilder([javap, '-c', '-p', '-cp', classpath.asPath, name])
+                        .redirectErrorStream(true).start()
+                proc.inputStream.eachLine('UTF-8') { l ->
+                    if (l ==~ /^  \S.*\(.*/) w << l << '\n'
+                    else if (l =~ /invoke(virtual|static|special|interface|dynamic)/) {
+                        w << '    ' << l.replaceFirst(/^\s*\d+:\s*/, '') << '\n'
+                    }
+                }
+                proc.waitFor()
             }
             w << "== classes\n"
             def packages = ['net.minecraft.client.', 'net.minecraft.resources.', 'net.minecraft.core.', 'com.mojang.blaze3d.',
