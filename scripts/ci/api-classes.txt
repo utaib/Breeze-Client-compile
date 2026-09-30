@@ -262,3 +262,9 @@ net.minecraft.client.player.FirstPersonHandsAndItems
 p net.minecraft.client.Camera
 c net.minecraft.client.renderer.FirstPersonHandsAndItemsRenderer
 net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents$CollectSubmits
+# Before 1.20 (GuiGraphics did not exist yet): drawing went through
+# GuiComponent's static methods with a PoseStack, registries through Registry.
+p net.minecraft.client.gui.GuiComponent
+net.minecraft.core.Registry
+net.minecraft.core.registries.BuiltInRegistries
+net.minecraft.client.gui.components.Button
