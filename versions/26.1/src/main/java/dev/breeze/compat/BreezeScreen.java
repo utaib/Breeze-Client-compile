@@ -117,7 +117,7 @@ public abstract class BreezeScreen extends Screen {
     }
 
     private MouseButtonEvent mouse(double x, double y, int button) {
-        return new MouseButtonEvent(x, y, new MouseButtonInfo(button, mouseModifiers));
+        return new MouseButtonEvent(x, y, new MouseButtonInfo(Buttons.toGame(button), mouseModifiers));
     }
 
     protected final boolean superMouseScrolled(double x, double y, double scrollX, double scrollY) {
@@ -143,19 +143,19 @@ public abstract class BreezeScreen extends Screen {
     public final boolean mouseClicked(MouseButtonEvent e, boolean doubleClick) {
         this.mouseModifiers = e.modifiers();
         this.doubleClick = doubleClick;
-        return onMouseClicked(e.x(), e.y(), e.button());
+        return onMouseClicked(e.x(), e.y(), Buttons.fromGame(e.button()));
     }
 
     @Override
     public final boolean mouseReleased(MouseButtonEvent e) {
         this.mouseModifiers = e.modifiers();
-        return onMouseReleased(e.x(), e.y(), e.button());
+        return onMouseReleased(e.x(), e.y(), Buttons.fromGame(e.button()));
     }
 
     @Override
     public final boolean mouseDragged(MouseButtonEvent e, double dx, double dy) {
         this.mouseModifiers = e.modifiers();
-        return onMouseDragged(e.x(), e.y(), e.button(), dx, dy);
+        return onMouseDragged(e.x(), e.y(), Buttons.fromGame(e.button()), dx, dy);
     }
 
     @Override

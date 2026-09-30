@@ -1,5 +1,7 @@
 package dev.breeze.mixin;
 
+import com.mojang.blaze3d.platform.InputConstants;
+import dev.breeze.compat.Buttons;
 import dev.breeze.input.Clicks;
 import net.minecraft.client.MouseHandler;
 import net.minecraft.client.input.MouseButtonInfo;
@@ -27,8 +29,8 @@ public class MouseHandlerMixin {
     // 1.21.9 and later: onButton, with the button and modifiers in one record.
     @Inject(method = "onButton", at = @At("HEAD"))
     private void breeze$press(long window, MouseButtonInfo info, int action, CallbackInfo ci) {
-        // GLFW_PRESS is 1. Not imported, because pulling in the GLFW binding for
-        // one integer is not worth the coupling.
-        if (action == 1) Clicks.onPress(info.button());
+        // Minecraft's own press constant (GLFW_PRESS up to 26.2), and the button
+        // in Breeze's numbering (26.3 numbers them SDL's way).
+        if (action == InputConstants.PRESS) Clicks.onPress(Buttons.fromGame(info.button()));
     }
 }

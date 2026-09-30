@@ -59,7 +59,7 @@ public abstract class TitleScreenMixin extends Screen {
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
     private void breeze$click(MouseButtonEvent event, boolean doubleClick, CallbackInfoReturnable<Boolean> cir) {
         double mx = event.x(), my = event.y();
-        if (event.button() != 0 || mx < 6 || mx > 84) return;
+        if (dev.breeze.compat.Buttons.fromGame(event.button()) != 0 || mx < 6 || mx > 84) return;
         for (int i = 0; i < 3; i++) {
             int y = breeze$btnY(i);
             if (my >= y && my <= y + 20) {
