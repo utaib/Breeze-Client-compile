@@ -232,7 +232,7 @@ public final class AutoTest {
 
     // ── In a world (after the menu checks) ─────────────────────────────────
 
-    private enum World { IDLE, OPENED, IN_WORLD, EDITING, WARDROBE, DONE }
+    private enum World { IDLE, OPENED, IN_WORLD, LAYOUT, SWEEP, EDITING, WARDROBE, DONE }
 
     /** The test runs against the stand-in API, with a game token for a test player. */
     private static final boolean STUB = System.getProperty("breeze.autotest.stub") != null;
@@ -242,7 +242,9 @@ public final class AutoTest {
     private static long worldAt;
     private static int capeLayerCalls;
     private static int capeCallsAtStart;
-    private static int[] fpsBefore;
+    /** Where each element the driver drags in the HUD editor was before. */
+    private static final Map<String, int[]> dragBefore = new HashMap<>();
+    private static ModuleSweep sweep;
     private static int cosmeticDrawsAtStart;
     private static int cosmeticFailuresAtStart;
     /** The test's 3D cosmetics: id, slot, attachment. */
@@ -251,8 +253,13 @@ public final class AutoTest {
             {"autotest-pet", "pet", dev.breeze.cosmetics.model.CosmeticRig.Attachment.FLYING_PET},
             {"autotest-trail", "trail", dev.breeze.cosmetics.model.CosmeticRig.Attachment.TRAIL},
     };
-    /** HUD elements that always have something to draw, switched on for the check. */
-    private static final String[] HUD_CHECK = {"FPS", "Coordinates", "CPS", "Keystrokes", "Direction", "Inventory HUD"};
+    /**
+     * HUD elements left on for the HUD editor step. The driver drags the first
+     * three: text (FPS), boxes it draws itself (Keystrokes) and one anchored to
+     * the right edge, under the editor's panel until it is hidden (Inventory).
+     */
+    private static final String[] EDITOR_SET = {"FPS", "Keystrokes", "Inventory HUD", "Coordinates", "CPS", "Direction"};
+    private static final String[] DRAGGED = {"FPS", "Keystrokes", "Inventory HUD"};
 
     /** Called by the cape layer each time it runs (all three CapeLayerMixin forms). */
     public static void capeLayer() {
@@ -282,10 +289,9 @@ public final class AutoTest {
             }
             case OPENED -> {
                 if (mc.level != null && mc.player != null && dev.breeze.compat.ActiveScreen.get(mc) == null) {
-                    for (Module m : ModuleManager.getModules()) {
-                        for (String name : HUD_CHECK) {
-                            if (m.getName().equals(name) && !m.isEnabled()) m.setEnabled(true);
-                        }
+                    // Every HUD module on, for the draw check and the layout check.
+                    for (dev.breeze.modules.AbstractHudModule h : HudSweep.huds()) {
+                        if (!h.isEnabled()) h.setEnabled(true);
                     }
                     try {
                         Path capes = mc.gameDirectory.toPath().resolve("breeze_capes");
@@ -333,21 +339,7 @@ public final class AutoTest {
             case IN_WORLD -> {
                 if (age < 5_000) return;
                 shot(mc, "autotest-in-world");
-                JsonObject hud = new JsonObject();
-                boolean allDrawn = true;
-                for (Module m : ModuleManager.getModules()) {
-                    if (!(m instanceof dev.breeze.modules.AbstractHudModule h)) continue;
-                    for (String name : HUD_CHECK) {
-                        if (!m.getName().equals(name)) continue;
-                        boolean recent = System.currentTimeMillis() - h.lastDrawnAt() < 2_000;
-                        boolean ok = h.isEnabled() && recent && !h.drawFailed();
-                        allDrawn &= ok;
-                        hud.addProperty(name, (ok ? "drawn " : h.drawFailed() ? "threw " : "not drawn ")
-                                + h.getHudW() + "x" + h.getHudH() + " at " + h.getHudX() + "," + h.getHudY());
-                    }
-                }
-                hud.addProperty("pass", String.valueOf(allDrawn));
-                write("hud-check", hud);
+                write("hud-check", HudSweep.check());
 
                 String breeze = String.valueOf(dev.breeze.cape.RemoteCapes.capeFor(mc.player.getUUID()));
                 String vanilla = String.valueOf(dev.breeze.compat.Capes.vanillaCape(mc.player));
@@ -369,10 +361,37 @@ public final class AutoTest {
                 cos.addProperty("pass", String.valueOf(cosmeticDraws > 0 && eachDrawn && cosmeticFailures == 0));
                 write("cosmetic-check", cos);
 
+                // Every element moved to its own place, saved, read back.
+                HudSweep.place(mc);
+                world = World.LAYOUT;
+                worldAt = System.currentTimeMillis();
+            }
+            case LAYOUT -> {
+                if (age < 3_000) return;
+                write("hud-layout", HudSweep.verify(mc));
+                shot(mc, "autotest-hud-layout");
+                HudSweep.restore();
+                sweep = new ModuleSweep();
+                world = World.SWEEP;
+                worldAt = System.currentTimeMillis();
+                log("module-sweep-start");
+            }
+            case SWEEP -> {
+                if (!sweep.step(mc) && age < 600_000) return;
+                write("module-sweep", sweep.report());
+                write("settings-persist", ModuleSweep.persistence());
+
+                // The HUD editor step: a few elements on, from their defaults.
+                for (dev.breeze.modules.AbstractHudModule h : HudSweep.huds()) {
+                    boolean keep = java.util.Arrays.asList(EDITOR_SET).contains(h.getName());
+                    if (h.isEnabled() != keep) h.setEnabled(keep);
+                }
+                dev.breeze.compat.ActiveScreen.set(mc, null);
                 mc.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON);
-                for (Module m : ModuleManager.getModules()) {
-                    if (m.getName().equals("FPS") && m instanceof dev.breeze.modules.AbstractHudModule h) {
-                        fpsBefore = new int[]{h.getHudX(), h.getHudY()};
+                dragBefore.clear();
+                for (dev.breeze.modules.AbstractHudModule h : HudSweep.huds()) {
+                    if (java.util.Arrays.asList(DRAGGED).contains(h.getName())) {
+                        dragBefore.put(h.getName(), new int[]{h.getHudX(), h.getHudY()});
                     }
                 }
                 dev.breeze.compat.ActiveScreen.set(mc, new dev.breeze.menu.HudEditorScreen(null));
@@ -385,20 +404,20 @@ public final class AutoTest {
                     if (age > 300_000) world = World.DONE;
                     return;
                 }
-                String after = "none";
-                String saved = "none";
-                boolean moved = false;
-                for (Module m : ModuleManager.getModules()) {
-                    if (m.getName().equals("FPS") && m instanceof dev.breeze.modules.AbstractHudModule h) {
-                        after = h.getHudX() + "," + h.getHudY();
-                        dev.breeze.hud.HudPlacement p = dev.breeze.ui.HudLayout.get("FPS");
-                        saved = String.valueOf(p);
-                        moved = fpsBefore != null && p != null
-                                && (Math.abs(h.getHudX() - fpsBefore[0]) + Math.abs(h.getHudY() - fpsBefore[1])) > 10;
-                    }
+                JsonObject moves = new JsonObject();
+                boolean allMoved = true;
+                for (dev.breeze.modules.AbstractHudModule h : HudSweep.huds()) {
+                    int[] before = dragBefore.get(h.getName());
+                    if (before == null) continue;
+                    dev.breeze.hud.HudPlacement p = dev.breeze.ui.HudLayout.get(h.getName());
+                    boolean moved = p != null
+                            && (Math.abs(h.getHudX() - before[0]) + Math.abs(h.getHudY() - before[1])) > 10;
+                    allMoved &= moved;
+                    moves.addProperty(h.getName(), before[0] + "," + before[1] + " -> " + h.getHudX() + "," + h.getHudY()
+                            + " saved " + p + (moved ? "" : " (not moved)"));
                 }
-                log("hud-moved", "before", fpsBefore == null ? "none" : fpsBefore[0] + "," + fpsBefore[1],
-                        "after", after, "saved", saved, "pass", String.valueOf(moved));
+                moves.addProperty("pass", String.valueOf(allMoved && !dragBefore.isEmpty()));
+                write("hud-moved", moves);
                 if (!STUB) {
                     world = World.DONE;
                     return;

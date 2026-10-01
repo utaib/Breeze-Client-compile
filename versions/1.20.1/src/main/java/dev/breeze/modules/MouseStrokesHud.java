@@ -15,8 +15,13 @@ public class MouseStrokesHud extends AbstractHudModule {
         super("Mouse Strokes", Category.HUD, "Shows mouse buttons.", KEY_NONE, 80, 410);
     }
 
+    /** Draws its own boxes; sized so the HUD editor's handle and the background frame cover both. */
+    @Override
+    protected boolean drawsShapes() { return true; }
+
     @Override
     protected void draw(Minecraft mc, GuiGraphics g, Font font) {
+        bounds(S * 2 + G, S * 2 + G);
         if (mc.player == null) return;
         box(g, font, "LMB", mc.options.keyAttack.isDown(), x, y, S * 2 + G, S);
         box(g, font, "RMB", mc.options.keyUse.isDown(), x, y + S + G, S * 2 + G, S);

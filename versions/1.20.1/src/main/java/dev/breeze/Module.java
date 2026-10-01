@@ -95,6 +95,7 @@ public abstract class Module {
             if (enabled) onEnable();
             else onDisable();
         } catch (Throwable t) {
+            ModuleManager.noteError(this);
             BreezeClient.LOGGER.warn("[Breeze] Module '{}' threw during enable/disable: {}", name, t.toString());
         }
     }

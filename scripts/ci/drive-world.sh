@@ -74,7 +74,9 @@ for _ in 1 2 3; do
   fi
 done
 b=$(count '"event":"WORLD_READY"')
-if wait_new '"event":"WORLD_READY"' 300 "$b"; then
+# The self-test checks every HUD module and sweeps every module's settings
+# before it opens the HUD editor (WORLD_READY): several minutes.
+if wait_new '"event":"WORLD_READY"' 900 "$b"; then
   pass "a new singleplayer world loaded with Breeze"
 else
   fail "a new singleplayer world loaded with Breeze (last screen: $(last_kind))"
@@ -86,8 +88,26 @@ shot 07-in-world
 hud=$(grep '"event":"hud-check"' "$LOG" | tail -1)
 say "hud: $hud"
 case "$hud" in
-  *'"pass":"true"'*) pass "every checked HUD element drew in the world" ;;
-  *) fail "a HUD element did not draw in the world" ;;
+  *'"pass":"true"'*) pass "every HUD module drew in the world without an error" ;;
+  *) fail "a HUD module did not draw in the world, or threw" ;;
+esac
+layout=$(grep '"event":"hud-layout"' "$LOG" | tail -1)
+say "layout: $layout"
+case "$layout" in
+  *'"pass":"true"'*) pass "every HUD module was moved, saved, read back and drawn where it was put" ;;
+  *) fail "a HUD module did not keep the place it was moved to" ;;
+esac
+sweep=$(grep '"event":"module-sweep"' "$LOG" | tail -1)
+say "modules: $sweep"
+case "$sweep" in
+  *'"pass":"true"'*) pass "every module was switched on and every setting changed in the world, none threw" ;;
+  *) fail "a module threw when switched on or when a setting changed" ;;
+esac
+persist=$(grep '"event":"settings-persist"' "$LOG" | tail -1)
+say "settings saved: $persist"
+case "$persist" in
+  *'"pass":"true"'*) pass "changed settings were saved and read back" ;;
+  *) fail "a changed setting did not survive saving and reading back" ;;
 esac
 cape=$(grep '"event":"cape-check"' "$LOG" | tail -1)
 say "cape: $cape"
@@ -102,39 +122,49 @@ case "$cosmetic" in
   *) fail "a 3D cosmetic was not drawn on the player, or threw while drawing" ;;
 esac
 
-# ── HUD editor: drag FPS with the real mouse, Done ───────────────────────
-t=$(fresh_targets hud-editor)
-xy=$(where "$t" '^hud-fps$')
-if [ -z "$xy" ]; then
-  fail "the HUD editor shows the FPS element"
-else
-  pass "the HUD editor shows the FPS element"
-  set -- $xy
-  say "drag FPS from $1 $2"
+# ── HUD editor: drag three kinds of element with the real mouse, Done ──
+# FPS (text), Keystrokes (boxes it draws itself) and the Inventory HUD
+# (anchored to the right edge, under the editor's panel until H hides it).
+drag_el() { # name-regex dx dy
+  local xy
+  xy=$(where "$(fresh_targets hud-editor)" "$1")
+  if [ -z "$xy" ]; then
+    fail "the HUD editor shows the element $1"
+    return
+  fi
+  set -- $xy "$2" "$3"
+  say "drag from $1 $2 by $3 $4"
   xdotool mousemove --window "$WID" "$1" "$2"
   sleep 0.3
   xdotool mousedown 1
   for i in 1 2 3 4 5 6 7 8 9 10; do
-    xdotool mousemove --window "$WID" "$(( $1 + i * 25 ))" "$(( $2 + i * 15 ))"
+    xdotool mousemove --window "$WID" "$(( $1 + i * $3 / 10 ))" "$(( $2 + i * $4 / 10 ))"
     sleep 0.05
   done
   sleep 0.2
   xdotool mouseup 1
+  sleep 0.5
+}
+if [ -z "$(where "$(fresh_targets hud-editor)" '^hud-fps$')" ]; then
+  fail "the HUD editor shows the FPS element"
+else
+  pass "the HUD editor shows the FPS element"
+  drag_el '^hud-fps$' 250 150
+  drag_el '^hud-keystrokes$' 250 -150
+  # The panel covers the top-right corner; H hides it.
+  xdotool key h
+  sleep 0.8
+  drag_el '^hud-inventory hud$' -300 150
   shot 08-hud-editor-dragged
-  xy=$(where "$(fresh_targets hud-editor)" '^done$')
   b=$(count '"event":"hud-moved"')
-  if [ -n "$xy" ]; then
-    # shellcheck disable=SC2086
-    click_at $xy
-  else
-    xdotool key Return
-  fi
+  # Enter is Done, with the panel hidden as well.
+  xdotool key Return
   if wait_new '"event":"hud-moved"' 10 "$b"; then
     moved=$(grep '"event":"hud-moved"' "$LOG" | tail -1)
     say "moved: $moved"
     case "$moved" in
-      *'"pass":"true"'*) pass "a drag in the HUD editor moved the FPS element and Done saved it" ;;
-      *) fail "the drag did not move and save the FPS element" ;;
+      *'"pass":"true"'*) pass "drags in the HUD editor moved FPS, Keystrokes and the Inventory HUD, and Done saved them" ;;
+      *) fail "a drag in the HUD editor did not move and save its element" ;;
     esac
   else
     fail "the HUD editor closed with Done"

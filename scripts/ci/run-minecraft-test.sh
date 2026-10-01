@@ -131,7 +131,7 @@ grep -hE 'Exception|ERROR|FATAL' "$OUT/minecraft-latest.log" > "$OUT/errors.txt"
 echo "== harness: screens, stages and failures"
 grep -E '"event":"(start|screen|menu-open|READY_FOR_INPUT|key|FAIL|stress-result|AUTOTEST_DONE|mixin-audit|module)"' "$OUT/breeze-autotest.log" 2>/dev/null | head -80
 echo "== harness: in the world"
-grep -E '"event":"(world-open|world-joined|hud-check|cape-check|cape-image|cosmetic-check|cosmetic-setup|WORLD_READY|hud-moved|wardrobe-open|wardrobe-check)"' "$OUT/breeze-autotest.log" 2>/dev/null | head -20
+grep -E '"event":"(world-open|world-joined|hud-check|hud-layout|module-sweep|settings-persist|cape-check|cape-image|cosmetic-check|cosmetic-setup|WORLD_READY|hud-moved|wardrobe-open|wardrobe-check)"' "$OUT/breeze-autotest.log" 2>/dev/null | head -20
 echo "== harness: mouse presses (1.21.9 and later)"
 grep '"event":"mouse"' "$OUT/breeze-autotest.log" 2>/dev/null | head -40
 if [ "$MODE" = prod ]; then

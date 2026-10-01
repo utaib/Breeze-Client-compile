@@ -86,6 +86,7 @@ public abstract class AbstractHudModule extends Module {
             draw(mc, g, font);
             lastDrawnAt = System.currentTimeMillis();
         } catch (Throwable error) {
+            dev.breeze.ModuleManager.noteError(this);
             // A module that throws here used to render nothing and say nothing,
             // which is indistinguishable from a module that is simply switched
             // off. That is how several modules came to be described as broken

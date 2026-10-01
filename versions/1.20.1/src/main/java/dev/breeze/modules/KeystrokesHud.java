@@ -15,8 +15,13 @@ public class KeystrokesHud extends AbstractHudModule {
         super("Keystrokes", Category.HUD, "Shows WASD + jump keys.", KEY_NONE, 4, 410);
     }
 
+    /** Draws its own boxes; sized so the HUD editor's handle and the background frame cover all of them. */
+    @Override
+    protected boolean drawsShapes() { return true; }
+
     @Override
     protected void draw(Minecraft mc, GuiGraphics g, Font font) {
+        bounds(3 * S + 2 * G, 3 * S + 2 * G);
         if (mc.player == null) return;
         box(g, font, "W", mc.options.keyUp.isDown(), x + S + G, y, S, S);
         box(g, font, "A", mc.options.keyLeft.isDown(), x, y + S + G, S, S);

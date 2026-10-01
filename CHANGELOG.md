@@ -7,6 +7,34 @@ fixes bump PATCH. `scripts/check-version.sh` keeps `gradle.properties`,
 Each entry says what was verified and how. Anything not verified is marked
 **UNVERIFIED**.
 
+## [2.9.1] - 2026-10-01 (not released)
+
+Every HUD module can be moved; every module is tested in a world.
+
+### Fixed
+- Keystrokes and Mouse Strokes draw their own boxes but reported no size,
+  so the HUD editor's handle covered only a 24 by 10 corner of them and the
+  background frame did not fit. They now report their real size (58 by 58,
+  46 by 46).
+- Recording Indicator was always drawn in the top-right corner, whatever its
+  position said, so it could not be moved. It is now drawn at its position
+  (top right until moved).
+
+### Test harness
+- In the world, all 36 HUD modules are switched on and each must draw
+  without an error; then each is moved to its own place on the screen, the
+  layout is saved, forgotten, read back from disk, and each must be drawn
+  where it was put (screenshot autotest-hud-layout).
+- Every one of the 81 modules is switched on in the world, every setting
+  moved through its range (a switch flipped, a number to its maximum and
+  minimum, a colour changed, a choice through two others), then put back and
+  switched off; none may throw (ModuleManager.ERRORS counts what modules
+  throw in tick, HUD and world drawing, and switching). One number per
+  module is then saved and read back.
+- The HUD editor step drags three kinds of element with the real mouse:
+  FPS (text), Keystrokes (boxes) and the Inventory HUD (right edge, after H
+  hides the editor's panel), and Done must save all three.
+
 ## [2.9.0] - 2026-10-01 (not released)
 
 3D cosmetics are equipped from inside the game.
@@ -45,6 +73,9 @@ Each entry says what was verified and how. Anything not verified is marked
   API and drew it (screenshots: mirror branch evidence/36801550351, the
   player preview wears the hat). The API routes themselves passed in this
   repository's CI on PR #25 (run 36798948347).
+- Publishing run 36802149941 (source `10cf6f0`): all 34 versions, 1.17 to
+  26.3, passed every check, the Wardrobe equip step included. All 34 2.9.0
+  jars are in Breeze Jars with SHA-256.
 - **UNVERIFIED** against the real API until PR #25 is deployed, and with a
   real account (the owner's check).
 

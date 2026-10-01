@@ -11,10 +11,14 @@ public class RecordingIndicatorHud extends AbstractHudModule {
         super("Recording Indicator", Category.HUD, "Shows a recording indicator.", KEY_NONE, 0, 0);
     }
 
+    /** Top right until moved; it used to be drawn there whatever its position said. */
+    @Override
+    protected dev.breeze.hud.HudPlacement defaultPlacement() {
+        return new dev.breeze.hud.HudPlacement(dev.breeze.hud.HudPlacement.H.RIGHT, dev.breeze.hud.HudPlacement.V.TOP, 6, 6);
+    }
+
     @Override
     protected void draw(Minecraft mc, GuiGraphics g, Font font) {
-        String s = "● REC";
-        int w = g.guiWidth();
-        g.drawString(font, s, w - font.width(s) - 6, 6, 0xFFFF3333);
+        line(g, font, "\u25CF REC", 0xFFFF3333);
     }
 }

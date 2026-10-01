@@ -192,12 +192,24 @@ public final class ModuleManager {
 
     public static List<Module> getModules() { return Collections.unmodifiableList(modules); }
 
+    /**
+     * Errors each module has thrown (tick, HUD, world drawing, switching on or
+     * off), by name. They are caught and logged so one module cannot take the
+     * game down; this keeps count so the self-test can tell which ones throw.
+     */
+    public static final java.util.Map<String, Integer> ERRORS = new java.util.concurrent.ConcurrentHashMap<>();
+
+    public static void noteError(Module m) {
+        ERRORS.merge(m.getName(), 1, Integer::sum);
+    }
+
     public static void tickAll(Minecraft mc) {
         for (Module m : breeze$dispatch(0)) {
             if (!m.isEnabled()) continue;
             try {
                 m.onTick(mc);
             } catch (Throwable t) {
+                noteError(m);
                 BreezeClient.LOGGER.warn("[Breeze] '{}' threw in tick: {}", m.getName(), t.toString());
             }
         }
@@ -209,6 +221,7 @@ public final class ModuleManager {
             try {
                 m.onHudRender(g, partialTick);
             } catch (Throwable t) {
+                noteError(m);
                 BreezeClient.LOGGER.warn("[Breeze] '{}' threw in render: {}", m.getName(), t.toString());
             }
         }
@@ -220,6 +233,7 @@ public final class ModuleManager {
             try {
                 m.onWorldRender(ctx);
             } catch (Throwable t) {
+                noteError(m);
                 BreezeClient.LOGGER.warn("[Breeze] '{}' threw in world render: {}", m.getName(), t.toString());
             }
         }
