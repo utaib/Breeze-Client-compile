@@ -77,6 +77,12 @@ Every HUD module can be moved; every module is tested in a world.
   sweep, which then failed the Wardrobe, real cosmetics and pause menu
   checks (a dead player is not drawn). If the test player ever dies, the
   driver now says so as its own failure.
+- The web menu test waits for the page to report its first route (React
+  mounted) before pressing keys. In run 36837259634 the page on 1.20.4 and
+  1.21.2 mounted 2.5 to 3 s after the game said it was ready for input; a
+  Tab sent in that gap was lost and Enter opened Multiplayer instead of
+  Mods, failing the three web menu checks after it. Not a mod fault: keys
+  pressed before a page loads go nowhere.
 
 ### Verified
 - The catalogue's .gltf pet "Glare 23" read and drawn on the player in a
