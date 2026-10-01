@@ -86,6 +86,61 @@ class GlbModelTest {
         assertThrows(IllegalArgumentException.class, () -> GlbReader.read(GlbTestFiles.glb(loop, new byte[0])));
     }
 
+    // ── Self-contained .gltf (Blockbench's export, some production cosmetics) ──
+
+    @Test
+    void readsASelfContainedGltfLikeTheSameGlb() {
+        for (byte[] glb : new byte[][]{GlbTestFiles.triangleWithSpin(), GlbTestFiles.skinnedTwoJoints()}) {
+            GlbModel a = GlbReader.read(glb);
+            GlbModel b = GlbReader.read(GlbTestFiles.bytes(GlbTestFiles.gltf(glb)));
+            assertEquals(a.triangles(), b.triangles());
+            assertArrayEquals(a.roots, b.roots);
+            assertEquals(a.clips.size(), b.clips.size());
+            assertArrayEquals(Pose.rest(a).parts.get(0).positions, Pose.rest(b).parts.get(0).positions, E);
+            GlbModel.Clip clip = a.clips.get(0);
+            assertArrayEquals(Pose.at(a, clip, 0.5f).parts.get(0).positions,
+                    Pose.at(b, b.clip(clip.name), 0.5f).parts.get(0).positions, E);
+        }
+        // White space and a byte order mark before the JSON are allowed.
+        byte[] text = GlbTestFiles.bytes(GlbTestFiles.gltf(GlbTestFiles.triangleWithSpin()));
+        byte[] bom = GlbTestFiles.concat(GlbTestFiles.bytes(0xEF, 0xBB, 0xBF, '\n', ' '), text);
+        assertEquals(1, GlbReader.read(bom).triangles());
+    }
+
+    @Test
+    void gltfImagesComeFromTheirDataUris() {
+        com.google.gson.JsonObject json = GlbTestFiles.gltf(GlbTestFiles.triangleWithSpin());
+        byte[] png = {(byte) 0x89, 'P', 'N', 'G', 13, 10, 26, 10};
+        String uri = "data:image/png;base64," + java.util.Base64.getEncoder().encodeToString(png);
+        json.add("images", com.google.gson.JsonParser.parseString("[{\"uri\":\"" + uri + "\"},{\"uri\":\"skin.png\"}]"));
+        json.add("textures", com.google.gson.JsonParser.parseString("[{\"source\":0}]"));
+        json.getAsJsonArray("materials").get(0).getAsJsonObject().getAsJsonObject("pbrMetallicRoughness")
+                .add("baseColorTexture", com.google.gson.JsonParser.parseString("{\"index\":0}"));
+        GlbModel m = GlbReader.read(GlbTestFiles.bytes(json));
+        assertEquals(0, m.materials.get(0).image);
+        assertEquals("image/png", m.images.get(0).mime);
+        assertArrayEquals(png, m.images.get(0).bytes);
+        // An image file that was never uploaded is drawn white, not refused.
+        assertEquals(0, m.images.get(1).bytes.length);
+    }
+
+    @Test
+    void refusesAGltfThatPointsOutsideItself() {
+        com.google.gson.JsonObject json = GlbTestFiles.gltf(GlbTestFiles.triangleWithSpin());
+        json.getAsJsonArray("buffers").get(0).getAsJsonObject().addProperty("uri", "model.bin");
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> GlbReader.read(GlbTestFiles.bytes(json)));
+        assertTrue(e.getMessage().contains("not inside the model"), e.getMessage());
+        // Not glTF 2.
+        com.google.gson.JsonObject old = GlbTestFiles.gltf(GlbTestFiles.triangleWithSpin());
+        old.getAsJsonObject("asset").addProperty("version", "1.0");
+        assertThrows(IllegalArgumentException.class, () -> GlbReader.read(GlbTestFiles.bytes(old)));
+        // A buffer whose data: URI is cut short.
+        com.google.gson.JsonObject cut = GlbTestFiles.gltf(GlbTestFiles.triangleWithSpin());
+        cut.getAsJsonArray("buffers").get(0).getAsJsonObject().addProperty("uri", "data:application/octet-stream;base64,AAAA");
+        assertThrows(IllegalArgumentException.class, () -> GlbReader.read(GlbTestFiles.bytes(cut)));
+    }
+
     // ── Placement (matches the launcher's rig) ─────────────────────────────
 
     /** A unit cube's bounds centred on the origin. */

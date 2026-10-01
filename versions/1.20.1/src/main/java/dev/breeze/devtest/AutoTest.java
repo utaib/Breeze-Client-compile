@@ -465,7 +465,7 @@ public final class AutoTest {
                     }
                 }
                 if (realIds.isEmpty()) {
-                    log("real-cosmetics", "pass", "skipped", "reason", "no real cosmetics (the public catalogue was not read)");
+                    log("real-cosmetics", "pass", "skipped", "reason", "no real cosmetics to wear (see the [cosmetics] lines: catalogue not reached, or no model could be fetched)");
                     world = World.DONE;
                     return;
                 }

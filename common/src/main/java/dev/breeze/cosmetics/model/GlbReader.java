@@ -21,10 +21,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Reads a GLB (binary glTF 2.0) into a {@link GlbModel}. Every read is checked
+ * Reads a GLB (binary glTF 2.0) into a {@link GlbModel}, or a self-contained
+ * .gltf: the JSON form with its buffers and images inside it as data: URIs,
+ * which is how Blockbench exports and how some cosmetics in production are
+ * stored (docs/COSMETICS.md). A .gltf that points at files outside itself is
+ * refused, since those files were never uploaded. Every read is checked
  * against the bytes that are there: a file that claims more than it holds is
  * refused with the reason instead of read past its end. The limits follow the
- * API's (docs/COSMETICS.md), with room for the API's own rounding.
+ * API's, with room for the API's own rounding.
  */
 public final class GlbReader {
 
@@ -36,16 +40,37 @@ public final class GlbReader {
     private static final int BIN_CHUNK = 0x004E4942;
 
     private final JsonObject gltf;
-    private final ByteBuffer bin;
+    /** Buffer 0 is a GLB's binary chunk; the rest (and all of a .gltf's) come from data: URIs. */
+    private final List<ByteBuffer> buffers;
 
     private GlbReader(JsonObject gltf, ByteBuffer bin) {
         this.gltf = gltf;
-        this.bin = bin;
+        this.buffers = new ArrayList<>();
+        JsonArray declared = arr("buffers");
+        for (int i = 0; i < Math.max(1, declared.size()); i++) {
+            JsonObject o = i < declared.size() && declared.get(i).isJsonObject() ? declared.get(i).getAsJsonObject() : new JsonObject();
+            String uri = str(o, "uri", null);
+            if (uri == null) {
+                if (i == 0) buffers.add(bin);
+                else throw new IllegalArgumentException("buffer " + i + " has no data");
+            } else {
+                buffers.add(ByteBuffer.wrap(dataUri(uri, "buffer " + i)).order(ByteOrder.LITTLE_ENDIAN));
+            }
+        }
     }
 
     public static GlbModel read(byte[] glb) {
         if (glb == null || glb.length < 20) throw new IllegalArgumentException("not a GLB: too short");
-        if (glb.length > MAX_BYTES) throw new IllegalArgumentException("GLB over " + MAX_BYTES + " bytes");
+        if (glb.length > MAX_BYTES) throw new IllegalArgumentException("model over " + MAX_BYTES + " bytes");
+        if (startsWithJson(glb)) {
+            JsonElement root = Json.parse(new String(glb, StandardCharsets.UTF_8));
+            if (!root.isJsonObject()) throw new IllegalArgumentException("not a glTF: no JSON object");
+            JsonObject json = root.getAsJsonObject();
+            JsonObject asset = json.has("asset") && json.get("asset").isJsonObject() ? json.getAsJsonObject("asset") : null;
+            String version = asset == null ? null : str(asset, "version", null);
+            if (version == null || !version.startsWith("2")) throw new IllegalArgumentException("glTF version " + version + ", not 2");
+            return new GlbReader(json, ByteBuffer.allocate(0).order(ByteOrder.LITTLE_ENDIAN)).model();
+        }
         ByteBuffer b = ByteBuffer.wrap(glb).order(ByteOrder.LITTLE_ENDIAN);
         if (b.getInt(0) != MAGIC) throw new IllegalArgumentException("not a GLB: wrong magic");
         if (b.getInt(4) != 2) throw new IllegalArgumentException("glTF version " + b.getInt(4) + ", not 2");
@@ -69,12 +94,51 @@ public final class GlbReader {
         return new GlbReader(json, bin).model();
     }
 
+    /** A .gltf is JSON: its first character that is not white space is '{'. */
+    private static boolean startsWithJson(byte[] bytes) {
+        for (int i = 0; i < bytes.length && i < 64; i++) {
+            byte c = bytes[i];
+            if (c == ' ' || c == '\n' || c == '\r' || c == '\t') continue;
+            // A UTF-8 byte order mark.
+            if (i == 0 && bytes.length > 3 && (c & 0xFF) == 0xEF && (bytes[1] & 0xFF) == 0xBB && (bytes[2] & 0xFF) == 0xBF) {
+                i = 2;
+                continue;
+            }
+            return c == '{';
+        }
+        return false;
+    }
+
+    /** The bytes of a base64 data: URI; anything else is a file that is not inside the model. */
+    private static byte[] dataUri(String uri, String what) {
+        if (!uri.startsWith("data:")) {
+            throw new IllegalArgumentException(what + " points at " + uri + ", which is not inside the model");
+        }
+        int comma = uri.indexOf(',');
+        if (comma < 0 || !uri.substring(0, comma).endsWith(";base64")) {
+            throw new IllegalArgumentException(what + " is a data: URI that is not base64");
+        }
+        try {
+            return java.util.Base64.getDecoder().decode(uri.substring(comma + 1).trim());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(what + " has broken base64");
+        }
+    }
+
     private GlbModel model() {
         List<Image> images = new ArrayList<>();
         for (JsonElement e : arr("images")) {
             JsonObject o = e.getAsJsonObject();
             if (!o.has("bufferView")) {
-                images.add(new Image("", new byte[0]));
+                String uri = str(o, "uri", null);
+                if (uri != null && uri.startsWith("data:")) {
+                    int semi = uri.indexOf(';');
+                    String mime = semi > 5 ? uri.substring(5, semi) : str(o, "mimeType", "");
+                    images.add(new Image(mime, dataUri(uri, "an image")));
+                } else {
+                    // An image file that was never uploaded: drawn white.
+                    images.add(new Image("", new byte[0]));
+                }
                 continue;
             }
             ByteBuffer v = view(o.get("bufferView").getAsInt());
@@ -373,13 +437,13 @@ public final class GlbReader {
         JsonArray views = arr("bufferViews");
         if (index < 0 || index >= views.size()) throw new IllegalArgumentException("no buffer view " + index);
         JsonObject bv = views.get(index).getAsJsonObject();
-        if (bv.has("buffer") && bv.get("buffer").getAsInt() != 0) {
-            throw new IllegalArgumentException("buffer outside the GLB");
-        }
+        int buffer = bv.has("buffer") ? bv.get("buffer").getAsInt() : 0;
+        if (buffer < 0 || buffer >= buffers.size()) throw new IllegalArgumentException("no buffer " + buffer);
+        ByteBuffer bin = buffers.get(buffer);
         int off = bv.has("byteOffset") ? bv.get("byteOffset").getAsInt() : 0;
         int len = bv.get("byteLength").getAsInt();
         if (off < 0 || len < 0 || (long) off + len > bin.capacity()) {
-            throw new IllegalArgumentException("buffer view runs past the binary chunk");
+            throw new IllegalArgumentException("buffer view runs past its buffer");
         }
         ByteBuffer d = bin.duplicate().order(ByteOrder.LITTLE_ENDIAN);
         d.position(off);

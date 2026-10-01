@@ -7,7 +7,8 @@
 //
 // Usage: node fetch-cosmetics.mjs <models-dir> [api-base]
 //   writes <models-dir>/catalog.json ([{id, slot, name, metadata}]) and
-//   <models-dir>/<id>.glb. Any failure leaves an empty catalog and exits 0.
+//   <models-dir>/<id>.glb (a GLB or a self-contained .gltf). Any failure
+//   leaves an empty catalog and exits 0.
 import fs from 'node:fs'
 import path from 'node:path'
 
@@ -20,13 +21,23 @@ fs.mkdirSync(dir, { recursive: true })
 const out = []
 const done = () => {
   fs.writeFileSync(path.join(dir, 'catalog.json'), JSON.stringify(out, null, 2))
-  console.log(`[cosmetics] ${out.length} real cosmetics: ${out.map((c) => `${c.slot} "${c.name}"`).join(', ') || 'none'}`)
+  console.log(`[cosmetics] ${out.length} real cosmetics: ${out.map((c) => `${c.slot} "${c.name}" (${c.format})`).join(', ') || 'none'}`)
 }
 
 try {
   const res = await fetch(`${base}/cosmetics`, { signal: AbortSignal.timeout(15000) })
   if (!res.ok) throw new Error(`catalogue answered ${res.status}`)
   const list = (await res.json()).cosmetics || []
+  // What the catalogue holds, so a model the game cannot read is visible here.
+  console.log(`[cosmetics] catalogue: ${list.length} public cosmetics`)
+  for (const c of list) {
+    let where = 'no model_url'
+    try {
+      const u = new URL(c.model_url)
+      where = `${u.protocol}//${u.host} ${path.extname(u.pathname) || '(no extension)'}`
+    } catch { /* not a URL */ }
+    console.log(`[cosmetics]   ${c.slot} "${c.name}": ${where}, attachment ${c.metadata?.attachment ?? 'none'}`)
+  }
   for (const slot of SLOTS) {
     if (out.length >= 4) break
     const c = list.find((x) => x.slot === slot && typeof x.model_url === 'string' && x.model_url.startsWith('https://'))
@@ -36,9 +47,16 @@ try {
       if (!m.ok) throw new Error(`model answered ${m.status}`)
       const bytes = Buffer.from(await m.arrayBuffer())
       if (bytes.length > MAX_BYTES) throw new Error(`model is ${bytes.length} bytes`)
-      if (bytes.toString('latin1', 0, 4) !== 'glTF') throw new Error('not a GLB')
+      // A GLB, or a self-contained .gltf (JSON), which the game reads too.
+      const format = bytes.toString('latin1', 0, 4) === 'glTF' ? 'glb'
+        : /^﻿?\s*\{/.test(bytes.toString('utf8', 0, 64)) ? 'gltf' : null
+      if (!format) {
+        const head = bytes.toString('latin1', 0, 24).replace(/[^\x20-\x7e]/g, '.')
+        throw new Error(`not a GLB or glTF: ${m.headers.get('content-type')}, ${bytes.length} bytes, starts "${head}"`)
+      }
+      // Saved under one name either way; the game tells them apart by content.
       fs.writeFileSync(path.join(dir, `${c.id}.glb`), bytes)
-      out.push({ id: String(c.id), slot: c.slot, name: c.name || String(c.id), metadata: c.metadata || {} })
+      out.push({ id: String(c.id), slot: c.slot, name: c.name || String(c.id), format, metadata: c.metadata || {} })
     } catch (e) {
       console.log(`[cosmetics] skipped ${slot} "${c.name}": ${e.message}`)
     }

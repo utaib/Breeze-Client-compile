@@ -33,6 +33,16 @@ Every HUD module can be moved; every module is tested in a world.
   goes to the nearest free place (common HudPlacement.freeSpot, 3 unit
   tests) and that place is saved. Elements the player has placed are never
   moved.
+- 3D cosmetics stored as a self-contained .gltf were never drawn: the model
+  reader took only GLB and refused them ("not a GLB: wrong magic"). Some
+  cosmetics in the live catalogue are .gltf files with their buffers and
+  textures inside as data: URIs (Blockbench's export; docs/COSMETICS.md),
+  for example the pet "Glare 23", which the in-world test fetched and could
+  not read (mirror run 36809332861). GlbReader now reads those too; a .gltf
+  that points at files outside itself is refused with the reason, since
+  those files were never uploaded. 3 unit tests: the same model as GLB and
+  as .gltf reads the same (rest pose and animation), data: URI textures,
+  and the refusals.
 
 ### Test harness
 - In the world, all 36 HUD modules are switched on and each must draw
@@ -48,6 +58,12 @@ Every HUD module can be moved; every module is tested in a world.
 - The HUD editor step drags three kinds of element with the real mouse:
   FPS (text), Keystrokes (boxes) and the Inventory HUD (right edge, after H
   hides the editor's panel), and Done must save all three.
+- Real creator cosmetics: the test fetches up to four 3D cosmetics, one per
+  slot, from the public catalogue (GET /cosmetics, read only), the stand-in
+  API lets the test player own them, the self-test equips them and turns
+  the camera to the player's back and front; each must be drawn
+  (screenshots autotest-real-cosmetics and autotest-real-cosmetics-front).
+  When none can be fetched the step is reported as skipped, not passed.
 
 ## [2.9.0] - 2026-10-01 (not released)
 

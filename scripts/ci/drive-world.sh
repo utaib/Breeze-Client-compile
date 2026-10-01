@@ -211,7 +211,7 @@ if [ -s "$OUT/stub-port" ]; then
     real=$(grep '"event":"real-cosmetics"' "$LOG" | tail -1)
     say "real cosmetics: $real"
     case "$real" in
-      *'"pass":"skipped"'*) say "SKIP real cosmetics: the public catalogue was not read" ;;
+      *'"pass":"skipped"'*) say "SKIP real cosmetics: none could be fetched from the public catalogue (see the [cosmetics] lines)" ;;
       *'"pass":"true"'*) pass "real cosmetics from the Breeze catalogue were read and drawn on the player" ;;
       *) fail "a real cosmetic from the Breeze catalogue was not read or drawn" ;;
     esac

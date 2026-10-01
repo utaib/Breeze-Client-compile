@@ -94,7 +94,7 @@ public final class CosmeticModels {
         }
     }
 
-    /** Reads a GLB off the render thread and uploads its textures on it. Also used by the self-test. */
+    /** Reads a GLB or self-contained .gltf off the render thread and uploads its textures on it. Also used by the self-test. */
     public static void load(String id, float[] knownBounds, byte[] glb) {
         LOADING.add(id);
         CompletableFuture.supplyAsync(() -> {

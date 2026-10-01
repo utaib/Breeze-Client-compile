@@ -1,9 +1,13 @@
 package dev.breeze.cosmetics.model;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 /** Small GLB files built in code, for the model tests. */
 final class GlbTestFiles {
@@ -25,6 +29,28 @@ final class GlbTestFiles {
             for (int i = 0; i < bp; i++) b.put((byte) 0);
         }
         return b.array();
+    }
+
+    /**
+     * The same model as a self-contained .gltf, the way Blockbench exports
+     * one: the GLB's JSON with its binary chunk as a base64 data: URI.
+     */
+    static JsonObject gltf(byte[] glb) {
+        ByteBuffer b = ByteBuffer.wrap(glb).order(ByteOrder.LITTLE_ENDIAN);
+        int jsonLen = b.getInt(12);
+        JsonObject json = JsonParser.parseString(new String(glb, 20, jsonLen, StandardCharsets.UTF_8)).getAsJsonObject();
+        int at = 20 + jsonLen;
+        byte[] bin = new byte[0];
+        if (at + 8 <= glb.length) {
+            bin = java.util.Arrays.copyOfRange(glb, at + 8, at + 8 + b.getInt(at));
+        }
+        json.getAsJsonArray("buffers").get(0).getAsJsonObject()
+                .addProperty("uri", "data:application/octet-stream;base64," + Base64.getEncoder().encodeToString(bin));
+        return json;
+    }
+
+    static byte[] bytes(JsonObject json) {
+        return json.toString().getBytes(StandardCharsets.UTF_8);
     }
 
     static byte[] floats(float... v) {
