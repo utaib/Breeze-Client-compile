@@ -42,6 +42,8 @@ public final class BridgeActions {
         any("account.get");
         io("cosmetics.state");
         io("cosmetics.equipCape");
+        io("cosmetics.equipModel");
+        io("cosmetics.unequipModel");
         any("friends.list");
         io("friends.request");
         io("friends.respond");

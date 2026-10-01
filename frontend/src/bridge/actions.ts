@@ -14,7 +14,7 @@ const ALL: Record<Action, true> = {
   'settings.get': true, 'settings.set': true, 'settings.reset': true,
   'modules.list': true, 'modules.setEnabled': true, 'modules.setSetting': true, 'modules.reset': true,
   'hud.openEditor': true, 'mods.list': true, 'account.get': true,
-  'cosmetics.state': true, 'cosmetics.equipCape': true,
+  'cosmetics.state': true, 'cosmetics.equipCape': true, 'cosmetics.equipModel': true, 'cosmetics.unequipModel': true,
   'friends.list': true, 'friends.request': true, 'friends.respond': true, 'friends.remove': true,
   'hosting.state': true, 'hosting.start': true, 'hosting.stop': true, 'hosting.join': true,
 }

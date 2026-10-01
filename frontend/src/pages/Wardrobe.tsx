@@ -1,15 +1,15 @@
 import { useState } from 'react'
 import { describeError, useAction, useApp } from '../app/state'
-import type { Cape } from '../bridge/types'
+import type { Cape, OwnedCosmetic } from '../bridge/types'
 import { EmptyState, ErrorState, Skeleton } from '../ui/controls'
 import { Icon } from '../ui/icons'
 
 /**
  * Capes the Breeze API says this account owns, and which one is equipped,
- * then the 3D cosmetics the account wears. Ownership and the equipped state
- * come from the backend, never from here. 3D cosmetics are listed, not
- * changed: the API only lets a signed-in account change them, and that
- * sign-in stays in the Breeze launcher, never in the game.
+ * then the account's 3D cosmetics, equipped from here with the game's own
+ * token. Ownership and the equipped state come from the backend, never from
+ * here. When the API cannot take a change from the game (owned is null), the
+ * 3D cosmetics the account wears are listed without controls.
  */
 
 const SLOT_LABEL: Record<string, string> = {
@@ -28,6 +28,20 @@ export function Wardrobe() {
       toast(cape ? `${cape.name} equipped` : 'Cape removed', 'ok')
     } catch (err) {
       toast(`The cape was not changed. ${describeError(err)}`, 'error')
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  const equipModel = async (item: OwnedCosmetic) => {
+    setBusy(`model-${item.id}`)
+    try {
+      state.setData(item.equipped
+        ? await call('cosmetics.unequipModel', { slot: item.slot })
+        : await call('cosmetics.equipModel', { id: item.id }))
+      toast(item.equipped ? `${item.name} removed` : `${item.name} equipped`, 'ok')
+    } catch (err) {
+      toast(`The cosmetic was not changed. ${describeError(err)}`, 'error')
     } finally {
       setBusy(null)
     }
@@ -89,23 +103,50 @@ export function Wardrobe() {
       {state.data && (
         <section className="section" aria-labelledby="worn-title">
           <h2 className="section-title" id="worn-title">3D cosmetics</h2>
-          <p className="section-note">Drawn on you in game, for you and other Breeze players. Change them in the Breeze launcher's Wardrobe.</p>
-          {state.data.worn.length === 0 ? (
-            <div className="state" data-testid="worn-empty">
-              <div className="state-text">You are not wearing any 3D cosmetics.</div>
-            </div>
-          ) : (
-            <div className="rows" role="list">
-              {state.data.worn.map((w) => (
-                <div key={w.id} role="listitem" className="row" data-testid={`worn-${w.id}`}>
-                  <div className="row-text">
-                    <div className="row-label">{w.name}</div>
-                    <div className="row-desc">{SLOT_LABEL[w.slot] ?? w.slot}</div>
-                  </div>
-                  <span className="cape-state"><Icon.Check />Wearing</span>
+          {state.data.owned ? (
+            <>
+              <p className="section-note">Drawn on you in game, for you and other Breeze players. One per slot.</p>
+              {state.data.owned.length === 0 ? (
+                <div className="state" data-testid="owned-empty">
+                  <div className="state-text">No 3D cosmetics on this account yet. Ones you get on breezeclient.net appear here.</div>
                 </div>
-              ))}
-            </div>
+              ) : (
+                <div className="rows" role="list">
+                  {state.data.owned.map((o) => (
+                    <div key={o.id} role="listitem" className="row" data-testid={`owned-${o.id}`}>
+                      <div className="row-text">
+                        <div className="row-label">{o.name}</div>
+                        <div className="row-desc">{SLOT_LABEL[o.slot] ?? o.slot}{o.equipped ? ', wearing' : ''}</div>
+                      </div>
+                      <button className={`btn btn-sm ${o.equipped ? 'btn-ghost' : 'btn-secondary'}`} disabled={busy != null} onClick={() => equipModel(o)}>
+                        {busy === `model-${o.id}` ? <Icon.Spin /> : null}{o.equipped ? 'Remove' : 'Equip'}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          ) : (
+            <>
+              <p className="section-note">Drawn on you in game, for you and other Breeze players. Change them in the Breeze launcher's Wardrobe.</p>
+              {state.data.worn.length === 0 ? (
+                <div className="state" data-testid="worn-empty">
+                  <div className="state-text">You are not wearing any 3D cosmetics.</div>
+                </div>
+              ) : (
+                <div className="rows" role="list">
+                  {state.data.worn.map((w) => (
+                    <div key={w.id} role="listitem" className="row" data-testid={`worn-${w.id}`}>
+                      <div className="row-text">
+                        <div className="row-label">{w.name}</div>
+                        <div className="row-desc">{SLOT_LABEL[w.slot] ?? w.slot}</div>
+                      </div>
+                      <span className="cape-state"><Icon.Check />Wearing</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
           )}
         </section>
       )}

@@ -112,11 +112,25 @@ export interface WornCosmetic {
   slot: string
 }
 
+/** A 3D cosmetic this account owns (GET /cosmetics/owned/:uuid, with the game token). */
+export interface OwnedCosmetic {
+  id: string
+  name: string
+  slot: string
+  equipped: boolean
+}
+
 export interface CosmeticState {
   capes: Cape[]
   equippedCapeId: string | null
-  /** 3D cosmetics this account wears. The Breeze launcher changes them; the mod only reads them. */
+  /** 3D cosmetics this account wears, drawn on the player in game. */
   worn: WornCosmetic[]
+  /**
+   * Every 3D cosmetic the account owns, to equip from here. Null when the
+   * game cannot change them (an API without the in-game routes, or not signed
+   * in): the page then lists `worn` only.
+   */
+  owned: OwnedCosmetic[] | null
 }
 
 /** Only what /friends/list actually returns: no server, no role. */
@@ -171,6 +185,8 @@ export interface ActionMap {
   'account.get': [Record<string, never>, Account]
   'cosmetics.state': [Record<string, never>, CosmeticState]
   'cosmetics.equipCape': [{ id: string | null }, CosmeticState]
+  'cosmetics.equipModel': [{ id: string }, CosmeticState]
+  'cosmetics.unequipModel': [{ slot: string }, CosmeticState]
   'friends.list': [Record<string, never>, FriendsState]
   'friends.request': [{ name: string }, FriendsState]
   'friends.respond': [{ uuid: string; accept: boolean }, FriendsState]

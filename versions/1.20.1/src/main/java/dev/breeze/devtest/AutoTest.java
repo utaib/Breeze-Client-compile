@@ -92,6 +92,7 @@ public final class AutoTest {
         if (s instanceof CreateWorldScreen) return "create-world";
         if (s instanceof JoinMultiplayerScreen) return "multiplayer";
         if (s instanceof dev.breeze.menu.HudEditorScreen) return "hud-editor";
+        if (s instanceof dev.breeze.menu.WardrobeScreen) return "wardrobe";
         if (s instanceof net.minecraft.client.gui.screens.PauseScreen) return "pause";
         if (dev.breeze.compat.Screens.isOptions(s)) return "options";
         return "other";
@@ -109,6 +110,15 @@ public final class AutoTest {
         }
         log("start", "dir", dir.toString());
         Targets.enable();
+        if (STUB) {
+            // The stand-in API (scripts/ci/stub-api.mjs) serves this as every
+            // cosmetic's model.
+            try {
+                Files.write(dir.resolve("stub-model.glb"), TestModel.cubeGlb());
+            } catch (Throwable t) {
+                log("stub-model", "error", t.toString());
+            }
+        }
         Router.tap = (action, params) -> {
             JsonObject o = new JsonObject();
             o.addProperty("action", action);
@@ -222,7 +232,11 @@ public final class AutoTest {
 
     // ── In a world (after the menu checks) ─────────────────────────────────
 
-    private enum World { IDLE, OPENED, IN_WORLD, EDITING, DONE }
+    private enum World { IDLE, OPENED, IN_WORLD, EDITING, WARDROBE, DONE }
+
+    /** The test runs against the stand-in API, with a game token for a test player. */
+    private static final boolean STUB = System.getProperty("breeze.autotest.stub") != null;
+    private static final String STUB_HAT = "stub-hat";
 
     private static World world = World.IDLE;
     private static long worldAt;
@@ -385,6 +399,40 @@ public final class AutoTest {
                 }
                 log("hud-moved", "before", fpsBefore == null ? "none" : fpsBefore[0] + "," + fpsBefore[1],
                         "after", after, "saved", saved, "pass", String.valueOf(moved));
+                if (!STUB) {
+                    world = World.DONE;
+                    return;
+                }
+                // Equip a 3D cosmetic the way a player does: the Wardrobe's 3D
+                // tab, a click on the row (the driver's real mouse), then the
+                // API, then the model drawn on the player.
+                dev.breeze.cosmetics.WornCosmetics.clearTest(mc.player.getUUID());
+                dev.breeze.cosmetics.OwnedModels.refresh(true);
+                dev.breeze.compat.ActiveScreen.set(mc, new dev.breeze.menu.WardrobeScreen(null, "3D"));
+                world = World.WARDROBE;
+                worldAt = System.currentTimeMillis();
+                log("wardrobe-open");
+            }
+            case WARDROBE -> {
+                boolean listed = false, equipped = false;
+                for (dev.breeze.cosmetics.OwnedCosmetics.Item i : dev.breeze.cosmetics.OwnedModels.items()) {
+                    if (i.id.equals(STUB_HAT)) {
+                        listed = true;
+                        equipped = i.equipped;
+                    }
+                }
+                boolean worn = false;
+                for (dev.breeze.cosmetics.WornCosmetics.Worn w : dev.breeze.cosmetics.WornCosmetics.get(mc.player.getUUID())) {
+                    if (w.id.equals(STUB_HAT)) worn = true;
+                }
+                int draws = dev.breeze.cosmetics.CosmeticRender.DRAWS_BY_ID.getOrDefault(STUB_HAT, 0);
+                boolean pass = listed && equipped && worn && draws > 0;
+                if (!pass && age < 60_000) return;
+                if (pass) shot(mc, "autotest-wardrobe-equipped");
+                log("wardrobe-check", "status", String.valueOf(dev.breeze.cosmetics.OwnedModels.status()),
+                        "listed", String.valueOf(listed), "equipped", String.valueOf(equipped),
+                        "worn", String.valueOf(worn), "draws", String.valueOf(draws), "pass", String.valueOf(pass));
+                dev.breeze.compat.ActiveScreen.set(mc, null);
                 world = World.DONE;
             }
             case DONE -> {

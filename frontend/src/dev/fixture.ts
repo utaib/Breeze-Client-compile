@@ -15,11 +15,13 @@
  *   preview=empty         signed in, but no capes, friends or modules enabled
  *   preview=error         every network-backed action fails
  *   preview=signedout     no Breeze session was handed over
+ *   preview=oldapi        an API without the in-game cosmetic routes: 3D
+ *                         cosmetics are listed, not equipped
  *   latency=<ms>          simulated bridge latency, default 90
  */
 import type {
   Account, ActionMap, Action, Cape, CosmeticState, FriendsState, GameState, Hello, HostingState,
-  InstalledMod, ModuleInfo, ModuleSetting, UiSettings,
+  InstalledMod, ModuleInfo, ModuleSetting, OwnedCosmetic, UiSettings,
 } from '../bridge/types'
 import type { Transport } from '../bridge/client'
 import { ERROR_CODES } from '../bridge/client'
@@ -129,10 +131,12 @@ const SAMPLE_CAPE_PINK = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAg
 const state = {
   settings: { ...DEFAULT_SETTINGS },
   modules: makeModules(),
-  worn: scenario === 'empty' ? [] : [
-    { id: 'preview-hat', name: 'Preview hat', slot: 'hat' },
-    { id: 'preview-pet', name: 'Preview pet', slot: 'pet' },
-  ],
+  owned3d: (scenario === 'empty' ? [] : [
+    { id: 'preview-hat', name: 'Preview hat', slot: 'hat', equipped: true },
+    { id: 'preview-hat-2', name: 'Preview hat two', slot: 'hat', equipped: false },
+    { id: 'preview-pet', name: 'Preview pet', slot: 'pet', equipped: true },
+    { id: 'preview-trail', name: 'Preview trail', slot: 'trail', equipped: false },
+  ]) as OwnedCosmetic[],
   capes: (scenario === 'empty' ? [] : [
     { id: 'preview-a', name: 'Preview cape A', preview: SAMPLE_CAPE_BLUE, equipped: true },
     { id: 'preview-b', name: 'Preview cape B', preview: SAMPLE_CAPE_PINK, equipped: false },
@@ -163,7 +167,12 @@ function account(): Account {
 }
 
 function cosmetics(): CosmeticState {
-  return { capes: state.capes, equippedCapeId: state.capes.find((c) => c.equipped)?.id ?? null, worn: state.worn }
+  return {
+    capes: state.capes,
+    equippedCapeId: state.capes.find((c) => c.equipped)?.id ?? null,
+    worn: state.owned3d.filter((o) => o.equipped).map(({ id, name, slot }) => ({ id, name, slot })),
+    owned: scenario === 'oldapi' ? null : state.owned3d,
+  }
 }
 
 function game(): GameState {
@@ -188,7 +197,7 @@ class FixtureError extends Error {
   }
 }
 
-const networkBacked = new Set<Action>(['cosmetics.state', 'cosmetics.equipCape', 'friends.list', 'friends.request', 'friends.respond', 'friends.remove', 'hosting.start', 'hosting.join'])
+const networkBacked = new Set<Action>(['cosmetics.state', 'cosmetics.equipCape', 'cosmetics.equipModel', 'cosmetics.unequipModel', 'friends.list', 'friends.request', 'friends.respond', 'friends.remove', 'hosting.start', 'hosting.join'])
 
 function handle(action: Action, p: Record<string, unknown>): unknown {
   if (scenario === 'error' && networkBacked.has(action)) {
@@ -255,6 +264,15 @@ function handle(action: Action, p: Record<string, unknown>): unknown {
     case 'mods.list': return INSTALLED
     case 'account.get': return account()
     case 'cosmetics.state': return cosmetics()
+    case 'cosmetics.equipModel': {
+      const target = state.owned3d.find((o) => o.id === p.id)
+      if (!target || scenario === 'oldapi') throw new FixtureError('FORBIDDEN', 'That cosmetic is not on your account.')
+      state.owned3d = state.owned3d.map((o) => (o.slot === target.slot ? { ...o, equipped: o.id === target.id } : o))
+      return cosmetics()
+    }
+    case 'cosmetics.unequipModel':
+      state.owned3d = state.owned3d.map((o) => (o.slot === p.slot ? { ...o, equipped: false } : o))
+      return cosmetics()
     case 'cosmetics.equipCape':
       state.capes = state.capes.map((c) => ({ ...c, equipped: c.id === p.id }))
       return cosmetics()

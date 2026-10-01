@@ -106,9 +106,32 @@ public final class WornCosmetics {
         return e.worn;
     }
 
+    /**
+     * Forgets what this account and the local player wear, so the next frame
+     * asks the API again: after equipping from the Wardrobe, the change is
+     * drawn without waiting out the refresh interval.
+     */
+    public static void invalidateAccount() {
+        UUID account = Self.selfUuid();
+        if (account != null) {
+            Entry e = CACHE.get(account);
+            if (e != null) e.fetchedAt = 0;
+        }
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player != null) {
+            Entry e = CACHE.get(mc.player.getUUID());
+            if (e != null) e.fetchedAt = 0;
+        }
+    }
+
     /** For the self-test: make a player wear these without the API. */
     public static void setForTest(UUID id, List<Worn> worn) {
         TEST.put(id, worn);
+    }
+
+    /** For the self-test: back to what the API says the player wears. */
+    public static void clearTest(UUID id) {
+        TEST.remove(id);
     }
 
     private static void maybeRefresh(UUID id, Entry e, boolean self) {

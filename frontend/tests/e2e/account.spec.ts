@@ -22,15 +22,36 @@ test('wardrobe: equip and remove a cape', async ({ page }, info) => {
   assertClean()
 })
 
-test('wardrobe: lists the 3D cosmetics the account wears', async ({ page }) => {
+test('wardrobe: equip and remove 3D cosmetics, one per slot', async ({ page }, info) => {
   const { assertClean } = await open(page)
   await rail(page, 'Wardrobe').click()
   await expect(page.getByRole('heading', { name: '3D cosmetics' })).toBeVisible()
+  const hat = page.getByTestId('owned-preview-hat')
+  const hat2 = page.getByTestId('owned-preview-hat-2')
+  await expect(hat).toContainText('Hat, wearing')
+  await expect(hat.getByRole('button', { name: 'Remove' })).toBeVisible()
+  await snap(page, info, 'wardrobe-3d')
+
+  // A second hat replaces the first: the slot holds one.
+  await hat2.getByRole('button', { name: 'Equip' }).click()
+  await expect(hat2).toContainText('Hat, wearing')
+  await expect(hat.getByRole('button', { name: 'Equip' })).toBeVisible()
+
+  await page.getByTestId('owned-preview-pet').getByRole('button', { name: 'Remove' }).click()
+  await expect(page.getByTestId('owned-preview-pet').getByRole('button', { name: 'Equip' })).toBeVisible()
+
+  expect((await calls(page, 'cosmetics.equipModel')).map((c) => c.params.id)).toEqual(['preview-hat-2'])
+  expect((await calls(page, 'cosmetics.unequipModel')).map((c) => c.params.slot)).toEqual(['pet'])
+  assertClean()
+})
+
+test('wardrobe: an API without the in-game routes lists what is worn, without controls', async ({ page }) => {
+  const { assertClean } = await open(page, '?preview=oldapi')
+  await rail(page, 'Wardrobe').click()
   await expect(page.getByTestId('worn-preview-hat')).toContainText('Preview hat')
-  await expect(page.getByTestId('worn-preview-hat')).toContainText('Hat')
   await expect(page.getByTestId('worn-preview-pet')).toContainText('Pet')
-  // Listed, not changed here: no equip controls on them.
   await expect(page.getByTestId('worn-preview-hat').getByRole('button')).toHaveCount(0)
+  await expect(page.getByText("Change them in the Breeze launcher's Wardrobe.")).toBeVisible()
   assertClean()
 })
 
@@ -38,7 +59,7 @@ test('wardrobe: empty, error and signed-out states', async ({ page }, info) => {
   await open(page, '?preview=empty')
   await rail(page, 'Wardrobe').click()
   await expect(page.getByText('No capes on this account yet')).toBeVisible()
-  await expect(page.getByTestId('worn-empty')).toContainText('You are not wearing any 3D cosmetics.')
+  await expect(page.getByTestId('owned-empty')).toContainText('No 3D cosmetics on this account yet.')
   await snap(page, info, 'wardrobe-empty')
 
   await open(page, '?preview=error')

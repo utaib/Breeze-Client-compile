@@ -16,6 +16,7 @@ import dev.breeze.config.BreezeConfig;
 import dev.breeze.cosmetics.CapePreviews;
 import dev.breeze.cosmetics.CosmeticActions;
 import dev.breeze.cosmetics.CosmeticState;
+import dev.breeze.cosmetics.OwnedModels;
 import dev.breeze.cosmetics.WornCosmetics;
 import dev.breeze.menu.HudEditorScreen;
 import dev.breeze.net.BreezeApi;
@@ -224,6 +225,31 @@ final class Handlers {
             return cosmetics(awaitCape(id, 4_000));
         });
 
+        on(r, "cosmetics.equipModel", p -> {
+            String id = p.str("id", 64);
+            if (OwnedModels.await(false, 3_000) != OwnedModels.Status.READY) {
+                throw BridgeException.unavailable("3D cosmetics cannot be changed from the game right now. Use the Breeze launcher's Wardrobe.");
+            }
+            if (!OwnedModels.owns(id)) throw BridgeException.forbidden("That cosmetic is not on your account.");
+            if (!changeModel(done -> OwnedModels.equip(id, done))) {
+                throw BridgeException.unavailable("The cosmetic was not changed. Try again in a moment.");
+            }
+            // Worst case 3 + 7 + 3 + 3 s stays inside the 20 s IO timeout.
+            return cosmetics(loadedSelf(3_000));
+        });
+        on(r, "cosmetics.unequipModel", p -> {
+            String slot = p.str("slot", 16);
+            if (!dev.breeze.cosmetics.OwnedCosmetics.validSlot(slot)) throw BridgeException.invalid("That is not a cosmetic slot.");
+            if (OwnedModels.await(false, 3_000) != OwnedModels.Status.READY) {
+                throw BridgeException.unavailable("3D cosmetics cannot be changed from the game right now. Use the Breeze launcher's Wardrobe.");
+            }
+            if (!changeModel(done -> OwnedModels.unequip(slot, done))) {
+                throw BridgeException.unavailable("The cosmetic was not changed. Try again in a moment.");
+            }
+            // Worst case 3 + 7 + 3 + 3 s stays inside the 20 s IO timeout.
+            return cosmetics(loadedSelf(3_000));
+        });
+
         // ── friends (Breeze API, polled by FriendsClient) ────────────────────
         on(r, "friends.list", p -> friends());
         on(r, "friends.request", p -> {
@@ -430,6 +456,23 @@ final class Handlers {
         return false;
     }
 
+    /**
+     * Runs one equip or unequip and waits for the API's answer, then for the
+     * refreshed owned list, so the page gets the state after the change.
+     */
+    private static boolean changeModel(java.util.function.Consumer<java.util.function.Consumer<Boolean>> change) {
+        CompletableFuture<Boolean> done = new CompletableFuture<>();
+        change.accept(done::complete);
+        boolean ok;
+        try {
+            ok = done.get(7, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            ok = false;
+        }
+        OwnedModels.await(true, 3_000);
+        return ok;
+    }
+
     private static JsonObject cosmetics(CosmeticState.Entry e) {
         JsonObject o = new JsonObject();
         JsonArray capes = new JsonArray();
@@ -459,6 +502,22 @@ final class Handlers {
             worn.add(j);
         }
         o.add("worn", worn);
+        // Everything the account owns, when the game can equip it; null
+        // otherwise (an API without the in-game routes, or not signed in).
+        if (OwnedModels.await(false, 1_500) == OwnedModels.Status.READY) {
+            JsonArray owned = new JsonArray();
+            for (dev.breeze.cosmetics.OwnedCosmetics.Item i : OwnedModels.items()) {
+                JsonObject j = new JsonObject();
+                j.addProperty("id", i.id);
+                j.addProperty("name", i.name);
+                j.addProperty("slot", i.slot);
+                j.addProperty("equipped", i.equipped);
+                owned.add(j);
+            }
+            o.add("owned", owned);
+        } else {
+            o.add("owned", com.google.gson.JsonNull.INSTANCE);
+        }
         return o;
     }
 

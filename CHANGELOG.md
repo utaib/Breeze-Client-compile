@@ -7,6 +7,40 @@ fixes bump PATCH. `scripts/check-version.sh` keeps `gradle.properties`,
 Each entry says what was verified and how. Anything not verified is marked
 **UNVERIFIED**.
 
+## [2.9.0] - 2026-10-01 (not released)
+
+3D cosmetics are equipped from inside the game.
+
+### Added
+- The Wardrobe equips and removes 3D cosmetics (owner decision, 2026-10-01).
+  It lists every 3D cosmetic the account owns, one per slot, with Equip and
+  Remove (web page: the "3D cosmetics" section; native: the "3D" tab, click
+  a row). The change is drawn on the player at once and other players see
+  it on their next look-up. Calls GET /cosmetics/owned/:uuid and
+  POST /cosmetics/equip/:uuid and /cosmetics/unequip/:uuid with the game
+  token (docs/COSMETICS.md); bridge actions cosmetics.equipModel and
+  cosmetics.unequipModel; common/OwnedCosmetics reads the answer (4 unit
+  tests).
+- With an API that does not have those routes yet (they are on branch
+  `api/mod-cosmetics-equip`, PR #25, not deployed), the Wardrobe shows what
+  the account wears without controls, as in 2.8.0.
+
+### Test harness
+- The in-game test runs against a stand-in API (scripts/ci/stub-api.mjs):
+  the cosmetics routes as documented, in memory, with one test model, and a
+  game token for a test player. After the HUD editor step the self-test
+  opens the Wardrobe on its 3D tab, the driver clicks the test hat with the
+  real mouse, and the check passes only when the API recorded it, the
+  Wardrobe shows it equipped, the game fetched it from the API and drew it on
+  the player. The stand-in holds no API code, data or secrets.
+
+### Verified
+- API routes: 8 tests on the API branch (see PR #25), run here.
+- Web Wardrobe: 76 Playwright tests (equip, remove, one per slot, the
+  read-only fallback), Vitest, tsc.
+- **UNVERIFIED** until the next CI run: the Java side and the in-game
+  Wardrobe click; against the real API until PR #25 is deployed.
+
 ## [2.8.0] - 2026-09-30 (not released)
 
 The HUD editor to the spec, 3D cosmetics drawn on players, and an in-world
@@ -83,9 +117,16 @@ test on every version.
   for 1.17, 1.20.1, 1.21.4, 1.21.9, 1.21.11, 26.1 and 26.3: the test hat
   sits on the head at about head size, the test cape is on the back, and
   the HUD is drawn, the same in every rendering era.
-- **UNVERIFIED**: real Breeze cosmetics from the API (needs a signed-in
-  account); the flying pet and trail in game (in the next run); the Java
-  side of the Wardrobe list (compiles in the next run).
+- Publishing run 36794798144 (source `f67df65`): all 34 versions, 1.17 to
+  26.3, passed every check, menus and world, with the test wearing a hat, a
+  flying pet and a trail (on 26.3: each drawn 35 times, 0 failures). All 34
+  jars are in Breeze Jars with SHA-256. Its screenshots (mirror branch
+  evidence/36794798144) show the flying pet beside the player and a trail
+  copy behind the legs, and the title screen's icon buttons as icons on
+  1.21.11 and 26.3.
+- **UNVERIFIED**: real Breeze cosmetics and capes from the API, and another
+  player seeing them (needs signed-in accounts); the Wardrobe's 3D list
+  with real data (compiles and the web page is tested with preview data).
 
 ## [2.7.0] - 2026-09-30 (not released)
 

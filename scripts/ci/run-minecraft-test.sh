@@ -71,6 +71,28 @@ if [ "$MODE" = prod ]; then
   version="fabric:$MC${BREEZE_LOADER:+:$BREEZE_LOADER}"
   jvm="-Xmx2G -Dbreeze.autotest=$OUT -Dbreeze.autotest.menuTimeoutSeconds=900"
   [ -n "${MCEF_LIBRARIES:-}" ] && jvm="$jvm -Dmcef.libraries.path=$MCEF_LIBRARIES"
+  # A stand-in for the Breeze API (stub-api.mjs) and a game token for a test
+  # player, so the in-world test can equip a 3D cosmetic from the Wardrobe and
+  # see it drawn. The token is unsigned and only the stub reads it. Turn off
+  # with BREEZE_STUB_API=0 to talk to the real API, signed out.
+  if [ "${BREEZE_STUB_API:-1}" != 0 ] && command -v node >/dev/null; then
+    rm -f "$OUT/stub-port"
+    node "$(dirname "$0")/stub-api.mjs" "$OUT" > "$OUT/stub-api.out" 2>&1 &
+    STUB=$!
+    for _ in $(seq 1 100); do [ -s "$OUT/stub-port" ] && break; sleep 0.1; done
+    if [ -s "$OUT/stub-port" ]; then
+      b64url() { printf '%s' "$1" | base64 -w0 | tr '+/' '-_' | tr -d '='; }
+      stub_uuid=7e57b2ee-0000-4000-8000-00000000b2ee
+      stub_exp=$(( $(date +%s) + 3 * 3600 ))
+      stub_token="$(b64url '{"alg":"none","typ":"JWT"}').$(b64url "{\"uuid\":\"$stub_uuid\",\"aud\":\"breeze-game\",\"exp\":$stub_exp}").test"
+      printf '{"token":"%s"}' "$stub_token" > "$OUT/stub-session.json"
+      jvm="$jvm -Dbreeze.api.url=http://127.0.0.1:$(cat "$OUT/stub-port") -Dbreeze.session.file=$OUT/stub-session.json"
+      jvm="$jvm -Dbreeze.player.uuid=$stub_uuid -Dbreeze.autotest.stub=1"
+      echo "[run] stand-in API on port $(cat "$OUT/stub-port")" | tee -a "$OUT/driver.log"
+    else
+      echo "[run] the stand-in API did not start; the test uses the real API" | tee -a "$OUT/driver.log"
+    fi
+  fi
   portablemc --main-dir "${PORTABLEMC_MAIN:-$HOME/.minecraft}" --work-dir "$RUN" \
     start "$version" -u BreezeDev --resolution 1280x720 --jvm-args="$jvm" \
     > "$OUT/launcher.log" 2>&1 &
@@ -96,6 +118,7 @@ fi
 
 kill -INT "$FFMPEG" 2>/dev/null; sleep 2
 kill "$XVFB" 2>/dev/null
+[ -n "${STUB:-}" ] && kill "$STUB" 2>/dev/null
 
 cp "$RUN/logs/latest.log" "$OUT/minecraft-latest.log" 2>/dev/null || true
 mkdir -p "$OUT/in-game-screenshots"
@@ -108,7 +131,7 @@ grep -hE 'Exception|ERROR|FATAL' "$OUT/minecraft-latest.log" > "$OUT/errors.txt"
 echo "== harness: screens, stages and failures"
 grep -E '"event":"(start|screen|menu-open|READY_FOR_INPUT|key|FAIL|stress-result|AUTOTEST_DONE|mixin-audit|module)"' "$OUT/breeze-autotest.log" 2>/dev/null | head -80
 echo "== harness: in the world"
-grep -E '"event":"(world-open|world-joined|hud-check|cape-check|cape-image|cosmetic-check|cosmetic-setup|WORLD_READY|hud-moved)"' "$OUT/breeze-autotest.log" 2>/dev/null | head -20
+grep -E '"event":"(world-open|world-joined|hud-check|cape-check|cape-image|cosmetic-check|cosmetic-setup|WORLD_READY|hud-moved|wardrobe-open|wardrobe-check)"' "$OUT/breeze-autotest.log" 2>/dev/null | head -20
 echo "== harness: mouse presses (1.21.9 and later)"
 grep '"event":"mouse"' "$OUT/breeze-autotest.log" 2>/dev/null | head -40
 if [ "$MODE" = prod ]; then

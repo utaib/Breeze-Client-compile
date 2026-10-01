@@ -141,6 +141,40 @@ else
   fi
 fi
 
+# ── Wardrobe: equip a 3D cosmetic with the real mouse (stand-in API) ─────
+# Only with the stand-in API (run-minecraft-test.sh starts it): the self-test
+# opens the Wardrobe on its 3D tab after the HUD editor; a click on the test
+# hat must equip it through the API, and the game must fetch and draw it.
+if [ -s "$OUT/stub-port" ]; then
+  if wait_new '"event":"wardrobe-open"' 15 0; then
+    sleep 3
+    t=$(fresh_targets wardrobe)
+    xy=$(where "$t" '^wardrobe-3d-stub-hat$')
+    if [ -z "$xy" ]; then
+      fail "the Wardrobe's 3D tab lists the test hat the API says the player owns"
+    else
+      b=$(count '"event":"wardrobe-check"')
+      # shellcheck disable=SC2086
+      click_at $xy
+      shot 09-wardrobe-clicked 2
+      if wait_new '"event":"wardrobe-check"' 70 "$b"; then
+        w=$(grep '"event":"wardrobe-check"' "$LOG" | tail -1)
+        say "wardrobe: $w"
+        case "$w" in
+          *'"pass":"true"'*) pass "a click in the Wardrobe equipped a 3D cosmetic through the API, and it was drawn on the player" ;;
+          *) fail "the Wardrobe click did not equip and draw the 3D cosmetic" ;;
+        esac
+      else
+        fail "the self-test checked the Wardrobe"
+      fi
+    fi
+    # The self-test closes the Wardrobe after its check.
+    i=0; while [ "$i" -lt 10 ] && [ "$(last_kind)" != none ]; do sleep 1; i=$((i + 1)); done
+  else
+    fail "the self-test opened the Wardrobe"
+  fi
+fi
+
 # ── Save and quit to the title screen ────────────────────────────────────
 sleep 1
 b=$(count '"kind":"pause"')

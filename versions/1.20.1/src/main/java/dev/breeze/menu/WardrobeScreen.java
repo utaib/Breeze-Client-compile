@@ -53,6 +53,12 @@ public class WardrobeScreen extends BreezeScreen {
         this.parent = parent;
     }
 
+    /** Opens on one tab ("Capes", "Tags" or "3D"). */
+    public WardrobeScreen(Screen parent, String tab) {
+        this(parent);
+        for (String t : TABS) if (t.equals(tab)) activeTab = t;
+    }
+
     @Override
     protected void init() {
         // Sliced from the whole screen, so a region can never be handed out
@@ -72,24 +78,19 @@ public class WardrobeScreen extends BreezeScreen {
         return CosmeticState.self();
     }
 
-    /** The 3D cosmetics this account wears; listed only, the launcher changes them. */
+    /** The 3D cosmetics this account wears, for when the game cannot equip them. */
     private static java.util.List<dev.breeze.cosmetics.WornCosmetics.Worn> worn() {
         return dev.breeze.cosmetics.WornCosmetics.account(0);
     }
 
-    private static String slotLabel(String slot) {
-        if (slot == null || slot.isEmpty()) return "";
-        return switch (slot) {
-            case "hat" -> "Hat";
-            case "wings" -> "Wings";
-            case "pet" -> "Pet";
-            case "cape" -> "Cape";
-            case "shield" -> "Shield";
-            case "aura" -> "Aura";
-            case "back" -> "Back";
-            case "trail" -> "Trail";
-            default -> slot;
-        };
+    /** Whether the API takes equip changes from the game; asks again when the answer is old. */
+    private static boolean canEquip3d() {
+        dev.breeze.cosmetics.OwnedModels.refresh(false);
+        return dev.breeze.cosmetics.OwnedModels.status() == dev.breeze.cosmetics.OwnedModels.Status.READY;
+    }
+
+    private static java.util.List<dev.breeze.cosmetics.OwnedCosmetics.Item> owned3d() {
+        return dev.breeze.cosmetics.OwnedModels.items();
     }
 
     // ── rows ────────────────────────────────────────────────────────────────
@@ -98,8 +99,8 @@ public class WardrobeScreen extends BreezeScreen {
         CosmeticState.Entry s = state();
         // Capes carries a leading "None" row so unequipping is one click and
         // does not need a separate button.
-        // 3D ends with a note row saying where these are changed.
-        if (activeTab.equals("3D")) return worn().size() + 1;
+        // 3D ends with a note row.
+        if (activeTab.equals("3D")) return (canEquip3d() ? owned3d().size() : worn().size()) + 1;
         return activeTab.equals("Capes") ? s.ownedCapes.size() + 1 : s.availableTags.size() + 1;
     }
 
@@ -238,7 +239,7 @@ public class WardrobeScreen extends BreezeScreen {
             boolean hover = row.contains(mouseX, mouseY) && mouseY >= content.y && mouseY < content.bottom();
 
             if (activeTab.equals("Capes")) renderCapeRow(g, s, i, row, hover);
-            else if (activeTab.equals("3D")) renderWornRow(g, i, row);
+            else if (activeTab.equals("3D")) render3dRow(g, i, row, hover);
             else renderTagRow(g, s, i, row, hover);
         }
 
@@ -279,21 +280,41 @@ public class WardrobeScreen extends BreezeScreen {
         }
     }
 
-    private void renderWornRow(GuiGraphics g, int i, Rect row) {
+    private void render3dRow(GuiGraphics g, int i, Rect row, boolean hover) {
+        if (canEquip3d()) {
+            java.util.List<dev.breeze.cosmetics.OwnedCosmetics.Item> owned = owned3d();
+            if (i >= owned.size()) {
+                note(g, row, owned.isEmpty()
+                        ? "No 3D cosmetics on this account yet."
+                        : "Click to equip or remove. One per slot.");
+                return;
+            }
+            dev.breeze.cosmetics.OwnedCosmetics.Item o = owned.get(i);
+            dev.breeze.devtest.Targets.put("wardrobe-3d-" + o.id, row.x + row.w / 2, row.y + row.h / 2);
+            Glass.surface(g, row, hover, o.equipped);
+            if (o.equipped) UiRender.accentBar(g, row.x, row.y + 3, 2, row.h - 6);
+            String slot = dev.breeze.cosmetics.OwnedCosmetics.slotLabel(o.slot) + (o.equipped ? ", wearing" : "");
+            int slotW = this.font.width(slot) + Spacing.SM;
+            UiRender.textClipped(g, this.font, o.name, row.x + Spacing.SM, row.y + 6,
+                    row.w - Spacing.SM * 2 - slotW, o.equipped ? Palette.TEXT_PRIMARY : Palette.TEXT_SECONDARY);
+            boolean busy = busyId != null && busyId.equals("model-" + o.id);
+            String right = busy ? "..." : slot;
+            g.drawString(this.font, right, row.right() - Spacing.SM - this.font.width(right), row.y + 6,
+                    busy ? Palette.ACCENT : Palette.TEXT_FAINT, false);
+            return;
+        }
         java.util.List<dev.breeze.cosmetics.WornCosmetics.Worn> worn = worn();
         if (i >= worn.size()) {
-            String note = worn.isEmpty()
+            note(g, row, worn.isEmpty()
                     ? "Not wearing any. Equip them in the Breeze launcher."
-                    : "Change these in the Breeze launcher.";
-            UiRender.textClipped(g, this.font, note, row.x + Spacing.SM, row.y + 6,
-                    row.w - Spacing.SM * 2, Palette.TEXT_FAINT);
+                    : "Change these in the Breeze launcher.");
             return;
         }
         dev.breeze.cosmetics.WornCosmetics.Worn w = worn.get(i);
         Glass.surface(g, row, false, true);
         UiRender.accentBar(g, row.x, row.y + 3, 2, row.h - 6);
         String label = w.name == null || w.name.isBlank() ? w.id : w.name;
-        String slot = slotLabel(w.slot);
+        String slot = dev.breeze.cosmetics.OwnedCosmetics.slotLabel(w.slot);
         int slotW = slot.isEmpty() ? 0 : this.font.width(slot) + Spacing.SM;
         UiRender.textClipped(g, this.font, label, row.x + Spacing.SM, row.y + 6,
                 row.w - Spacing.SM * 2 - slotW, Palette.TEXT_PRIMARY);
@@ -301,6 +322,10 @@ public class WardrobeScreen extends BreezeScreen {
             g.drawString(this.font, slot, row.right() - Spacing.SM - this.font.width(slot), row.y + 6,
                     Palette.TEXT_FAINT, false);
         }
+    }
+
+    private void note(GuiGraphics g, Rect row, String text) {
+        UiRender.textClipped(g, this.font, text, row.x + Spacing.SM, row.y + 6, row.w - Spacing.SM * 2, Palette.TEXT_FAINT);
     }
 
     private void renderTagRow(GuiGraphics g, CosmeticState.Entry s, int i, Rect row, boolean hover) {
@@ -348,6 +373,7 @@ public class WardrobeScreen extends BreezeScreen {
                     if (!new Rect(content.x, rowY(i), content.w, Spacing.ROW_H).contains(mx, my)) continue;
                     if (activeTab.equals("Capes")) clickCape(s, i);
                     else if (activeTab.equals("Tags")) clickTag(s, i);
+                    else click3d(i);
                     return true;
                 }
             }
@@ -365,6 +391,16 @@ public class WardrobeScreen extends BreezeScreen {
         CosmeticState.CapeInfo cape = s.ownedCapes.get(i - 1);
         busyId = cape.id;
         CosmeticActions.equipCape(cape.id, ok -> busyId = null);
+    }
+
+    private void click3d(int i) {
+        if (busyId != null || !canEquip3d()) return;
+        java.util.List<dev.breeze.cosmetics.OwnedCosmetics.Item> owned = owned3d();
+        if (i >= owned.size()) return;
+        dev.breeze.cosmetics.OwnedCosmetics.Item o = owned.get(i);
+        busyId = "model-" + o.id;
+        if (o.equipped) dev.breeze.cosmetics.OwnedModels.unequip(o.slot, ok -> busyId = null);
+        else dev.breeze.cosmetics.OwnedModels.equip(o.id, ok -> busyId = null);
     }
 
     private void clickTag(CosmeticState.Entry s, int i) {
