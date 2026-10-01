@@ -1,0 +1,38 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.breeze.mixin",
+  "compatibilityLevel": "${mixin_java}",
+  "client": [
+    "TitleScreenMixin",
+    "PauseScreenMixin",
+    "TitleButtonMixin",
+    "PanoramaRendererMixin",
+    "CapeLayerMixin",
+    "EntityRendererMixin",
+    "PlayerTabOverlayMixin",
+    "GameRendererMixin",
+    "CameraMixin",
+    "AbstractClientPlayerMixin",
+    "MultiPlayerGameModeMixin",
+    "GuiMixin",
+    "EntityGlowMixin",
+    "ScreenMixin",
+    "BossHealthOverlayMixin",
+    "ToastComponentMixin",
+    "ItemInHandRendererMixin",
+    "LocalPlayerMixin",
+    "SoundEngineMixin",
+    "ClientPacketListenerMixin",
+    "WindowMixin",
+    "ItemEntityRendererMixin",
+    "ScreenEffectRendererMixin",
+    "ChatComponentMixin",
+    "MouseHandlerMixin",
+    "MinecraftSetScreenMixin",
+    "LightTextureMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
