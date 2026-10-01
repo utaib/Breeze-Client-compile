@@ -154,13 +154,15 @@ public abstract class AbstractHudModule extends Module {
      * to the nearest free place (HudPlacement.freeSpot, the way Arrange
      * stacks) and that place is saved. Many elements share a default corner,
      * so switching on several used to pile them on top of each other. An
-     * element the player has placed is never moved.
+     * element the player has placed is never moved. Minecraft's own hotbar
+     * and bars count as taken, so an element is never moved onto them.
      */
     private void avoidOthers(Minecraft mc) {
         int sw = mc.getWindow().getGuiScaledWidth();
         int sh = mc.getWindow().getGuiScaledHeight();
         if (sw <= 0 || sh <= 0) return;
         List<dev.breeze.hud.HudPlacement.Box> taken = new ArrayList<>();
+        taken.add(vanillaBars(sw, sh));
         long now = System.currentTimeMillis();
         for (Module m : dev.breeze.ModuleManager.getModules()) {
             if (m == this || !(m instanceof AbstractHudModule o) || !o.isEnabled()) continue;
@@ -172,6 +174,14 @@ public abstract class AbstractHudModule extends Module {
         setHudPos(at[0], at[1]);
         dev.breeze.ui.HudLayout.set(getName(), placement);
         dev.breeze.ui.HudLayout.save();
+    }
+
+    /**
+     * Minecraft's hotbar (182 wide, centred, 22 high) with the health, food,
+     * armour and experience rows above it, in GUI-scaled pixels.
+     */
+    public static dev.breeze.hud.HudPlacement.Box vanillaBars(int sw, int sh) {
+        return new dev.breeze.hud.HudPlacement.Box(sw / 2 - 91, sh - 50, 182, 50);
     }
 
     protected abstract void draw(Minecraft mc, GuiGraphics g, Font font);

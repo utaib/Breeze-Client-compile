@@ -236,6 +236,12 @@ public final class AutoTest {
 
     /** Real cosmetics from the public catalogue, served by the stand-in API with "real-" ids. */
     private static final java.util.List<String> realIds = new java.util.ArrayList<>();
+    /**
+     * The real cosmetics in rounds: one per slot is worn at a time (as in the
+     * API), so a second pet is worn in the next round, after the first.
+     */
+    private static final java.util.List<java.util.List<String>> realRounds = new java.util.ArrayList<>();
+    private static int realRound;
     private static int realStage;
 
     /** The test runs against the stand-in API, with a game token for a test player. */
@@ -458,11 +464,18 @@ public final class AutoTest {
                 dev.breeze.compat.ActiveScreen.set(mc, null);
                 // Then the real cosmetics, if the catalogue could be read.
                 realIds.clear();
+                realRounds.clear();
+                java.util.Map<String, Integer> perSlot = new java.util.HashMap<>();
                 for (dev.breeze.cosmetics.OwnedCosmetics.Item i : dev.breeze.cosmetics.OwnedModels.items()) {
-                    if (i.id.startsWith("real-")) {
-                        realIds.add(i.id);
-                        dev.breeze.cosmetics.OwnedModels.equip(i.id, null);
-                    }
+                    if (!i.id.startsWith("real-")) continue;
+                    realIds.add(i.id);
+                    int round = perSlot.merge(i.slot, 1, Integer::sum) - 1;
+                    while (realRounds.size() <= round) realRounds.add(new java.util.ArrayList<>());
+                    realRounds.get(round).add(i.id);
+                }
+                realRound = 0;
+                if (!realRounds.isEmpty()) {
+                    for (String id : realRounds.get(0)) dev.breeze.cosmetics.OwnedModels.equip(id, null);
                 }
                 if (realIds.isEmpty()) {
                     log("real-cosmetics", "pass", "skipped", "reason", "no real cosmetics to wear (see the [cosmetics] lines: catalogue not reached, or no model could be fetched)");
@@ -473,18 +486,28 @@ public final class AutoTest {
                 realStage = 0;
                 world = World.REAL;
                 worldAt = System.currentTimeMillis();
-                log("real-cosmetics-start", "ids", String.join(",", realIds));
+                log("real-cosmetics-start", "ids", String.join(",", realIds), "rounds", String.valueOf(realRounds.size()));
             }
             case REAL -> {
-                // Each real model drawn on the player, or a reason it was not.
+                // Each real model of this round drawn on the player, or a
+                // reason it was not.
                 boolean resolved = true;
-                for (String id : realIds) {
+                for (String id : realRounds.get(realRound)) {
                     boolean drawn = dev.breeze.cosmetics.CosmeticRender.DRAWS_BY_ID.getOrDefault(id, 0) > 0;
                     if (!drawn && dev.breeze.cosmetics.CosmeticModels.failure(id) == null) resolved = false;
                 }
                 if (realStage == 0) {
                     if ((!resolved || age < 8_000) && age < 90_000) return;
-                    shot(mc, "autotest-real-cosmetics");
+                    shot(mc, "autotest-real-cosmetics" + (realRound == 0 ? "" : "-" + (realRound + 1)));
+                    if (realRound + 1 < realRounds.size()) {
+                        // The next round replaces this one's in each slot.
+                        realRound++;
+                        for (String id : realRounds.get(realRound)) dev.breeze.cosmetics.OwnedModels.equip(id, null);
+                        log("real-cosmetics-round", "round", String.valueOf(realRound + 1),
+                                "ids", String.join(",", realRounds.get(realRound)));
+                        worldAt = System.currentTimeMillis();
+                        return;
+                    }
                     mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_FRONT);
                     realStage = 1;
                     worldAt = System.currentTimeMillis();

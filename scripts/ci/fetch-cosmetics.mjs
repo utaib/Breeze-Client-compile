@@ -3,7 +3,8 @@
 // API's public catalogue (GET /cosmetics, the list the website shows) so the
 // test player can wear real creator models, not only the test's own cube.
 // Read only: one catalogue request and one download per model. Up to four
-// cosmetics, each in a different slot.
+// cosmetics: first one per slot, then more of the same slots (the game test
+// wears those in later rounds, since a slot holds one at a time).
 //
 // Usage: node fetch-cosmetics.mjs <models-dir> [api-base]
 //   writes <models-dir>/catalog.json ([{id, slot, name, metadata}]) and
@@ -38,10 +39,32 @@ try {
     } catch { /* not a URL */ }
     console.log(`[cosmetics]   ${c.slot} "${c.name}": ${where}, attachment ${c.metadata?.attachment ?? 'none'}`)
   }
-  for (const slot of SLOTS) {
+  // Only models on the API's own host and scheme: the game fetches nothing
+  // else (CapeTextures.allowedUrl), so a model elsewhere would pass here and
+  // still be invisible to players.
+  const api = new URL(base)
+  const apiHost = api.host
+  const onApi = (x) => {
+    try {
+      const u = new URL(x.model_url)
+      return u.protocol === api.protocol && u.host === apiHost
+    } catch {
+      return false
+    }
+  }
+  for (const c of list.filter((x) => SLOTS.includes(x.slot) && x.model_url && !onApi(x))) {
+    console.log(`[cosmetics] not used: ${c.slot} "${c.name}" is not on ${apiHost}, so the game does not load it`)
+  }
+  const usable = list.filter((x) => SLOTS.includes(x.slot) && onApi(x))
+  // One per slot first, then the rest in catalogue order; one per model file.
+  const firsts = SLOTS.map((slot) => usable.find((x) => x.slot === slot)).filter(Boolean)
+  const order = [...firsts, ...usable.filter((x) => !firsts.includes(x))]
+  const seen = new Set()
+  for (const c of order) {
     if (out.length >= 4) break
-    const c = list.find((x) => x.slot === slot && typeof x.model_url === 'string' && x.model_url.startsWith('https://'))
-    if (!c) continue
+    if (seen.has(c.model_url)) continue
+    seen.add(c.model_url)
+    const slot = c.slot
     try {
       const m = await fetch(c.model_url, { signal: AbortSignal.timeout(30000) })
       if (!m.ok) throw new Error(`model answered ${m.status}`)
@@ -49,7 +72,7 @@ try {
       if (bytes.length > MAX_BYTES) throw new Error(`model is ${bytes.length} bytes`)
       // A GLB, or a self-contained .gltf (JSON), which the game reads too.
       const format = bytes.toString('latin1', 0, 4) === 'glTF' ? 'glb'
-        : /^﻿?\s*\{/.test(bytes.toString('utf8', 0, 64)) ? 'gltf' : null
+        : /^\s*\{/.test(bytes.toString('utf8', 0, 64)) ? 'gltf' : null
       if (!format) {
         const head = bytes.toString('latin1', 0, 24).replace(/[^\x20-\x7e]/g, '.')
         throw new Error(`not a GLB or glTF: ${m.headers.get('content-type')}, ${bytes.length} bytes, starts "${head}"`)

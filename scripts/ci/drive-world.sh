@@ -88,8 +88,8 @@ shot 07-in-world
 hud=$(grep '"event":"hud-check"' "$LOG" | tail -1)
 say "hud: $hud"
 case "$hud" in
-  *'"pass":"true"'*) pass "every HUD module drew in the world without an error" ;;
-  *) fail "a HUD module did not draw in the world, or threw" ;;
+  *'"pass":"true"'*) pass "every HUD module drew in the world without an error, none on the hotbar" ;;
+  *) fail "a HUD module did not draw in the world, threw, or was put on the hotbar" ;;
 esac
 layout=$(grep '"event":"hud-layout"' "$LOG" | tail -1)
 say "layout: $layout"
@@ -204,10 +204,11 @@ if [ -s "$OUT/stub-port" ]; then
     fail "the self-test opened the Wardrobe"
   fi
 
-  # Real cosmetics from the public catalogue, worn by the test player: each
-  # must be read and drawn. Skipped (not failed) when the catalogue could not
-  # be read, since that is the network, not the mod.
-  if wait_new '"event":"real-cosmetics"' 150 0; then
+  # Real cosmetics from the public catalogue, worn by the test player (one
+  # per slot at a time, in rounds of up to 90 s each): each must be read and
+  # drawn. Skipped (not failed) when none could be fetched, since that is
+  # the network or the catalogue, not the mod.
+  if wait_new '"event":"real-cosmetics"' 420 0; then
     real=$(grep '"event":"real-cosmetics"' "$LOG" | tail -1)
     say "real cosmetics: $real"
     case "$real" in

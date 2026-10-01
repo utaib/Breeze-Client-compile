@@ -32,11 +32,19 @@ final class HudSweep {
         return out;
     }
 
-    /** Each HUD module, switched on: drew in the last two seconds without throwing; its size and place. */
+    /**
+     * Each HUD module, switched on: drew in the last two seconds without
+     * throwing; its size and place. None of them, all at their default or
+     * automatic places, may cover Minecraft's hotbar and bars.
+     */
     static JsonObject check() {
+        Minecraft mc = Minecraft.getInstance();
+        HudPlacement.Box bars = AbstractHudModule.vanillaBars(
+                mc.getWindow().getGuiScaledWidth(), mc.getWindow().getGuiScaledHeight());
         JsonObject o = new JsonObject();
         boolean all = true;
         int n = 0;
+        List<String> onBars = new ArrayList<>();
         long now = System.currentTimeMillis();
         for (AbstractHudModule h : huds()) {
             n++;
@@ -45,9 +53,13 @@ final class HudSweep {
             all &= ok;
             o.addProperty(h.getName(), (ok ? "drawn " : h.drawFailed() ? "threw " : "not drawn ")
                     + h.getHudW() + "x" + h.getHudH() + " at " + h.getHudX() + "," + h.getHudY());
+            boolean apart = h.getHudX() + h.getHudW() <= bars.x() || bars.x() + bars.w() <= h.getHudX()
+                    || h.getHudY() + h.getHudH() <= bars.y() || bars.y() + bars.h() <= h.getHudY();
+            if (!apart) onBars.add(h.getName());
         }
         o.addProperty("count", String.valueOf(n));
-        o.addProperty("pass", String.valueOf(all && n > 0));
+        o.addProperty("onHotbar", String.join(", ", onBars));
+        o.addProperty("pass", String.valueOf(all && n > 0 && onBars.isEmpty()));
         return o;
     }
 

@@ -32,7 +32,11 @@ Every HUD module can be moved; every module is tested in a world.
   is drawn, if its default place is taken by another element on screen, it
   goes to the nearest free place (common HudPlacement.freeSpot, 3 unit
   tests) and that place is saved. Elements the player has placed are never
-  moved.
+  moved. Minecraft's hotbar and the health, food, armour and experience
+  rows above it count as taken: in the all-elements screenshot (run
+  36809332861, 1.21.11) Potion Effects had been moved onto the hotbar,
+  because several left-side defaults lie below the bottom of an 854 by 480
+  window and the search went right along the bottom edge.
 - 3D cosmetics stored as a self-contained .gltf were never drawn: the model
   reader took only GLB and refused them ("not a GLB: wrong magic"). Some
   cosmetics in the live catalogue are .gltf files with their buffers and
@@ -46,7 +50,7 @@ Every HUD module can be moved; every module is tested in a world.
 
 ### Test harness
 - In the world, all 36 HUD modules are switched on and each must draw
-  without an error; then each is moved to its own place on the screen, the
+  without an error and none may cover the hotbar; then each is moved to its own place on the screen, the
   layout is saved, forgotten, read back from disk, and each must be drawn
   where it was put (screenshot autotest-hud-layout).
 - Every one of the 81 modules is switched on in the world, every setting
@@ -58,12 +62,22 @@ Every HUD module can be moved; every module is tested in a world.
 - The HUD editor step drags three kinds of element with the real mouse:
   FPS (text), Keystrokes (boxes) and the Inventory HUD (right edge, after H
   hides the editor's panel), and Done must save all three.
-- Real creator cosmetics: the test fetches up to four 3D cosmetics, one per
-  slot, from the public catalogue (GET /cosmetics, read only), the stand-in
-  API lets the test player own them, the self-test equips them and turns
-  the camera to the player's back and front; each must be drawn
-  (screenshots autotest-real-cosmetics and autotest-real-cosmetics-front).
-  When none can be fetched the step is reported as skipped, not passed.
+- Real creator cosmetics: the test fetches up to four 3D cosmetics from
+  the public catalogue (GET /cosmetics, read only), only models on the API
+  host, since the game loads nothing else; the stand-in API lets the test
+  player own them; the self-test wears them one per slot at a time, in
+  rounds (a second pet after the first), with the camera on the player's
+  back for each round and on the front at the end; each must be drawn
+  (screenshots autotest-real-cosmetics, -2, -3 and -front). When none can
+  be fetched the step is reported as skipped, not passed.
+
+### Verified
+- The catalogue's .gltf pet "Glare 23" read and drawn on the player in a
+  real Fabric install on 1.17, 1.20.1, 1.21.4, 1.21.9, 1.21.11, 26.1 and
+  26.3 (mirror run 36810389512, source `58f8a9a`; 1.21.11 drew it 83 times,
+  1.17 118 times, 0 failures). Screenshots: a green leafy pet beside the
+  player's head on 1.17, 1.21.11 and 26.3. Same run: every module and
+  setting swept with no errors, 36 of 36 HUD elements moved and saved.
 
 ## [2.9.0] - 2026-10-01 (not released)
 
