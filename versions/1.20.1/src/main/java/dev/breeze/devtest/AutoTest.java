@@ -92,6 +92,9 @@ public final class AutoTest {
         if (s instanceof JoinMultiplayerScreen) return "multiplayer";
         if (s instanceof dev.breeze.menu.HudEditorScreen) return "hud-editor";
         if (s instanceof dev.breeze.menu.WardrobeScreen) return "wardrobe";
+        if (s instanceof dev.breeze.menu.ModuleSettingsScreen) return "module-settings";
+        if (s instanceof dev.breeze.menu.ThemeSettingsScreen) return "breeze-settings";
+        if (s instanceof dev.breeze.menu.FriendsScreen) return "friends";
         if (s instanceof net.minecraft.client.gui.screens.PauseScreen) return "pause";
         if (dev.breeze.compat.Screens.isOptions(s)) return "options";
         return "other";

@@ -25,9 +25,23 @@ Release polish: HUD panels, the title screen, and a frame rate reading.
 - **Title screen**: the "BG: Breeze" / "BG: Vanilla" button is now
   "Backdrop" with an on/off switch (Breeze's scene on, Minecraft's panorama
   off), on every version.
-- **Native Breeze menu**: the "UI: Native only" button, which did nothing,
-  is gone on the 24 versions without an embedded browser; where there is a
-  choice it reads "Menu: Auto", "Menu: Classic" or "Menu: Web".
+- **Native Breeze menu, laid out for the sizes players have.** Minecraft's
+  automatic GUI scale makes a 1280x720 window 426x240 units and 1920x1080
+  480x270; the menu was laid out for more and showed it:
+  - the "UI: Native only" button (which did nothing) sat on top of the
+    search box. The menu choice moved to Breeze's settings (the gear) as
+    "Menu: Auto / Classic / Web", only where this version has the embedded
+    browser;
+  - three columns of 64-unit cards cut names to "Coordin..." and drew the
+    favourite heart over them: columns now keep cards at least 120 wide
+    (two columns at 720p), and names stop before the heart;
+  - the wardrobe, HUD editor and settings icons were stacked and left room
+    for three of the eight category tabs: they sit in one row and every tab
+    shows;
+  - the search box shrinks to fit and the tab name and hint stop before it;
+  - margins shrink on small screens instead of the content.
+- **Breeze settings (native)**: at 720p the seven colour sliders ran into
+  the presets row; their spacing now closes up to fit.
 - **Friends**: the hint under the add box ran on into the chat panel (about
   250 pixels of text in a 168-pixel column); it is now "Right-click a
   friend to invite", clipped to the column.
@@ -40,7 +54,9 @@ Release polish: HUD panels, the title screen, and a frame rate reading.
   1.0.26 picks them, and Breeze loaded with `-Dfabric.addMods` as the
   launcher does. `perf_mods`: optimisation mods from Modrinth beside Breeze.
 - The driver's whole-window screenshots (the web and native Breeze menus)
-  go to the evidence branch with the game's own.
+  go to the evidence branch with the game's own. The native driver also
+  opens a module's settings (right-click) and Breeze's settings (the gear)
+  and checks Escape comes back from each.
 
 ### Verified
 - **UNVERIFIED** until the runs below finish.

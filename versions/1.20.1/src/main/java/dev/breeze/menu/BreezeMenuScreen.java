@@ -25,7 +25,9 @@ public class BreezeMenuScreen extends BreezeScreen {
     private static final int SIDEBAR_W = 104;
     private static final int PANEL_GAP = 10;
     private static final int HEADER = 36;
-    private static final int COLS = 3;
+    /** Up to three columns, as many as keep each card this wide (a name like "Server Address" fits). */
+    private static final int MAX_COLS = 3;
+    private static final int MIN_CARD_W = 120;
     private static final int CARD_H = 46;
     private static final int GAP = 8;
 
@@ -42,6 +44,10 @@ public class BreezeMenuScreen extends BreezeScreen {
     private int gridW;
     private int gridBottom;
     private int cardW;
+    private int cols = MAX_COLS;
+    /** The search box's left and right edges (its rounded background). */
+    private int searchL;
+    private int searchR;
 
     private EditBox search;
     private String activeTab = "All";
@@ -53,8 +59,13 @@ public class BreezeMenuScreen extends BreezeScreen {
 
     @Override
     protected void init() {
-        panelH = Math.min(this.height - 60, 470);
-        mainW = Math.min(this.width - 90 - SIDEBAR_W, 640);
+        // Minecraft's automatic GUI scale makes a 1280x720 window 426x240
+        // units and 1920x1080 480x270, so those are the normal sizes, not the
+        // small ones. The margins shrink there instead of the content.
+        int marginX = this.width < 560 ? 8 : 40;
+        int marginY = this.height < 320 ? 8 : 30;
+        panelH = Math.min(this.height - 2 * marginY, 470);
+        mainW = Math.min(this.width - 2 * marginX - SIDEBAR_W - PANEL_GAP, 640);
         int groupW = SIDEBAR_W + PANEL_GAP + mainW;
         int sx = (this.width - groupW) / 2;
         int sy = (this.height - panelH) / 2;
@@ -66,44 +77,24 @@ public class BreezeMenuScreen extends BreezeScreen {
         gridY = mainY + HEADER;
         gridW = mainW - 24;
         gridBottom = mainY + panelH - 12;
-        cardW = (gridW - (COLS - 1) * GAP) / COLS;
+        cols = Math.max(1, Math.min(MAX_COLS, (gridW + GAP) / (MIN_CARD_W + GAP)));
+        cardW = (gridW - (cols - 1) * GAP) / cols;
 
+        // The search box takes what the header can spare, between 90 and 138
+        // wide, and stops short of the close button.
+        int searchW = Math.max(90, Math.min(138, mainW - 150));
+        searchR = mainX + mainW - 22;
+        searchL = searchR - searchW - 6;
         String prev = search != null ? search.getValue() : "";
-        search = new EditBox(this.font, mainX + mainW - 154, mainY + 11, 138, 16, Component.literal("Search"));
+        search = new EditBox(this.font, searchL + 6, mainY + 11, searchW - 4, 16, Component.literal("Search"));
         dev.breeze.compat.Widgets.hint(search, Component.literal("Search"));
         search.setBordered(false);
         search.setValue(prev);
         search.setResponder(s -> scroll = 0);
         addRenderableWidget(search);
 
-        // Which interface opens next time, chosen here rather than by a JVM
-        // flag nobody can reach from inside the game.
-        //
-        // It deliberately does not swap the screen out from under the click.
-        // Cycling Auto to Native to Web would throw the player into the web
-        // interface halfway round and take this button with it; applying on the
-        // next open is predictable, and the label says what will happen.
-        //
-        // Where this Minecraft version has no embedded browser there is no
-        // choice to make, so there is no button.
-        if (BreezeUi.webPossible()) addRenderableWidget(dev.breeze.compat.Widgets.button(Component.literal(uiModeLabel()), b -> {
-            Theme.uiMode = switch (Theme.uiMode) {
-                case AUTO -> Theme.UiMode.NATIVE;
-                case NATIVE -> Theme.UiMode.WEB;
-                case WEB -> Theme.UiMode.AUTO;
-            };
-            Theme.save();
-            rebuildWidgets();
-        }, mainX + mainW - 154 - 96, mainY + 9, 92, 20));
-    }
-
-    /** What the menu style button says: which menu opens next time. */
-    private static String uiModeLabel() {
-        return switch (Theme.uiMode) {
-            case AUTO -> "Menu: Auto";
-            case NATIVE -> "Menu: Classic";
-            case WEB -> "Menu: Web";
-        };
+        // Which menu opens next time (web or classic) is chosen in Breeze's
+        // settings (the gear), where it has room on every screen size.
     }
 
     private List<Module> filtered() {
@@ -136,8 +127,13 @@ public class BreezeMenuScreen extends BreezeScreen {
 
     /** Logo plus the divider under it. */
     private static final int SIDEBAR_HEADER_H = 52;
-    /** Two 20px icons with gaps. Reserved so the tab stack can never reach it. */
-    private static final int SIDEBAR_FOOTER_H = 80;
+    /**
+     * The wardrobe, HUD editor and settings icons, side by side in one row.
+     * Stacked, they took 80 units, which left room for three of the eight
+     * category tabs on a 1280x720 window.
+     */
+    private static final int SIDEBAR_FOOTER_H = Spacing.HIT + 2 * Spacing.XS;
+    private static final int ICON_GAP = 6;
 
     private int tabsTop() { return sidebarY + SIDEBAR_HEADER_H; }
 
@@ -163,26 +159,16 @@ public class BreezeMenuScreen extends BreezeScreen {
         return tabsTop() + i * tabH();
     }
 
-    /** Top-left of the HUD editor icon, derived from the reserved footer. */
-    private int hudIconY() { return wardrobeIconY() + Spacing.HIT + Spacing.XS; }
+    /** The footer row: wardrobe (0), HUD editor (1), settings (2), centred. */
+    private int iconX(int i) {
+        int rowW = 3 * Spacing.HIT + 2 * ICON_GAP;
+        return sidebarX + (SIDEBAR_W - rowW) / 2 + i * (Spacing.HIT + ICON_GAP);
+    }
 
-    /** Top-left of the settings gear, one row below the HUD icon. */
-    private int gearIconY() { return hudIconY() + Spacing.HIT + Spacing.XS; }
-
-    private int iconX() { return sidebarX + SIDEBAR_W / 2 - Spacing.HIT / 2; }
-
-    /**
-     * Wardrobe entry, above the HUD editor.
-     *
-     * The footer reserve was sized for two icons; it now holds three, so
-     * SIDEBAR_FOOTER_H grew to match. Leaving it at 56 would have put the
-     * wardrobe icon back into the tab stack, which is the exact collision this
-     * screen was fixed for earlier.
-     */
-    private int wardrobeIconY() { return sidebarY + panelH - SIDEBAR_FOOTER_H + Spacing.XS; }
+    private int iconY() { return sidebarY + panelH - SIDEBAR_FOOTER_H + Spacing.XS; }
 
     private int maxScroll(int count) {
-        int rows = (count + COLS - 1) / COLS;
+        int rows = (count + cols - 1) / cols;
         int content = rows * (CARD_H + GAP) - GAP;
         int visible = gridBottom - gridY;
         return Math.max(0, content - visible);
@@ -215,12 +201,13 @@ public class BreezeMenuScreen extends BreezeScreen {
             UiRender.textClipped(g, this.font, TABS[i], sidebarX + 14, ty, SIDEBAR_W - 20, col);
         }
 
-        boolean wardHover = inside(mouseX, mouseY, iconX(), wardrobeIconY(), Spacing.HIT, Spacing.HIT);
-        UiRender.hanger(g, iconX(), wardrobeIconY(), Spacing.HIT, wardHover ? Theme.secondary() : Palette.TEXT_SECONDARY);
-        boolean hudHover = inside(mouseX, mouseY, iconX(), hudIconY(), Spacing.HIT, Spacing.HIT);
-        UiRender.moveIcon(g, iconX(), hudIconY(), Spacing.HIT, hudHover ? Theme.secondary() : Palette.TEXT_SECONDARY);
-        boolean gearHover = inside(mouseX, mouseY, iconX(), gearIconY(), Spacing.HIT, Spacing.HIT);
-        UiRender.gear(g, iconX(), gearIconY(), Spacing.HIT, gearHover ? Theme.secondary() : Palette.TEXT_SECONDARY);
+        boolean wardHover = inside(mouseX, mouseY, iconX(0), iconY(), Spacing.HIT, Spacing.HIT);
+        UiRender.hanger(g, iconX(0), iconY(), Spacing.HIT, wardHover ? Theme.secondary() : Palette.TEXT_SECONDARY);
+        boolean hudHover = inside(mouseX, mouseY, iconX(1), iconY(), Spacing.HIT, Spacing.HIT);
+        UiRender.moveIcon(g, iconX(1), iconY(), Spacing.HIT, hudHover ? Theme.secondary() : Palette.TEXT_SECONDARY);
+        boolean gearHover = inside(mouseX, mouseY, iconX(2), iconY(), Spacing.HIT, Spacing.HIT);
+        UiRender.gear(g, iconX(2), iconY(), Spacing.HIT, gearHover ? Theme.secondary() : Palette.TEXT_SECONDARY);
+        dev.breeze.devtest.Targets.put("settings-icon", iconX(2) + Spacing.HIT / 2, iconY() + Spacing.HIT / 2);
 
         Glass.panel(g, new Rect(mainX, mainY, mainW, panelH));
         // The 200x200 logo watermark that used to sit here is gone. It was drawn
@@ -232,15 +219,18 @@ public class BreezeMenuScreen extends BreezeScreen {
 
         g.drawString(this.font, Component.literal("Breeze"), mainX + Spacing.MD, mainY + 13, Palette.TEXT_PRIMARY, true);
         UiRender.accentBar(g, mainX + 14, mainY + 26, 44, 2);
-        g.drawString(this.font, activeTab, mainX + 66, mainY + 14, Palette.TEXT_FAINT, false);
+        // The tab name and the hint both stop short of the search box.
+        int tabW = UiRender.textClipped(g, this.font, activeTab, mainX + 66, mainY + 14,
+                searchL - Spacing.SM - (mainX + 66), Palette.TEXT_FAINT);
         // Right-click is not discoverable on its own, and a cog on every card
         // would cost 14px of a 46px card that already carries four controls.
-        UiRender.textClipped(g, this.font, "right-click to style",
-                mainX + 66 + this.font.width(activeTab) + Spacing.MD, mainY + 14,
-                mainW - 240 - this.font.width(activeTab), Palette.TEXT_FAINT);
+        int hintX = mainX + 66 + tabW + Spacing.MD;
+        if (searchL - Spacing.SM - hintX >= this.font.width("right-click to style")) {
+            g.drawString(this.font, "right-click to style", hintX, mainY + 14, Palette.TEXT_FAINT, false);
+        }
 
-        Glass.fillRounded(g, mainX + mainW - 160, mainY + 9, mainX + mainW - 16, mainY + 27, Glass.RADIUS_SM, Palette.BG);
-        Glass.roundedBorder(g, mainX + mainW - 160, mainY + 9, mainX + mainW - 16, mainY + 27, Glass.RADIUS_SM, Palette.BORDER);
+        Glass.fillRounded(g, searchL, mainY + 9, searchR, mainY + 27, Glass.RADIUS_SM, Palette.BG);
+        Glass.roundedBorder(g, searchL, mainY + 9, searchR, mainY + 27, Glass.RADIUS_SM, Palette.BORDER);
         boolean closeHover = inside(mouseX, mouseY, mainX + mainW - 16, mainY + 13, 8, 8);
         UiRender.close(g, mainX + mainW - 16, mainY + 13, 8, closeHover ? Theme.primary() : Palette.TEXT_SECONDARY);
 
@@ -250,8 +240,8 @@ public class BreezeMenuScreen extends BreezeScreen {
         g.enableScissor(gridX, gridY, gridX + gridW, gridBottom);
         Module hovered = null;
         for (int i = 0; i < list.size(); i++) {
-            int cx = gridX + (i % COLS) * (cardW + GAP);
-            int cy = (int) (gridY + (i / COLS) * (CARD_H + GAP) - scroll);
+            int cx = gridX + (i % cols) * (cardW + GAP);
+            int cy = (int) (gridY + (i / cols) * (CARD_H + GAP) - scroll);
             if (cy + CARD_H < gridY || cy > gridBottom) continue;
             Module m = list.get(i);
             boolean over = inside(mouseX, mouseY, cx, cy, cardW, CARD_H) && mouseY >= gridY && mouseY <= gridBottom;
@@ -288,9 +278,10 @@ public class BreezeMenuScreen extends BreezeScreen {
         if (m.isEnabled()) UiRender.accentBar(g, x, y + 6, 2, CARD_H - 12);
 
         // Both lines clip. The subtitle previously did not, so long category
-        // text ran under the toggle. The name reserves the full card, the
-        // subtitle reserves room for the toggle that sits beside it.
-        UiRender.textClipped(g, this.font, m.getName(), x + 10, y + 9, cardW - 20, Palette.TEXT_PRIMARY);
+        // text ran under the toggle. The name stops before the favourite heart
+        // in the top-right corner (it used to run under it), the subtitle
+        // before the toggle beside it.
+        UiRender.textClipped(g, this.font, m.getName(), x + 10, y + 9, cardW - 32, Palette.TEXT_PRIMARY);
         UiRender.textClipped(g, this.font, m.getCategory().displayName(), x + 10, y + 21, cardW - 44, Palette.TEXT_FAINT);
 
         Glass.toggle(g, x + cardW - 34, y + CARD_H - 18, 26, 12, m.isEnabled());
@@ -310,8 +301,8 @@ public class BreezeMenuScreen extends BreezeScreen {
         if (button == 1 && mx >= gridX && mx <= gridX + gridW && my >= gridY && my <= gridBottom) {
             List<Module> list = filtered();
             for (int i = 0; i < list.size(); i++) {
-                int cx = gridX + (i % COLS) * (cardW + GAP);
-                int cy = (int) (gridY + (i / COLS) * (CARD_H + GAP) - scroll);
+                int cx = gridX + (i % cols) * (cardW + GAP);
+                int cy = (int) (gridY + (i / cols) * (CARD_H + GAP) - scroll);
                 if (!inside(mx, my, cx, cy, cardW, CARD_H)) continue;
                 Module m = list.get(i);
                 if (m.hasSettings()) dev.breeze.compat.ActiveScreen.set(this.minecraft, new ModuleSettingsScreen(this, m));
@@ -326,15 +317,15 @@ public class BreezeMenuScreen extends BreezeScreen {
             // Same geometry helpers the renderer uses. When these were separate
             // literals the hit areas drifted from what was drawn, so a click
             // near the bottom of the tab stack opened the HUD editor instead.
-            if (inside(mx, my, iconX(), wardrobeIconY(), Spacing.HIT, Spacing.HIT)) {
+            if (inside(mx, my, iconX(0), iconY(), Spacing.HIT, Spacing.HIT)) {
                 dev.breeze.compat.ActiveScreen.set(this.minecraft, new WardrobeScreen(this));
                 return true;
             }
-            if (inside(mx, my, iconX(), hudIconY(), Spacing.HIT, Spacing.HIT)) {
+            if (inside(mx, my, iconX(1), iconY(), Spacing.HIT, Spacing.HIT)) {
                 dev.breeze.compat.ActiveScreen.set(this.minecraft, new HudEditorScreen(this));
                 return true;
             }
-            if (inside(mx, my, iconX(), gearIconY(), Spacing.HIT, Spacing.HIT)) {
+            if (inside(mx, my, iconX(2), iconY(), Spacing.HIT, Spacing.HIT)) {
                 dev.breeze.compat.ActiveScreen.set(this.minecraft, new ThemeSettingsScreen(this));
                 return true;
             }
@@ -351,8 +342,8 @@ public class BreezeMenuScreen extends BreezeScreen {
             if (mx >= gridX && mx <= gridX + gridW && my >= gridY && my <= gridBottom) {
                 List<Module> list = filtered();
                 for (int i = 0; i < list.size(); i++) {
-                    int cx = gridX + (i % COLS) * (cardW + GAP);
-                    int cy = (int) (gridY + (i / COLS) * (CARD_H + GAP) - scroll);
+                    int cx = gridX + (i % cols) * (cardW + GAP);
+                    int cy = (int) (gridY + (i / cols) * (CARD_H + GAP) - scroll);
                     if (!inside(mx, my, cx, cy, cardW, CARD_H)) continue;
                     Module m = list.get(i);
                     if (inside(mx, my, cx + cardW - 16, cy + 8, 8, 8)) {

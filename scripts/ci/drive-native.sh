@@ -106,6 +106,30 @@ b=$(count '"event":"module"')
 click "switch it back" breeze-native '^module-card-0$' \
   && expect_new "a second click switched it back" '"event":"module"' 5 "$b"
 
+# A module's own settings: right-click its card. Escape goes back.
+xy=$(where "$(fresh_targets breeze-native)" '^module-card-0$')
+if [ -n "$xy" ]; then
+  b=$(count '"kind":"module-settings"')
+  # shellcheck disable=SC2086
+  xdotool mousemove --window "$WID" $xy; sleep 0.25; xdotool click 3
+  expect_new "a right-click on a module card opened its settings" '"kind":"module-settings"' 5 "$b"
+  shot 04b-module-settings
+  b=$(count '"kind":"breeze-native"')
+  xdotool key Escape
+  expect_new "Escape went back from the module's settings to the Breeze menu" '"kind":"breeze-native"' 5 "$b"
+else
+  fail "no first module card to right-click"
+fi
+
+# Breeze's settings: the gear in the sidebar. Escape goes back.
+b=$(count '"kind":"breeze-settings"')
+click "open Breeze settings" breeze-native '^settings-icon$' \
+  && expect_new "the gear opened Breeze's settings" '"kind":"breeze-settings"' 5 "$b"
+shot 04c-breeze-settings
+b=$(count '"kind":"breeze-native"')
+xdotool key Escape
+expect_new "Escape went back from Breeze's settings to the Breeze menu" '"kind":"breeze-native"' 5 "$b"
+
 # Escape closes the menu back to the title screen.
 b=$(count '"kind":"title"')
 xdotool key Escape

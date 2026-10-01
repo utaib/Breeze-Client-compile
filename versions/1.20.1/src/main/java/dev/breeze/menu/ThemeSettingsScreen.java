@@ -76,7 +76,12 @@ public class ThemeSettingsScreen extends BreezeScreen {
         //   header 34 + sliders (7 x 20) + presets 26 + footer 34
         final int sliderRows = 7;
         int contentH = 34 + sliderRows * SLIDER_PITCH + PRESET_BAND_H + FOOTER_BAND_H;
-        panelH = Math.min(this.height - 40, contentH);
+        panelH = Math.min(this.height - (this.height < 320 ? 16 : 40), contentH);
+        // On a 1280x720 window (240 units high) the full pitch does not fit,
+        // and the last sliders ran into the presets row. The rows close up
+        // instead, down to the 12 units a label and its knob need.
+        int presetLabelTop = panelH - 50 - 12;
+        int pitch = Math.max(12, Math.min(SLIDER_PITCH, (presetLabelTop - 4 - 34 - 8) / (sliderRows - 1)));
         panelX = (this.width - panelW) / 2;
         panelY = (this.height - panelH) / 2;
 
@@ -98,10 +103,37 @@ public class ThemeSettingsScreen extends BreezeScreen {
             s.x = sx;
             s.y = sy;
             s.w = sw;
-            sy += SLIDER_PITCH;
+            sy += pitch;
         }
 
-        addRenderableWidget(dev.breeze.compat.Widgets.button(Component.literal("Done"), b -> dev.breeze.compat.ActiveScreen.set(this.minecraft, parent), panelX + panelW / 2 - 50, panelY + panelH - 24, 100, 18));
+        int footY = panelY + panelH - 24;
+        if (dev.breeze.ui.BreezeUi.webPossible()) {
+            // Which Breeze menu opens next time. Only where this version has
+            // the embedded browser; elsewhere there is nothing to choose. It
+            // applies on the next open rather than swapping the screen out
+            // from under the click.
+            addRenderableWidget(dev.breeze.compat.Widgets.button(Component.literal(menuLabel()), b -> {
+                Theme.uiMode = switch (Theme.uiMode) {
+                    case AUTO -> Theme.UiMode.NATIVE;
+                    case NATIVE -> Theme.UiMode.WEB;
+                    case WEB -> Theme.UiMode.AUTO;
+                };
+                Theme.save();
+                rebuildWidgets();
+            }, panelX + 14, footY, 100, 18));
+            addRenderableWidget(dev.breeze.compat.Widgets.button(Component.literal("Done"), b -> dev.breeze.compat.ActiveScreen.set(this.minecraft, parent), panelX + panelW - 114, footY, 100, 18));
+        } else {
+            addRenderableWidget(dev.breeze.compat.Widgets.button(Component.literal("Done"), b -> dev.breeze.compat.ActiveScreen.set(this.minecraft, parent), panelX + panelW / 2 - 50, footY, 100, 18));
+        }
+    }
+
+    /** What the menu style button says: which Breeze menu opens next time. */
+    private static String menuLabel() {
+        return switch (Theme.uiMode) {
+            case AUTO -> "Menu: Auto";
+            case NATIVE -> "Menu: Classic";
+            case WEB -> "Menu: Web";
+        };
     }
 
     private void addSlider(String label, java.util.function.IntSupplier get, java.util.function.IntConsumer set, int max) {
