@@ -278,7 +278,9 @@ jobs:
           cat tested.txt
 
   # Every run's in-game screenshots on a new branch of their own
-  # (evidence/<run id>), so they can be fetched with git and looked at.
+  # (evidence/<run id>, or evidence/<run id>-<attempt> for a re-run, whose
+  # first attempt already made that branch), so they can be fetched with
+  # git and looked at.
   evidence:
     name: Screenshots to a branch
     needs: version
@@ -298,13 +300,15 @@ jobs:
           TOKEN: ${{ github.token }}
         run: |
           ls shots/*/*.jpg >/dev/null 2>&1 || { echo "no screenshots"; exit 0; }
+          branch="evidence/${GITHUB_RUN_ID}"
+          [ "${GITHUB_RUN_ATTEMPT:-1}" = 1 ] || branch="${branch}-${GITHUB_RUN_ATTEMPT}"
           git init -q pub && cd pub
           git config user.name utaib
           git config user.email utaib092008@gmail.com
           git remote add origin "https://x-access-token:$TOKEN@github.com/${GITHUB_REPOSITORY}.git"
-          git checkout -q --orphan "evidence/${GITHUB_RUN_ID}"
+          git checkout -q --orphan "$branch"
           cp -r ../shots/. .
           git add -A
           git commit -q -m "Screenshots from run ${GITHUB_RUN_ID} (source ${GITHUB_SHA::7})"
-          git push -q origin "HEAD:refs/heads/evidence/${GITHUB_RUN_ID}"
+          git push -q origin "HEAD:refs/heads/$branch"
           find . -name '*.jpg' -not -path './.git/*' | sort
