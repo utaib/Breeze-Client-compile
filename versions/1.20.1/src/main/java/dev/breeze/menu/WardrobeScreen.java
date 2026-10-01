@@ -286,7 +286,7 @@ public class WardrobeScreen extends BreezeScreen {
             if (i >= owned.size()) {
                 note(g, row, owned.isEmpty()
                         ? "No 3D cosmetics on this account yet."
-                        : "Click to equip or remove. One per slot.");
+                        : "Click to equip or remove.");
                 return;
             }
             dev.breeze.cosmetics.OwnedCosmetics.Item o = owned.get(i);

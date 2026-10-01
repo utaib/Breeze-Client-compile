@@ -38,8 +38,15 @@ Each entry says what was verified and how. Anything not verified is marked
 - API routes: 8 tests on the API branch (see PR #25), run here.
 - Web Wardrobe: 76 Playwright tests (equip, remove, one per slot, the
   read-only fallback), Vitest, tsc.
-- **UNVERIFIED** until the next CI run: the Java side and the in-game
-  Wardrobe click; against the real API until PR #25 is deployed.
+- In-game, against the stand-in API (wip run 36801550351, 8 versions: 1.17,
+  1.19.3, 1.20.1, 1.21.4, 1.21.9, 1.21.11, 26.1, 26.3): every check passed;
+  the Wardrobe listed the test player's cosmetics, a real mouse click on the
+  test hat equipped it through the API, the game fetched the model from the
+  API and drew it (screenshots: mirror branch evidence/36801550351, the
+  player preview wears the hat). The API routes themselves passed in this
+  repository's CI on PR #25 (run 36798948347).
+- **UNVERIFIED** against the real API until PR #25 is deployed, and with a
+  real account (the owner's check).
 
 ## [2.8.0] - 2026-09-30 (not released)
 
