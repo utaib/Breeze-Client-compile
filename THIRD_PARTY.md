@@ -6,7 +6,3 @@ for the Minecraft versions it publishes a Fabric build for, to compile against
 and for the development client; it is never part of Breeze's jar. The
 real-install tests download the same file into `mods/`.
 Source: https://github.com/CinemaMod/mcef
-
-This repository is the build server for the Breeze Minecraft mod. The source
-of truth is the private Breeze repository; changes are copied here to build
-and test.

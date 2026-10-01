@@ -91,6 +91,14 @@ xdotool windowactivate --sync "$WID" 2>/dev/null || xdotool windowfocus "$WID"
 eval "$(xdotool getwindowgeometry --shell "$WID")"
 say "window $WID at ${X},${Y} size ${WIDTH}x${HEIGHT}"
 click() { xdotool mousemove --window "$WID" "$1" "$2"; sleep 0.25; xdotool click 1; }
+# The page reports its first route once React has mounted. Keys sent before
+# that go nowhere: in run 36837259634 (1.20.4, 1.21.2) the page mounted 2.5
+# to 3 s after READY_FOR_INPUT, one Tab was lost, and Enter opened
+# Multiplayer instead of Mods.
+i=0
+while [ "$i" -lt 30 ] && ! grep -q '"action":"ui.route"' "$LOG"; do sleep 1; i=$((i + 1)); done
+grep -q '"action":"ui.route"' "$LOG" || say "the page never reported a route; going on"
+sleep 1
 shot 01-title-menu 2
 
 # Keyboard: Tab through the rail (Home, Singleplayer, Multiplayer, Mods) and

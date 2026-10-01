@@ -71,6 +71,19 @@ Every HUD module can be moved; every module is tested in a world.
   (screenshots autotest-real-cosmetics, -2, -3 and -front). When none can
   be fetched the step is reported as skipped, not passed.
 
+- The test world is switched to Peaceful as soon as the test player is in
+  it. Worlds come from a random seed, and in run 36834405326 1.21.10's
+  player spawned in a dark forest and was killed by mobs during the module
+  sweep, which then failed the Wardrobe, real cosmetics and pause menu
+  checks (a dead player is not drawn). If the test player ever dies, the
+  driver now says so as its own failure.
+- The web menu test waits for the page to report its first route (React
+  mounted) before pressing keys. In run 36837259634 the page on 1.20.4 and
+  1.21.2 mounted 2.5 to 3 s after the game said it was ready for input; a
+  Tab sent in that gap was lost and Enter opened Multiplayer instead of
+  Mods, failing the three web menu checks after it. Not a mod fault: keys
+  pressed before a page loads go nowhere.
+
 ### Verified
 - The catalogue's .gltf pet "Glare 23" read and drawn on the player in a
   real Fabric install on 1.17, 1.20.1, 1.21.4, 1.21.9, 1.21.11, 26.1 and
@@ -86,7 +99,13 @@ Every HUD module can be moved; every module is tested in a world.
   "Glare" as .glb and as .gltf) worn in turn and each drawn (screenshots
   per round on every version). 1.21.3's job hung in the runner's apt
   install before any test in the first attempt and passed on its one
-  re-run. All 34 jars are in `Breeze Jars/`.
+  re-run.
+- **All 34 versions passed again from the latest test harness** (Peaceful
+  test world, web menu waits for the page): run 36839566673 on the public
+  build repository (`f06c60d` = private `3378525`), every check on every
+  version, no re-runs. These are the jars now in `Breeze Jars/` (SHA-256
+  of each checked against the run). The mod itself is unchanged since the
+  previous 2.9.1 jars; only the test harness moved on.
 
 ## [2.9.0] - 2026-10-01 (not released)
 

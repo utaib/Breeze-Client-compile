@@ -242,6 +242,7 @@ public final class AutoTest {
      */
     private static final java.util.List<java.util.List<String>> realRounds = new java.util.ArrayList<>();
     private static int realRound;
+    private static boolean deathLogged;
     private static int realStage;
 
     /** The test runs against the stand-in API, with a game token for a test player. */
@@ -285,6 +286,13 @@ public final class AutoTest {
      */
     private static void worldTick(Minecraft mc) {
         long age = System.currentTimeMillis() - worldAt;
+        // A dead player is not drawn and the death screen covers everything,
+        // so every later check would fail for that one reason: say it once.
+        if (!deathLogged && world != World.IDLE && world != World.OPENED && world != World.DONE
+                && mc.player != null && mc.player.getHealth() <= 0) {
+            deathLogged = true;
+            log("player-died", "during", world.name());
+        }
         switch (world) {
             case IDLE -> {
                 if (!Files.exists(dir.resolve("world-please"))) return;
@@ -338,6 +346,15 @@ public final class AutoTest {
                     capeCallsAtStart = capeLayerCalls;
                     cosmeticDrawsAtStart = dev.breeze.cosmetics.CosmeticRender.draws;
                     cosmeticFailuresAtStart = dev.breeze.cosmetics.CosmeticRender.failures;
+                    // The test player stands still for minutes in a world
+                    // from a random seed: one spawned in a dark forest was
+                    // killed by mobs part way through (1.21.10, run
+                    // 36834405326). Peaceful removes them and keeps the
+                    // survival HUD (hearts, food) the checks look at.
+                    net.minecraft.client.server.IntegratedServer server = mc.getSingleplayerServer();
+                    if (server != null) {
+                        server.execute(() -> server.setDifficulty(net.minecraft.world.Difficulty.PEACEFUL, true));
+                    }
                     world = World.IN_WORLD;
                     worldAt = System.currentTimeMillis();
                     log("world-joined");

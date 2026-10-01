@@ -16,6 +16,10 @@ on:
       versions:
         description: Comma-separated Minecraft versions (empty for all)
         default: ''
+      without_mcef:
+        description: Leave MCEF out, to test the native-menu fallback on web-menu versions
+        type: boolean
+        default: false
 
 concurrency:
   group: breeze-build-${{ github.ref }}
@@ -166,12 +170,17 @@ jobs:
           name: build-${{ matrix.v.mc }}
           path: ${{ runner.temp }}/out/
           retention-days: 7
+      # A hung package mirror once held a job here for an hour; ten minutes
+      # is several times what this normally takes.
       - name: Display, input and capture tools
+        timeout-minutes: 10
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq xvfb openbox xdotool imagemagick ffmpeg mesa-utils x11-utils libnss3 libgbm1 libxkbcommon0 jq
           pipx install "portablemc<5"
       - name: Other mods (Fabric API and MCEF, as players download them)
+        env:
+          WITHOUT_MCEF: ${{ inputs.without_mcef }}
         run: |
           mkdir -p "$RUNNER_TEMP/mods"
           enc=${FABRIC_API//+/%2B}
@@ -187,7 +196,9 @@ jobs:
             echo "no bundled Fabric API at $url"; rm -f "$api"
           done
           [ -f "$api" ] || { echo "::error::no Fabric API $FABRIC_API jar with its modules"; exit 1; }
-          if [ -n "$MCEF" ]; then
+          if [ -n "$MCEF" ] && [ "$WITHOUT_MCEF" = "true" ]; then
+            echo "MCEF left out on purpose (without_mcef): the native menus must be used"
+          elif [ -n "$MCEF" ]; then
             curl -sSfL -o "$RUNNER_TEMP/mods/mcef-$MCEF.jar" "https://api.modrinth.com/maven/maven/modrinth/mcef/$MCEF/mcef-$MCEF.jar"
           fi
           ls -la "$RUNNER_TEMP/mods" dist
