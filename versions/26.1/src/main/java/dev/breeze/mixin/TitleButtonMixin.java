@@ -35,6 +35,11 @@ public abstract class TitleButtonMixin extends AbstractWidget {
         int by = getY();
         int w = getWidth();
         int h = getHeight();
+        // An icon button (language, accessibility, and from 26.3 friends: a
+        // SpriteIconButton from 1.20.2 on) carries a label for screen readers
+        // only. It does not fit in 20 pixels, so drawing it spilled over the
+        // buttons beside it; such a button keeps Minecraft's own look.
+        if (mc.font.width(getMessage()) > w - 4) return;
         boolean hover = this.active && mouseX >= bx && mouseX < bx + w && mouseY >= by && mouseY < by + h;
         UiRender.rounded(g, bx, by, w, h, hover ? Theme.withAlpha(Theme.primary(), 0x80) : 0xD214141C);
         UiRender.accentBar(g, bx, by + h - 2, w, 2);

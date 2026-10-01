@@ -51,6 +51,11 @@ test on every version.
   constants for each version.
 - Inventory HUD draws at its own position (default top right) and reports
   its size, so the HUD editor can move it.
+- Title screen, 1.20.2 and later: Minecraft's icon buttons (language,
+  accessibility, and on 26.3 friends) were drawn by Breeze's button style
+  as their screen-reader labels, which spilled over Options and Quit Game
+  (seen in the run's screenshots on 1.21.11 and 26.3). A button whose label
+  does not fit keeps Minecraft's own look.
 
 ### Test harness
 - In-world test on every version (scripts/ci/drive-world.sh, AutoTest):
@@ -68,10 +73,19 @@ test on every version.
   36755606757). With the test hat as well (cosmetic drawn, 17 draws on
   1.21.9): 1.17, 1.19.2, 1.20.1, 1.20.6, 1.21, 1.21.4, 1.21.9, 1.21.11,
   26.1 (run 36756371829).
-- **UNVERIFIED**: the 26.3 fix until it passes in CI; how a cosmetic looks
-  (the test counts draws, it does not judge the picture); real Breeze
-  cosmetics from the API (needs a signed-in account); flying pets and
-  trails in game.
+- Full in-world run of all 34 versions, 1.17 to 26.3 (mirror run
+  36793720749, source `b1e2806`): 33 passed every check, 26.3 included (the
+  key fix works: world entered, HUD, cape, hat, HUD editor drag saved).
+  1.19.3 passed every Breeze check but the test could not leave the world
+  (its pause menu's buttons sit in a layout widget the self-test did not
+  look inside; harness fixed).
+- Screenshots from that run (mirror branch evidence/36793720749), looked at
+  for 1.17, 1.20.1, 1.21.4, 1.21.9, 1.21.11, 26.1 and 26.3: the test hat
+  sits on the head at about head size, the test cape is on the back, and
+  the HUD is drawn, the same in every rendering era.
+- **UNVERIFIED**: real Breeze cosmetics from the API (needs a signed-in
+  account); the flying pet and trail in game (in the next run); the Java
+  side of the Wardrobe list (compiles in the next run).
 
 ## [2.7.0] - 2026-09-30 (not released)
 
