@@ -7,6 +7,25 @@ fixes bump PATCH. `scripts/check-version.sh` keeps `gradle.properties`,
 Each entry says what was verified and how. Anything not verified is marked
 **UNVERIFIED**.
 
+## [2.9.2] - 2026-10-01 (not released)
+
+The web-menu jars start without MCEF.
+
+### Fixed
+- **On 1.20.1 to 1.20.4, 1.20.6 and 1.21 to 1.21.4 the game did not start
+  when MCEF was not installed**: Fabric stopped at the client entrypoint
+  with `NoClassDefFoundError: com/cinemamod/mcef/listeners/MCEFInitListener`
+  (the owner's "mcef error" on 1.20.2 is very likely this). WebInit checked
+  for MCEF before using it, but it held an MCEF listener in its own body,
+  and the JVM resolved MCEF's types as soon as WebInit was loaded, before
+  the check ran. Every MCEF call now lives in `McefBridge`, which is only
+  touched after the check has found MCEF; the browser count moved to the
+  MCEF-free `BrowserCount`. Without MCEF these versions use the native
+  menus, as intended. Found by running the in-game test with MCEF left out
+  (public build repository run 36846218672: 1.20.2 and 1.21.4 crashed at
+  start); every earlier run had MCEF installed, so this path was never
+  exercised.
+
 ## [2.9.1] - 2026-10-01 (not released)
 
 Every HUD module can be moved; every module is tested in a world.

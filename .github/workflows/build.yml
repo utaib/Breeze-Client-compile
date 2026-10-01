@@ -39,8 +39,12 @@ jobs:
       - id: plan
         run: |
           m=$(scripts/ci/versions-matrix.sh "${{ inputs.versions }}")
+          # The first web-menu version in the run also runs once without MCEF:
+          # its jar must start and fall back to the native menus. That path
+          # crashed at start in 2.9.1 and no run had exercised it.
+          m=$(echo "$m" | jq -c '. + ([.[] | select(.mcef != "")] | .[:1] | map(. + {mcef_off: "1"}))')
           echo "matrix=$m" >> "$GITHUB_OUTPUT"
-          echo "$m" | jq -r '.[] | "\(.mc)  java \(.java)  fabric-api \(.fabric_api)  mcef \(if .mcef == "" then "none" else .mcef end)"'
+          echo "$m" | jq -r '.[] | "\(.mc)  java \(.java)  fabric-api \(.fabric_api)  mcef \(if .mcef_off == "1" then "left out" elif .mcef == "" then "none" else .mcef end)"'
 
   frontend:
     name: Interface (types, unit, browser tests)
@@ -84,7 +88,7 @@ jobs:
   # Fabric Loader and mods/ as a launcher sets them up (portablemc, with
   # Mojang's own Java for that version), intermediary names as for a player.
   version:
-    name: Minecraft ${{ matrix.v.mc }}
+    name: Minecraft ${{ matrix.v.mc }}${{ matrix.v.mcef_off == '1' && ' without MCEF' || '' }}
     needs: plan
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -167,7 +171,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: build-${{ matrix.v.mc }}
+          name: build-${{ matrix.v.mc }}${{ matrix.v.mcef_off == '1' && '-without-mcef' || '' }}
           path: ${{ runner.temp }}/out/
           retention-days: 7
       # A hung package mirror once held a job here for an hour; ten minutes
@@ -180,7 +184,7 @@ jobs:
           pipx install "portablemc<5"
       - name: Other mods (Fabric API and MCEF, as players download them)
         env:
-          WITHOUT_MCEF: ${{ inputs.without_mcef }}
+          WITHOUT_MCEF: ${{ inputs.without_mcef || matrix.v.mcef_off == '1' }}
         run: |
           mkdir -p "$RUNNER_TEMP/mods"
           enc=${FABRIC_API//+/%2B}
@@ -219,13 +223,16 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: release-evidence-${{ matrix.v.mc }}
+          name: release-evidence-${{ matrix.v.mc }}${{ matrix.v.mcef_off == '1' && '-without-mcef' || '' }}
           path: |
             ${{ github.workspace }}/release-test/
             !${{ github.workspace }}/release-test/game/
           retention-days: 7
           if-no-files-found: ignore
+      # The jar itself comes from the run with MCEF; the leg without it only
+      # checks that the same jar starts.
       - uses: actions/upload-artifact@v4
+        if: matrix.v.mcef_off != '1'
         with:
           name: tested-${{ matrix.v.mc }}
           path: dist/${{ matrix.v.mc }}.jar
@@ -234,16 +241,17 @@ jobs:
       - name: Screenshots for review
         if: always()
         run: |
-          mkdir -p "shots/$MC"
+          SHOTS="$MC${{ matrix.v.mcef_off == '1' && '-without-mcef' || '' }}"
+          mkdir -p "shots/$SHOTS"
           for f in release-test/in-game-screenshots/*.png; do
             [ -e "$f" ] || continue
-            convert "$f" -resize '960x>' -quality 82 "shots/$MC/$(basename "${f%.png}").jpg"
+            convert "$f" -resize '960x>' -quality 82 "shots/$SHOTS/$(basename "${f%.png}").jpg"
           done
-          ls "shots/$MC"
+          ls "shots/$SHOTS"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: shots-${{ matrix.v.mc }}
+          name: shots-${{ matrix.v.mc }}${{ matrix.v.mcef_off == '1' && '-without-mcef' || '' }}
           path: shots/
           retention-days: 7
           if-no-files-found: ignore

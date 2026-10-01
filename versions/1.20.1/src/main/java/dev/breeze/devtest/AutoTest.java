@@ -8,7 +8,6 @@ import dev.breeze.Module;
 import dev.breeze.ModuleManager;
 import dev.breeze.bridge.Router;
 import dev.breeze.menu.BreezeMenuScreen;
-import dev.breeze.web.BreezeBrowser;
 import dev.breeze.web.BreezeWebScreen;
 import dev.breeze.web.WebInit;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -138,7 +137,7 @@ public final class AutoTest {
         if (!screen.equals(lastScreen)) {
             lastScreen = screen;
             log("screen", "class", screen, "kind", kind(dev.breeze.compat.ActiveScreen.get(mc)),
-                    "liveBrowsers", String.valueOf(BreezeBrowser.live()));
+                    "liveBrowsers", String.valueOf(dev.breeze.web.BrowserCount.live()));
             Targets.clear();
             targetsDue = 10;
         }
@@ -201,7 +200,7 @@ public final class AutoTest {
                 boolean open = nativeMode ? dev.breeze.compat.ActiveScreen.get(mc) instanceof BreezeMenuScreen : painted(mc);
                 if (open || age > 15_000) {
                     log("cycle-open", "cycle", String.valueOf(cycle), "painted", String.valueOf(open),
-                            "ms", String.valueOf(age), "liveBrowsers", String.valueOf(BreezeBrowser.live()));
+                            "ms", String.valueOf(age), "liveBrowsers", String.valueOf(dev.breeze.web.BrowserCount.live()));
                     // Leave through a vanilla screen so removed() runs exactly as
                     // it does when a player opens Options from the menu.
                     dev.breeze.compat.ActiveScreen.set(mc, dev.breeze.compat.Screens.options(new TitleScreen(), mc));
@@ -209,7 +208,7 @@ public final class AutoTest {
                 }
             }
             case STRESS_CLOSE -> {
-                int live = BreezeBrowser.live();
+                int live = dev.breeze.web.BrowserCount.live();
                 maxLiveAfterClose = Math.max(maxLiveAfterClose, live);
                 log("cycle-close", "cycle", String.valueOf(cycle), "liveBrowsers", String.valueOf(live),
                         "heapMb", String.valueOf(heapMb()));

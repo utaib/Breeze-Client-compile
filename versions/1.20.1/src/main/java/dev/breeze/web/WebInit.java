@@ -11,9 +11,12 @@ import dev.breeze.BreezeClient;
  * client entrypoint and Fabric aborted the whole game. That made every
  * web-menu jar a crash on any install that had not also installed MCEF.
  *
- * Here the entire class body is guarded: every MCEF reference sits behind
- * {@link #mcefPresent()}, so this class can load and answer "no" on a machine
- * that has never heard of MCEF. The rest of the mod is unaffected; the web menu
+ * Here nothing in this class names an MCEF type: every call goes through
+ * {@link McefBridge}, and only after {@link #mcefPresent()} has found MCEF, so
+ * this class can load and answer "no" on a machine that has never heard of
+ * MCEF. (A guard alone was not enough: while this class itself held an MCEF
+ * listener, the JVM resolved MCEF's types as soon as it loaded this class,
+ * before the guard ran.) The rest of the mod is unaffected; the web menu
  * simply reports unavailable and the game continues with the native screens.
  */
 public final class WebInit {
@@ -106,7 +109,7 @@ public final class WebInit {
             return;
         }
         try {
-            if (com.cinemamod.mcef.MCEF.isInitialized()) {
+            if (McefBridge.isInitialized()) {
                 state = State.READY;
                 BreezeClient.LOGGER.info("[Breeze] MCEF already initialized. Web menu is available.");
                 return;
@@ -114,16 +117,13 @@ public final class WebInit {
             // Early in client init CEF is usually still booting on its own
             // thread. Schedule a callback instead of blocking, so the game
             // reaches the title screen at its normal speed either way.
-            com.cinemamod.mcef.MCEF.scheduleForInit(new com.cinemamod.mcef.listeners.MCEFInitListener() {
-                @Override
-                public void onInit(boolean success) {
-                    if (success) {
-                        state = State.READY;
-                        BreezeClient.LOGGER.info("[Breeze] MCEF finished initializing. Web menu is available.");
-                    } else {
-                        state = State.UNAVAILABLE;
-                        BreezeClient.LOGGER.warn("[Breeze] MCEF failed to initialize. Web menu will be unavailable this session.");
-                    }
+            McefBridge.whenInitialized(success -> {
+                if (success) {
+                    state = State.READY;
+                    BreezeClient.LOGGER.info("[Breeze] MCEF finished initializing. Web menu is available.");
+                } else {
+                    state = State.UNAVAILABLE;
+                    BreezeClient.LOGGER.warn("[Breeze] MCEF failed to initialize. Web menu will be unavailable this session.");
                 }
             });
         } catch (Throwable t) {
@@ -146,7 +146,7 @@ public final class WebInit {
     public static void tick() {
         if (state == State.WAITING) {
             try {
-                if (com.cinemamod.mcef.MCEF.isInitialized()) state = State.READY;
+                if (McefBridge.isInitialized()) state = State.READY;
             } catch (Throwable ignored) {}
         }
         if (state != State.READY || readyHandled) return;
@@ -177,7 +177,7 @@ public final class WebInit {
     public static String chromiumVersion() {
         if (state == State.UNAVAILABLE) return null;
         try {
-            return com.cinemamod.mcef.MCEF.getApp().getHandle().getVersion().getChromeVersion();
+            return McefBridge.chromeVersion();
         } catch (Throwable notAvailable) {
             return null;
         }

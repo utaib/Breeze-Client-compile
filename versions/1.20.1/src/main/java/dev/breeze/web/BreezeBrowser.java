@@ -14,7 +14,6 @@ import org.cef.browser.CefBrowser;
 import org.cef.callback.CefQueryCallback;
 
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * One MCEF browser showing the Breeze interface, owned by one screen.
@@ -32,7 +31,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public final class BreezeBrowser {
 
-    private static final AtomicInteger LIVE = new AtomicInteger();
 
     private final MCEFBrowser browser;
     private final Router router;
@@ -59,8 +57,8 @@ public final class BreezeBrowser {
             b.setFocus(true);
             BreezeBrowser session = new BreezeBrowser(b, router, w, h);
             BreezeWeb.attach(session);
-            LIVE.incrementAndGet();
-            BreezeClient.LOGGER.info("[Breeze] interface browser opened at {}x{} px ({} live)", w, h, LIVE.get());
+            BrowserCount.LIVE.incrementAndGet();
+            BreezeClient.LOGGER.info("[Breeze] interface browser opened at {}x{} px ({} live)", w, h, BrowserCount.live());
             return session;
         } catch (Throwable t) {
             BreezeClient.LOGGER.warn("[Breeze] interface browser could not be created: {}", t.toString());
@@ -70,7 +68,7 @@ public final class BreezeBrowser {
     }
 
     public static int live() {
-        return LIVE.get();
+        return BrowserCount.live();
     }
 
     boolean owns(CefBrowser b) {
@@ -197,7 +195,7 @@ public final class BreezeBrowser {
         } catch (Throwable t) {
             BreezeClient.LOGGER.warn("[Breeze] interface browser close failed: {}", t.toString());
         }
-        int left = LIVE.decrementAndGet();
+        int left = BrowserCount.LIVE.decrementAndGet();
         BreezeClient.LOGGER.info("[Breeze] interface browser closed ({} live)", left);
     }
 
