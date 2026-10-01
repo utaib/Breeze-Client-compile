@@ -34,6 +34,12 @@ test on every version.
   trail). Flying pets circle and bob, trails leave fading copies, side pets
   walk while the player walks (common/GlbReader, Pose, CosmeticRig,
   CosmeticMotion; unit tested with GLBs built in code).
+- The Wardrobe lists the 3D cosmetics your account wears (web page: a "3D
+  cosmetics" section; native: a "3D" tab), with where to change them. They
+  are listed, not changed: the API lets only a signed-in account equip
+  them, and that sign-in stays in the launcher (the game holds a game token
+  only). Equipping in game would need a game-token route on the API (owner
+  decision). 2 Playwright tests (74 pass).
 
 ### Fixed
 - 26.3: entering a world crashed the game. 26.3 reads keys through SDL,

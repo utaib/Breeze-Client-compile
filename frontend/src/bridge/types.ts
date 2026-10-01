@@ -104,9 +104,19 @@ export interface Cape {
   equipped: boolean
 }
 
+/** A 3D cosmetic this account wears (GET /cosmetics/equipped), drawn on the player in game. */
+export interface WornCosmetic {
+  id: string
+  name: string
+  /** The API's slot: hat, wings, pet, cape, shield, aura, back or trail. */
+  slot: string
+}
+
 export interface CosmeticState {
   capes: Cape[]
   equippedCapeId: string | null
+  /** 3D cosmetics this account wears. The Breeze launcher changes them; the mod only reads them. */
+  worn: WornCosmetic[]
 }
 
 /** Only what /friends/list actually returns: no server, no role. */

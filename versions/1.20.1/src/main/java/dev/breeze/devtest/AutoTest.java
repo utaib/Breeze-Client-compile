@@ -230,6 +230,13 @@ public final class AutoTest {
     private static int capeCallsAtStart;
     private static int[] fpsBefore;
     private static int cosmeticDrawsAtStart;
+    private static int cosmeticFailuresAtStart;
+    /** The test's 3D cosmetics: id, slot, attachment. */
+    private static final Object[][] COSMETIC_CHECK = {
+            {"autotest-hat", "hat", dev.breeze.cosmetics.model.CosmeticRig.Attachment.HEAD},
+            {"autotest-pet", "pet", dev.breeze.cosmetics.model.CosmeticRig.Attachment.FLYING_PET},
+            {"autotest-trail", "trail", dev.breeze.cosmetics.model.CosmeticRig.Attachment.TRAIL},
+    };
     /** HUD elements that always have something to draw, switched on for the check. */
     private static final String[] HUD_CHECK = {"FPS", "Coordinates", "CPS", "Keystrokes", "Direction", "Inventory HUD"};
 
@@ -281,19 +288,26 @@ public final class AutoTest {
                             m.setEnabled(true);
                         }
                     }
-                    // A 3D cosmetic built in code, worn as a hat, without the API.
+                    // 3D cosmetics built in code, without the API: a hat on the
+                    // head, a flying pet (moves every frame) and a trail (fading
+                    // copies, so the translucent path draws too).
                     try {
-                        dev.breeze.cosmetics.CosmeticModels.load("autotest-hat", null, TestModel.cubeGlb());
-                        dev.breeze.cosmetics.WornCosmetics.setForTest(mc.player.getUUID(), java.util.List.of(
-                                new dev.breeze.cosmetics.WornCosmetics.Worn("autotest-hat", "hat", "Test hat", "",
-                                        dev.breeze.cosmetics.model.CosmeticRig.Attachment.HEAD,
-                                        dev.breeze.cosmetics.model.CosmeticRig.Transform.NONE, java.util.Map.of(), null)));
+                        java.util.List<dev.breeze.cosmetics.WornCosmetics.Worn> worn = new java.util.ArrayList<>();
+                        for (Object[] c : COSMETIC_CHECK) {
+                            String id = (String) c[0];
+                            dev.breeze.cosmetics.CosmeticModels.load(id, null, TestModel.cubeGlb());
+                            worn.add(new dev.breeze.cosmetics.WornCosmetics.Worn(id, (String) c[1], id, "",
+                                    (dev.breeze.cosmetics.model.CosmeticRig.Attachment) c[2],
+                                    dev.breeze.cosmetics.model.CosmeticRig.Transform.NONE, java.util.Map.of(), null));
+                        }
+                        dev.breeze.cosmetics.WornCosmetics.setForTest(mc.player.getUUID(), worn);
                     } catch (Throwable t) {
                         log("cosmetic-setup", "error", t.toString());
                     }
                     mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK);
                     capeCallsAtStart = capeLayerCalls;
                     cosmeticDrawsAtStart = dev.breeze.cosmetics.CosmeticRender.draws;
+                    cosmeticFailuresAtStart = dev.breeze.cosmetics.CosmeticRender.failures;
                     world = World.IN_WORLD;
                     worldAt = System.currentTimeMillis();
                     log("world-joined");
@@ -328,7 +342,18 @@ public final class AutoTest {
                 log("cape-check", "breeze", breeze, "vanilla", vanilla, "layerCalls", String.valueOf(layer),
                         "pass", String.valueOf(capeOk));
                 int cosmeticDraws = dev.breeze.cosmetics.CosmeticRender.draws - cosmeticDrawsAtStart;
-                log("cosmetic-check", "draws", String.valueOf(cosmeticDraws), "pass", String.valueOf(cosmeticDraws > 0));
+                int cosmeticFailures = dev.breeze.cosmetics.CosmeticRender.failures - cosmeticFailuresAtStart;
+                JsonObject cos = new JsonObject();
+                boolean eachDrawn = true;
+                for (Object[] c : COSMETIC_CHECK) {
+                    int n = dev.breeze.cosmetics.CosmeticRender.DRAWS_BY_ID.getOrDefault((String) c[0], 0);
+                    eachDrawn &= n > 0;
+                    cos.addProperty((String) c[0], String.valueOf(n));
+                }
+                cos.addProperty("draws", String.valueOf(cosmeticDraws));
+                cos.addProperty("failures", String.valueOf(cosmeticFailures));
+                cos.addProperty("pass", String.valueOf(cosmeticDraws > 0 && eachDrawn && cosmeticFailures == 0));
+                write("cosmetic-check", cos);
 
                 mc.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON);
                 for (Module m : ModuleManager.getModules()) {
@@ -376,14 +401,7 @@ public final class AutoTest {
         double scale = mc.getWindow().getGuiScale();
         JsonArray items = new JsonArray();
         if (dev.breeze.compat.ActiveScreen.get(mc) != null) {
-            for (GuiEventListener child : dev.breeze.compat.ActiveScreen.get(mc).children()) {
-                if (!(child instanceof AbstractWidget w) || !w.visible) continue;
-                JsonObject it = item(w.getMessage().getString(), "widget",
-                        dev.breeze.compat.Widgets.x(w) + w.getWidth() / 2, dev.breeze.compat.Widgets.y(w) + w.getHeight() / 2, scale, w.active);
-                // A text field's contents, so the driver can check that typing arrived.
-                if (w instanceof EditBox box) it.addProperty("value", box.getValue());
-                items.add(it);
-            }
+            addWidgets(dev.breeze.compat.ActiveScreen.get(mc).children(), scale, items, 0);
         }
         for (Map.Entry<String, int[]> e : Targets.snapshot().entrySet()) {
             items.add(item(e.getKey(), "target", e.getValue()[0], e.getValue()[1], scale, true));
@@ -396,6 +414,22 @@ public final class AutoTest {
         if (!force && key.equals(lastTargets)) return;
         lastTargets = key;
         write("targets", o);
+    }
+
+    private static void addWidgets(java.util.List<? extends GuiEventListener> children, double scale, JsonArray items, int depth) {
+        for (GuiEventListener child : children) {
+            if (!(child instanceof AbstractWidget w) || !w.visible) continue;
+            JsonObject it = item(w.getMessage().getString(), "widget",
+                    dev.breeze.compat.Widgets.x(w) + w.getWidth() / 2, dev.breeze.compat.Widgets.y(w) + w.getHeight() / 2, scale, w.active);
+            // A text field's contents, so the driver can check that typing arrived.
+            if (w instanceof EditBox box) it.addProperty("value", box.getValue());
+            items.add(it);
+            // A layout widget holds its buttons inside (1.19.3's pause menu is
+            // one GridWidget); list those too.
+            if (depth < 3 && w instanceof net.minecraft.client.gui.components.events.ContainerEventHandler c) {
+                addWidgets(c.children(), scale, items, depth + 1);
+            }
+        }
     }
 
     private static JsonObject item(String name, String type, int guiX, int guiY, double scale, boolean active) {

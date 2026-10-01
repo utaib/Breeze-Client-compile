@@ -44,8 +44,11 @@ public final class CosmeticRender {
     /** Posed triangles per cosmetic, reused while the animation time has not moved on. */
     private static final Map<String, Posed> POSED = new ConcurrentHashMap<>();
 
-    /** Cosmetic draws since start, for the self-test. */
+    /** Cosmetic draws since start, for the self-test, in all and per cosmetic id. */
     public static volatile int draws;
+    public static final Map<String, Integer> DRAWS_BY_ID = new ConcurrentHashMap<>();
+    /** Cosmetics that threw while drawing, for the self-test. */
+    public static volatile int failures;
 
     private CosmeticRender() {}
 
@@ -76,7 +79,9 @@ public final class CosmeticRender {
             try {
                 drawOne(poseStack, sink, light, player, w, loaded, head, body, rightArm, ageTicks, walkSpeed);
                 draws++;
+                DRAWS_BY_ID.merge(w.id, 1, Integer::sum);
             } catch (Throwable t) {
+                failures++;
                 // One bad model must not take the player (or the frame) with it.
                 dev.breeze.BreezeClient.LOGGER.warn("[Breeze] cosmetic {} failed to draw: {}", w.id, t.toString());
             }

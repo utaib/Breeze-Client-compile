@@ -56,7 +56,9 @@ fi
 # has seen it once. Only when there is no options.txt yet, so settings from an
 # earlier run are never overwritten.
 mkdir -p "$RUN"
-[ -f "$RUN/options.txt" ] || printf 'onboardAccessibility:false\n' > "$RUN/options.txt"
+# tutorialStep:none: no movement tutorial popup over the top-right corner,
+# where the Inventory HUD sits by default (it hid it in the screenshots).
+[ -f "$RUN/options.txt" ] || printf 'onboardAccessibility:false\ntutorialStep:none\n' > "$RUN/options.txt"
 
 if [ "$MODE" = prod ]; then
   : "${BREEZE_JAR:?BREEZE_JAR must name the jar under test}"

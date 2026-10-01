@@ -22,10 +22,23 @@ test('wardrobe: equip and remove a cape', async ({ page }, info) => {
   assertClean()
 })
 
+test('wardrobe: lists the 3D cosmetics the account wears', async ({ page }) => {
+  const { assertClean } = await open(page)
+  await rail(page, 'Wardrobe').click()
+  await expect(page.getByRole('heading', { name: '3D cosmetics' })).toBeVisible()
+  await expect(page.getByTestId('worn-preview-hat')).toContainText('Preview hat')
+  await expect(page.getByTestId('worn-preview-hat')).toContainText('Hat')
+  await expect(page.getByTestId('worn-preview-pet')).toContainText('Pet')
+  // Listed, not changed here: no equip controls on them.
+  await expect(page.getByTestId('worn-preview-hat').getByRole('button')).toHaveCount(0)
+  assertClean()
+})
+
 test('wardrobe: empty, error and signed-out states', async ({ page }, info) => {
   await open(page, '?preview=empty')
   await rail(page, 'Wardrobe').click()
   await expect(page.getByText('No capes on this account yet')).toBeVisible()
+  await expect(page.getByTestId('worn-empty')).toContainText('You are not wearing any 3D cosmetics.')
   await snap(page, info, 'wardrobe-empty')
 
   await open(page, '?preview=error')

@@ -98,8 +98,8 @@ esac
 cosmetic=$(grep '"event":"cosmetic-check"' "$LOG" | tail -1)
 say "cosmetic: $cosmetic"
 case "$cosmetic" in
-  *'"pass":"true"'*) pass "a 3D cosmetic (a GLB hat built by the test) was drawn on the player" ;;
-  *) fail "the 3D cosmetic was not drawn on the player" ;;
+  *'"pass":"true"'*) pass "3D cosmetics (GLBs built by the test: a hat, a flying pet, a trail) were drawn, none threw" ;;
+  *) fail "a 3D cosmetic was not drawn on the player, or threw while drawing" ;;
 esac
 
 # ── HUD editor: drag FPS with the real mouse, Done ───────────────────────

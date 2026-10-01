@@ -85,6 +85,27 @@ public final class WornCosmetics {
         return e.worn;
     }
 
+    /**
+     * What this Breeze account wears, for the Wardrobe's list. Waits up to
+     * waitMs for the first answer, so call it off the render thread.
+     */
+    public static List<Worn> account(long waitMs) {
+        UUID id = Self.selfUuid();
+        if (id == null) return List.of();
+        Entry e = CACHE.computeIfAbsent(id, k -> new Entry());
+        maybeRefresh(id, e, true);
+        long until = System.currentTimeMillis() + waitMs;
+        while (e.fetchedAt == 0 && System.currentTimeMillis() < until) {
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        }
+        return e.worn;
+    }
+
     /** For the self-test: make a player wear these without the API. */
     public static void setForTest(UUID id, List<Worn> worn) {
         TEST.put(id, worn);

@@ -5,10 +5,16 @@ import { EmptyState, ErrorState, Skeleton } from '../ui/controls'
 import { Icon } from '../ui/icons'
 
 /**
- * Capes the Breeze API says this account owns, and which one is equipped.
- * Ownership and the equipped state come from the backend, never from here.
- * Other cosmetic types appear once the mod can render them in game.
+ * Capes the Breeze API says this account owns, and which one is equipped,
+ * then the 3D cosmetics the account wears. Ownership and the equipped state
+ * come from the backend, never from here. 3D cosmetics are listed, not
+ * changed: the API only lets a signed-in account change them, and that
+ * sign-in stays in the Breeze launcher, never in the game.
  */
+
+const SLOT_LABEL: Record<string, string> = {
+  hat: 'Hat', wings: 'Wings', pet: 'Pet', cape: 'Cape', shield: 'Shield', aura: 'Aura', back: 'Back', trail: 'Trail',
+}
 export function Wardrobe() {
   const { call, toast } = useApp()
   const state = useAction('cosmetics.state')
@@ -35,7 +41,7 @@ export function Wardrobe() {
       <div className="page-head">
         <div>
           <h1 className="page-title">Wardrobe</h1>
-          <p className="page-sub">Capes on your Breeze account. Other players with Breeze see the one you equip.</p>
+          <p className="page-sub">Capes and 3D cosmetics on your Breeze account. Other players with Breeze see what you wear.</p>
         </div>
         <div className="detail-actions">
           <button className="btn btn-ghost btn-sm" onClick={state.reload} disabled={state.loading}><Icon.Reset />Refresh</button>
@@ -78,6 +84,30 @@ export function Wardrobe() {
             )
           })}
         </div>
+      )}
+
+      {state.data && (
+        <section className="section" aria-labelledby="worn-title">
+          <h2 className="section-title" id="worn-title">3D cosmetics</h2>
+          <p className="section-note">Drawn on you in game, for you and other Breeze players. Change them in the Breeze launcher's Wardrobe.</p>
+          {state.data.worn.length === 0 ? (
+            <div className="state" data-testid="worn-empty">
+              <div className="state-text">You are not wearing any 3D cosmetics.</div>
+            </div>
+          ) : (
+            <div className="rows" role="list">
+              {state.data.worn.map((w) => (
+                <div key={w.id} role="listitem" className="row" data-testid={`worn-${w.id}`}>
+                  <div className="row-text">
+                    <div className="row-label">{w.name}</div>
+                    <div className="row-desc">{SLOT_LABEL[w.slot] ?? w.slot}</div>
+                  </div>
+                  <span className="cape-state"><Icon.Check />Wearing</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
       )}
     </div>
   )

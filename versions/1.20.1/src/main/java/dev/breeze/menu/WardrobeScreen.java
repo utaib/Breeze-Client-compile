@@ -36,7 +36,7 @@ import java.util.List;
  */
 public class WardrobeScreen extends BreezeScreen {
 
-    private static final String[] TABS = { "Capes", "Tags" };
+    private static final String[] TABS = { "Capes", "Tags", "3D" };
 
     private final Screen parent;
     private String activeTab = "Capes";
@@ -72,12 +72,34 @@ public class WardrobeScreen extends BreezeScreen {
         return CosmeticState.self();
     }
 
+    /** The 3D cosmetics this account wears; listed only, the launcher changes them. */
+    private static java.util.List<dev.breeze.cosmetics.WornCosmetics.Worn> worn() {
+        return dev.breeze.cosmetics.WornCosmetics.account(0);
+    }
+
+    private static String slotLabel(String slot) {
+        if (slot == null || slot.isEmpty()) return "";
+        return switch (slot) {
+            case "hat" -> "Hat";
+            case "wings" -> "Wings";
+            case "pet" -> "Pet";
+            case "cape" -> "Cape";
+            case "shield" -> "Shield";
+            case "aura" -> "Aura";
+            case "back" -> "Back";
+            case "trail" -> "Trail";
+            default -> slot;
+        };
+    }
+
     // ── rows ────────────────────────────────────────────────────────────────
 
     private int rowCount() {
         CosmeticState.Entry s = state();
         // Capes carries a leading "None" row so unequipping is one click and
         // does not need a separate button.
+        // 3D ends with a note row saying where these are changed.
+        if (activeTab.equals("3D")) return worn().size() + 1;
         return activeTab.equals("Capes") ? s.ownedCapes.size() + 1 : s.availableTags.size() + 1;
     }
 
@@ -216,6 +238,7 @@ public class WardrobeScreen extends BreezeScreen {
             boolean hover = row.contains(mouseX, mouseY) && mouseY >= content.y && mouseY < content.bottom();
 
             if (activeTab.equals("Capes")) renderCapeRow(g, s, i, row, hover);
+            else if (activeTab.equals("3D")) renderWornRow(g, i, row);
             else renderTagRow(g, s, i, row, hover);
         }
 
@@ -253,6 +276,30 @@ public class WardrobeScreen extends BreezeScreen {
 
         if (busyId != null && !isNone && busyId.equals(cape.id)) {
             UiRender.textClipped(g, this.font, "...", row.right() - 20, row.y + 6, 16, Palette.ACCENT);
+        }
+    }
+
+    private void renderWornRow(GuiGraphics g, int i, Rect row) {
+        java.util.List<dev.breeze.cosmetics.WornCosmetics.Worn> worn = worn();
+        if (i >= worn.size()) {
+            String note = worn.isEmpty()
+                    ? "Not wearing any. Equip them in the Breeze launcher."
+                    : "Change these in the Breeze launcher.";
+            UiRender.textClipped(g, this.font, note, row.x + Spacing.SM, row.y + 6,
+                    row.w - Spacing.SM * 2, Palette.TEXT_FAINT);
+            return;
+        }
+        dev.breeze.cosmetics.WornCosmetics.Worn w = worn.get(i);
+        Glass.surface(g, row, false, true);
+        UiRender.accentBar(g, row.x, row.y + 3, 2, row.h - 6);
+        String label = w.name == null || w.name.isBlank() ? w.id : w.name;
+        String slot = slotLabel(w.slot);
+        int slotW = slot.isEmpty() ? 0 : this.font.width(slot) + Spacing.SM;
+        UiRender.textClipped(g, this.font, label, row.x + Spacing.SM, row.y + 6,
+                row.w - Spacing.SM * 2 - slotW, Palette.TEXT_PRIMARY);
+        if (!slot.isEmpty()) {
+            g.drawString(this.font, slot, row.right() - Spacing.SM - this.font.width(slot), row.y + 6,
+                    Palette.TEXT_FAINT, false);
         }
     }
 
@@ -300,7 +347,7 @@ public class WardrobeScreen extends BreezeScreen {
                     if (!rowVisible(i)) continue;
                     if (!new Rect(content.x, rowY(i), content.w, Spacing.ROW_H).contains(mx, my)) continue;
                     if (activeTab.equals("Capes")) clickCape(s, i);
-                    else clickTag(s, i);
+                    else if (activeTab.equals("Tags")) clickTag(s, i);
                     return true;
                 }
             }

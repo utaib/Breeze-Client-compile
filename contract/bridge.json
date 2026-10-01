@@ -48,7 +48,7 @@
 
     "account.get": { "thread": "any", "params": {}, "summary": "The Minecraft profile and the state of the Breeze sign-in the launcher handed over." },
 
-    "cosmetics.state": { "thread": "io", "params": {}, "summary": "Owned and equipped capes from the Breeze API." },
+    "cosmetics.state": { "thread": "io", "params": {}, "summary": "Owned and equipped capes, and the 3D cosmetics the account wears, from the Breeze API." },
     "cosmetics.equipCape": { "thread": "io", "params": { "id": "string?" }, "summary": "Equip an owned cape, or unequip with no id." },
 
     "friends.list": { "thread": "any", "params": {}, "summary": "Friends and requests, from the last poll of the Breeze API." },

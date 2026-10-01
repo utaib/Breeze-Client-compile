@@ -16,6 +16,7 @@ import dev.breeze.config.BreezeConfig;
 import dev.breeze.cosmetics.CapePreviews;
 import dev.breeze.cosmetics.CosmeticActions;
 import dev.breeze.cosmetics.CosmeticState;
+import dev.breeze.cosmetics.WornCosmetics;
 import dev.breeze.menu.HudEditorScreen;
 import dev.breeze.net.BreezeApi;
 import dev.breeze.net.BreezePresence;
@@ -447,6 +448,17 @@ final class Handlers {
         }
         o.add("capes", capes);
         o.addProperty("equippedCapeId", equipped);
+        // 3D cosmetics are listed only: changing them needs the account's
+        // sign-in, which stays in the launcher.
+        JsonArray worn = new JsonArray();
+        for (WornCosmetics.Worn w : WornCosmetics.account(1_500)) {
+            JsonObject j = new JsonObject();
+            j.addProperty("id", w.id);
+            j.addProperty("name", w.name == null || w.name.isBlank() ? w.id : w.name);
+            j.addProperty("slot", w.slot == null ? "" : w.slot);
+            worn.add(j);
+        }
+        o.add("worn", worn);
         return o;
     }
 

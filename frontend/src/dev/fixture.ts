@@ -129,6 +129,10 @@ const SAMPLE_CAPE_PINK = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAg
 const state = {
   settings: { ...DEFAULT_SETTINGS },
   modules: makeModules(),
+  worn: scenario === 'empty' ? [] : [
+    { id: 'preview-hat', name: 'Preview hat', slot: 'hat' },
+    { id: 'preview-pet', name: 'Preview pet', slot: 'pet' },
+  ],
   capes: (scenario === 'empty' ? [] : [
     { id: 'preview-a', name: 'Preview cape A', preview: SAMPLE_CAPE_BLUE, equipped: true },
     { id: 'preview-b', name: 'Preview cape B', preview: SAMPLE_CAPE_PINK, equipped: false },
@@ -159,7 +163,7 @@ function account(): Account {
 }
 
 function cosmetics(): CosmeticState {
-  return { capes: state.capes, equippedCapeId: state.capes.find((c) => c.equipped)?.id ?? null }
+  return { capes: state.capes, equippedCapeId: state.capes.find((c) => c.equipped)?.id ?? null, worn: state.worn }
 }
 
 function game(): GameState {
