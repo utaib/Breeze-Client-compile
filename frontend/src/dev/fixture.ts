@@ -46,8 +46,8 @@ export const DEFAULT_SETTINGS: UiSettings = {
 function hudStyle(): ModuleSetting[] {
   // Mirrors versions/1.20.1/src/main/java/dev/breeze/hud/HudStyle.java exactly.
   return [
-    { type: 'mode', id: 'bg', label: 'Background', group: 'Appearance', value: 'None', options: ['None', 'Solid', 'Gradient', 'Outline'] },
-    { type: 'color', id: 'bgColor', label: 'Background colour', group: 'Appearance', value: '#90000000' },
+    { type: 'mode', id: 'panel', label: 'Background', group: 'Appearance', value: 'Solid', options: ['None', 'Solid', 'Gradient', 'Outline'] },
+    { type: 'color', id: 'bgColor', label: 'Background colour', group: 'Appearance', value: '#A0101420' },
     { type: 'color', id: 'bgColor2', label: 'Gradient to', group: 'Appearance', value: '#9078B2FF' },
     { type: 'int', id: 'radius', label: 'Corner radius', group: 'Appearance', value: 4, min: 0, max: 10, suffix: 'px' },
     { type: 'bool', id: 'border', label: 'Border', group: 'Appearance', value: false },

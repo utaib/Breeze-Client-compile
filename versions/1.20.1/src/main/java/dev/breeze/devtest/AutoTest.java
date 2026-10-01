@@ -231,7 +231,17 @@ public final class AutoTest {
 
     // ── In a world (after the menu checks) ─────────────────────────────────
 
-    private enum World { IDLE, OPENED, IN_WORLD, LAYOUT, SWEEP, EDITING, WARDROBE, REAL, DONE }
+    private enum World { IDLE, OPENED, FPS, IN_WORLD, LAYOUT, SWEEP, EDITING, WARDROBE, REAL, DONE }
+
+    /**
+     * Frame rate in the new world before anything is switched on: one reading
+     * of Minecraft's own FPS counter a second for ten seconds, after eight to
+     * let the first chunks settle. Software rendered on the test machine, so
+     * only comparable with other runs on the same kind of machine (for
+     * instance with and without optimisation mods), never a player's FPS.
+     */
+    private static final java.util.List<Integer> fpsReadings = new java.util.ArrayList<>();
+    private static long lastFpsReadingAt;
 
     /** Real cosmetics from the public catalogue, served by the stand-in API with "real-" ids. */
     private static final java.util.List<String> realIds = new java.util.ArrayList<>();
@@ -306,6 +316,44 @@ public final class AutoTest {
             }
             case OPENED -> {
                 if (mc.level != null && mc.player != null && dev.breeze.compat.ActiveScreen.get(mc) == null) {
+                    // The test player stands still for minutes in a world
+                    // from a random seed: one spawned in a dark forest was
+                    // killed by mobs part way through (1.21.10, run
+                    // 36834405326). Peaceful removes them and keeps the
+                    // survival HUD (hearts, food) the checks look at.
+                    net.minecraft.client.server.IntegratedServer server = mc.getSingleplayerServer();
+                    if (server != null) {
+                        server.execute(() -> server.setDifficulty(net.minecraft.world.Difficulty.PEACEFUL, true));
+                    }
+                    fpsReadings.clear();
+                    lastFpsReadingAt = 0;
+                    world = World.FPS;
+                    worldAt = System.currentTimeMillis();
+                    log("world-loaded");
+                } else if (age > 300_000) {
+                    log("FAIL", "reason", "the world never loaded");
+                    world = World.DONE;
+                }
+            }
+            case FPS -> {
+                if (age < 8_000) return;
+                long now = System.currentTimeMillis();
+                if (age < 18_000) {
+                    if (now - lastFpsReadingAt >= 1_000) {
+                        lastFpsReadingAt = now;
+                        fpsReadings.add(dev.breeze.compat.Perf.fps(mc));
+                    }
+                    return;
+                }
+                if (!fpsReadings.isEmpty()) {
+                    int sum = 0, min = Integer.MAX_VALUE, max = 0;
+                    for (int f : fpsReadings) { sum += f; min = Math.min(min, f); max = Math.max(max, f); }
+                    log("fps-sample", "avg", String.format(java.util.Locale.ROOT, "%.1f", sum / (double) fpsReadings.size()),
+                            "min", String.valueOf(min), "max", String.valueOf(max),
+                            "readings", String.valueOf(fpsReadings.size()),
+                            "mods", String.valueOf(net.fabricmc.loader.api.FabricLoader.getInstance().getAllMods().size()));
+                }
+                {
                     // Every HUD module on, for the draw check and the layout check.
                     for (dev.breeze.modules.AbstractHudModule h : HudSweep.huds()) {
                         if (!h.isEnabled()) h.setEnabled(true);
@@ -345,21 +393,9 @@ public final class AutoTest {
                     capeCallsAtStart = capeLayerCalls;
                     cosmeticDrawsAtStart = dev.breeze.cosmetics.CosmeticRender.draws;
                     cosmeticFailuresAtStart = dev.breeze.cosmetics.CosmeticRender.failures;
-                    // The test player stands still for minutes in a world
-                    // from a random seed: one spawned in a dark forest was
-                    // killed by mobs part way through (1.21.10, run
-                    // 36834405326). Peaceful removes them and keeps the
-                    // survival HUD (hearts, food) the checks look at.
-                    net.minecraft.client.server.IntegratedServer server = mc.getSingleplayerServer();
-                    if (server != null) {
-                        server.execute(() -> server.setDifficulty(net.minecraft.world.Difficulty.PEACEFUL, true));
-                    }
                     world = World.IN_WORLD;
                     worldAt = System.currentTimeMillis();
                     log("world-joined");
-                } else if (age > 300_000) {
-                    log("FAIL", "reason", "the world never loaded");
-                    world = World.DONE;
                 }
             }
             case IN_WORLD -> {

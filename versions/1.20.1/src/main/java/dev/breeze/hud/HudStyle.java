@@ -27,9 +27,14 @@ public final class HudStyle {
     private static final String TEXT = "Text";
     private static final String LAYOUT = "Layout";
 
-    public final Setting.Mode background =
-            new Setting.Mode("bg", "Background", LOOK, new String[]{"None", "Solid", "Gradient", "Outline"}, 0);
-    public final Setting.Color bgColor = new Setting.Color("bgColor", "Background colour", LOOK, 0x90000000);
+    /**
+     * Saved as "panel": up to 2.9.2 it was "bg" and defaulted to None, so text
+     * elements were bare words on the world. Every setting is written to the
+     * config, so keeping the old key would have kept None for everyone who had
+     * played once; the new key gives everyone the panel once.
+     */
+    public final Setting.Mode background;
+    public final Setting.Color bgColor = new Setting.Color("bgColor", "Background colour", LOOK, 0xA0101420);
     public final Setting.Color bgColor2 = new Setting.Color("bgColor2", "Gradient to", LOOK, 0x9078B2FF);
     public final Setting.Int radius = new Setting.Int("radius", "Corner radius", LOOK, 4, 0, 10, "px");
     public final Setting.Bool border = new Setting.Bool("border", "Border", LOOK, false);
@@ -49,7 +54,14 @@ public final class HudStyle {
 
     private final List<Setting> all = new ArrayList<>();
 
-    public HudStyle() {
+    /**
+     * @param panel whether the element sits on a background panel by default.
+     *              Elements that draw their own boxes (keystrokes, armour,
+     *              inventory) start without one.
+     */
+    public HudStyle(boolean panel) {
+        background = new Setting.Mode("panel", "Background", LOOK,
+                new String[]{"None", "Solid", "Gradient", "Outline"}, panel ? 1 : 0);
         all.add(background);
         all.add(bgColor);
         all.add(bgColor2);
@@ -74,6 +86,15 @@ public final class HudStyle {
 
     public boolean hasBackground() {
         return !background.is("None");
+    }
+
+    /**
+     * How far the panel reaches past the content on each side. It counts as
+     * part of the element, so placing, dragging and keeping elements apart all
+     * work on the box the player sees.
+     */
+    public int boxPad() {
+        return hasBackground() ? padding.value : 0;
     }
 
     public float scaleFactor() {

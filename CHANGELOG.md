@@ -7,6 +7,38 @@ fixes bump PATCH. `scripts/check-version.sh` keeps `gradle.properties`,
 Each entry says what was verified and how. Anything not verified is marked
 **UNVERIFIED**.
 
+## [2.9.3] - 2026-10-01 (not released)
+
+Release polish: HUD panels, the title screen, and a frame rate reading.
+
+### Changed
+- **Text HUD elements sit on a panel by default**: a translucent dark
+  rounded box (Background: Solid) instead of bare words on the world.
+  Keystrokes, Mouse Strokes, Armor Status and Inventory HUD, which draw
+  their own boxes, start without one. The setting is saved under a new key,
+  so everyone gets the panel once; it can still be switched off per
+  element.
+- **The panel counts as part of the element.** Placing, dragging, the
+  editor's handles, keeping elements on screen and finding a free spot all
+  use the box with its padding, so panels never overlap each other, the
+  hotbar or the screen edge.
+- **Title screen**: the "BG: Breeze" / "BG: Vanilla" button is now
+  "Backdrop" with an on/off switch (Breeze's scene on, Minecraft's panorama
+  off), on every version.
+
+### Test harness
+- The in-world test reads Minecraft's frame rate once a second for ten
+  seconds in the new world before switching anything on (`fps-sample`).
+  Software rendered, so only comparable between runs on the same machines.
+- `as_launcher`: Fabric Loader, Fabric API and MCEF exactly as launcher
+  1.0.26 picks them, and Breeze loaded with `-Dfabric.addMods` as the
+  launcher does. `perf_mods`: optimisation mods from Modrinth beside Breeze.
+- The driver's whole-window screenshots (the web and native Breeze menus)
+  go to the evidence branch with the game's own.
+
+### Verified
+- **UNVERIFIED** until the runs below finish.
+
 ## [2.9.2] - 2026-10-01 (not released)
 
 The web-menu jars start without MCEF.
