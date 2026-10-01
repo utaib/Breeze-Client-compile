@@ -83,8 +83,10 @@ public class BreezeMenuScreen extends BreezeScreen {
         // Cycling Auto to Native to Web would throw the player into the web
         // interface halfway round and take this button with it; applying on the
         // next open is predictable, and the label says what will happen.
-        addRenderableWidget(dev.breeze.compat.Widgets.button(Component.literal(uiModeLabel()), b -> {
-            if (!BreezeUi.webPossible()) return;
+        //
+        // Where this Minecraft version has no embedded browser there is no
+        // choice to make, so there is no button.
+        if (BreezeUi.webPossible()) addRenderableWidget(dev.breeze.compat.Widgets.button(Component.literal(uiModeLabel()), b -> {
             Theme.uiMode = switch (Theme.uiMode) {
                 case AUTO -> Theme.UiMode.NATIVE;
                 case NATIVE -> Theme.UiMode.WEB;
@@ -95,20 +97,12 @@ public class BreezeMenuScreen extends BreezeScreen {
         }, mainX + mainW - 154 - 96, mainY + 9, 92, 20));
     }
 
-    /**
-     * What the interface button says.
-     *
-     * When this Minecraft version has no embedded browser the label says so
-     * instead of offering a choice that cannot be honoured. Thirty of the forty
-     * supported versions are in that position, so it is the normal case rather
-     * than an edge one.
-     */
+    /** What the menu style button says: which menu opens next time. */
     private static String uiModeLabel() {
-        if (!BreezeUi.webPossible()) return "UI: Native only";
         return switch (Theme.uiMode) {
-            case AUTO -> "UI: Auto";
-            case NATIVE -> "UI: Native";
-            case WEB -> "UI: Web";
+            case AUTO -> "Menu: Auto";
+            case NATIVE -> "Menu: Classic";
+            case WEB -> "Menu: Web";
         };
     }
 

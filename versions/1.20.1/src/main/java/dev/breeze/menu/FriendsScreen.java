@@ -89,7 +89,9 @@ public class FriendsScreen extends BreezeScreen {
         drawInput(g, leftX(), py + 28, leftW() - 46, addInput, focus == 1, "player name");
         drawBtn(g, leftX() + leftW() - 42, py + 28, 42, 16, "Add", mouseX, mouseY);
         g.drawString(this.font, this.font.plainSubstrByWidth(FriendsClient.status, leftW()), leftX(), py + 47, Palette.TEXT_SECONDARY, false);
-        g.drawString(this.font, "Right-click a friend = invite to your world", leftX(), py + 55, Palette.TEXT_FAINT, false);
+        // Kept to the 168-wide column: the longer hint it replaced ran on
+        // into the chat panel beside it.
+        g.drawString(this.font, this.font.plainSubstrByWidth("Right-click a friend to invite", leftW()), leftX(), py + 55, Palette.TEXT_FAINT, false);
 
         int bottom = py + ph - 26;
         for (Object[] row : rows()) {

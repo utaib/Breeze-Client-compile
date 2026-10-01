@@ -24,6 +24,9 @@ on:
         description: Install Fabric Loader, Fabric API and MCEF as launcher 1.0.26 picks them, and load Breeze with -Dfabric.addMods
         type: boolean
         default: false
+      perf_mods:
+        description: 'Optimisation mods to add from Modrinth (space separated slugs, or "default" for sodium lithium ferrite-core)'
+        default: ''
 
 concurrency:
   group: breeze-build-${{ github.ref }}
@@ -218,6 +221,16 @@ jobs:
             curl -sSfL -o "$RUNNER_TEMP/mods/mcef-$MCEF.jar" "https://api.modrinth.com/maven/maven/modrinth/mcef/$MCEF/mcef-$MCEF.jar"
           fi
           ls -la "$RUNNER_TEMP/mods" dist
+      - name: Optimisation mods
+        if: ${{ inputs.perf_mods != '' && inputs.perf_mods != null }}
+        env:
+          PERF_MODS: ${{ inputs.perf_mods }}
+        run: |
+          [ "$PERF_MODS" = default ] && PERF_MODS=
+          # One argument per mod: the list is split on purpose.
+          # shellcheck disable=SC2086
+          scripts/ci/perf-mods.sh "$MC" "$RUNNER_TEMP/mods" $PERF_MODS
+          ls -la "$RUNNER_TEMP/mods"
       - name: Launch in a real Fabric install, drive and check
         run: |
           BREEZE_LAUNCH=prod BREEZE_MC="$MC" BREEZE_LOADER="${LAUNCHER_LOADER:-$LOADER}" \
@@ -256,7 +269,9 @@ jobs:
         run: |
           SHOTS="$MC${{ matrix.v.mcef_off == '1' && '-without-mcef' || '' }}"
           mkdir -p "shots/$SHOTS"
-          for f in release-test/in-game-screenshots/*.png; do
+          # The game's own screenshots, and the driver's whole-window ones
+          # (the web and native Breeze menus, search, module switches).
+          for f in release-test/in-game-screenshots/*.png release-test/*.png; do
             [ -e "$f" ] || continue
             convert "$f" -resize '960x>' -quality 82 "shots/$SHOTS/$(basename "${f%.png}").jpg"
           done

@@ -52,7 +52,7 @@ test('module settings: every control type writes a real setting', async ({ page 
   await snap(page, info, 'module-settings')
 
   await page.getByRole('switch', { name: 'Border' }).click()
-  await page.getByRole('group', { name: 'Background' }).getByRole('button', { name: 'Solid' }).click()
+  await page.getByRole('group', { name: 'Background' }).getByRole('button', { name: 'Gradient' }).click()
 
   const scale = page.getByRole('slider', { name: 'Scale' })
   await scale.focus()
@@ -65,7 +65,7 @@ test('module settings: every control type writes a real setting', async ({ page 
   await colour.press('Enter')
 
   await expect.poll(async () => (await calls(page, 'modules.setSetting')).map((c) => c.params.id)).toEqual(
-    ['border', 'bg', 'scale', 'scale', 'textColor'],
+    ['border', 'panel', 'scale', 'scale', 'textColor'],
   )
   const last = (await calls(page, 'modules.setSetting')).at(-1)!
   expect(last.params).toEqual({ name: 'FPS', id: 'textColor', value: '#FF78B2FF' })

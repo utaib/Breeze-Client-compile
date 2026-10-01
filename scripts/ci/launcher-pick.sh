@@ -9,6 +9,9 @@
 #                                 own order; the primary file. Prints one line:
 #                                 "<version> <file name> <sha1> <url> deps=<ids>",
 #                                 or "none"
+#   launcher_fetch <slug> <mc> <dir>
+#                                 downloads that pick into <dir>, sha1 checked;
+#                                 nothing (and a note) when there is none
 # shellcheck shell=bash
 
 launcher_ua='utaib/Breeze-Client launcher-facts (CI)'
@@ -29,4 +32,14 @@ launcher_modrinth() {
       else ($v.files | (map(select(.primary)) | first) // first) as $f
         | "\($v.version_number) \($f.filename) \($f.hashes.sha1) \($f.url) deps=\([$v.dependencies[] | select(.dependency_type == "required") | .project_id] | join(","))"
       end'
+}
+
+launcher_fetch() {
+  local pick version file sha1 url
+  pick=$(launcher_modrinth "$1" "$2")
+  if [ "$pick" = none ]; then echo "$1: none for $2" >&2; return 0; fi
+  read -r version file sha1 url _ <<< "$pick"
+  launcher_get -L -o "$3/$file" "$url"
+  echo "$sha1  $3/$file" | sha1sum -c --quiet - >&2
+  echo "$1: $version ($file, sha1 checked)" >&2
 }

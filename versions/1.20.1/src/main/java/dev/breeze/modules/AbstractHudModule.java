@@ -27,16 +27,22 @@ import java.util.List;
  */
 public abstract class AbstractHudModule extends Module {
 
-    /** Where the element is drawn this frame, resolved from its placement. */
+    /**
+     * Where the content is drawn this frame: inside the background panel, so
+     * the panel's padding away from the box's top-left corner.
+     */
     protected int x;
     protected int y;
+    /** The element's box (panel included) this frame: what placement, the editor and the tests see. */
+    private int boxX;
+    private int boxY;
     /** The constructor's position, which Reset in the HUD editor goes back to. */
     private final int defaultX;
     private final int defaultY;
     /** Anchor and offset (HudPlacement); null means the default position. */
     private dev.breeze.hud.HudPlacement placement;
 
-    private final HudStyle style = new HudStyle();
+    private final HudStyle style = new HudStyle(!drawsShapes());
     private final List<String> lineText = new ArrayList<>();
     private final List<Integer> lineColor = new ArrayList<>();
     /** Reused across frames. Grows to the largest line count this module has had. */
@@ -55,6 +61,8 @@ public abstract class AbstractHudModule extends Module {
         super(name, category, description, defaultKey);
         this.x = x;
         this.y = y;
+        this.boxX = x;
+        this.boxY = y;
         this.defaultX = x;
         this.defaultY = y;
         addAll(style.settings());
@@ -73,9 +81,9 @@ public abstract class AbstractHudModule extends Module {
         float s = style.scaleFactor();
         boolean scaled = Math.abs(s - 1f) > 0.001f;
         if (scaled) {
-            // Scale about the module's own origin, so changing the scale grows
+            // Scale about the element's own corner, so changing the scale grows
             // the block in place instead of sliding it toward the screen corner.
-            dev.breeze.compat.Draw.pushScaled(g, x, y, s);
+            dev.breeze.compat.Draw.pushScaled(g, boxX, boxY, s);
         }
 
         if (drawsShapes()) {
@@ -167,10 +175,10 @@ public abstract class AbstractHudModule extends Module {
         for (Module m : dev.breeze.ModuleManager.getModules()) {
             if (m == this || !(m instanceof AbstractHudModule o) || !o.isEnabled()) continue;
             if (o.lastDrawnAt == 0 || now - o.lastDrawnAt > 1_000) continue;
-            taken.add(new dev.breeze.hud.HudPlacement.Box(o.x, o.y, o.getHudW(), o.getHudH()));
+            taken.add(new dev.breeze.hud.HudPlacement.Box(o.boxX, o.boxY, o.getHudW(), o.getHudH()));
         }
-        int[] at = dev.breeze.hud.HudPlacement.freeSpot(x, y, getHudW(), getHudH(), taken, sw, sh, 4, 2);
-        if (at == null || (at[0] == x && at[1] == y)) return;
+        int[] at = dev.breeze.hud.HudPlacement.freeSpot(boxX, boxY, getHudW(), getHudH(), taken, sw, sh, 4, 2);
+        if (at == null || (at[0] == boxX && at[1] == boxY)) return;
         setHudPos(at[0], at[1]);
         dev.breeze.ui.HudLayout.set(getName(), placement);
         dev.breeze.ui.HudLayout.save();
@@ -217,9 +225,10 @@ public abstract class AbstractHudModule extends Module {
     /** Whether draw has thrown (reported once in the log). */
     public boolean drawFailed() { return drawFailureReported; }
 
-    public int getHudX() { return x; }
+    /** The box's left edge, panel included. */
+    public int getHudX() { return boxX; }
 
-    public int getHudY() { return y; }
+    public int getHudY() { return boxY; }
 
     /**
      * Places the element's top-left corner at (x, y) on the current screen;
@@ -231,8 +240,7 @@ public abstract class AbstractHudModule extends Module {
         int sw = mc.getWindow().getGuiScaledWidth();
         int sh = mc.getWindow().getGuiScaledHeight();
         int[] c = dev.breeze.hud.HudPlacement.clamp(x, y, getHudW(), getHudH(), sw, sh);
-        this.x = c[0];
-        this.y = c[1];
+        placeBox(c[0], c[1]);
         this.placement = dev.breeze.hud.HudPlacement.of(c[0], c[1], getHudW(), getHudH(), sw, sh);
     }
 
@@ -265,12 +273,28 @@ public abstract class AbstractHudModule extends Module {
         if (sw <= 0 || sh <= 0) return;
         dev.breeze.hud.HudPlacement p = placement != null ? placement : defaultPlacement();
         int[] at = p.resolve(getHudW(), getHudH(), sw, sh);
-        x = at[0];
-        y = at[1];
+        placeBox(at[0], at[1]);
     }
 
-    /** Scaled, because this is what the HUD editor draws a handle around. */
-    public int getHudW() { return Math.max((int) (Math.max(lastW, 24) * style.scaleFactor()), 24); }
+    /** The box at (bx, by); the content starts the panel's padding inside it, before scaling. */
+    private void placeBox(int bx, int by) {
+        boxX = bx;
+        boxY = by;
+        int pad = style.boxPad();
+        x = bx + pad;
+        y = by + pad;
+    }
 
-    public int getHudH() { return Math.max((int) (Math.max(lastH, 10) * style.scaleFactor()), 10); }
+    /**
+     * The box's size: content plus the panel's padding on both sides, scaled,
+     * because this is what the HUD editor draws a handle around and what other
+     * elements are kept clear of.
+     */
+    public int getHudW() {
+        return Math.max((int) ((Math.max(lastW, 24) + 2 * style.boxPad()) * style.scaleFactor()), 24);
+    }
+
+    public int getHudH() {
+        return Math.max((int) ((Math.max(lastH, 10) + 2 * style.boxPad()) * style.scaleFactor()), 10);
+    }
 }

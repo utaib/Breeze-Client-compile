@@ -88,7 +88,12 @@ shot 02-breeze-menu
 # Keyboard: the search field filters the module cards; then a click on the
 # first card switches that module, which the harness sees from the module
 # itself, not from the screen.
-click "focus search" breeze-native '^search$' && xdotool type --delay 90 'fps'
+# A pause after the click before typing, as a person makes: on 26.3 keys
+# become text only once the focused box has switched SDL's text input on, at
+# the next frame, and a software-rendered frame here takes about 125 ms. The
+# first key of "fps" typed straight after the click was lost that way (run
+# 36854828253, the field held "ps").
+click "focus search" breeze-native '^search$' && sleep 0.6 && xdotool type --delay 90 'fps'
 sleep 0.5
 typed=$(fresh_targets breeze-native | jq -r '[.items[] | select(.name | test("^search$"; "i")) | .value][0] // "(no search field)"')
 if [ "$typed" = fps ]; then pass "typing reached the search field"; else fail "typing reached the search field (it holds '$typed')"; fi

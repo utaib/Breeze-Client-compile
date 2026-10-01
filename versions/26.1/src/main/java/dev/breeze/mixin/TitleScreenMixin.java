@@ -43,13 +43,16 @@ public abstract class TitleScreenMixin extends Screen {
 
     @Inject(method = "extractRenderState", at = @At("RETURN"))
     private void breeze$sideButtons(GuiGraphicsExtractor g, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
-        String[] labels = {"Breeze", MenuBg.useBreeze() ? "BG: Breeze" : "BG: Vanilla", "Friends"};
+        // The middle one switches the title backdrop between Breeze's scene and
+        // Minecraft's panorama; its switch shows which is on.
+        String[] labels = {"Breeze", "Backdrop", "Friends"};
         for (int i = 0; i < labels.length; i++) {
             int y = breeze$btnY(i);
             boolean hover = mouseX >= 6 && mouseX <= 6 + 78 && mouseY >= y && mouseY <= y + 20;
             UiRender.rounded(g, 6, y, 78, 20, hover ? Theme.cardHover() : Palette.alpha(Palette.SURFACE, 0xC8));
             UiRender.accentBar(g, 6, y, 2, 20);
             g.text(this.font, labels[i], 14, y + 6, hover ? Palette.TEXT_PRIMARY : Palette.TEXT_SECONDARY, false);
+            if (i == 1) UiRender.toggle(g, 6 + 78 - 22, y + 6, 16, 8, MenuBg.useBreeze());
         }
         UiRender.logo(g, 6, breeze$btnY(0) - 40, 32, 1.0f);
         dev.breeze.devtest.Targets.put("breeze-button", 6 + 39, breeze$btnY(0) + 10);

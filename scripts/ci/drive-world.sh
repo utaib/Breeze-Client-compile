@@ -60,7 +60,7 @@ fi
 # folder may skip the list. Up to three presses, until the world starts loading.
 for _ in 1 2 3; do
   sleep 2
-  grep -q '"event":"world-joined"' "$LOG" && break
+  grep -qE '"event":"world-(loaded|joined)"' "$LOG" && break
   kind=$(last_kind)
   case "$kind" in
     world-select|create-world) ;;
@@ -78,6 +78,9 @@ b=$(count '"event":"WORLD_READY"')
 # before it opens the HUD editor (WORLD_READY): several minutes.
 if wait_new '"event":"WORLD_READY"' 900 "$b"; then
   pass "a new singleplayer world loaded with Breeze"
+  # Software rendered: comparable only with other runs on the same machines.
+  fps=$(grep '"event":"fps-sample"' "$LOG" | tail -1)
+  if [ -n "$fps" ]; then say "frame rate before the checks: $fps"; fi
 else
   fail "a new singleplayer world loaded with Breeze (last screen: $(last_kind))"
   exit "$FAILED"
