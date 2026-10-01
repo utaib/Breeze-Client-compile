@@ -71,6 +71,13 @@ Every HUD module can be moved; every module is tested in a world.
   (screenshots autotest-real-cosmetics, -2, -3 and -front). When none can
   be fetched the step is reported as skipped, not passed.
 
+- The test world is switched to Peaceful as soon as the test player is in
+  it. Worlds come from a random seed, and in run 36834405326 1.21.10's
+  player spawned in a dark forest and was killed by mobs during the module
+  sweep, which then failed the Wardrobe, real cosmetics and pause menu
+  checks (a dead player is not drawn). If the test player ever dies, the
+  driver now says so as its own failure.
+
 ### Verified
 - The catalogue's .gltf pet "Glare 23" read and drawn on the player in a
   real Fabric install on 1.17, 1.20.1, 1.21.4, 1.21.9, 1.21.11, 26.1 and

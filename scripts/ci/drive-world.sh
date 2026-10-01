@@ -221,6 +221,11 @@ if [ -s "$OUT/stub-port" ]; then
   fi
 fi
 
+# A test player that died fails everything after it; say why, once.
+if grep -q '"event":"player-died"' "$LOG"; then
+  fail "the test player died in the world ($(grep '"event":"player-died"' "$LOG" | tail -1 | sed -E 's/.*"during":"([A-Z_]+)".*/during \1/'))"
+fi
+
 # ── Save and quit to the title screen ────────────────────────────────────
 sleep 1
 b=$(count '"kind":"pause"')
