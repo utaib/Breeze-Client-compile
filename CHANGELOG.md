@@ -78,6 +78,15 @@ Every HUD module can be moved; every module is tested in a world.
   1.17 118 times, 0 failures). Screenshots: a green leafy pet beside the
   player's head on 1.17, 1.21.11 and 26.3. Same run: every module and
   setting swept with no errors, 36 of 36 HUD elements moved and saved.
+- **All 34 versions passed** in publishing run 36811362936 (mirror
+  `a33be63` = private `1241ab5`): menus, world, all 36 HUD elements drawn
+  and none on the hotbar, all moved and saved, all 81 modules and their
+  settings, settings saved and read back, the HUD editor drags, the
+  Wardrobe equip, and the catalogue's three API-hosted pets ("Glare 23",
+  "Glare" as .glb and as .gltf) worn in turn and each drawn (screenshots
+  per round on every version). 1.21.3's job hung in the runner's apt
+  install before any test in the first attempt and passed on its one
+  re-run. All 34 jars are in `Breeze Jars/`.
 
 ## [2.9.0] - 2026-10-01 (not released)
 

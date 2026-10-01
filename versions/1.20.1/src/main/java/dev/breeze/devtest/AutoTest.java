@@ -524,6 +524,8 @@ public final class AutoTest {
                     for (dev.breeze.cosmetics.OwnedCosmetics.Item i : dev.breeze.cosmetics.OwnedModels.items()) {
                         if (i.id.equals(id)) name = i.slot + " " + i.name;
                     }
+                    // Two cosmetics can share a name; each gets its own line.
+                    if (o.has(name)) name = name + " (" + id.substring(Math.max(0, id.length() - 8)) + ")";
                     all &= n > 0 && failure == null;
                     o.addProperty(name, n > 0 ? "drawn " + n + "x" : failure != null ? "failed: " + failure : "not drawn");
                 }
