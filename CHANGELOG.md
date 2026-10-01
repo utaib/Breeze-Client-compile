@@ -12,6 +12,13 @@ Each entry says what was verified and how. Anything not verified is marked
 Every HUD module can be moved; every module is tested in a world.
 
 ### Fixed
+- **Zoom crashed the game on 1.21.2 to 1.21.11** the moment it was switched
+  on: from 1.21.2 GameRenderer.getFov returns a float, and Breeze read it as
+  a double (ClassCastException on the next frame). Found by the new module
+  sweep on 1.21.4, 1.21.9 and 1.21.11 (mirror run 36807747143). 1.21.2 now
+  has its own GameRendererMixin reading a float; up to 1.21.1 it stays a
+  double, and 26.x already had its own. The 2.9.0 and earlier jars for
+  1.21.2 to 1.21.11 have this crash.
 - Keystrokes and Mouse Strokes draw their own boxes but reported no size,
   so the HUD editor's handle covered only a 24 by 10 corner of them and the
   background frame did not fit. They now report their real size (58 by 58,
@@ -19,6 +26,13 @@ Every HUD module can be moved; every module is tested in a world.
 - Recording Indicator was always drawn in the top-right corner, whatever its
   position said, so it could not be moved. It is now drawn at its position
   (top right until moved).
+- Many HUD elements share a default corner (the in-world test showed ten at
+  the bottom left with every element on), so switching on several piled
+  them on top of each other. The first time an element that was never moved
+  is drawn, if its default place is taken by another element on screen, it
+  goes to the nearest free place (common HudPlacement.freeSpot, 3 unit
+  tests) and that place is saved. Elements the player has placed are never
+  moved.
 
 ### Test harness
 - In the world, all 36 HUD modules are switched on and each must draw

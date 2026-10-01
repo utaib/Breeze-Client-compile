@@ -118,6 +118,37 @@ class HudPlacementTest {
     }
 
     @Test
+    void freeSpotKeepsTheDefaultWhenItIsFree() {
+        List<HudPlacement.Box> taken = List.of(new HudPlacement.Box(4, 4, 30, 10));
+        assertArrayEquals(new int[]{4, 24}, HudPlacement.freeSpot(4, 24, 100, 10, taken, 427, 240, 4, 2));
+    }
+
+    @Test
+    void freeSpotMovesAnElementOffOneItWouldCover() {
+        List<HudPlacement.Box> taken = List.of(
+                new HudPlacement.Box(4, 4, 30, 10),
+                new HudPlacement.Box(4, 16, 100, 10));
+        int[] at = HudPlacement.freeSpot(4, 4, 60, 10, taken, 427, 240, 4, 2);
+        assertNotNull(at);
+        for (HudPlacement.Box b : taken) {
+            assertFalse(overlap(at, new int[]{60, 10}, new int[]{b.x(), b.y()}, new int[]{b.w(), b.h()}), "clear of " + b);
+        }
+        assertEquals(4, at[0], "first down the left edge");
+        assertEquals(28, at[1], "just under the second, with the gap");
+    }
+
+    @Test
+    void freeSpotGoesToTheNextColumnAndGivesUpWhenFull() {
+        // The left edge is full from top to bottom.
+        List<HudPlacement.Box> column = List.of(new HudPlacement.Box(0, 0, 50, 240));
+        int[] at = HudPlacement.freeSpot(4, 4, 40, 10, column, 427, 240, 4, 2);
+        assertNotNull(at);
+        assertTrue(at[0] >= 52, "right of the full column: " + at[0]);
+        List<HudPlacement.Box> everything = List.of(new HudPlacement.Box(0, 0, 427, 240));
+        assertNull(HudPlacement.freeSpot(4, 4, 40, 10, everything, 427, 240, 4, 2));
+    }
+
+    @Test
     void encodesAndDecodes() {
         HudPlacement p = new HudPlacement(H.RIGHT, V.BOTTOM, 4, -2);
         assertEquals("RIGHT,BOTTOM,4,-2", p.encode());

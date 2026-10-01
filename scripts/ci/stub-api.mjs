@@ -5,10 +5,12 @@
 // driven through equipping a 3D cosmetic and drawing it without a real
 // account. It is not the API: it holds no data, no secrets and no API code.
 //
-// Usage: node stub-api.mjs <dir>
+// Usage: node stub-api.mjs <dir> [real-models-dir]
 //   writes <dir>/stub-port when listening; serves <dir>/stub-model.glb (the
-//   self-test writes it) as every cosmetic's model; logs each request to
-//   <dir>/stub-api.log.
+//   self-test writes it) as the test cosmetics' model; logs each request to
+//   <dir>/stub-api.log. With a real-models dir (fetch-cosmetics.mjs), the
+//   real cosmetics listed in its catalog.json are owned too, with their own
+//   models and metadata.
 import http from 'node:http'
 import fs from 'node:fs'
 import path from 'node:path'
@@ -22,6 +24,16 @@ const OWNED = [
   { id: 'stub-hat', slot: 'hat', name: 'Test hat', attachment: 'HEAD' },
   { id: 'stub-pet', slot: 'pet', name: 'Test pet', attachment: 'FLYING_PET' },
 ]
+// Real cosmetics from the public catalogue, if fetched: owned with their own
+// models and the creator's metadata (attachment, placement, animation roles).
+const realDir = process.argv[3] ? path.resolve(process.argv[3]) : null
+const REAL = []
+if (realDir && fs.existsSync(path.join(realDir, 'catalog.json'))) {
+  for (const c of JSON.parse(fs.readFileSync(path.join(realDir, 'catalog.json'), 'utf8'))) {
+    REAL.push({ id: `real-${c.id}`, realId: c.id, slot: c.slot, name: c.name, metadata: c.metadata || {} })
+  }
+}
+const ALL = () => [...OWNED, ...REAL]
 const equipped = new Map() // uuid -> Map(slot -> id)
 
 const dash = (u) => {
@@ -80,17 +92,19 @@ const server = http.createServer(async (req, res) => {
   if (req.method === 'GET' && parts[0] === 'cosmetics' && parts[1] === 'equipped' && parts[2]) {
     const uuid = dash(parts[2])
     const rows = [...slotsOf(uuid).entries()].map(([slot, id]) => {
-      const c = OWNED.find((o) => o.id === id)
+      const c = ALL().find((o) => o.id === id)
+      const metadata = c.metadata || { attachment: c.attachment }
       return {
         slot, cosmetic_id: id, placement: null,
-        cosmetic: { id, slot, name: c.name, model_url: `${base}/models/${id}.glb`, metadata: { attachment: c.attachment } },
+        cosmetic: { id, slot, name: c.name, model_url: `${base}/models/${id}.glb`, metadata },
       }
     })
     return send(res, 200, { success: true, uuid, equipped: rows })
   }
 
   if (req.method === 'GET' && parts[0] === 'models' && parts[1]) {
-    const file = path.join(dir, 'stub-model.glb')
+    const real = REAL.find((r) => `${r.id}.glb` === parts[1])
+    const file = real ? path.join(realDir, `${real.realId}.glb`) : path.join(dir, 'stub-model.glb')
     if (!fs.existsSync(file)) return send(res, 404, { success: false, error: 'no model yet' })
     const bytes = fs.readFileSync(file)
     res.writeHead(200, { 'Content-Type': 'model/gltf-binary', 'Content-Length': bytes.length })
@@ -107,14 +121,14 @@ const server = http.createServer(async (req, res) => {
     if (req.method === 'GET' && parts[1] === 'owned') {
       return send(res, 200, {
         success: true,
-        owned: OWNED.map((o) => ({ cosmetic_id: o.id, cosmetic: { id: o.id, slot: o.slot, name: o.name } })),
+        owned: ALL().map((o) => ({ cosmetic_id: o.id, cosmetic: { id: o.id, slot: o.slot, name: o.name } })),
         equipped: Object.fromEntries(slots),
         placements: {},
       })
     }
     const body = await readJson(req)
     if (req.method === 'POST' && parts[1] === 'equip') {
-      const c = OWNED.find((o) => o.id === body.cosmetic_id)
+      const c = ALL().find((o) => o.id === body.cosmetic_id)
       if (!body.cosmetic_id) return send(res, 400, { success: false, error: 'cosmetic_id is required' })
       if (!c) return send(res, 403, { success: false, error: 'You do not own this cosmetic' })
       slots.set(c.slot, c.id)
@@ -122,7 +136,7 @@ const server = http.createServer(async (req, res) => {
       return send(res, 200, { success: true, slot: c.slot, cosmetic_id: c.id })
     }
     if (req.method === 'POST' && parts[1] === 'unequip') {
-      if (!OWNED.some((o) => o.slot === body.slot)) return send(res, 400, { success: false, error: 'Invalid slot' })
+      if (!ALL().some((o) => o.slot === body.slot)) return send(res, 400, { success: false, error: 'Invalid slot' })
       slots.delete(body.slot)
       log(`unequipped ${body.slot} for ${uuid}`)
       return send(res, 200, { success: true, slot: body.slot })

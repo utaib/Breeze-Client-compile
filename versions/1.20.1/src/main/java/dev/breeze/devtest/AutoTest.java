@@ -232,7 +232,11 @@ public final class AutoTest {
 
     // ── In a world (after the menu checks) ─────────────────────────────────
 
-    private enum World { IDLE, OPENED, IN_WORLD, LAYOUT, SWEEP, EDITING, WARDROBE, DONE }
+    private enum World { IDLE, OPENED, IN_WORLD, LAYOUT, SWEEP, EDITING, WARDROBE, REAL, DONE }
+
+    /** Real cosmetics from the public catalogue, served by the stand-in API with "real-" ids. */
+    private static final java.util.List<String> realIds = new java.util.ArrayList<>();
+    private static int realStage;
 
     /** The test runs against the stand-in API, with a game token for a test player. */
     private static final boolean STUB = System.getProperty("breeze.autotest.stub") != null;
@@ -452,6 +456,58 @@ public final class AutoTest {
                         "listed", String.valueOf(listed), "equipped", String.valueOf(equipped),
                         "worn", String.valueOf(worn), "draws", String.valueOf(draws), "pass", String.valueOf(pass));
                 dev.breeze.compat.ActiveScreen.set(mc, null);
+                // Then the real cosmetics, if the catalogue could be read.
+                realIds.clear();
+                for (dev.breeze.cosmetics.OwnedCosmetics.Item i : dev.breeze.cosmetics.OwnedModels.items()) {
+                    if (i.id.startsWith("real-")) {
+                        realIds.add(i.id);
+                        dev.breeze.cosmetics.OwnedModels.equip(i.id, null);
+                    }
+                }
+                if (realIds.isEmpty()) {
+                    log("real-cosmetics", "pass", "skipped", "reason", "no real cosmetics (the public catalogue was not read)");
+                    world = World.DONE;
+                    return;
+                }
+                mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK);
+                realStage = 0;
+                world = World.REAL;
+                worldAt = System.currentTimeMillis();
+                log("real-cosmetics-start", "ids", String.join(",", realIds));
+            }
+            case REAL -> {
+                // Each real model drawn on the player, or a reason it was not.
+                boolean resolved = true;
+                for (String id : realIds) {
+                    boolean drawn = dev.breeze.cosmetics.CosmeticRender.DRAWS_BY_ID.getOrDefault(id, 0) > 0;
+                    if (!drawn && dev.breeze.cosmetics.CosmeticModels.failure(id) == null) resolved = false;
+                }
+                if (realStage == 0) {
+                    if ((!resolved || age < 8_000) && age < 90_000) return;
+                    shot(mc, "autotest-real-cosmetics");
+                    mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_FRONT);
+                    realStage = 1;
+                    worldAt = System.currentTimeMillis();
+                    return;
+                }
+                if (age < 3_000) return;
+                shot(mc, "autotest-real-cosmetics-front");
+                JsonObject o = new JsonObject();
+                boolean all = true;
+                for (String id : realIds) {
+                    int n = dev.breeze.cosmetics.CosmeticRender.DRAWS_BY_ID.getOrDefault(id, 0);
+                    String failure = dev.breeze.cosmetics.CosmeticModels.failure(id);
+                    String name = id;
+                    for (dev.breeze.cosmetics.OwnedCosmetics.Item i : dev.breeze.cosmetics.OwnedModels.items()) {
+                        if (i.id.equals(id)) name = i.slot + " " + i.name;
+                    }
+                    all &= n > 0 && failure == null;
+                    o.addProperty(name, n > 0 ? "drawn " + n + "x" : failure != null ? "failed: " + failure : "not drawn");
+                }
+                o.addProperty("failures", String.valueOf(dev.breeze.cosmetics.CosmeticRender.failures));
+                o.addProperty("pass", String.valueOf(all));
+                write("real-cosmetics", o);
+                mc.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON);
                 world = World.DONE;
             }
             case DONE -> {

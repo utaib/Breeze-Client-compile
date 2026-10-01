@@ -46,6 +46,8 @@ public final class CosmeticModels {
     private static final Map<String, Loaded> READY = new ConcurrentHashMap<>();
     private static final Set<String> LOADING = ConcurrentHashMap.newKeySet();
     private static final Set<String> FAILED = ConcurrentHashMap.newKeySet();
+    /** Why a model failed, in a few words (for the self-test and the log). */
+    private static final Map<String, String> FAIL_REASON = new ConcurrentHashMap<>();
     private static final Map<String, List<ResourceLocation>> TEXTURES = new ConcurrentHashMap<>();
     private static ResourceLocation white;
 
@@ -74,7 +76,7 @@ public final class CosmeticModels {
         if (FAILED.contains(worn.id) || !LOADING.add(worn.id)) return;
         if (!CapeTextures.allowedUrl(worn.modelUrl)) {
             BreezeClient.LOGGER.warn("[Breeze] cosmetic {} refused: model is not served by the Breeze API over https", worn.id);
-            fail(worn.id);
+            fail(worn.id, "model not on the Breeze API host");
             return;
         }
         try {
@@ -82,13 +84,13 @@ public final class CosmeticModels {
             CapeTextures.http().sendAsync(req, HttpResponse.BodyHandlers.ofByteArray())
                     .whenComplete((res, err) -> {
                         if (err != null || res == null || res.statusCode() != 200 || res.body() == null) {
-                            fail(worn.id);
+                            fail(worn.id, err != null ? err.toString() : res == null ? "no answer" : "HTTP " + res.statusCode());
                             return;
                         }
                         load(worn.id, worn.bounds, res.body());
                     });
         } catch (Throwable t) {
-            fail(worn.id);
+            fail(worn.id, t.toString());
         }
     }
 
@@ -101,9 +103,9 @@ public final class CosmeticModels {
             return new Object[]{model, bounds};
         }).whenComplete((parsed, err) -> {
             if (err != null || parsed == null) {
-                BreezeClient.LOGGER.warn("[Breeze] cosmetic {} could not be read: {}", id,
-                        err == null ? "empty" : err.getCause() != null ? err.getCause().toString() : err.toString());
-                fail(id);
+                String why = err == null ? "empty" : err.getCause() != null ? err.getCause().toString() : err.toString();
+                BreezeClient.LOGGER.warn("[Breeze] cosmetic {} could not be read: {}", id, why);
+                fail(id, why);
                 return;
             }
             Minecraft.getInstance().execute(() -> publish(id, (GlbModel) parsed[0], (float[]) parsed[1]));
@@ -130,15 +132,21 @@ public final class CosmeticModels {
             READY.put(id, new Loaded(model, bounds, images));
         } catch (Throwable t) {
             BreezeClient.LOGGER.warn("[Breeze] cosmetic {} textures failed: {}", id, t.toString());
-            fail(id);
+            fail(id, "textures: " + t);
         } finally {
             LOADING.remove(id);
         }
     }
 
-    private static void fail(String id) {
+    private static void fail(String id, String reason) {
         LOADING.remove(id);
         FAILED.add(id);
+        FAIL_REASON.put(id, reason == null ? "unknown" : reason);
+    }
+
+    /** Why the model failed to load, or null if it has not failed. */
+    public static String failure(String id) {
+        return FAILED.contains(id) ? FAIL_REASON.getOrDefault(id, "unknown") : null;
     }
 
     /** Frees every model's textures (disconnect). */
@@ -149,6 +157,7 @@ public final class CosmeticModels {
         TEXTURES.clear();
         READY.clear();
         FAILED.clear();
+        FAIL_REASON.clear();
         mc.execute(() -> {
             for (ResourceLocation rl : all) {
                 try { mc.getTextureManager().release(rl); } catch (Throwable ignored) { }

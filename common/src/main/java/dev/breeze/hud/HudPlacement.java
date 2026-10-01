@@ -160,6 +160,33 @@ public final class HudPlacement {
         return out;
     }
 
+    /**
+     * Where an element of size w x h can go without touching any of the taken
+     * boxes (with {@code gap} around them): its preferred top-left corner when
+     * that is free, else the first free corner going down the screen, column
+     * by column from the left (the way Arrange stacks), on a 2-unit grid.
+     * Null when nothing on the screen is free.
+     */
+    public static int[] freeSpot(int prefX, int prefY, int w, int h, List<Box> taken, int sw, int sh, int margin, int gap) {
+        int[] pref = clamp(prefX, prefY, w, h, sw, sh);
+        if (free(pref[0], pref[1], w, h, taken, gap)) return pref;
+        for (int x = margin; x + w <= sw - margin; x += 2) {
+            for (int y = margin; y + h <= sh - margin; y += 2) {
+                if (free(x, y, w, h, taken, gap)) return new int[]{x, y};
+            }
+        }
+        return null;
+    }
+
+    private static boolean free(int x, int y, int w, int h, List<Box> taken, int gap) {
+        for (Box b : taken) {
+            boolean apart = x + w + gap <= b.x() || b.x() + b.w() + gap <= x
+                    || y + h + gap <= b.y() || b.y() + b.h() + gap <= y;
+            if (!apart) return false;
+        }
+        return true;
+    }
+
     // ── Storage ──────────────────────────────────────────────────────────
 
     /** "LEFT,TOP,4,24": the stored form. */

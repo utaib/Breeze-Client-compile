@@ -77,7 +77,12 @@ if [ "$MODE" = prod ]; then
   # with BREEZE_STUB_API=0 to talk to the real API, signed out.
   if [ "${BREEZE_STUB_API:-1}" != 0 ] && command -v node >/dev/null; then
     rm -f "$OUT/stub-port"
-    node "$(dirname "$0")/stub-api.mjs" "$OUT" > "$OUT/stub-api.out" 2>&1 &
+    # A few real cosmetics from the public catalogue (read only). Kept in the
+    # game folder, which the evidence artifact leaves out: only screenshots
+    # of them are published, never the creators' model files.
+    REAL_MODELS="$RUN/real-models"
+    node "$(dirname "$0")/fetch-cosmetics.mjs" "$REAL_MODELS" 2>&1 | tee -a "$OUT/driver.log" || true
+    node "$(dirname "$0")/stub-api.mjs" "$OUT" "$REAL_MODELS" > "$OUT/stub-api.out" 2>&1 &
     STUB=$!
     for _ in $(seq 1 100); do [ -s "$OUT/stub-port" ] && break; sleep 0.1; done
     if [ -s "$OUT/stub-port" ]; then
@@ -131,7 +136,7 @@ grep -hE 'Exception|ERROR|FATAL' "$OUT/minecraft-latest.log" > "$OUT/errors.txt"
 echo "== harness: screens, stages and failures"
 grep -E '"event":"(start|screen|menu-open|READY_FOR_INPUT|key|FAIL|stress-result|AUTOTEST_DONE|mixin-audit|module)"' "$OUT/breeze-autotest.log" 2>/dev/null | head -80
 echo "== harness: in the world"
-grep -E '"event":"(world-open|world-joined|hud-check|hud-layout|module-sweep|settings-persist|cape-check|cape-image|cosmetic-check|cosmetic-setup|WORLD_READY|hud-moved|wardrobe-open|wardrobe-check)"' "$OUT/breeze-autotest.log" 2>/dev/null | head -20
+grep -E '"event":"(world-open|world-joined|hud-check|hud-layout|module-sweep|settings-persist|cape-check|cape-image|cosmetic-check|cosmetic-setup|WORLD_READY|hud-moved|wardrobe-open|wardrobe-check|real-cosmetics-start|real-cosmetics)"' "$OUT/breeze-autotest.log" 2>/dev/null | head -20
 echo "== harness: mouse presses (1.21.9 and later)"
 grep '"event":"mouse"' "$OUT/breeze-autotest.log" 2>/dev/null | head -40
 if [ "$MODE" = prod ]; then

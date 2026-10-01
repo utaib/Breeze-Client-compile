@@ -48,6 +48,8 @@ public abstract class AbstractHudModule extends Module {
     private boolean drawFailureReported;
     /** When draw last finished without throwing (System.currentTimeMillis), 0 if never. */
     private long lastDrawnAt;
+    /** Whether this session has checked the default place against the other elements (once). */
+    private boolean defaultPlaceChecked;
 
     protected AbstractHudModule(String name, Category category, String description, int defaultKey, int x, int y) {
         super(name, category, description, defaultKey);
@@ -139,6 +141,37 @@ public abstract class AbstractHudModule extends Module {
         } catch (Throwable ignored) {}
 
         if (scaled) dev.breeze.compat.Draw.pop(g);
+
+        if (!defaultPlaceChecked && placement == null && lastDrawnAt > 0) {
+            defaultPlaceChecked = true;
+            avoidOthers(mc);
+        }
+    }
+
+    /**
+     * The first time an element that has never been moved is drawn, if its
+     * default place is already taken by another element on screen, it moves
+     * to the nearest free place (HudPlacement.freeSpot, the way Arrange
+     * stacks) and that place is saved. Many elements share a default corner,
+     * so switching on several used to pile them on top of each other. An
+     * element the player has placed is never moved.
+     */
+    private void avoidOthers(Minecraft mc) {
+        int sw = mc.getWindow().getGuiScaledWidth();
+        int sh = mc.getWindow().getGuiScaledHeight();
+        if (sw <= 0 || sh <= 0) return;
+        List<dev.breeze.hud.HudPlacement.Box> taken = new ArrayList<>();
+        long now = System.currentTimeMillis();
+        for (Module m : dev.breeze.ModuleManager.getModules()) {
+            if (m == this || !(m instanceof AbstractHudModule o) || !o.isEnabled()) continue;
+            if (o.lastDrawnAt == 0 || now - o.lastDrawnAt > 1_000) continue;
+            taken.add(new dev.breeze.hud.HudPlacement.Box(o.x, o.y, o.getHudW(), o.getHudH()));
+        }
+        int[] at = dev.breeze.hud.HudPlacement.freeSpot(x, y, getHudW(), getHudH(), taken, sw, sh, 4, 2);
+        if (at == null || (at[0] == x && at[1] == y)) return;
+        setHudPos(at[0], at[1]);
+        dev.breeze.ui.HudLayout.set(getName(), placement);
+        dev.breeze.ui.HudLayout.save();
     }
 
     protected abstract void draw(Minecraft mc, GuiGraphics g, Font font);

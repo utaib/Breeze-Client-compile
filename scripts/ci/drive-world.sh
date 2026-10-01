@@ -203,6 +203,21 @@ if [ -s "$OUT/stub-port" ]; then
   else
     fail "the self-test opened the Wardrobe"
   fi
+
+  # Real cosmetics from the public catalogue, worn by the test player: each
+  # must be read and drawn. Skipped (not failed) when the catalogue could not
+  # be read, since that is the network, not the mod.
+  if wait_new '"event":"real-cosmetics"' 150 0; then
+    real=$(grep '"event":"real-cosmetics"' "$LOG" | tail -1)
+    say "real cosmetics: $real"
+    case "$real" in
+      *'"pass":"skipped"'*) say "SKIP real cosmetics: the public catalogue was not read" ;;
+      *'"pass":"true"'*) pass "real cosmetics from the Breeze catalogue were read and drawn on the player" ;;
+      *) fail "a real cosmetic from the Breeze catalogue was not read or drawn" ;;
+    esac
+  else
+    fail "the self-test checked real cosmetics"
+  fi
 fi
 
 # ── Save and quit to the title screen ────────────────────────────────────
