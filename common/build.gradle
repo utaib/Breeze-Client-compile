@@ -1,0 +1,44 @@
+plugins {
+    id 'java-library'
+}
+
+// Java 16 bytecode and API (javac --release 16), the Java that Minecraft 1.17
+// runs on. The range starts at Minecraft 1.16, which runs on Java 8, so ideally
+// this would target 8 and be loadable everywhere. It cannot yet: BreezeApi is
+// built on java.net.http, introduced in Java 11, and the settings model uses
+// switch expressions and records (Java 14 and 16).
+//
+// At 16 this module is consumable by Minecraft 1.17 through 26.3. Reaching 1.16
+// means porting the HTTP transport to HttpURLConnection and the syntax back to
+// Java 8.
+//
+// It is also why this module may not touch Minecraft: those APIs move between
+// versions, so anything here has to be true of Breeze rather than of a
+// Minecraft release.
+java {
+    sourceCompatibility = JavaVersion.VERSION_16
+    targetCompatibility = JavaVersion.VERSION_16
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 16
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Gson ships inside Minecraft on every supported version, so it is compiled
+    // against and never bundled.
+    compileOnly 'com.google.code.gson:gson:2.10.1'
+    compileOnly 'org.slf4j:slf4j-api:1.7.36'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'com.google.code.gson:gson:2.10.1'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
