@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "breeze",
+  "version": "${version}",
+  "name": "Breeze",
+  "description": "Breeze Client. Cosmetics, HUD modules and quality of life, all client side.",
+  "authors": [
+    "utaib",
+    "Taxman",
+    "ThatOnesuub"
+  ],
+  "contact": {
+    "homepage": "https://breezeclient.pages.dev"
+  },
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "dev.breeze.BreezeClient"
+    ]
+  },
+  "mixins": [
+    "breeze.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_min}",
+    "java": ">=${java_release}",
+    "${fabric_api_id}": "*",
+    "minecraft": "${minecraft_range}"
+  },
+  "custom": {
+    "modmenu": {
+      "badges": [
+        "client"
+      ]
+    }
+  },
+  "icon": "assets/breeze/textures/gui/breeze_logo.png"
+}
