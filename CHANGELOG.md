@@ -30,6 +30,23 @@ The web menu on the newer Minecraft versions.
 - The in-game test now fails when a version that carries the browser comes
   up on the native menus (`EXPECT_WEB`).
 
+### Fixed
+- **Clicks in the web menu did nothing on 26.3.** Breeze numbers mouse
+  buttons the GLFW way (0 is left) and handed that number to the browser.
+  Rinku 3.0.5 maps Minecraft's own number itself (read from its bytecode:
+  `RinkuInput.toCefMouseButton`, and its example screen passes
+  `MouseButtonEvent.button()`), and on 26.3 SDL's left button is 1, so a 0
+  was dropped. The browser now gets Minecraft's number
+  (`Buttons.toGame`), which is the same number on every other version.
+  Found by run 37110433757: 26.3's keyboard checks passed, its three click
+  checks failed.
+
+### Verified so far
+- Run 37110433757 on the public build repository: 1.21.5, 1.21.8, 1.21.10,
+  1.21.11 and 26.1.1 passed with the web menu from the bundled browser
+  (Chromium downloaded on first start, every check 0 failed); 26.3 failed
+  the click checks above.
+
 ## [2.10.0] - 2026-10-03
 
 For the testers: capes you own listed and worn from the game, tags as
@@ -66,7 +83,15 @@ icons.
   API's answers).
 - Front end: tsc, 19 Vitest, `account.spec.ts` 18 passed on Chromium 141
   and Chrome 116 (new: More capes, no Remove on the old API).
-- In game, all 34 versions: see the run below.
+- **In game, all 34 versions passed**, run 37110404967 on the public build
+  repository (`utaib/Breeze-Client-compile` commit `4fdb123`, an exact copy
+  of this `Breeze-Mod-New/` at `738a633`): set up as launcher 1.0.27 does,
+  every menu, HUD, module and Wardrobe check, `tag-icon` (the Wind Charge
+  is one 9-unit character of the game's font), cape-check from the
+  account and the personal-cape switch. Jars in `Breeze Jars/` (SHA-256
+  equal to the run's), screenshots on `ci/evidence-37110404967` there.
+- Not verified: a real signed-in account (equip against the live API, the
+  icon beside a real player's name on a server).
 
 ## [2.9.5] - 2026-10-03
 

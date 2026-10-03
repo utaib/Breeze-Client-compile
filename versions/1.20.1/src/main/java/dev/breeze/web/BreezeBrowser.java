@@ -7,6 +7,7 @@ import dev.breeze.BreezeClient;
 import dev.breeze.bridge.Events;
 import dev.breeze.bridge.PageOrigin;
 import dev.breeze.bridge.Router;
+import dev.breeze.compat.Buttons;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import org.cef.browser.CefBrowser;
@@ -112,16 +113,19 @@ public final class BreezeBrowser {
         if (!closed.get()) browser.sendMouseMove(px(x), px(y));
     }
 
+    // Buttons arrive numbered the Breeze way (0 is left). The browser takes
+    // Minecraft's own numbers: Rinku 3.0.5 on 26.3 maps them itself, and
+    // there SDL's left button is 1, so a 0 was dropped as no button.
     void mousePressed(double x, double y, int button) {
         if (closed.get()) return;
         browser.setFocus(true);
-        browser.sendMousePress(px(x), px(y), button);
+        browser.sendMousePress(px(x), px(y), Buttons.toGame(button));
     }
 
     void mouseReleased(double x, double y, int button) {
         if (closed.get()) return;
         browser.setFocus(true);
-        browser.sendMouseRelease(px(x), px(y), button);
+        browser.sendMouseRelease(px(x), px(y), Buttons.toGame(button));
     }
 
     void mouseScrolled(double x, double y, double amount) {
