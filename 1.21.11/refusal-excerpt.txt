@@ -1,0 +1,37 @@
+== latest.log
+[14:36:54] [main/INFO]: Loading Minecraft 1.21.11 with Fabric Loader 0.19.5
+[14:36:54] [main/INFO]: Fabric is preparing JARs on first launch, this may take a few seconds...
+[14:36:55] [main/WARN]: Mod resolution failed
+[14:36:55] [main/INFO]: Immediate reason: [HARD_DEP_NO_CANDIDATE reeses-sodium-options 2.2.4+mc1.21.11 {depends sodium @ [=0.8.14+mc1.21.11]}, ROOT_FORCELOAD_SINGLE reeses-sodium-options 2.2.4+mc1.21.11]
+[14:36:55] [main/INFO]: Reason: [HARD_DEP reeses-sodium-options 2.2.4+mc1.21.11 {depends sodium @ [=0.8.14+mc1.21.11]}]
+[14:36:55] [main/INFO]: Fix: add [], remove [], replace [[sodium 0.8.15-beta.1+mc1.21.11] -> add:sodium 0.8.14+mc1.21.11 ([[0.8.14+mc1.21.11,0.8.14+mc1.21.11]])]
+[14:36:55] [main/ERROR]: Incompatible mods found!
+net.fabricmc.loader.impl.FormattedException: Some of your mods are incompatible with the game or each other!
+A potential solution has been determined, this may resolve your problem:
+	 - Replace mod 'Sodium' (sodium) 0.8.15-beta.1+mc1.21.11 with version 0.8.14+mc1.21.11.
+More details:
+	 - Mod 'Reese's Sodium Options' (reeses-sodium-options) 2.2.4+mc1.21.11 requires version 0.8.14+mc1.21.11 of mod 'Sodium' (sodium), but only the wrong version is present: 0.8.15-beta.1+mc1.21.11!
+	at net.fabricmc.loader.impl.FormattedException.ofLocalized(FormattedException.java:51)
+	at net.fabricmc.loader.impl.FabricLoaderImpl.load(FabricLoaderImpl.java:202)
+	at net.fabricmc.loader.impl.launch.knot.Knot.init(Knot.java:142)
+	at net.fabricmc.loader.impl.launch.knot.Knot.launch(Knot.java:66)
+	at net.fabricmc.loader.impl.launch.knot.KnotClient.main(KnotClient.java:23)
+== launcher.log
+
+[14:36:54] [main] [INFO] Loading Minecraft 1.21.11 with Fabric Loader 0.19.5
+[14:36:54] [main] [INFO] Fabric is preparing JARs on first launch, this may take a few seconds...
+[14:36:55] [main] [WARN] Mod resolution failed
+[14:36:55] [main] [INFO] Immediate reason: [HARD_DEP_NO_CANDIDATE reeses-sodium-options 2.2.4+mc1.21.11 {depends sodium @ [=0.8.14+mc1.21.11]}, ROOT_FORCELOAD_SINGLE reeses-sodium-options 2.2.4+mc1.21.11]
+[14:36:55] [main] [INFO] Reason: [HARD_DEP reeses-sodium-options 2.2.4+mc1.21.11 {depends sodium @ [=0.8.14+mc1.21.11]}]
+[14:36:55] [main] [INFO] Fix: add [], remove [], replace [[sodium 0.8.15-beta.1+mc1.21.11] -> add:sodium 0.8.14+mc1.21.11 ([[0.8.14+mc1.21.11,0.8.14+mc1.21.11]])]
+[14:36:55] [main] [ERROR] Incompatible mods found!
+net.fabricmc.loader.impl.FormattedException: Some of your mods are incompatible with the game or each other!
+A potential solution has been determined, this may resolve your problem:
+	 - Replace mod 'Sodium' (sodium) 0.8.15-beta.1+mc1.21.11 with version 0.8.14+mc1.21.11.
+More details:
+	 - Mod 'Reese's Sodium Options' (reeses-sodium-options) 2.2.4+mc1.21.11 requires version 0.8.14+mc1.21.11 of mod 'Sodium' (sodium), but only the wrong version is present: 0.8.15-beta.1+mc1.21.11!
+	at net.fabricmc.loader.impl.FormattedException.ofLocalized(FormattedException.java:51)
+	at net.fabricmc.loader.impl.FabricLoaderImpl.load(FabricLoaderImpl.java:202)
+	at net.fabricmc.loader.impl.launch.knot.Knot.init(Knot.java:142)
+	at net.fabricmc.loader.impl.launch.knot.Knot.launch(Knot.java:66)
+	at net.fabricmc.loader.impl.launch.knot.KnotClient.main(KnotClient.java:23)
