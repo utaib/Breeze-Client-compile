@@ -174,7 +174,7 @@ public final class Integrations {
             Boolean ok = hasScreen.get(e.getKey());
             if (ok == null) {
                 try {
-                    ok = modMenu.configScreen(e.getValue(), mc.screen) instanceof Screen;
+                    ok = modMenu.configScreen(e.getValue(), dev.breeze.compat.ActiveScreen.get(mc)) instanceof Screen;
                 } catch (Throwable t) {
                     ok = false;
                     problem(MOD_MENU, e.getKey(), nameOf(e.getKey()) + "'s settings screen failed to open: " + IntegrationProblem.describe(t));

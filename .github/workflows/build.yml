@@ -175,6 +175,10 @@ jobs:
           grep -E -A3 '\.java:[0-9]+: error:' "$RUNNER_TEMP/gradle.log" | sed -E 's#^.*/src/main/java/##' | head -600
           echo "== other failures"
           grep -E -A12 '^\* What went wrong' "$RUNNER_TEMP/gradle.log" | head -40
+          # As annotations too, which can be read without the log.
+          head -40 "$RUNNER_TEMP/errors.txt" | while IFS= read -r line; do echo "::error::$line"; done
+          grep -E -A6 '^\* What went wrong' "$RUNNER_TEMP/gradle.log" | grep -vE '^\* What went wrong|^--$|^\s*$' | head -8 \
+            | while IFS= read -r line; do echo "::error::$line"; done
       - name: Inspect the jar
         run: |
           jar="$SRC/versions/$MC/build/libs/$MC.jar"
@@ -276,6 +280,9 @@ jobs:
             cat "$RESULT/driver.log" 2>/dev/null || echo 'not launched'
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
+          # Failed checks as annotations, readable without the log.
+          cat "$RESULT/refusal/driver.log" "$RESULT/driver.log" 2>/dev/null | grep -F '[driver] FAIL' | head -30 \
+            | while IFS= read -r line; do echo "::error title=Minecraft $MC::${line#\[driver\] }"; done
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -301,6 +308,16 @@ jobs:
             [ -e "$f" ] || continue
             convert "$f" -resize '960x>' -quality 82 "$RUNNER_TEMP/shots/$MC/$(basename "${f%.png}").jpg"
           done
+          # What the checks said, Fabric's refusal, what each jar declares
+          # (metadata only) and Breeze's runtime report, beside the pictures.
+          cp "$RESULT/driver.log" "$RUNNER_TEMP/shots/$MC/driver.txt" 2>/dev/null || true
+          cp "$RESULT/refusal/driver.log" "$RUNNER_TEMP/shots/$MC/refusal-driver.txt" 2>/dev/null || true
+          cp "$RESULT/refusal/refusal-excerpt.txt" "$RUNNER_TEMP/shots/$MC/" 2>/dev/null || true
+          cp "$RESULT/refusal/mods-summary.jsonl" "$RUNNER_TEMP/shots/$MC/refusal-mods-summary.jsonl" 2>/dev/null || true
+          cp "$RESULT/mods-summary.jsonl" "$RESULT/runtime-mods.json" "$RUNNER_TEMP/shots/$MC/" 2>/dev/null || true
+          grep -hE '"event":"(integrations|integration-open)"' "$RESULT/breeze-autotest.log" > "$RUNNER_TEMP/shots/$MC/integrations.jsonl" 2>/dev/null || true
+          grep -E '\.java:[0-9]+: error:' "$RUNNER_TEMP/gradle.log" > "$RUNNER_TEMP/shots/$MC/compile-errors.txt" 2>/dev/null || true
+          find "$RUNNER_TEMP/shots/$MC" -type f -empty -delete
           ls "$RUNNER_TEMP/shots/$MC"
       - uses: actions/upload-artifact@v4
         if: always()
@@ -370,7 +387,7 @@ jobs:
         env:
           TOKEN: ${{ github.token }}
         run: |
-          ls shots/*/*.jpg >/dev/null 2>&1 || { echo "no screenshots"; exit 0; }
+          [ -n "$(find shots -type f 2>/dev/null | head -1)" ] || { echo "no evidence"; exit 0; }
           branch="ci/evidence-${GITHUB_RUN_ID}"
           [ "${GITHUB_RUN_ATTEMPT:-1}" = 1 ] || branch="${branch}-${GITHUB_RUN_ATTEMPT}"
           git init -q pub && cd pub
@@ -382,4 +399,4 @@ jobs:
           git add -A
           git commit -q -m "Screenshots from run ${GITHUB_RUN_ID} (source ${GITHUB_SHA::7})"
           git push -q origin "HEAD:refs/heads/$branch"
-          find . -name '*.jpg' -not -path './.git/*' | sort
+          find . -type f -not -path './.git/*' | sort
