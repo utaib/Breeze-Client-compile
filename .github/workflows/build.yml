@@ -1,0 +1,385 @@
+name: Breeze mod build and test
+
+# Build server for the Breeze Minecraft mod. The private repository
+# (utaib/Breeze-Client, Breeze-Mod-New/) is the source of truth; this copy
+# exists so Actions runs free on a public repository. Run by hand only:
+#   versions     comma-separated Minecraft versions (empty for all 34)
+#   screenshots  in-game screenshots on a branch ci/evidence-<run id>
+#   publish      if all 34 pass, the tested jars on a branch ci/jars-<run id>
+#
+# For every version project (versions/*/gradle.properties):
+#   build    the source ZIP for that version, extracted and built on its own
+#   release  that exact jar in a real Fabric install, driven with X11 input
+on:
+  workflow_dispatch:
+    inputs:
+      versions:
+        description: Comma-separated Minecraft versions (empty for all 34)
+        default: ''
+      screenshots:
+        description: Put the in-game screenshots on a branch ci/evidence-<run id>
+        type: boolean
+        default: true
+      publish:
+        description: If all 34 pass, put the jars in Breeze Jars/ on a branch ci/jars-<run id>
+        type: boolean
+        default: false
+      as_launcher:
+        description: Install Fabric Loader, Fabric API and MCEF as launcher 1.0.27 picks them, and load Breeze with -Dfabric.addMods
+        type: boolean
+        default: false
+      perf_mods:
+        description: 'Other mods to add from Modrinth with their dependencies (space separated slugs; "default" is sodium lithium ferrite-core). With modmenu among them, the Mod Menu checks run'
+        default: ''
+      duplicate:
+        description: 'A mod (slug) to install twice: the newest and the build before it. Fabric must refuse to start; the older copy is then moved out, as the launcher does, and the full test runs'
+        default: ''
+
+concurrency:
+  group: breeze-mod-new-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  plan:
+    name: Versions
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: plan
+        env:
+          ONLY: ${{ inputs.versions }}
+        run: |
+          m=$(scripts/ci/versions-matrix.sh "$ONLY")
+          echo "matrix=$m" >> "$GITHUB_OUTPUT"
+          echo "$m" | jq -r '.[] | "\(.mc)  java \(.java)  fabric-api \(.fabric_api)  mcef \(if .bundled == "true" then "inside the jar" elif .mcef == "" then "none" else .mcef end)"'
+
+  frontend:
+    name: Interface (types, unit, browser tests)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: scripts/check-version.sh
+      - run: npm ci
+        working-directory: frontend
+      - run: npm run build
+        working-directory: frontend
+      - run: npm test
+        working-directory: frontend
+      - name: Browsers (Playwright Chromium, and Chrome 116 as embedded by MCEF)
+        working-directory: frontend
+        run: |
+          npx playwright install --with-deps chromium
+          curl -sSfL -o "$RUNNER_TEMP/c116.zip" https://storage.googleapis.com/chrome-for-testing-public/116.0.5845.96/linux64/chrome-linux64.zip
+          unzip -q "$RUNNER_TEMP/c116.zip" -d "$RUNNER_TEMP/c116"
+          echo "CHROME116=$RUNNER_TEMP/c116/chrome-linux64/chrome" >> "$GITHUB_ENV"
+      - run: npx playwright test --reporter=line
+        working-directory: frontend
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-evidence
+          path: |
+            frontend/test-results/
+            frontend/playwright-report/
+          retention-days: 7
+
+  # One job per Minecraft version: build its release source ZIP (extracted
+  # under a path with spaces, so one build proves both the code and the ZIP),
+  # then run that exact jar in a real Fabric install: vanilla Minecraft,
+  # Fabric Loader and mods/ as a launcher sets them up (portablemc, with
+  # Mojang's own Java for that version), intermediary names as for a player.
+  version:
+    name: Minecraft ${{ matrix.v.mc }}
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        v: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    env:
+      MC: ${{ matrix.v.mc }}
+      LOADER: ${{ matrix.v.loader }}
+      FABRIC_API: ${{ matrix.v.fabric_api }}
+      MCEF: ${{ matrix.v.mcef }}
+      # The browser is inside Breeze's jar: the web menu must come up.
+      EXPECT_WEB: ${{ matrix.v.bundled }}
+      RESULT: ${{ github.workspace }}/release-test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Ask Google's Maven Central mirror first (Maven Central answers shared runners with 429)
+        run: |
+          mkdir -p ~/.gradle/init.d
+          cat > ~/.gradle/init.d/central-mirror.gradle <<'EOF'
+          allprojects {
+              repositories {
+                  maven { url 'https://maven-central.storage-download.googleapis.com/maven2/' }
+              }
+          }
+          settingsEvaluated { settings ->
+              settings.pluginManagement.repositories {
+                  maven { url 'https://maven-central.storage-download.googleapis.com/maven2/' }
+              }
+          }
+          EOF
+      - name: Package and extract the source ZIP
+        run: |
+          scripts/package-source.sh "$MC"
+          mkdir -p "$RUNNER_TEMP/zip build" "$RUNNER_TEMP/out"
+          cp "build/release/Breeze Mod for $MC.zip" "$RUNNER_TEMP/out/"
+          unzip -q "build/release/Breeze Mod for $MC.zip" -d "$RUNNER_TEMP/zip build"
+          echo "SRC=$RUNNER_TEMP/zip build/Breeze Mod for $MC" >> "$GITHUB_ENV"
+          unzip -p "build/release/Breeze Mod for $MC.zip" "Breeze Mod for $MC/SOURCE.txt"
+      - name: Build and test the extracted source
+        run: |
+          cd "$SRC/frontend" && npm ci --silent
+          cd "$SRC"
+          set -o pipefail
+          # A download refused with 429 is retried once after a pause; nothing
+          # else is retried.
+          if ! ./gradlew --no-daemon :common:test ":versions:$MC:build" 2>&1 | tee "$RUNNER_TEMP/gradle.log"; then
+            grep -q 'status code 429' "$RUNNER_TEMP/gradle.log" || exit 1
+            echo "== Maven Central refused a download (429); retrying once in 60 s"
+            sleep 60
+            ./gradlew --no-daemon :common:test ":versions:$MC:build" 2>&1 | tee "$RUNNER_TEMP/gradle.log"
+          fi
+      - name: Compile errors, one per line
+        if: failure()
+        run: |
+          grep -E '\.java:[0-9]+: error:' "$RUNNER_TEMP/gradle.log" \
+            | sed -E 's#^.*/src/main/java/##' | sort | uniq > "$RUNNER_TEMP/errors.txt" || true
+          echo "== $(wc -l < "$RUNNER_TEMP/errors.txt") compile errors in $(cut -d: -f1 "$RUNNER_TEMP/errors.txt" | sort -u | wc -l) files"
+          cat "$RUNNER_TEMP/errors.txt"
+          echo "== with context"
+          grep -E -A3 '\.java:[0-9]+: error:' "$RUNNER_TEMP/gradle.log" | sed -E 's#^.*/src/main/java/##' | head -600
+          echo "== other failures"
+          grep -E -A12 '^\* What went wrong' "$RUNNER_TEMP/gradle.log" | head -40
+      - name: Inspect the jar
+        run: |
+          jar="$SRC/versions/$MC/build/libs/$MC.jar"
+          ls -la "$SRC/versions/$MC/build/libs/"
+          unzip -l "$jar" | grep -E 'fabric.mod.json|assets/breeze/html/index.html|dev/breeze/bridge/Router.class|dev/breeze/web/BreezeWebScreen.class|dev/breeze/devtest/AutoTest.class'
+          unzip -p "$jar" fabric.mod.json
+          unzip -p "$jar" breeze.mixins.json | head -8
+          mkdir -p dist && cp "$jar" dist/ && cp "$jar" "$RUNNER_TEMP/out/"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: build-${{ matrix.v.mc }}
+          path: ${{ runner.temp }}/out/
+          retention-days: 7
+      # A hung package mirror once held a job here for an hour; ten minutes
+      # is several times what this normally takes.
+      - name: Display, input and capture tools
+        timeout-minutes: 10
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb openbox xdotool imagemagick ffmpeg mesa-utils x11-utils libnss3 libgbm1 libxkbcommon0 jq
+          pipx install "portablemc<5"
+      - name: Other mods (Fabric API and MCEF, as players download them)
+        env:
+          AS_LAUNCHER: ${{ inputs.as_launcher || false }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/mods"
+          if [ "$AS_LAUNCHER" = true ]; then
+            # What a player gets from the Breeze launcher, instead of the
+            # versions pinned in gradle.properties.
+            scripts/ci/launcher-deps.sh "$MC" "$RUNNER_TEMP/mods" >> "$GITHUB_ENV"
+            ls -la "$RUNNER_TEMP/mods" dist
+            exit 0
+          fi
+          enc=${FABRIC_API//+/%2B}
+          api="$RUNNER_TEMP/mods/fabric-api-$FABRIC_API.jar"
+          # The jar players install bundles every Fabric API module under
+          # META-INF/jars. Fabric's Maven has served a small stub without them
+          # for some versions (0.77.0+1.18.2: 4877 bytes, so no
+          # ClientTickEvents at runtime), so Modrinth comes first.
+          bundled() { unzip -l "$1" 2>/dev/null | grep -q 'META-INF/jars/.*\.jar'; }
+          for url in "https://api.modrinth.com/maven/maven/modrinth/fabric-api/$enc/fabric-api-$enc.jar" \
+                     "https://maven.fabricmc.net/net/fabricmc/fabric-api/fabric-api/$enc/fabric-api-$enc.jar"; do
+            if curl -sSfL -o "$api" "$url" && bundled "$api"; then echo "Fabric API from $url"; break; fi
+            echo "no bundled Fabric API at $url"; rm -f "$api"
+          done
+          [ -f "$api" ] || { echo "::error::no Fabric API $FABRIC_API jar with its modules"; exit 1; }
+          if [ -n "$MCEF" ]; then
+            curl -sSfL -o "$RUNNER_TEMP/mods/mcef-$MCEF.jar" "https://api.modrinth.com/maven/maven/modrinth/mcef/$MCEF/mcef-$MCEF.jar"
+          fi
+          ls -la "$RUNNER_TEMP/mods" dist
+      - name: Other mods
+        if: ${{ inputs.perf_mods != '' && inputs.perf_mods != null }}
+        env:
+          PERF_MODS: ${{ inputs.perf_mods }}
+        run: |
+          [ "$PERF_MODS" = default ] && PERF_MODS=
+          # One argument per mod: the list is split on purpose.
+          # shellcheck disable=SC2086
+          scripts/ci/perf-mods.sh "$MC" "$RUNNER_TEMP/mods" $PERF_MODS
+          case " $PERF_MODS " in *" modmenu "*) [ -n "$(ls "$RUNNER_TEMP"/mods/modmenu-*.jar 2>/dev/null)" ] && echo "EXPECT_MODMENU=1" >> "$GITHUB_ENV" ;; esac
+          ls -la "$RUNNER_TEMP/mods"
+      - name: A mod installed twice, which Fabric must refuse
+        if: ${{ inputs.duplicate != '' && inputs.duplicate != null }}
+        env:
+          DUPLICATE: ${{ inputs.duplicate }}
+        run: |
+          # shellcheck source=/dev/null
+          . scripts/ci/launcher-pick.sh
+          if [ "$DUPLICATE" != fabric-api ] && ! ls "$RUNNER_TEMP"/mods/"$DUPLICATE"*.jar > /dev/null 2>&1; then
+            launcher_fetch "$DUPLICATE" "$MC" "$RUNNER_TEMP/mods"
+          fi
+          older=$(launcher_older "$DUPLICATE" "$MC" "$RUNNER_TEMP/mods")
+          echo "DUPLICATE_FILE=$older" >> "$GITHUB_ENV"
+          ls -la "$RUNNER_TEMP/mods"
+          BREEZE_LAUNCH=prod BREEZE_MC="$MC" BREEZE_LOADER="${LAUNCHER_LOADER:-$LOADER}" \
+          BREEZE_ADDMODS="${LAUNCHER_LOADER:+1}" BREEZE_EXPECT_REFUSAL=1 \
+          BREEZE_GAME_DIR="$RUNNER_TEMP/refusal-game" \
+          BREEZE_JAR="dist/$MC.jar" BREEZE_MODS="$RUNNER_TEMP/mods" \
+            scripts/ci/run-minecraft-test.sh "$RESULT/refusal"
+          # What the launcher's "Remove duplicate" does: the older copy goes to
+          # the backups, nothing is deleted.
+          mkdir -p "$RUNNER_TEMP/mod-backups"
+          mv "$older" "$RUNNER_TEMP/mod-backups/"
+          echo "[driver] the older copy, $(basename "$older"), moved out of mods/ before the full test" | tee -a "$RESULT/refusal/driver.log"
+      - name: Launch in a real Fabric install, drive and check
+        run: |
+          BREEZE_LAUNCH=prod BREEZE_MC="$MC" BREEZE_LOADER="${LAUNCHER_LOADER:-$LOADER}" \
+          BREEZE_ADDMODS="${LAUNCHER_LOADER:+1}" \
+          BREEZE_JAR="dist/$MC.jar" BREEZE_MODS="$RUNNER_TEMP/mods" \
+            scripts/ci/run-minecraft-test.sh "$RESULT"
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "## Minecraft $MC"
+            echo '```'
+            cat "$RESULT/refusal/driver.log" 2>/dev/null
+            cat "$RESULT/driver.log" 2>/dev/null || echo 'not launched'
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: release-evidence-${{ matrix.v.mc }}
+          path: |
+            ${{ github.workspace }}/release-test/
+            !${{ github.workspace }}/release-test/game/
+          retention-days: 7
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tested-${{ matrix.v.mc }}
+          path: dist/${{ matrix.v.mc }}.jar
+          retention-days: 14
+      # The game's own screenshots, made small, for the evidence job below.
+      - name: Screenshots for review
+        if: always()
+        run: |
+          mkdir -p "$RUNNER_TEMP/shots/$MC"
+          # The game's own screenshots, and the driver's whole-window ones
+          # (the web and native Breeze menus, search, module switches).
+          for f in "$RESULT"/in-game-screenshots/*.png "$RESULT"/*.png "$RESULT"/refusal/*.png; do
+            [ -e "$f" ] || continue
+            convert "$f" -resize '960x>' -quality 82 "$RUNNER_TEMP/shots/$MC/$(basename "${f%.png}").jpg"
+          done
+          ls "$RUNNER_TEMP/shots/$MC"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: shots-${{ matrix.v.mc }}
+          path: ${{ runner.temp }}/shots/
+          retention-days: 7
+          if-no-files-found: ignore
+
+  # Run by hand with "publish", every version selected and every one passed:
+  # the jars go into Breeze Jars/ (with SHA256SUMS)
+  # on a new branch ci/jars-<run id> from the tested commit, for review and
+  # merging. Artifact storage cannot be reached from the cloud development
+  # environment; git can.
+  publish:
+    name: Tested jars to a branch
+    needs: [version, frontend]
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish && inputs.versions == '' && needs.version.result == 'success' && needs.frontend.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: tested-*
+          path: ${{ runner.temp }}/tested
+          merge-multiple: true
+      - name: Commit to ci/jars-${{ github.run_id }}
+        run: |
+          version=$(sed -n 's/^mod_version=//p' gradle.properties)
+          jars="Breeze Jars"
+          mkdir -p "$jars"
+          cp "$RUNNER_TEMP"/tested/*.jar "$jars/"
+          (cd "$jars" && sha256sum *.jar > SHA256SUMS)
+          git config user.name utaib
+          git config user.email utaib092008@gmail.com
+          git checkout -q -b "ci/jars-$GITHUB_RUN_ID"
+          git add -A "$jars"
+          git commit -q -m "Breeze Jars $version from run $GITHUB_RUN_ID"
+          git push -q origin "HEAD:refs/heads/ci/jars-$GITHUB_RUN_ID"
+          sha256sum "$jars"/*.jar
+
+  # Run by hand with "screenshots": every version's in-game screenshots on a
+  # branch of their own (ci/evidence-<run id>, or -<attempt> for a re-run),
+  # with no history, so they can be fetched with git and looked at. These
+  # branches are never merged and can be deleted at any time.
+  evidence:
+    name: Screenshots to a branch
+    needs: version
+    if: ${{ always() && !cancelled() && github.event_name == 'workflow_dispatch' && inputs.screenshots }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: shots-*
+          path: shots
+          merge-multiple: true
+      - name: Commit to ci/evidence-${{ github.run_id }}
+        env:
+          TOKEN: ${{ github.token }}
+        run: |
+          ls shots/*/*.jpg >/dev/null 2>&1 || { echo "no screenshots"; exit 0; }
+          branch="ci/evidence-${GITHUB_RUN_ID}"
+          [ "${GITHUB_RUN_ATTEMPT:-1}" = 1 ] || branch="${branch}-${GITHUB_RUN_ATTEMPT}"
+          git init -q pub && cd pub
+          git config user.name utaib
+          git config user.email utaib092008@gmail.com
+          git remote add origin "https://x-access-token:$TOKEN@github.com/${GITHUB_REPOSITORY}.git"
+          git checkout -q --orphan "$branch"
+          cp -r ../shots/. .
+          git add -A
+          git commit -q -m "Screenshots from run ${GITHUB_RUN_ID} (source ${GITHUB_SHA::7})"
+          git push -q origin "HEAD:refs/heads/$branch"
+          find . -name '*.jpg' -not -path './.git/*' | sort
