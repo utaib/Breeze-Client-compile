@@ -86,10 +86,10 @@ public final class ModuleIcons {
         put("Custom Advancements", "item/knowledge_book");
         put("Drop Prevention", "item/slime_ball");
         put("Fullbright", "block/glowstone");
-        put("Keybind Search", "item/tripwire_hook");
+        put("Keybind Search", "block/tripwire_hook");
         put("Nickname Hider", "block/tinted_glass", "block/black_stained_glass");
         put("Perspective", "item/ender_eye");
-        put("Reconnect", "item/chain");
+        put("Reconnect", "item/chain", "item/iron_chain");
         put("Scoreboard", "item/birch_sign");
         put("Screenshots", "item/painting");
         put("Shulker Tooltips", "item/shulker_shell");

@@ -110,7 +110,7 @@ public class ThemeSettingsScreen extends BreezeScreen {
         // top right where the footer still has room at 720p. Done there comes
         // back here.
         addRenderableWidget(dev.breeze.compat.Widgets.button(Component.literal("Minecraft settings"),
-                b -> dev.breeze.compat.ActiveScreen.set(this.minecraft, dev.breeze.compat.Screens.options(this, this.minecraft)),
+                b -> dev.breeze.compat.ActiveScreen.set(this.minecraft, ReturnTo.from(this, dev.breeze.compat.Screens.options(this, this.minecraft))),
                 panelX + panelW - 14 - 104, panelY + 8, 104, 16));
 
         int footY = panelY + panelH - 24;

@@ -17,9 +17,9 @@
 # (Fabric Loader version for prod), BREEZE_GAME_DIR (prod game folder),
 # BREEZE_ADDMODS=1 (prod: hand the jar to Fabric with -Dfabric.addMods from
 # outside mods/, as the Breeze launcher does, instead of copying it in),
-# BREEZE_EXPECT_REFUSAL=1 (prod: the mods folder holds a duplicate on purpose;
-# passes when Fabric refuses to start and says why, and keeps its words in
-# refusal-excerpt.txt for the launcher's own log reader to be tested on).
+# BREEZE_DUPLICATE_PROBE=<mod id> (prod: the mods folder holds that mod twice
+# on purpose; records what Fabric does with it, refuse to start or load one,
+# and which, in an OUTCOME line, with Fabric's words in refusal-excerpt.txt).
 set -u
 OUT="$(realpath -m "${1:-autotest}")"
 MODE="${BREEZE_LAUNCH:-dev}"
@@ -133,31 +133,43 @@ export BREEZE_GAME_PID=$GAME
 
 # Fabric's words when it refuses a mods folder (Loader 0.14 to 0.19).
 REFUSAL_RE='Incompatible mods? (found|set)|Mod resolution (failed|encountered)|[Dd]uplicate mod|more than once|FormattedException'
-if [ "${BREEZE_EXPECT_REFUSAL:-0}" = 1 ]; then
-  found=0
+if [ -n "${BREEZE_DUPLICATE_PROBE:-}" ]; then
+  probe="$BREEZE_DUPLICATE_PROBE"
+  outcome=unknown
   for _ in $(seq 1 300); do
-    if grep -qE "$REFUSAL_RE" "$RUN/logs/latest.log" "$OUT/launcher.log" 2>/dev/null; then found=1; break; fi
-    kill -0 "$GAME" 2>/dev/null || break
+    if grep -qE "$REFUSAL_RE" "$RUN/logs/latest.log" "$OUT/launcher.log" 2>/dev/null; then outcome=refused; break; fi
+    # Breeze writes this once every mod has initialised: the game started.
+    if [ -s "$RUN/.breeze/runtime-mods.json" ]; then outcome=started; break; fi
+    kill -0 "$GAME" 2>/dev/null || { outcome=exited; break; }
     sleep 1
   done
-  grep -qE "$REFUSAL_RE" "$RUN/logs/latest.log" "$OUT/launcher.log" 2>/dev/null && found=1
-  # Fabric's error window, if it opened one.
+  [ "$outcome" = exited ] && grep -qE "$REFUSAL_RE" "$RUN/logs/latest.log" "$OUT/launcher.log" 2>/dev/null && outcome=refused
   sleep 4
   import -window root "$OUT/refusal-window.png" 2>/dev/null || true
-  for f in "$RUN/logs/latest.log" "$OUT/launcher.log"; do
-    [ -f "$f" ] || continue
-    line=$(grep -nE "$REFUSAL_RE" "$f" | head -1 | cut -d: -f1)
-    [ -n "$line" ] && { echo "== $(basename "$f")"; sed -n "$((line > 3 ? line - 3 : 1)),$((line + 40))p" "$f"; }
-  done > "$OUT/refusal-excerpt.txt"
+  {
+    for f in "$RUN/logs/latest.log" "$OUT/launcher.log"; do
+      [ -f "$f" ] || continue
+      line=$(grep -nE "$REFUSAL_RE" "$f" | head -1 | cut -d: -f1)
+      [ -n "$line" ] && { echo "== $(basename "$f")"; sed -n "$((line > 3 ? line - 3 : 1)),$((line + 40))p" "$f"; }
+    done
+    echo "== Fabric on the duplicate ($probe)"
+    grep -iE "duplicate|multiple|more than once|$probe" "$RUN/logs/latest.log" 2>/dev/null | grep -v 'Loading Minecraft' | head -30
+  } > "$OUT/refusal-excerpt.txt"
+  cp "$RUN/.breeze/runtime-mods.json" "$OUT/runtime-mods.json" 2>/dev/null || true
   pkill -f 'net[.]fabricmc[.]loader[.]impl[.]launch[.]knot[.]KnotClient' || true
   kill "$GAME" 2>/dev/null || true
-  if [ "$found" = 1 ]; then
-    echo "[driver] PASS Fabric refused the mods folder with the duplicate: $(grep -hE "$REFUSAL_RE" "$OUT/refusal-excerpt.txt" | head -1)" | tee -a "$OUT/driver.log"
-    DRIVER_EXIT=0
-  else
-    echo "[driver] FAIL Fabric refused the mods folder with the duplicate (no refusal in the logs)" | tee -a "$OUT/driver.log"
-    DRIVER_EXIT=1
-  fi
+  case "$outcome" in
+    refused)
+      echo "[driver] OUTCOME $probe twice (${BREEZE_DUPLICATE_KIND:-}): Fabric refused to start: $(grep -hE 'Incompatible mods|Mod resolution|[Dd]uplicate|more than once' "$OUT/refusal-excerpt.txt" | head -1)" | tee -a "$OUT/driver.log"
+      DRIVER_EXIT=0 ;;
+    started)
+      loaded=$(jq -r --arg id "$probe" '[.mods[] | select(.id == $id) | .version] | join(", ")' "$OUT/runtime-mods.json" 2>/dev/null)
+      echo "[driver] OUTCOME $probe twice (${BREEZE_DUPLICATE_KIND:-}): the game started; Fabric loaded $probe ${loaded:-?}" | tee -a "$OUT/driver.log"
+      DRIVER_EXIT=0 ;;
+    *)
+      echo "[driver] FAIL $probe twice (${BREEZE_DUPLICATE_KIND:-}): neither a refusal nor a started game ($outcome)" | tee -a "$OUT/driver.log"
+      DRIVER_EXIT=1 ;;
+  esac
 else
   scripts/ci/drive-minecraft.sh "$OUT"
   DRIVER_EXIT=$?
@@ -165,7 +177,7 @@ fi
 
 # The driver's last step quits through the menu; give the game time to exit.
 for _ in $(seq 1 60); do kill -0 "$GAME" 2>/dev/null || break; sleep 1; done
-if [ "${BREEZE_EXPECT_REFUSAL:-0}" = 1 ]; then
+if [ -n "${BREEZE_DUPLICATE_PROBE:-}" ]; then
   :
 elif kill -0 "$GAME" 2>/dev/null; then
   echo "[run] game still running after Quit; stopping it" | tee -a "$OUT/driver.log"

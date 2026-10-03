@@ -134,7 +134,7 @@ final class Handlers {
             return Router.ok();
         });
         on(r, "game.options", p -> {
-            screen.afterAnswer(() -> dev.breeze.compat.ActiveScreen.set(mc, dev.breeze.compat.Screens.options(screen, mc)));
+            screen.afterAnswer(() -> dev.breeze.compat.ActiveScreen.set(mc, dev.breeze.menu.ReturnTo.from(screen, dev.breeze.compat.Screens.options(screen, mc))));
             return Router.ok();
         });
         on(r, "game.pauseMenu", p -> {

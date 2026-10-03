@@ -241,29 +241,40 @@ jobs:
           scripts/ci/perf-mods.sh "$MC" "$RUNNER_TEMP/mods" $PERF_MODS
           case " $PERF_MODS " in *" modmenu "*) [ -n "$(ls "$RUNNER_TEMP"/mods/modmenu-*.jar 2>/dev/null)" ] && echo "EXPECT_MODMENU=1" >> "$GITHUB_ENV" ;; esac
           ls -la "$RUNNER_TEMP/mods"
-      - name: A mod installed twice, which Fabric must refuse
+      - name: A mod installed twice, and what Fabric does with it
         if: ${{ inputs.duplicate != '' && inputs.duplicate != null }}
         env:
           DUPLICATE: ${{ inputs.duplicate }}
         run: |
           # shellcheck source=/dev/null
           . scripts/ci/launcher-pick.sh
-          if [ "$DUPLICATE" != fabric-api ] && ! ls "$RUNNER_TEMP"/mods/"$DUPLICATE"*.jar > /dev/null 2>&1; then
+          if ! ls "$RUNNER_TEMP"/mods/"$DUPLICATE"*.jar > /dev/null 2>&1; then
             launcher_fetch "$DUPLICATE" "$MC" "$RUNNER_TEMP/mods"
           fi
-          older=$(launcher_older "$DUPLICATE" "$MC" "$RUNNER_TEMP/mods")
-          echo "DUPLICATE_FILE=$older" >> "$GITHUB_ENV"
-          ls -la "$RUNNER_TEMP/mods"
-          BREEZE_LAUNCH=prod BREEZE_MC="$MC" BREEZE_LOADER="${LAUNCHER_LOADER:-$LOADER}" \
-          BREEZE_ADDMODS="${LAUNCHER_LOADER:+1}" BREEZE_EXPECT_REFUSAL=1 \
-          BREEZE_GAME_DIR="$RUNNER_TEMP/refusal-game" \
-          BREEZE_JAR="dist/$MC.jar" BREEZE_MODS="$RUNNER_TEMP/mods" \
-            scripts/ci/run-minecraft-test.sh "$RESULT/refusal"
-          # What the launcher's "Remove duplicate" does: the older copy goes to
-          # the backups, nothing is deleted.
-          mkdir -p "$RUNNER_TEMP/mod-backups"
-          mv "$older" "$RUNNER_TEMP/mod-backups/"
-          echo "[driver] the older copy, $(basename "$older"), moved out of mods/ before the full test" | tee -a "$RESULT/refusal/driver.log"
+          newest=$(find "$RUNNER_TEMP/mods" -maxdepth 1 -name "$DUPLICATE*.jar" | sort | head -1)
+          id=$(unzip -p "$newest" fabric.mod.json | jq -r .id)
+          probe() { # kind out-dir
+            BREEZE_LAUNCH=prod BREEZE_MC="$MC" BREEZE_LOADER="${LAUNCHER_LOADER:-$LOADER}" \
+            BREEZE_ADDMODS="${LAUNCHER_LOADER:+1}" BREEZE_DUPLICATE_PROBE="$id" BREEZE_DUPLICATE_KIND="$1" \
+            BREEZE_GAME_DIR="$RUNNER_TEMP/$2-game" \
+            BREEZE_JAR="dist/$MC.jar" BREEZE_MODS="$RUNNER_TEMP/mods" \
+              scripts/ci/run-minecraft-test.sh "$RESULT/$2"
+          }
+          status=0
+          # The same file twice, as a browser names a second download.
+          copy="${newest%.jar} (1).jar"
+          cp "$newest" "$copy"
+          probe "the same file twice" refusal-same || status=1
+          rm -f "$copy"
+          # The newest and the build before it.
+          if older=$(launcher_older "$DUPLICATE" "$MC" "$RUNNER_TEMP/mods"); then
+            probe "two versions" refusal-older || status=1
+            # What the launcher's "Remove duplicate" does: the older copy goes
+            # to the backups, nothing is deleted.
+            mkdir -p "$RUNNER_TEMP/mod-backups"
+            mv "$older" "$RUNNER_TEMP/mod-backups/"
+          fi
+          exit "$status"
       - name: Launch in a real Fabric install, drive and check
         run: |
           BREEZE_LAUNCH=prod BREEZE_MC="$MC" BREEZE_LOADER="${LAUNCHER_LOADER:-$LOADER}" \
@@ -276,12 +287,14 @@ jobs:
           {
             echo "## Minecraft $MC"
             echo '```'
-            cat "$RESULT/refusal/driver.log" 2>/dev/null
+            cat "$RESULT"/refusal-*/driver.log 2>/dev/null
             cat "$RESULT/driver.log" 2>/dev/null || echo 'not launched'
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
           # Failed checks as annotations, readable without the log.
-          cat "$RESULT/refusal/driver.log" "$RESULT/driver.log" 2>/dev/null | grep -F '[driver] FAIL' | head -30 \
+          # (Steps run with pipefail: a missing log or no failures must not fail this one.)
+          { cat "$RESULT"/refusal-*/driver.log "$RESULT/driver.log" 2>/dev/null || true; } \
+            | { grep -F -e '[driver] FAIL' -e '[run] game still running' -e '[driver] OUTCOME' || true; } | head -30 \
             | while IFS= read -r line; do echo "::error title=Minecraft $MC::${line#\[driver\] }"; done
       - uses: actions/upload-artifact@v4
         if: always()
@@ -304,16 +317,23 @@ jobs:
           mkdir -p "$RUNNER_TEMP/shots/$MC"
           # The game's own screenshots, and the driver's whole-window ones
           # (the web and native Breeze menus, search, module switches).
-          for f in "$RESULT"/in-game-screenshots/*.png "$RESULT"/*.png "$RESULT"/refusal/*.png; do
+          for f in "$RESULT"/in-game-screenshots/*.png "$RESULT"/*.png "$RESULT"/refusal-*/*.png; do
             [ -e "$f" ] || continue
-            convert "$f" -resize '960x>' -quality 82 "$RUNNER_TEMP/shots/$MC/$(basename "${f%.png}").jpg"
+            name=$(basename "${f%.png}")
+            case "$f" in */refusal-*/*) name="$(basename "$(dirname "$f")")-$name" ;; esac
+            convert "$f" -resize '960x>' -quality 82 "$RUNNER_TEMP/shots/$MC/$name.jpg"
           done
           # What the checks said, Fabric's refusal, what each jar declares
           # (metadata only) and Breeze's runtime report, beside the pictures.
           cp "$RESULT/driver.log" "$RUNNER_TEMP/shots/$MC/driver.txt" 2>/dev/null || true
-          cp "$RESULT/refusal/driver.log" "$RUNNER_TEMP/shots/$MC/refusal-driver.txt" 2>/dev/null || true
-          cp "$RESULT/refusal/refusal-excerpt.txt" "$RUNNER_TEMP/shots/$MC/" 2>/dev/null || true
-          cp "$RESULT/refusal/mods-summary.jsonl" "$RUNNER_TEMP/shots/$MC/refusal-mods-summary.jsonl" 2>/dev/null || true
+          for d in "$RESULT"/refusal-*; do
+            [ -d "$d" ] || continue
+            k=$(basename "$d")
+            cp "$d/driver.log" "$RUNNER_TEMP/shots/$MC/$k-driver.txt" 2>/dev/null || true
+            cp "$d/refusal-excerpt.txt" "$RUNNER_TEMP/shots/$MC/$k-excerpt.txt" 2>/dev/null || true
+            cp "$d/mods-summary.jsonl" "$RUNNER_TEMP/shots/$MC/$k-mods-summary.jsonl" 2>/dev/null || true
+            cp "$d/runtime-mods.json" "$RUNNER_TEMP/shots/$MC/$k-runtime-mods.json" 2>/dev/null || true
+          done
           cp "$RESULT/mods-summary.jsonl" "$RESULT/runtime-mods.json" "$RUNNER_TEMP/shots/$MC/" 2>/dev/null || true
           grep -hE '"event":"(integrations|integration-open)"' "$RESULT/breeze-autotest.log" > "$RUNNER_TEMP/shots/$MC/integrations.jsonl" 2>/dev/null || true
           grep -E '\.java:[0-9]+: error:' "$RUNNER_TEMP/gradle.log" > "$RUNNER_TEMP/shots/$MC/compile-errors.txt" 2>/dev/null || true
