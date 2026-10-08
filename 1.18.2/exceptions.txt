@@ -1,0 +1,42 @@
+60:com.mojang.authlib.exceptions.InvalidCredentialsException: Status: 401
+61:	at com.mojang.authlib.exceptions.MinecraftClientHttpException.toAuthenticationException(MinecraftClientHttpException.java:56) ~[authlib-3.3.39.jar:?]
+62-	at com.mojang.authlib.yggdrasil.YggdrasilUserApiService.fetchProperties(YggdrasilUserApiService.java:132) ~[authlib-3.3.39.jar:?]
+63-	at com.mojang.authlib.yggdrasil.YggdrasilUserApiService.<init>(YggdrasilUserApiService.java:44) ~[authlib-3.3.39.jar:?]
+64-	at com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService.createUserApiService(YggdrasilAuthenticationService.java:153) ~[authlib-3.3.39.jar:?]
+65-	at net.minecraft.class_310.method_31382(class_310.java:680) [client-intermediary.jar:?]
+66-	at net.minecraft.class_310.<init>(class_310.java:424) [client-intermediary.jar:?]
+67-	at net.minecraft.client.main.Main.main(Main.java:197) [client-intermediary.jar:?]
+68-	at net.fabricmc.loader.impl.game.minecraft.MinecraftGameProvider.launch(MinecraftGameProvider.java:517) [fabric-loader-0.19.5.jar:?]
+69-	at net.fabricmc.loader.impl.launch.knot.Knot.launch(Knot.java:72) [fabric-loader-0.19.5.jar:?]
+70-	at net.fabricmc.loader.impl.launch.knot.KnotClient.main(KnotClient.java:23) [fabric-loader-0.19.5.jar:?]
+71:Caused by: com.mojang.authlib.exceptions.MinecraftClientHttpException: Status: 401
+72-	at com.mojang.authlib.minecraft.client.MinecraftClient.readInputStream(MinecraftClient.java:78) ~[authlib-3.3.39.jar:?]
+73-	at com.mojang.authlib.minecraft.client.MinecraftClient.get(MinecraftClient.java:48) ~[authlib-3.3.39.jar:?]
+74-	at com.mojang.authlib.yggdrasil.YggdrasilUserApiService.fetchProperties(YggdrasilUserApiService.java:113) ~[authlib-3.3.39.jar:?]
+75-	... 8 more
+76-[17:16:12] [Render thread/INFO]: Setting user: BreezeDev
+77-[17:16:12] [Render thread/INFO]: [Breeze] Initializing on Minecraft 1.18.2
+78-[17:16:13] [Render thread/INFO]: [Breeze] Registered 81 modules
+79-[17:16:13] [Render thread/INFO]: [Breeze] No embedded browser exists for this Minecraft version; native screens are the interface
+80-[17:16:13] [Render thread/INFO]: [Breeze autotest] {"dir":"/home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test","event":"start","t":1791479773054}
+81-[17:16:13] [Render thread/INFO]: [Indigo] Registering Indigo renderer!
+82-[17:16:14] [Render thread/INFO]: Backend library: LWJGL version 3.2.2 build 10
+83-[17:16:16] [Render thread/INFO]: Narrator library successfully loaded
+--
+87:[17:16:17] [Realms Notification Availability checker #1/INFO]: Could not authorize you against Realms server: javax.ws.rs.BadRequestException: Invalid session
+88-[17:16:17] [Render thread/INFO]: [Breeze autotest] {"kind":"title","scale":3.0,"items":[{"name":"Singleplayer","type":"widget","x":639,"y":354,"active":true},{"name":"Multiplayer","type":"widget","x":639,"y":426,"active":true},{"name":"Minecraft Realms","type":"widget","x":639,"y":498,"active":true},{"name":"Language","type":"widget","x":297,"y":606,"active":true},{"name":"Options...","type":"widget","x":486,"y":606,"active":true},{"name":"Quit Game","type":"widget","x":792,"y":606,"active":true},{"name":"Accessibility","type":"widget","x":981,"y":606,"active":true},{"name":"Copyright Mojang AB. Do not distribute!","type":"widget","x":936,"y":705,"active":true}],"event":"targets","t":1791479777569}
+89-[17:16:17] [ForkJoinPool.commonPool-worker-1/WARN]: [Breeze] friends refresh failed: HTTP 404
+90-[17:16:21] [Render thread/ERROR]: Error starting SoundSystem. Turning off sounds & music
+91:java.lang.IllegalStateException: Failed to open OpenAL device
+92-	at net.minecraft.class_4225.method_38501(class_4225.java:264) ~[client-intermediary.jar:?]
+93-	at net.minecraft.class_4225.method_19661(class_4225.java:151) ~[client-intermediary.jar:?]
+94-	at net.minecraft.class_1140.method_4846(class_1140.java:112) ~[client-intermediary.jar:?]
+95-	at net.minecraft.class_1140.method_4837(class_1140.java:103) ~[client-intermediary.jar:?]
+96-	at net.minecraft.class_1144.method_18182(class_1144.java:116) ~[client-intermediary.jar:?]
+97-	at net.minecraft.class_1144.method_18788(class_1144.java:39) ~[client-intermediary.jar:?]
+98-	at net.minecraft.class_4080.method_18790(class_4080.java:13) ~[client-intermediary.jar:?]
+99-	at java.util.concurrent.CompletableFuture$UniAccept.tryFire(CompletableFuture.java:718) ~[?:?]
+100-	at java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:482) ~[?:?]
+101-	at net.minecraft.class_4014.method_18365(class_4014.java:69) ~[client-intermediary.jar:?]
+102-	at net.minecraft.class_1255.execute(class_1255.java:103) ~[client-intermediary.jar:?]
+103-	at net.minecraft.class_4014.method_18367(class_4014.java:68) ~[client-intermediary.jar:?]
