@@ -1,0 +1,83 @@
+[driver] waiting for the Breeze title menu to paint
+[driver] PASS Breeze title menu painted in a real Minecraft client
+[driver] no embedded browser here: testing the native menus
+[driver] window 6291463 at 1,60 size 1280x720, native menus
+[driver] screenshot 01-title-menu.png
+[driver] PASS Breeze's button is on Minecraft's title screen
+[driver] click '^breeze-button$' at 135 324
+[driver] PASS the Breeze button opened the native Breeze menu
+[driver] screenshot 02-breeze-menu.png
+[driver] click '^search$' at 978 81
+[driver] PASS typing reached the search field
+[driver] screenshot 03-search-typed.png
+[driver] click '^module-card-0$' at 534 201
+[driver] PASS a click on a module card switched the module
+[driver] screenshot 04-module-switched.png
+[driver] click '^module-card-0$' at 534 201
+[driver] PASS a second click switched it back
+[driver] PASS a right-click on a module card opened its settings
+[driver] screenshot 04b-module-settings.png
+[driver] PASS Escape went back from the module's settings to the Breeze menu
+[driver] click '^settings-icon$' at 258 654
+[driver] PASS the gear opened Breeze's settings
+[driver] screenshot 04c-breeze-settings.png
+[driver] click '^Minecraft settings$' at 963 72
+[driver] PASS Minecraft settings opened Minecraft's own options
+[driver] screenshot 04d-minecraft-settings.png
+[driver] PASS Escape went back from Minecraft's options to Breeze's settings
+[driver] PASS Escape went back from Breeze's settings to the Breeze menu
+[driver] PASS Escape closed the Breeze menu back to the title screen
+[driver] click '^singleplayer$' at 639 354
+[driver] PASS Singleplayer opened world selection or Create World
+[driver] screenshot 05-singleplayer.png
+[driver] PASS Escape returned to the title screen
+[driver] stress: {"cycles":"20","maxLiveAfterClose":"0","heapMb":"283","pass":"true","event":"stress-result","t":1791462827222}
+[driver] PASS 20 open and close cycles of the native menu
+[driver] screenshot 06-after-cycles.png
+[driver] integrations: {"integrations":[],"problems":[],"event":"integrations","t":1791462824088}
+[driver] PASS with no other mods, no integration entries are offered
+[driver] click 'Create New World' on create-world at 399 666
+[driver] click 'Create New World' on create-world at 399 666
+[driver] click 'Create New World' on create-world at 399 666
+[driver] PASS a new singleplayer world loaded with Breeze
+[driver] frame rate before the checks: {"avg":"9.3","min":"8","max":"11","readings":"10","mods":"49","event":"fps-sample","t":1791462874676}
+[driver] screenshot 07-in-world.png
+[driver] hud: {"FPS":"drawn 46x16 at 4,4","Coordinates":"drawn 134x16 at 4,24","Ping":"drawn 58x16 at 4,44","Direction":"drawn 110x16 at 4,64","Speed Meter":"drawn 92x16 at 4,84","Server Address":"drawn 124x16 at 4,104","Time":"drawn 88x16 at 4,124","Playtime":"drawn 112x16 at 4,144","Stopwatch":"drawn 118x16 at 4,164","CPS":"drawn 40x16 at 4,184","Saturation":"drawn 94x16 at 4,224","Totem Counter":"drawn 58x16 at 4,202","Item Counter":"drawn 46x16 at 46,4","TNT Timer":"drawn 58x16 at 46,182","Item Despawn Timer":"drawn 82x16 at 64,42","Attack Indicator":"drawn 76x16 at 94,4","Keystrokes":"drawn 58x58 at 124,122","Mouse Strokes":"drawn 46x46 at 130,60","Combo Counter":"drawn 52x16 at 64,200","System Resources":"drawn 106x25 at 148,22","Potion Effects":"drawn 82x16 at 172,4","Armor Status":"drawn 24x10 at 94,122","Recording Indicator":"drawn 34x16 at 387,6","Reach Display":"drawn 52x16 at 178,50","Pack Display":"drawn 104x16 at 178,68","Item Info":"drawn 46x16 at 178,86","Held Item":"drawn 46x16 at 178,104","Death Info":"drawn 70x16 at 184,122","Waypoint":"drawn 136x16 at 184,140","Inventory HUD":"drawn 162x72 at 261,4","Armor Bar":"drawn 70x16 at 184,158","Hearts":"drawn 58x16 at 226,86","Block Indicator":"drawn 52x16 at 226,104","Horse Stats":"drawn 30x16 at 98,82","TPS":"drawn 58x16 at 232,50","Day Counter":"drawn 40x16 at 256,4","count":"36","onHotbar":"","pass":"true","event":"hud-check","t":1791462879789}
+[driver] PASS every HUD module drew in the world without an error, none on the hotbar
+[driver] layout: {"moved":"36","wrong":"","pass":"true","event":"hud-layout","t":1791462893030}
+[driver] PASS every HUD module was moved, saved, read back and drawn where it was put
+[driver] modules: {"modules":"81","settings":"512","threw":"","openedScreens":"Keybind Search","pass":"true","event":"module-sweep","t":1791463105345}
+[driver] PASS every module was switched on and every setting changed in the world, none threw
+[driver] settings saved: {"checked":"37","kept":"37","lost":"","pass":"true","event":"settings-persist","t":1791463105352}
+[driver] PASS changed settings were saved and read back
+[driver] tag icon: {"width":"9","pass":"true","event":"tag-icon","t":1791462879789}
+[driver] PASS the Wind Charge tag icon is in the game's font
+[driver] cape: {"breeze":"breeze:server_capes/c0ffee00-0000-4000-8000-00000000cafe","vanilla":"breeze:server_capes/c0ffee00-0000-4000-8000-00000000cafe","layerCalls":"46","source":"account","stub":"true","pass":"true","event":"cape-check","t":1791462879790}
+[driver] PASS the Breeze cape is the cape Minecraft draws, and the cape layer ran
+[driver] PASS the account's equipped cape is drawn though the cosmetic state could not read the account
+[driver] personal cape: {"breeze":"breeze:remote_capes/7e57b2ee00004000800000000000b2ee","vanilla":"breeze:remote_capes/7e57b2ee00004000800000000000b2ee","source":"personal","seconds":"4","pass":"true","event":"cape-personal-check","t":1791462889949}
+[driver] PASS a personal cape replaced the catalogue cape and is the cape Minecraft draws
+[driver] cosmetic: {"autotest-hat":"45","autotest-pet":"45","autotest-trail":"45","draws":"135","failures":"0","pass":"true","event":"cosmetic-check","t":1791462879790}
+[driver] PASS 3D cosmetics (GLBs built by the test: a hat, a flying pet, a trail) were drawn, none threw
+[driver] armor: {"drawn":"head 75% #ff7eff00 | chest 10% #ffff3300 | legs 40% #ffffcc00 | feet 100% #ff00ff00 | mainhand 50% #fffeff00 | offhand 90% #ff32ff00","pass":"true","event":"armor-check","t":1791462883850}
+[driver] PASS the Armor HUD drew four armour pieces, the sword and the shield, the worn chestplate in red
+[driver] module icons: {"modules":"81","found":"81","missing":"","fallbacks":{"Saturation":"textures/gui/icons.png","Hearts":"textures/gui/icons.png"},"pass":"true","event":"module-icons","t":1791462794354}
+[driver] PASS every module found its Minecraft icon in this version's textures
+[driver] PASS the HUD editor shows the FPS element
+[driver] drag from 81 36 by 250 150
+[driver] drag from 99 633 by 250 -150
+[driver] drag from 1026 120 by -300 150
+[driver] screenshot 08-hud-editor-dragged.png
+[driver] moved: {"FPS":"4,4 -> 91,56 saved LEFT,TOP,91,56","Keystrokes":"4,182 -> 85,134 saved LEFT,BOTTOM,85,48","Inventory HUD":"261,4 -> 161,56 saved CENTER,MIDDLE,29,-28","pass":"true","event":"hud-moved","t":1791463115962}
+[driver] PASS drags in the HUD editor moved FPS, Keystrokes and the Inventory HUD, and Done saved them
+[driver] screenshot 09-wardrobe-clicked.png
+[driver] wardrobe: {"status":"READY","listed":"true","equipped":"true","worn":"true","draws":"1","pass":"true","event":"wardrobe-check","t":1791463121021}
+[driver] PASS a click in the Wardrobe equipped a 3D cosmetic through the API, and it was drawn on the player
+[driver] real cosmetics: {"pet Glare":"drawn 85x","pet Glare (1baa0c41)":"drawn 87x","pet Glare 23":"drawn 129x","failures":"0","pass":"true","event":"real-cosmetics","t":1791463148205}
+[driver] PASS real cosmetics from the Breeze catalogue were read and drawn on the player
+[driver] screenshot pause-menu.png
+[driver] PASS Save and Quit returned to the title screen
+[driver] click '^quit game$' at 792 606
+[driver] PASS every Breeze mixin applies on this Minecraft version
+[driver] done: 0 failed check(s)
+[run] game exited on its own after Quit
