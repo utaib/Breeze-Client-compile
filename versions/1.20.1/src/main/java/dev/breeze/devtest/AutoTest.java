@@ -795,18 +795,18 @@ public final class AutoTest {
         List<String> others = new ArrayList<>();
         int checked = 0;
         try {
-            for (org.spongepowered.asm.mixin.transformer.Config c : org.spongepowered.asm.mixin.Mixins.getConfigs()) {
-                if (!c.getName().startsWith("breeze")) continue;
-                for (String target : c.getConfig().getTargets()) {
-                    checked++;
-                    try {
-                        Class.forName(target.replace('/', '.'), true, AutoTest.class.getClassLoader());
-                    } catch (Throwable t) {
-                        Throwable root = t;
-                        while (root.getCause() != null && root.getCause() != root) root = root.getCause();
-                        String text = target + ": " + root;
-                        (text.contains("breeze") ? breeze : others).add(text);
-                    }
+            // Breeze's own config, read from its jar. Mixins.getConfigs() only
+            // lists configs Mixin has not consumed yet, which after start is
+            // none, so the audit used to check nothing.
+            for (String target : breezeMixinTargets()) {
+                checked++;
+                try {
+                    Class.forName(target.replace('/', '.'), true, AutoTest.class.getClassLoader());
+                } catch (Throwable t) {
+                    Throwable root = t;
+                    while (root.getCause() != null && root.getCause() != root) root = root.getCause();
+                    String text = target + ": " + root;
+                    (text.contains("breeze") ? breeze : others).add(text);
                 }
             }
         } catch (Throwable t) {
@@ -821,6 +821,46 @@ public final class AutoTest {
         // Recorded, not fatal here, so the rest of the run still shows what
         // else works; the driver counts it as a failed check.
         write("mixin-audit", o);
+    }
+
+    /**
+     * The classes Breeze's mixins target: breeze.mixins.json names the mixin
+     * classes, and each one's @Mixin annotation (read from its bytes with
+     * ASM, never loaded) names its targets, in the names this game runs with.
+     */
+    private static java.util.Set<String> breezeMixinTargets() throws java.io.IOException {
+        ClassLoader loader = AutoTest.class.getClassLoader();
+        JsonObject config;
+        try (java.io.InputStream in = loader.getResourceAsStream("breeze.mixins.json")) {
+            if (in == null) throw new java.io.FileNotFoundException("breeze.mixins.json");
+            config = com.google.gson.JsonParser.parseReader(new java.io.InputStreamReader(in, java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject();
+        }
+        String pkg = config.get("package").getAsString();
+        java.util.Set<String> targets = new java.util.TreeSet<>();
+        for (String side : new String[] {"mixins", "client"}) {
+            if (!config.has(side)) continue;
+            for (com.google.gson.JsonElement name : config.getAsJsonArray(side)) {
+                String path = (pkg + "." + name.getAsString()).replace('.', '/') + ".class";
+                try (java.io.InputStream in = loader.getResourceAsStream(path)) {
+                    if (in == null) throw new java.io.FileNotFoundException(path);
+                    org.objectweb.asm.tree.ClassNode node = new org.objectweb.asm.tree.ClassNode();
+                    new org.objectweb.asm.ClassReader(in).accept(node, org.objectweb.asm.ClassReader.SKIP_CODE);
+                    for (org.objectweb.asm.tree.AnnotationNode a : node.invisibleAnnotations == null
+                            ? List.<org.objectweb.asm.tree.AnnotationNode>of() : node.invisibleAnnotations) {
+                        if (!"Lorg/spongepowered/asm/mixin/Mixin;".equals(a.desc) || a.values == null) continue;
+                        for (int i = 0; i + 1 < a.values.size(); i += 2) {
+                            Object key = a.values.get(i);
+                            if (!(a.values.get(i + 1) instanceof List<?> list)) continue;
+                            for (Object v : list) {
+                                if ("value".equals(key) && v instanceof org.objectweb.asm.Type t) targets.add(t.getClassName());
+                                if ("targets".equals(key) && v instanceof String n) targets.add(n.replace('/', '.'));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return targets;
     }
 
     /** Logs every module that changes state, whoever changed it. */

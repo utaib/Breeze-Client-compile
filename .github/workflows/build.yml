@@ -296,7 +296,11 @@ jobs:
           # (Steps run with pipefail: a missing log or no failures must not fail this one.)
           { cat "$RESULT"/refusal-*/driver.log "$RESULT/driver.log" 2>/dev/null || true; } \
             | { grep -F -e '[driver] FAIL' -e '[run] game still running' -e '[driver] OUTCOME' || true; } | head -30 \
-            | while IFS= read -r line; do echo "::error title=Minecraft $MC::${line#\[driver\] }"; done
+            | while IFS= read -r line; do
+                # A duplicate probe's outcome is a finding, not a failure.
+                case "$line" in *OUTCOME*) level=notice ;; *) level=error ;; esac
+                echo "::$level title=Minecraft $MC::${line#\[driver\] }"
+              done
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -338,6 +342,8 @@ jobs:
           done
           for c in "$RESULT"/crash-*.txt; do [ -f "$c" ] && cp "$c" "$RUNNER_TEMP/shots/$MC/"; done
           tail -150 "$RESULT/minecraft-latest.log" > "$RUNNER_TEMP/shots/$MC/latest-log-tail.txt" 2>/dev/null || true
+          # Mod Menu's own word on badges it does not know, and who declared them.
+          grep -iE 'badge' "$RESULT/minecraft-latest.log" > "$RUNNER_TEMP/shots/$MC/modmenu-badges.txt" 2>/dev/null || true
           cp "$RESULT/mods-summary.jsonl" "$RESULT/runtime-mods.json" "$RUNNER_TEMP/shots/$MC/" 2>/dev/null || true
           grep -hE '"event":"(integrations|integration-open)"' "$RESULT/breeze-autotest.log" > "$RUNNER_TEMP/shots/$MC/integrations.jsonl" 2>/dev/null || true
           grep -E '\.java:[0-9]+: error:' "$RUNNER_TEMP/gradle.log" > "$RUNNER_TEMP/shots/$MC/compile-errors.txt" 2>/dev/null || true

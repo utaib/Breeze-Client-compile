@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # One JSON line per jar in <mods dir>: file, sha1, and what its
 # fabric.mod.json declares (id, version, provides, depends, breaks,
-# conflicts) plus the same for the jars nested in META-INF/jars. Metadata
+# conflicts, Mod Menu's custom block with its badges) plus id, version and
+# Mod Menu block for the jars nested in META-INF/jars. Metadata
 # only, never code: the evidence the launcher's own mods-folder checks
 # (duplicates, missing dependencies) are tested against.
 #
@@ -10,7 +11,7 @@ set -euo pipefail
 dir="$1"; shift
 meta() { # jar -> fabric.mod.json fields, or null
   unzip -p "$1" fabric.mod.json 2>/dev/null | tr -d '\r' | sed 's#^\s*//.*##' \
-    | jq -c '{id, version, provides: (.provides // []), depends: (.depends // {}), breaks: (.breaks // {}), conflicts: (.conflicts // {})}' 2>/dev/null || echo null
+    | jq -c '{id, version, provides: (.provides // []), depends: (.depends // {}), breaks: (.breaks // {}), conflicts: (.conflicts // {}), modmenu: (.custom.modmenu // null)}' 2>/dev/null || echo null
 }
 nested() { # jar -> [{id, version}] of META-INF/jars (one level)
   local tmp out="[]" j m
@@ -18,7 +19,7 @@ nested() { # jar -> [{id, version}] of META-INF/jars (one level)
   unzip -qq -o "$1" 'META-INF/jars/*.jar' -d "$tmp" 2>/dev/null || true
   for j in "$tmp"/META-INF/jars/*.jar; do
     [ -e "$j" ] || continue
-    m=$(unzip -p "$j" fabric.mod.json 2>/dev/null | tr -d '\r' | jq -c '{id, version}' 2>/dev/null || echo null)
+    m=$(unzip -p "$j" fabric.mod.json 2>/dev/null | tr -d '\r' | jq -c '{id, version, modmenu: (.custom.modmenu // null)}' 2>/dev/null || echo null)
     [ "$m" = null ] || out=$(jq -c --argjson m "$m" '. + [$m]' <<< "$out")
   done
   rm -rf "$tmp"
