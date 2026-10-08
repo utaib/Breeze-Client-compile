@@ -140,6 +140,12 @@ case "$icon" in
   *'"pass":"true"'*) pass "the Wind Charge tag icon is in the game's font" ;;
   *) fail "the Wind Charge tag icon is missing from the game's font (tags would show a box)" ;;
 esac
+font=$(grep '"event":"font-check"' "$LOG" | tail -1)
+say "font: $font"
+case "$font" in
+  *'"pass":"true"'*) pass "Minecraft's own text draws (i is narrower than W): Breeze's font files did not replace the game's font" ;;
+  *) fail "Minecraft's text draws as empty boxes: a font file replaced the game's own font" ;;
+esac
 cape=$(grep '"event":"cape-check"' "$LOG" | tail -1)
 say "cape: $cape"
 case "$cape" in

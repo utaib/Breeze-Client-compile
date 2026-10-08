@@ -61,6 +61,17 @@ settings one click from Breeze's, and other mods in Breeze's menus.
   opens Minecraft's own options; Done comes back to Breeze.
 
 ### Fixed
+- **Every text in Minecraft 1.17 drew as empty boxes** (2.10.0 to 2.11.0,
+  1.17 only), Minecraft's own menus and chat included. The Wind Charge tag
+  glyph is added through `minecraft:font/default.json` and `uniform.json`;
+  with the Fabric API that exists for 1.17 (0.36.0, which serves every mod's
+  resources as one pack) that file took the place of Minecraft's font
+  instead of adding to it, silently. 1.17.1 and later add to it as they
+  should (checked in screenshots of 1.17.1, 1.18, 1.18.2, 1.19, 1.19.2 to
+  1.19.4, 1.20). The 1.17 jar no longer carries those files, and its tag is
+  a star from Minecraft's own font. The self-test now checks that "i" draws
+  narrower than "W" on every version (`font-check`); the old tag check
+  passed on 1.17 because the Wind Charge glyph itself was there.
 - **One failed open of the web menu switched it off until restart.** When
   the embedded browser could not be created, or its page origin or bridge
   could not be set up, the title screen became Minecraft's for the whole

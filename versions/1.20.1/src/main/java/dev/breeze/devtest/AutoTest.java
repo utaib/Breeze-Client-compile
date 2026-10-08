@@ -453,7 +453,13 @@ public final class AutoTest {
                 // map to an 8 pixel picture, so it is 9 wide with its spacing.
                 // Without the font it would be the narrower missing-glyph box.
                 int iconW = mc.font.width(dev.breeze.BreezeTag.ICON);
-                log("tag-icon", "width", String.valueOf(iconW), "pass", String.valueOf(iconW == 9));
+                int wantW = dev.breeze.compat.TagGlyph.WIDTH;
+                log("tag-icon", "width", String.valueOf(iconW), "pass", String.valueOf(wantW < 0 ? iconW > 0 : iconW == wantW));
+                // Minecraft's own text must still draw: with every glyph
+                // missing, each character is the same box and "i" is as wide
+                // as "W" (1.17 from 2.10.0 until 2.12.0).
+                int narrow = mc.font.width("i"), wide = mc.font.width("W");
+                log("font-check", "i", String.valueOf(narrow), "W", String.valueOf(wide), "pass", String.valueOf(narrow > 0 && narrow < wide));
 
                 String breeze = String.valueOf(dev.breeze.cape.RemoteCapes.capeFor(mc.player.getUUID()));
                 String vanilla = String.valueOf(dev.breeze.compat.Capes.vanillaCape(mc.player));

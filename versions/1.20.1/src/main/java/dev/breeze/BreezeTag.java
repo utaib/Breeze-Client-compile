@@ -57,8 +57,8 @@ public final class BreezeTag {
     private static final Map<String, Entry> BY_NAME = new ConcurrentHashMap<>();
     private static final Map<String, UUID> NAME_TO_UUID = new ConcurrentHashMap<>();
 
-    /** The Wind Charge icon: a private-use character the mod's font draws as a picture. */
-    public static final String ICON = "\uEB2E";
+    /** The Wind Charge icon: a private-use character the mod's font draws as a picture (see compat/TagGlyph). */
+    public static final String ICON = dev.breeze.compat.TagGlyph.ICON;
 
     private static String text = "[Breeze]";
     private static int color = 0xFF55FFFF;
