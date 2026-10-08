@@ -361,6 +361,9 @@ jobs:
           grep -iE 'badge' "$RESULT/minecraft-latest.log" > "$RUNNER_TEMP/shots/$MC/modmenu-badges.txt" 2>/dev/null || true
           # Font loading (Breeze adds a glyph to Minecraft's default font).
           grep -iE 'font|glyph|provider' "$RESULT/minecraft-latest.log" | head -80 > "$RUNNER_TEMP/shots/$MC/fonts.txt" 2>/dev/null || true
+          # Start-up, where resources and fonts load, and every exception with its first lines.
+          head -300 "$RESULT/minecraft-latest.log" > "$RUNNER_TEMP/shots/$MC/startup-log.txt" 2>/dev/null || true
+          grep -n -A12 -E 'Exception|Error:' "$RESULT/minecraft-latest.log" | head -200 > "$RUNNER_TEMP/shots/$MC/exceptions.txt" 2>/dev/null || true
           cp "$RESULT/mods-summary.jsonl" "$RESULT/runtime-mods.json" "$RUNNER_TEMP/shots/$MC/" 2>/dev/null || true
           grep -hE '"event":"(integrations|integration-open)"' "$RESULT/breeze-autotest.log" > "$RUNNER_TEMP/shots/$MC/integrations.jsonl" 2>/dev/null || true
           grep -E '\.java:[0-9]+: error:' "$RUNNER_TEMP/gradle.log" > "$RUNNER_TEMP/shots/$MC/compile-errors.txt" 2>/dev/null || true
