@@ -91,6 +91,9 @@ if [ "$MODE" = prod ]; then
   version="fabric:$MC${BREEZE_LOADER:+:$BREEZE_LOADER}"
   jvm="-Xmx2G -Dbreeze.autotest=$OUT -Dbreeze.autotest.menuTimeoutSeconds=900"
   [ -n "${MCEF_LIBRARIES:-}" ] && jvm="$jvm -Dmcef.libraries.path=$MCEF_LIBRARIES"
+  # The first N opens of the web menu fail on purpose: it must come back on
+  # its own (drive-minecraft.sh checks the log).
+  [ -n "${BREEZE_FAIL_WEB_OPENS:-}" ] && jvm="$jvm -Dbreeze.autotest.failWebOpens=$BREEZE_FAIL_WEB_OPENS"
   if [ "${BREEZE_ADDMODS:-}" = 1 ]; then
     jvm="$jvm -Dfabric.addMods=$RUN/breeze-runtime/$(basename "$BREEZE_JAR")"
     echo "[run] Breeze handed over with -Dfabric.addMods, as the launcher does" | tee -a "$OUT/driver.log"
@@ -179,7 +182,7 @@ if [ -n "${BREEZE_DUPLICATE_PROBE:-}" ]; then
       DRIVER_EXIT=1 ;;
   esac
 else
-  scripts/ci/drive-minecraft.sh "$OUT"
+  BREEZE_GAME_LOG="$(realpath -m "$RUN/logs/latest.log")" scripts/ci/drive-minecraft.sh "$OUT"
   DRIVER_EXIT=$?
 fi
 

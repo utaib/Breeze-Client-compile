@@ -76,6 +76,20 @@ if ! wait_ready 1200; then
 fi
 pass "Breeze title menu painted in a real Minecraft client"
 
+# Forced failed opens (BREEZE_FAIL_WEB_OPENS): each must be logged with its
+# reason, and the web menu must have come back on its own after them.
+if [ -n "${BREEZE_FAIL_WEB_OPENS:-}" ] && ! grep '"event":"READY_FOR_INPUT"' "$LOG" | tail -1 | grep -q '"mode":"native"'; then
+  game_log="${BREEZE_GAME_LOG:-$OUT/minecraft-latest.log}"
+  failed=$(grep -c 'web menu could not open (self-test: forced failure' "$game_log" 2>/dev/null || true)
+  retried=$(grep -c 'trying the web menu again' "$game_log" 2>/dev/null || true)
+  grep -E 'web menu could not open|trying the web menu again' "$game_log" 2>/dev/null | tee -a "$DRIVER"
+  if [ "${failed:-0}" -eq "$BREEZE_FAIL_WEB_OPENS" ] && [ "${retried:-0}" -ge "$BREEZE_FAIL_WEB_OPENS" ]; then
+    pass "the web menu came back by itself after $BREEZE_FAIL_WEB_OPENS failed opens, each logged with its reason"
+  else
+    fail "after $BREEZE_FAIL_WEB_OPENS forced failed opens: $failed logged, $retried retries"
+  fi
+fi
+
 # No embedded browser on this Minecraft version: the native menus are the
 # interface, and drive-native.sh tests those.
 if grep '"event":"READY_FOR_INPUT"' "$LOG" | tail -1 | grep -q '"mode":"native"'; then

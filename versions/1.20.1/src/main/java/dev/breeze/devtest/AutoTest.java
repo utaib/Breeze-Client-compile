@@ -315,6 +315,22 @@ public final class AutoTest {
     }
 
     /**
+     * A random seed can spawn the test player under water, and drowning hurts
+     * on Peaceful too: 1.19.1 drowned during the module sweep in run
+     * 37772890501 (its screenshot shows seaweed and 14/20 hearts five seconds
+     * in). Test only: while it is under water, the server keeps its air full.
+     */
+    private static void keepAir(Minecraft mc) {
+        net.minecraft.client.server.IntegratedServer server = mc.getSingleplayerServer();
+        if (server == null || mc.player == null || !mc.player.isUnderWater()) return;
+        java.util.UUID id = mc.player.getUUID();
+        server.execute(() -> {
+            net.minecraft.server.level.ServerPlayer sp = server.getPlayerList().getPlayer(id);
+            if (sp != null) sp.setAirSupply(sp.getMaxAirSupply());
+        });
+    }
+
+    /**
      * The driver writes world-please once the menu checks are done: this opens
      * Singleplayer (the driver creates the world), and once the player is in
      * it switches on HUD elements and the Custom Cape with a test image, looks
@@ -328,8 +344,10 @@ public final class AutoTest {
         if (!deathLogged && world != World.IDLE && world != World.OPENED && world != World.DONE
                 && mc.player != null && mc.player.getHealth() <= 0) {
             deathLogged = true;
-            log("player-died", "during", world.name());
+            log("player-died", "during", world.name(), "underWater", String.valueOf(mc.player.isUnderWater()),
+                    "air", String.valueOf(mc.player.getAirSupply()));
         }
+        if (world != World.IDLE && world != World.OPENED && world != World.DONE) keepAir(mc);
         switch (world) {
             case IDLE -> {
                 if (!Files.exists(dir.resolve("world-please"))) return;
@@ -833,7 +851,8 @@ public final class AutoTest {
         JsonObject config;
         try (java.io.InputStream in = loader.getResourceAsStream("breeze.mixins.json")) {
             if (in == null) throw new java.io.FileNotFoundException("breeze.mixins.json");
-            config = com.google.gson.JsonParser.parseReader(new java.io.InputStreamReader(in, java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject();
+            // Gson.fromJson: JsonParser.parseReader is missing from 1.17's Gson.
+            config = new com.google.gson.Gson().fromJson(new java.io.InputStreamReader(in, java.nio.charset.StandardCharsets.UTF_8), JsonObject.class);
         }
         String pkg = config.get("package").getAsString();
         java.util.Set<String> targets = new java.util.TreeSet<>();

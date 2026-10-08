@@ -66,9 +66,10 @@ public final class BreezeWebScreen extends BreezeScreen {
         if (browser == null || browser.isClosed()) {
             browser = BreezeBrowser.open(Handlers.build(this), width, height);
             if (browser == null) {
-                fallBack("the embedded browser is not available");
+                fallBack(UiState.takeOpenProblem("the embedded browser is not available"));
                 return;
             }
+            if (!ingame) UiState.titleOpened();
         } else {
             browser.resize(width, height);
         }
@@ -83,12 +84,22 @@ public final class BreezeWebScreen extends BreezeScreen {
      * setScreen halfway through the one that is showing this screen.
      */
     private void fallBack(String why) {
-        BreezeClient.LOGGER.warn("[Breeze] web menu unavailable ({}); using {}", why, ingame ? "the native menu" : "Minecraft's title screen");
         Minecraft mc = Minecraft.getInstance();
         if (ingame) {
+            BreezeClient.LOGGER.warn("[Breeze] web menu unavailable ({}); using the native menu", why);
             afterAnswer(() -> dev.breeze.compat.ActiveScreen.set(mc, new BreezeMenuScreen()));
         } else {
-            UiState.useVanillaTitle(true);
+            // Minecraft's title screen for now; WebInit.tick tries the web menu
+            // again shortly, and only after MAX_FAILED_OPENS failures in a row
+            // does the title stay Minecraft's for the session.
+            int attempt = UiState.titleOpenFailed();
+            if (UiState.gaveUp()) {
+                BreezeClient.LOGGER.warn("[Breeze] web menu could not open ({}), attempt {} of {}; Minecraft's title screen stays for this session",
+                        why, attempt, UiState.MAX_FAILED_OPENS);
+            } else {
+                BreezeClient.LOGGER.warn("[Breeze] web menu could not open ({}), attempt {} of {}; showing Minecraft's title screen and trying again in 3 s",
+                        why, attempt, UiState.MAX_FAILED_OPENS);
+            }
             afterAnswer(() -> dev.breeze.compat.ActiveScreen.set(mc, new TitleScreen()));
         }
     }

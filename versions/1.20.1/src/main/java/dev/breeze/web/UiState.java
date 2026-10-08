@@ -91,9 +91,55 @@ public final class UiState {
         vanillaTitleThisSession = vanilla;
     }
 
+    // ── failed opens of the title menu ───────────────────────────────────────
+    //
+    // A failed open shows Minecraft's title screen and the web menu is tried
+    // again a few seconds later (WebInit.tick), up to MAX_FAILED_OPENS times a
+    // session. One failure used to switch the web menu off until restart.
+
+    static final int MAX_FAILED_OPENS = 3;
+    private static final long RETRY_AFTER_MS = 3_000;
+    private static volatile int failedOpens;
+    private static volatile long lastFailedOpen;
+    private static volatile String openProblem;
+
+    /** Why the last browser open failed, set where it failed (BreezeBrowser.open). */
+    static void openProblem(String why) {
+        openProblem = why;
+    }
+
+    static String takeOpenProblem(String otherwise) {
+        String why = openProblem;
+        openProblem = null;
+        return why != null ? why : otherwise;
+    }
+
+    /** Counts a failed title-menu open; returns which attempt it was. */
+    static int titleOpenFailed() {
+        lastFailedOpen = System.currentTimeMillis();
+        return ++failedOpens;
+    }
+
+    static void titleOpened() {
+        failedOpens = 0;
+    }
+
+    static boolean gaveUp() {
+        return failedOpens >= MAX_FAILED_OPENS;
+    }
+
+    private static boolean coolingDown() {
+        return failedOpens > 0 && System.currentTimeMillis() - lastFailedOpen < RETRY_AFTER_MS;
+    }
+
+    /** A failed open is waiting for its retry. */
+    static boolean retryDue() {
+        return failedOpens > 0 && !gaveUp() && !coolingDown();
+    }
+
     /** Whether the Breeze menu should stand in for Minecraft's title screen right now. */
     public static boolean replaceTitle() {
-        return settings().replaceTitleScreen && !vanillaTitleThisSession && WebInit.available()
-                && !"false".equalsIgnoreCase(System.getProperty("breeze.webmenu"));
+        return settings().replaceTitleScreen && !vanillaTitleThisSession && !gaveUp() && !coolingDown()
+                && WebInit.available() && !"false".equalsIgnoreCase(System.getProperty("breeze.webmenu"));
     }
 }

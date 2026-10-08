@@ -46,8 +46,25 @@ public final class BreezeBrowser {
     }
 
     /** Opens a browser on the interface, or returns null if MCEF cannot. */
+    /** Self-test only (-Dbreeze.autotest.failWebOpens=N): the first N opens fail, to test the recovery. */
+    private static final int FORCED_FAILURES = Integer.getInteger("breeze.autotest.failWebOpens", 0);
+    private static int forcedFailures;
+
     static BreezeBrowser open(Router router, int guiWidth, int guiHeight) {
-        if (!WebInit.available() || !BreezeWeb.install()) return null;
+        if (!WebInit.available()) {
+            UiState.openProblem("Chromium is not ready, state " + WebInit.state());
+            return null;
+        }
+        if (!BreezeWeb.install()) {
+            UiState.openProblem("the page origin or the bridge could not be set up, see the line before");
+            return null;
+        }
+        if (forcedFailures < FORCED_FAILURES) {
+            forcedFailures++;
+            UiState.openProblem("self-test: forced failure " + forcedFailures + " of " + FORCED_FAILURES);
+            router.close();
+            return null;
+        }
         try {
             double scale = Minecraft.getInstance().getWindow().getGuiScale();
             int w = Math.max(1, (int) Math.round(guiWidth * scale));
@@ -62,6 +79,7 @@ public final class BreezeBrowser {
             return session;
         } catch (Throwable t) {
             BreezeClient.LOGGER.warn("[Breeze] interface browser could not be created: {}", t.toString());
+            UiState.openProblem("Chromium could not create the browser: " + t);
             router.close();
             return null;
         }

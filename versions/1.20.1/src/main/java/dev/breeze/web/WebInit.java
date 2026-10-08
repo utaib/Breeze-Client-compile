@@ -123,7 +123,8 @@ public final class WebInit {
                     BreezeClient.LOGGER.info("[Breeze] MCEF finished initializing. Web menu is available.");
                 } else {
                     state = State.UNAVAILABLE;
-                    BreezeClient.LOGGER.warn("[Breeze] MCEF failed to initialize. Web menu will be unavailable this session.");
+                    BreezeClient.LOGGER.warn("[Breeze] MCEF failed to initialize (its own lines before this say why, "
+                            + "usually the Chromium download or its files). Web menu unavailable this session.");
                 }
             });
         } catch (Throwable t) {
@@ -149,6 +150,7 @@ public final class WebInit {
                 if (McefBridge.isInitialized()) state = State.READY;
             } catch (Throwable ignored) {}
         }
+        if (state == State.READY && readyHandled && UiState.retryDue()) retryTitleMenu();
         if (state != State.READY || readyHandled) return;
         readyHandled = true;
         if (!BreezeWeb.install()) {
@@ -162,6 +164,19 @@ public final class WebInit {
     }
 
     private static boolean readyHandled;
+
+    /**
+     * An open of the title menu failed a few seconds ago and Minecraft's title
+     * screen is showing: try the web menu again (BreezeWebScreen.fallBack).
+     */
+    private static void retryTitleMenu() {
+        net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+        if (dev.breeze.compat.ActiveScreen.get(mc) instanceof net.minecraft.client.gui.screens.TitleScreen
+                && dev.breeze.compat.ActiveScreen.overlay(mc) == null && UiState.replaceTitle()) {
+            BreezeClient.LOGGER.info("[Breeze] trying the web menu again");
+            dev.breeze.compat.ActiveScreen.set(mc, new BreezeWebScreen(false));
+        }
+    }
 
     /** Whether a browser may be created right now. */
     public static boolean available() {

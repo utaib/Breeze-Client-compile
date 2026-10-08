@@ -61,6 +61,19 @@ settings one click from Breeze's, and other mods in Breeze's menus.
   opens Minecraft's own options; Done comes back to Breeze.
 
 ### Fixed
+- **One failed open of the web menu switched it off until restart.** When
+  the embedded browser could not be created, or its page origin or bridge
+  could not be set up, the title screen became Minecraft's for the whole
+  session (`UiState.useVanillaTitle(true)`), and the log said only "the
+  embedded browser is not available". Now Minecraft's title screen shows for
+  a moment and the web menu is tried again 3 s later, up to 3 times a
+  session; each failure is logged with its reason and attempt number (where
+  it failed: Chromium not ready, origin or bridge, or the exception Chromium
+  threw). Choosing Minecraft's title screen yourself still holds for the
+  session. When MCEF itself fails to start, the log line points at MCEF's
+  own lines before it. The cause of the fallback players saw is not proven:
+  CI starts the web menu on every web version; a player's `latest.log` from
+  a session where it happened would show which reason it was.
 - **Mod Menu's mods list crashed the game** on versions with an older Mod
   Menu (seen with 7.2.2 on 1.20.1): Breeze's `fabric.mod.json` declared the
   badge `client`, which is not a badge key (Mod Menu gives that badge from
@@ -98,6 +111,15 @@ settings one click from Breeze's, and other mods in Breeze's menus.
 - The web page refuses its sample data inside the game: served from
   `https://breeze.local/` without the bridge, it shows the startup error
   instead of the standalone preview.
+- `fail_web_opens` (CI input): the first N opens of the web menu fail on
+  purpose (`-Dbreeze.autotest.failWebOpens`); the driver requires each to be
+  logged with its reason and the web menu to come back by itself.
+- Test harness: the test player's air is kept full under water (a random
+  seed spawned 1.19.1 in the sea and it drowned during the module sweep,
+  which failed three later checks); "Display, input and capture tools"
+  retries a stalled apt up to three times (it cost 1.20.1 and 1.21.4 their
+  jobs once); the mixin audit reads Gson with `fromJson`, which 1.17's Gson
+  has.
 
 ## [2.11.0] - 2026-10-03
 

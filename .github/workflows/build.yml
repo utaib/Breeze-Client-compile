@@ -34,6 +34,9 @@ on:
       duplicate:
         description: 'A mod (slug) to install twice: the newest and the build before it. Fabric must refuse to start; the older copy is then moved out, as the launcher does, and the full test runs'
         default: ''
+      fail_web_opens:
+        description: 'Web menu recovery probe: the first N opens of the web menu fail on purpose, and it must come back by itself (empty for off)'
+        default: ''
 
 concurrency:
   group: breeze-mod-new-${{ github.ref }}
@@ -196,10 +199,20 @@ jobs:
       # A hung package mirror once held a job here for an hour; ten minutes
       # is several times what this normally takes.
       - name: Display, input and capture tools
-        timeout-minutes: 10
+        timeout-minutes: 25
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq xvfb openbox xdotool imagemagick ffmpeg mesa-utils x11-utils libnss3 libgbm1 libxkbcommon0 jq
+          # An Ubuntu mirror sometimes stalls: 1.20.1 and 1.21.4 lost their
+          # whole job to it in run 37772890501 (10 minutes, nothing ran).
+          # Each try is cut at 6 minutes and tried again, up to three times.
+          apt_opts=(-o Acquire::Retries=3 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30)
+          for try in 1 2 3; do
+            if sudo timeout 360 apt-get "${apt_opts[@]}" update -qq \
+              && sudo timeout 360 apt-get "${apt_opts[@]}" install -y -qq xvfb openbox xdotool imagemagick ffmpeg mesa-utils x11-utils libnss3 libgbm1 libxkbcommon0 jq; then
+              break
+            fi
+            [ "$try" = 3 ] && { echo "::error::apt failed three times"; exit 1; }
+            echo "apt try $try failed or stalled; trying again"
+          done
           pipx install "portablemc<5"
       - name: Other mods (Fabric API and MCEF, as players download them)
         env:
@@ -277,6 +290,8 @@ jobs:
             mv "$older" "$RUNNER_TEMP/mod-backups/"
           fi
       - name: Launch in a real Fabric install, drive and check
+        env:
+          BREEZE_FAIL_WEB_OPENS: ${{ inputs.fail_web_opens }}
         run: |
           BREEZE_LAUNCH=prod BREEZE_MC="$MC" BREEZE_LOADER="${LAUNCHER_LOADER:-$LOADER}" \
           BREEZE_ADDMODS="${LAUNCHER_LOADER:+1}" \
