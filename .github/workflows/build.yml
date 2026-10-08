@@ -260,21 +260,22 @@ jobs:
             BREEZE_JAR="dist/$MC.jar" BREEZE_MODS="$RUNNER_TEMP/mods" \
               scripts/ci/run-minecraft-test.sh "$RESULT/$2"
           }
-          status=0
+          # Each probe records what happened (its driver log, failures as
+          # annotations); the full test below runs either way, and shows
+          # whether the mod set itself runs without the duplicate.
           # The same file twice, as a browser names a second download.
           copy="${newest%.jar} (1).jar"
           cp "$newest" "$copy"
-          probe "the same file twice" refusal-same || status=1
+          probe "the same file twice" refusal-same || true
           rm -f "$copy"
           # The newest and the build before it.
           if older=$(launcher_older "$DUPLICATE" "$MC" "$RUNNER_TEMP/mods"); then
-            probe "two versions" refusal-older || status=1
+            probe "two versions" refusal-older || true
             # What the launcher's "Remove duplicate" does: the older copy goes
             # to the backups, nothing is deleted.
             mkdir -p "$RUNNER_TEMP/mod-backups"
             mv "$older" "$RUNNER_TEMP/mod-backups/"
           fi
-          exit "$status"
       - name: Launch in a real Fabric install, drive and check
         run: |
           BREEZE_LAUNCH=prod BREEZE_MC="$MC" BREEZE_LOADER="${LAUNCHER_LOADER:-$LOADER}" \
@@ -287,7 +288,7 @@ jobs:
           {
             echo "## Minecraft $MC"
             echo '```'
-            cat "$RESULT"/refusal-*/driver.log 2>/dev/null
+            cat "$RESULT"/refusal-*/driver.log 2>/dev/null || true
             cat "$RESULT/driver.log" 2>/dev/null || echo 'not launched'
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
@@ -333,7 +334,10 @@ jobs:
             cp "$d/refusal-excerpt.txt" "$RUNNER_TEMP/shots/$MC/$k-excerpt.txt" 2>/dev/null || true
             cp "$d/mods-summary.jsonl" "$RUNNER_TEMP/shots/$MC/$k-mods-summary.jsonl" 2>/dev/null || true
             cp "$d/runtime-mods.json" "$RUNNER_TEMP/shots/$MC/$k-runtime-mods.json" 2>/dev/null || true
+            for c in "$d"/crash-*.txt; do [ -f "$c" ] && cp "$c" "$RUNNER_TEMP/shots/$MC/$k-$(basename "$c")"; done
           done
+          for c in "$RESULT"/crash-*.txt; do [ -f "$c" ] && cp "$c" "$RUNNER_TEMP/shots/$MC/"; done
+          tail -150 "$RESULT/minecraft-latest.log" > "$RUNNER_TEMP/shots/$MC/latest-log-tail.txt" 2>/dev/null || true
           cp "$RESULT/mods-summary.jsonl" "$RESULT/runtime-mods.json" "$RUNNER_TEMP/shots/$MC/" 2>/dev/null || true
           grep -hE '"event":"(integrations|integration-open)"' "$RESULT/breeze-autotest.log" > "$RUNNER_TEMP/shots/$MC/integrations.jsonl" 2>/dev/null || true
           grep -E '\.java:[0-9]+: error:' "$RUNNER_TEMP/gradle.log" > "$RUNNER_TEMP/shots/$MC/compile-errors.txt" 2>/dev/null || true

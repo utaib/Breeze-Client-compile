@@ -27,6 +27,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -779,18 +781,46 @@ public final class AutoTest {
      * otherwise stay hidden until a player joins one. Mixin's audit loads each
      * remaining target; a required injection that cannot apply throws here.
      */
+    /**
+     * Loads every class a Breeze mixin targets, so each Breeze mixin is applied
+     * now rather than when play first reaches it, and a mixin that does not fit
+     * this version fails at the title screen. Only Breeze's: Mixin's own
+     * audit() also applies other mods' optional mixin sets that they never
+     * load in play (Flashback's Lattice ships one per Minecraft version), and
+     * failed on those. Another mod's failure is recorded, not counted.
+     */
     private static void auditMixins() {
         long start = System.currentTimeMillis();
+        List<String> breeze = new ArrayList<>();
+        List<String> others = new ArrayList<>();
+        int checked = 0;
         try {
-            org.spongepowered.asm.mixin.MixinEnvironment.getCurrentEnvironment().audit();
-            log("mixin-audit", "ok", "true", "ms", String.valueOf(System.currentTimeMillis() - start));
+            for (org.spongepowered.asm.mixin.transformer.Config c : org.spongepowered.asm.mixin.Mixins.getConfigs()) {
+                if (!c.getName().startsWith("breeze")) continue;
+                for (String target : c.getConfig().getTargets()) {
+                    checked++;
+                    try {
+                        Class.forName(target.replace('/', '.'), true, AutoTest.class.getClassLoader());
+                    } catch (Throwable t) {
+                        Throwable root = t;
+                        while (root.getCause() != null && root.getCause() != root) root = root.getCause();
+                        String text = target + ": " + root;
+                        (text.contains("breeze") ? breeze : others).add(text);
+                    }
+                }
+            }
         } catch (Throwable t) {
-            Throwable root = t;
-            while (root.getCause() != null && root.getCause() != root) root = root.getCause();
-            // Recorded, not fatal here, so the rest of the run still shows what
-            // else works; the driver counts it as a failed check.
-            log("mixin-audit", "ok", "false", "error", t.toString(), "cause", root.toString());
+            breeze.add("could not list Breeze's mixin targets: " + t);
         }
+        JsonObject o = new JsonObject();
+        o.addProperty("ok", String.valueOf(breeze.isEmpty() && checked > 0));
+        o.addProperty("targets", String.valueOf(checked));
+        o.addProperty("ms", String.valueOf(System.currentTimeMillis() - start));
+        if (!breeze.isEmpty()) o.addProperty("error", String.join(" | ", breeze));
+        if (!others.isEmpty()) o.addProperty("otherMods", String.join(" | ", others));
+        // Recorded, not fatal here, so the rest of the run still shows what
+        // else works; the driver counts it as a failed check.
+        write("mixin-audit", o);
     }
 
     /** Logs every module that changes state, whoever changed it. */

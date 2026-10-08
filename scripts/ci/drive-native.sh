@@ -187,6 +187,9 @@ case "$audit" in
   '') fail "the mixin audit never ran" ;;
   *) fail "a Breeze mixin does not apply: $audit" ;;
 esac
+case "$audit" in
+  *'"otherMods"'*) say "another mod's mixins failed while loading Breeze's targets (not counted): $(printf '%s' "$audit" | jq -r .otherMods 2>/dev/null)" ;;
+esac
 
 grep '"event":"FAIL"' "$LOG" | while read -r line; do fail "harness: $line"; done
 say "done: $FAILED failed check(s)"

@@ -154,6 +154,13 @@ if [ -n "${BREEZE_DUPLICATE_PROBE:-}" ]; then
     done
     echo "== Fabric on the duplicate ($probe)"
     grep -iE "duplicate|multiple|more than once|$probe" "$RUN/logs/latest.log" 2>/dev/null | grep -v 'Loading Minecraft' | head -30
+    if [ "$outcome" = exited ]; then
+      echo "== the last lines of the game log"
+      tail -60 "$RUN/logs/latest.log" 2>/dev/null
+      for report in "$RUN"/crash-reports/*.txt; do
+        [ -f "$report" ] && { echo "== $(basename "$report")"; head -80 "$report"; }
+      done
+    fi
   } > "$OUT/refusal-excerpt.txt"
   cp "$RUN/.breeze/runtime-mods.json" "$OUT/runtime-mods.json" 2>/dev/null || true
   pkill -f 'net[.]fabricmc[.]loader[.]impl[.]launch[.]knot[.]KnotClient' || true
@@ -167,7 +174,8 @@ if [ -n "${BREEZE_DUPLICATE_PROBE:-}" ]; then
       echo "[driver] OUTCOME $probe twice (${BREEZE_DUPLICATE_KIND:-}): the game started; Fabric loaded $probe ${loaded:-?}" | tee -a "$OUT/driver.log"
       DRIVER_EXIT=0 ;;
     *)
-      echo "[driver] FAIL $probe twice (${BREEZE_DUPLICATE_KIND:-}): neither a refusal nor a started game ($outcome)" | tee -a "$OUT/driver.log"
+      why=$(grep -hE '^Description: ' "$RUN"/crash-reports/*.txt 2>/dev/null | head -1)
+      echo "[driver] FAIL $probe twice (${BREEZE_DUPLICATE_KIND:-}): the game stopped before its title screen, without a refusal ($outcome${why:+; crash report: $why})" | tee -a "$OUT/driver.log"
       DRIVER_EXIT=1 ;;
   esac
 else
