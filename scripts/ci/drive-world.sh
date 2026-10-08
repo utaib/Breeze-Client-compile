@@ -137,8 +137,8 @@ esac
 icon=$(grep '"event":"tag-icon"' "$LOG" | tail -1)
 say "tag icon: $icon"
 case "$icon" in
-  *'"pass":"true"'*) pass "the Wind Charge tag icon is in the game's font" ;;
-  *) fail "the Wind Charge tag icon is missing from the game's font (tags would show a box)" ;;
+  *'"pass":"true"'*) pass "every colour's Wind Charge tag picture is in the game's font" ;;
+  *) fail "a Wind Charge tag picture is missing from the game's font (tags would show a box)" ;;
 esac
 font=$(grep '"event":"font-check"' "$LOG" | tail -1)
 say "font: $font"
@@ -265,7 +265,18 @@ if [ -s "$OUT/stub-port" ]; then
         fail "the self-test checked the Wardrobe"
       fi
     fi
-    # The self-test closes the Wardrobe after its check.
+    # Then it shows the Tags tab (autotest-wardrobe-tags.png) and closes the
+    # Wardrobe.
+    if wait_new '"event":"wardrobe-tags"' 30 0; then
+      t=$(grep '"event":"wardrobe-tags"' "$LOG" | tail -1)
+      say "wardrobe tags: $t"
+      case "$t" in
+        *'"pass":"true"'*) pass "the Wardrobe's Tags tab listed the account's tags, each with its Wind Charge picture" ;;
+        *) fail "the Wardrobe's Tags tab listed no tags" ;;
+      esac
+    else
+      fail "the self-test showed the Wardrobe's Tags tab"
+    fi
     i=0; while [ "$i" -lt 10 ] && [ "$(last_kind)" != none ]; do sleep 1; i=$((i + 1)); done
   else
     fail "the self-test opened the Wardrobe"

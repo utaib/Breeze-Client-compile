@@ -1,15 +1,27 @@
 package dev.breeze.compat;
 
+import dev.breeze.ui.TagArt;
+
 /**
- * The character a Breeze tag is drawn with: the Wind Charge picture the mod
- * adds to Minecraft's default and uniform fonts (assets/minecraft/font), at a
- * private-use code point no other text uses.
+ * The characters a Breeze tag is drawn with: Breeze's Wind Charge pictures,
+ * one per tag colour (common TagArt), which the mod adds to Minecraft's
+ * default and uniform fonts (assets/minecraft/font, sheet
+ * assets/breeze/textures/font/tags.png) at private-use code points no other
+ * text uses.
  */
 public final class TagGlyph {
 
-    public static final String ICON = "";
-    /** Its width in the default font, for the self-test: an 8 pixel picture and 1 of spacing. */
-    public static final int WIDTH = 9;
+    /** The plain Wind Charge, for a check that needs one character. */
+    public static final String ICON = TagArt.PLAIN.glyph();
+    /** Each picture's width in the default font: 12 pixels at 0.8 (8 high from 10), and 1 of spacing. */
+    public static final int WIDTH = 11;
+    /** The pictures carry their own colours, so they are drawn in white (a colour would tint them). */
+    public static final boolean OWN_COLOURS = true;
 
     private TagGlyph() {}
+
+    /** The Wind Charge for a tag colour, 0xRRGGBB. */
+    public static String forColour(int rgb) {
+        return TagArt.of(rgb).glyph();
+    }
 }

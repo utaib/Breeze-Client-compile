@@ -37,6 +37,9 @@ on:
       fail_web_opens:
         description: 'Web menu recovery probe: the first N opens of the web menu fail on purpose, and it must come back by itself (empty for off)'
         default: ''
+      stall_web_pages:
+        description: 'Web page watchdog probe: the first N web menu browsers open a page that never starts, and each must be replaced by itself (empty for off)'
+        default: ''
 
 concurrency:
   group: breeze-mod-new-${{ github.ref }}
@@ -292,6 +295,7 @@ jobs:
       - name: Launch in a real Fabric install, drive and check
         env:
           BREEZE_FAIL_WEB_OPENS: ${{ inputs.fail_web_opens }}
+          BREEZE_STALL_WEB_PAGES: ${{ inputs.stall_web_pages }}
         run: |
           BREEZE_LAUNCH=prod BREEZE_MC="$MC" BREEZE_LOADER="${LAUNCHER_LOADER:-$LOADER}" \
           BREEZE_ADDMODS="${LAUNCHER_LOADER:+1}" \

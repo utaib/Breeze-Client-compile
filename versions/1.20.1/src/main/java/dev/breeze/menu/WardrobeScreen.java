@@ -188,19 +188,19 @@ public class WardrobeScreen extends BreezeScreen {
         }
 
         // Exactly what other players see above this player's head: the tag's
-        // Wind Charge icon in its colour, then the name. Rendered here rather
-        // than described in text so there is nothing to misread about what is
-        // equipped.
+        // Wind Charge picture for its colour, then the name. Rendered here
+        // rather than described in text so there is nothing to misread about
+        // what is equipped.
         int lineY = preview.bottom() - 22;
         int tagColor = s.tag != null ? s.tag.color : (s.badge != null ? s.badge.color : 0xFF55C8FF);
         String custom = s.customTag;
         boolean hasCustom = custom != null && !custom.isEmpty();
-        String icon = dev.breeze.BreezeTag.ICON + " ";
+        String icon = dev.breeze.BreezeTag.icon(tagColor) + " ";
         String name = dev.breeze.net.Self.name(this.minecraft);
         if (name == null) name = "";
         int lineW = this.font.width(icon) + this.font.width(name);
         int startX = preview.centerX() - lineW / 2;
-        g.drawString(this.font, icon, startX, lineY + 1, tagColor, false);
+        g.drawString(this.font, icon, startX, lineY + 1, dev.breeze.BreezeTag.iconTint(tagColor), false);
         g.drawString(this.font, name, startX + this.font.width(icon), lineY + 1, Palette.TEXT_PRIMARY, false);
 
         // Where a creator changes their own tag. The mod deliberately cannot do
@@ -363,12 +363,17 @@ public class WardrobeScreen extends BreezeScreen {
         Glass.surface(g, row, hover, equipped);
         if (equipped) UiRender.accentBar(g, row.x, row.y + 3, 2, row.h - 6);
 
-        // The tag as players see it: the Wind Charge icon in the tag's colour,
-        // then its name (the name itself is not drawn in game).
-        String label = isAuto ? "Automatic (highest)" : dev.breeze.BreezeTag.ICON + " " + tag.name;
-        int color = isAuto ? Palette.TEXT_SECONDARY : tag.color;
-        UiRender.textClipped(g, this.font, label, row.x + Spacing.SM, row.y + 6,
-                row.w - Spacing.XL * 2, color);
+        // The tag as players see it: its Wind Charge picture, then its name in
+        // the tag's colour (the name itself is not drawn in game).
+        int labelX = row.x + Spacing.SM, labelW = row.w - Spacing.XL * 2;
+        if (isAuto) {
+            UiRender.textClipped(g, this.font, "Automatic (highest)", labelX, row.y + 6, labelW, Palette.TEXT_SECONDARY);
+        } else {
+            String icon = dev.breeze.BreezeTag.icon(tag.color) + " ";
+            int iconW = this.font.width(icon);
+            g.drawString(this.font, icon, labelX, row.y + 6, dev.breeze.BreezeTag.iconTint(tag.color), false);
+            UiRender.textClipped(g, this.font, tag.name, labelX + iconW, row.y + 6, labelW - iconW, tag.color);
+        }
 
         // A role tag is marked because it cannot be given up: it follows the
         // account's role, so it reappearing is correct rather than a bug.

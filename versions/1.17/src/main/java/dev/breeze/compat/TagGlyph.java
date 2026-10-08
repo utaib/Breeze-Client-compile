@@ -1,7 +1,8 @@
 package dev.breeze.compat;
 
 /**
- * Minecraft 1.17 only: the tag is a star (U+2726) from Minecraft's own font.
+ * Minecraft 1.17 only: the tag is a star (U+2726) from Minecraft's own font,
+ * drawn in the tag's colour.
  *
  * On 1.17 the Fabric API that exists for it (0.36.0) serves the mods'
  * resources as one pack, and a mod's minecraft:font/default.json there takes
@@ -16,6 +17,12 @@ public final class TagGlyph {
     public static final String ICON = "✦";
     /** Any drawn width: the star's comes from Minecraft's font, not Breeze's. */
     public static final int WIDTH = -1;
+    /** The star is plain white in the font, so the tag's colour is what tells tags apart. */
+    public static final boolean OWN_COLOURS = false;
 
     private TagGlyph() {}
+
+    public static String forColour(int rgb) {
+        return ICON;
+    }
 }

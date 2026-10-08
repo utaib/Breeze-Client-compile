@@ -54,6 +54,14 @@ public final class BreezeBrowser {
         return false;
     }
 
+    boolean pageAnswered() {
+        return false;
+    }
+
+    long ageMillis() {
+        return 0;
+    }
+
     void render(GuiGraphics g, int guiWidth, int guiHeight) {
     }
 

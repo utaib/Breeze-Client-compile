@@ -35,6 +35,9 @@ public final class BreezeBrowser {
     private final MCEFBrowser browser;
     private final Router router;
     private final AtomicBoolean closed = new AtomicBoolean();
+    private final long openedAt = System.nanoTime();
+    /** The page has made a bridge call: its script ran and found the bridge. */
+    private volatile boolean answered;
     private int pixelWidth;
     private int pixelHeight;
 
@@ -49,6 +52,9 @@ public final class BreezeBrowser {
     /** Self-test only (-Dbreeze.autotest.failWebOpens=N): the first N opens fail, to test the recovery. */
     private static final int FORCED_FAILURES = Integer.getInteger("breeze.autotest.failWebOpens", 0);
     private static int forcedFailures;
+    /** Self-test only (-Dbreeze.autotest.stallWebPages=N): the first N browsers open a page that never starts, to test the page watchdog. */
+    private static final int STALLED_PAGES = Integer.getInteger("breeze.autotest.stallWebPages", 0);
+    private static int stalledPages;
 
     static BreezeBrowser open(Router router, int guiWidth, int guiHeight) {
         if (!WebInit.available()) {
@@ -69,7 +75,13 @@ public final class BreezeBrowser {
             double scale = Minecraft.getInstance().getWindow().getGuiScale();
             int w = Math.max(1, (int) Math.round(guiWidth * scale));
             int h = Math.max(1, (int) Math.round(guiHeight * scale));
-            MCEFBrowser b = MCEF.createBrowser(PageOrigin.INDEX, true, w, h);
+            String url = PageOrigin.INDEX;
+            if (stalledPages < STALLED_PAGES) {
+                stalledPages++;
+                url = "about:blank";
+                BreezeClient.LOGGER.info("[Breeze] self-test: browser {} of {} opens a page that never starts", stalledPages, STALLED_PAGES);
+            }
+            MCEFBrowser b = MCEF.createBrowser(url, true, w, h);
             b.resize(w, h);
             b.setFocus(true);
             BreezeBrowser session = new BreezeBrowser(b, router, w, h);
@@ -94,6 +106,10 @@ public final class BreezeBrowser {
     }
 
     void dispatch(long queryId, String request, CefQueryCallback callback) {
+        if (!answered) {
+            answered = true;
+            BreezeClient.LOGGER.info("[Breeze] the interface page answered {} ms after its browser opened", ageMillis());
+        }
         router.dispatch(queryId, request, new Router.Responder() {
             @Override
             public void success(String json) {
@@ -177,6 +193,19 @@ public final class BreezeBrowser {
         pixelWidth = w;
         pixelHeight = h;
         browser.resize(w, h);
+    }
+
+    /**
+     * Whether the page has called the bridge yet. Until it has, nothing the
+     * player sees on it works (BreezeWebScreen's page watchdog).
+     */
+    boolean pageAnswered() {
+        return answered;
+    }
+
+    /** Milliseconds since this browser was created. */
+    long ageMillis() {
+        return (System.nanoTime() - openedAt) / 1_000_000L;
     }
 
     /** Whether focus has been given again since the page's first frame. */

@@ -17,11 +17,14 @@ import java.util.concurrent.ConcurrentHashMap;
  * their own custom tag.
  *
  * Tags are icons, not words (owner, 2026-10-03: "we only need to keep the icon
- * tags"): a Wind Charge in the tag's colour, drawn as the character
- * {@link #ICON}, which the mod's font files (assets/minecraft/font/default.json
- * and uniform.json) map to a picture. Text drawing then puts it above the
- * head, in the tab list and in chat on every version, in the colour the API
- * gives the tag (Owner red, a creator's chosen colour, Breeze blue).
+ * tags"): Breeze's own Wind Charge picture in the tag's colour (owner,
+ * 2026-10-08: "the asset we have like the wind charge"). Each colour of the
+ * art is a character the mod's font files (assets/minecraft/font/default.json
+ * and uniform.json) map to that picture ({@link #icon}), so text drawing puts
+ * it above the head, in the tab list and in chat on every version. The API's
+ * tag colour picks the picture (Owner red, Developer purple, Creator yellow,
+ * Breeze blue; common TagArt), and the picture is drawn in white so its own
+ * colours show ({@link #iconTint}).
  *
  * Previously this held six parallel maps (uuid to text, uuid to colour, name to
  * text, name to colour, and so on). 1.0.13 adds a badge slug, custom text and a
@@ -57,7 +60,7 @@ public final class BreezeTag {
     private static final Map<String, Entry> BY_NAME = new ConcurrentHashMap<>();
     private static final Map<String, UUID> NAME_TO_UUID = new ConcurrentHashMap<>();
 
-    /** The Wind Charge icon: a private-use character the mod's font draws as a picture (see compat/TagGlyph). */
+    /** The plain Wind Charge: a private-use character the mod's font draws as a picture (see compat/TagGlyph). */
     public static final String ICON = dev.breeze.compat.TagGlyph.ICON;
 
     private static String text = "[Breeze]";
@@ -68,7 +71,21 @@ public final class BreezeTag {
 
     /** The tag drawn for a Breeze player: always the icon (the API's tag name is not drawn). */
     public static String text() {
-        return ICON;
+        return icon(color);
+    }
+
+    /** The Wind Charge picture for a tag colour, 0xAARRGGBB or 0xRRGGBB. */
+    public static String icon(int argb) {
+        return dev.breeze.compat.TagGlyph.forColour(argb & 0xFFFFFF);
+    }
+
+    /**
+     * The colour to draw {@link #icon} in: white, so the picture keeps its own
+     * colours (a text colour multiplies a font picture's). On 1.17, whose tag
+     * is a plain star, the tag's colour itself.
+     */
+    public static int iconTint(int argb) {
+        return dev.breeze.compat.TagGlyph.OWN_COLOURS ? 0xFFFFFFFF : argb;
     }
 
     public static int color() {
@@ -81,10 +98,16 @@ public final class BreezeTag {
     }
 
     public static String text(UUID id) {
-        return ICON;
+        return icon(tagColor(id));
     }
 
+    /** The colour to draw {@link #text(UUID)} in (see {@link #iconTint}). */
     public static int color(UUID id) {
+        return iconTint(tagColor(id));
+    }
+
+    /** The colour the API gives the player's tag. */
+    public static int tagColor(UUID id) {
         Entry e = entry(id);
         return e != null ? e.color : color;
     }
@@ -166,15 +189,20 @@ public final class BreezeTag {
     /** The icon before a Breeze player's name in chat, or null for everyone else. */
     public static String chatText(String lowerName) {
         Entry e = BY_NAME.get(lowerName);
-        if (e != null) return ICON;
+        if (e != null) return icon(e.color);
         UUID id = NAME_TO_UUID.get(lowerName);
         if (id != null) {
-            if (BY_UUID.containsKey(id) || BreezeUsers.isBreezeUser(id)) return ICON;
+            if (BY_UUID.containsKey(id) || BreezeUsers.isBreezeUser(id)) return icon(chatTagColor(lowerName));
         }
         return null;
     }
 
+    /** The colour to draw {@link #chatText} in (see {@link #iconTint}). */
     public static int chatColor(String lowerName) {
+        return iconTint(chatTagColor(lowerName));
+    }
+
+    private static int chatTagColor(String lowerName) {
         Entry e = BY_NAME.get(lowerName);
         if (e != null) return e.color;
         UUID id = NAME_TO_UUID.get(lowerName);

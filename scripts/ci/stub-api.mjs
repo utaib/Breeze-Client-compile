@@ -48,6 +48,15 @@ const ACCOUNT_CAPE = 'c0ffee00-0000-4000-8000-00000000cafe'
 // image is served on /cape/<uuid>, as the live API does.
 let selfCape = ACCOUNT_CAPE
 
+// The tags a player can hold, with the names and colours of the live tags
+// table (read 2026-10-08), so the Wardrobe's Tags tab shows each one's Wind
+// Charge picture. The test player wears Owner.
+const TAGS = [
+  ['owner', 'Owner', '#FF5555', 100], ['developer', 'Developer', '#A56EFF', 90],
+  ['admin', 'Admin', '#800080', 80], ['creator', 'Creator', '#FFD23F', 70],
+  ['donator', 'Donator', '#FFD700', 60], ['breeze', 'Breeze', '#55C8FF', 10],
+].map(([slug, name, color, priority]) => ({ id: `stub-tag-${slug}`, slug, name, color, priority, source: 'owned' }))
+
 // A 64x32 cape texture in one colour, as a PNG, without image libraries.
 const CRC = Array.from({ length: 256 }, (_, n) => {
   let c = n
@@ -145,11 +154,13 @@ const server = http.createServer(async (req, res) => {
     return res.end(PERSONAL_PNG)
   }
 
-  // A player who has no Breeze account, as the API answers for one.
+  // A player who has no Breeze account, as the API answers for one, except
+  // for the tags (the Wardrobe lists them from here; capes ignore a state
+  // without a username, 2.9.5).
   if (req.method === 'GET' && parts[0] === 'cosmetics' && parts[1] === 'state' && parts[2]) {
     return send(res, 200, {
-      success: true, uuid: dash(parts[2]), username: null, role: 'user', cape: null, ownedCapes: [], tag: null,
-      availableTags: [], badge: null, customTag: null, canCustomTag: false, revision: '0',
+      success: true, uuid: dash(parts[2]), username: null, role: 'user', cape: null, ownedCapes: [], tag: TAGS[0],
+      availableTags: TAGS, badge: null, customTag: null, canCustomTag: false, revision: '0',
     })
   }
 

@@ -28,6 +28,14 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * within 500 ms, because it failed to load or hung, Java acts on its own, so
  * the player always has a way out of a broken page.
  *
+ * <p>A page that never starts is a failed open too. If the page has not
+ * called the bridge {@link #PAGE_TIMEOUT_MS} after its browser was created,
+ * the browser is closed and the open counts as failed (fallBack), so the
+ * player gets a working screen and a fresh browser instead of a dark one.
+ * Seen in run 37783649946 on 26.1.1: the first browser after Chromium's
+ * first download painted nothing and its page never ran for over a minute,
+ * while the next browser opened normally.
+ *
  * <p>Lifecycle: the browser is created in init and closed in removed, which
  * Minecraft calls on every exit path, including other screens opening on top.
  * Coming back (a parent returning here) runs init again and opens a fresh
@@ -36,6 +44,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public final class BreezeWebScreen extends BreezeScreen {
 
     private static final long ESCAPE_FAILSAFE_NANOS = 500_000_000L;
+    /** How long a page may take to call the bridge (it does so as it mounts, about 3 s in CI's software rendering). */
+    static final long PAGE_TIMEOUT_MS = 12_000L;
     private static final int TITLE_BACKDROP = 0xFF0B0F18;
 
     private final boolean ingame;
@@ -47,6 +57,8 @@ public final class BreezeWebScreen extends BreezeScreen {
     private boolean fellBack;
     /** Escapes in a row the page did not answer. Reset by any answer. */
     private int unansweredEscapes;
+    /** The page in this screen's browser has answered (and the open counted as a success). */
+    private boolean pageConfirmed;
 
     public BreezeWebScreen(boolean ingame) {
         super(Component.literal("Breeze"));
@@ -75,7 +87,7 @@ public final class BreezeWebScreen extends BreezeScreen {
                 fallBack(UiState.takeOpenProblem("the embedded browser is not available"));
                 return;
             }
-            if (!ingame) UiState.titleOpened();
+            pageConfirmed = false;
         } else {
             browser.resize(width, height);
         }
@@ -134,6 +146,7 @@ public final class BreezeWebScreen extends BreezeScreen {
     @Override
     public void tick() {
         drainAfterAnswer();
+        watchPage();
         long deadline = escapeDeadline;
         if (deadline == 0) return;
         int answer = escapeAnswer;
@@ -157,6 +170,24 @@ public final class BreezeWebScreen extends BreezeScreen {
                 fallBack("the page did not answer Escape twice");
             }
         }
+    }
+
+    /**
+     * An open succeeds when the page answers, not when the browser is
+     * created: a browser whose page never runs is as broken as no browser.
+     */
+    private void watchPage() {
+        BreezeBrowser b = browser;
+        if (fellBack || b == null || b.isClosed() || pageConfirmed) return;
+        if (b.pageAnswered()) {
+            pageConfirmed = true;
+            if (!ingame) UiState.titleOpened();
+            return;
+        }
+        long age = b.ageMillis();
+        if (age < PAGE_TIMEOUT_MS) return;
+        fallBack("the page did not start within " + (age / 1000) + " s; Chromium "
+                + (b.painted() ? "painted it but its script never reached the bridge" : "painted nothing"));
     }
 
     /** Escape at the page's root: back to the game in a world, nothing on the title menu. */
