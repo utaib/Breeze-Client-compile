@@ -1,0 +1,47 @@
+109:com.mojang.authlib.exceptions.InvalidCredentialsException: Status: 401
+110:	at com.mojang.authlib.exceptions.MinecraftClientHttpException.toAuthenticationException(MinecraftClientHttpException.java:56) ~[authlib-4.0.43.jar:?]
+111-	at com.mojang.authlib.yggdrasil.YggdrasilUserApiService.fetchProperties(YggdrasilUserApiService.java:156) ~[authlib-4.0.43.jar:?]
+112-	at com.mojang.authlib.yggdrasil.YggdrasilUserApiService.<init>(YggdrasilUserApiService.java:55) ~[authlib-4.0.43.jar:?]
+113-	at com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService.createUserApiService(YggdrasilAuthenticationService.java:124) ~[authlib-4.0.43.jar:?]
+114-	at net.minecraft.class_310.method_31382(class_310.java:733) ~[client-intermediary.jar:?]
+115-	at net.minecraft.class_310.<init>(class_310.java:442) ~[client-intermediary.jar:?]
+116-	at net.minecraft.client.main.Main.main(Main.java:211) ~[fabric-1.20.1-0.19.5.jar:?]
+117-	at net.fabricmc.loader.impl.game.minecraft.MinecraftGameProvider.launch(MinecraftGameProvider.java:517) ~[fabric-loader-0.19.5.jar:?]
+118-	at net.fabricmc.loader.impl.launch.knot.Knot.launch(Knot.java:72) ~[fabric-loader-0.19.5.jar:?]
+119-	at net.fabricmc.loader.impl.launch.knot.KnotClient.main(KnotClient.java:23) ~[fabric-loader-0.19.5.jar:?]
+120:Caused by: com.mojang.authlib.exceptions.MinecraftClientHttpException: Status: 401
+121-	at com.mojang.authlib.minecraft.client.MinecraftClient.readInputStream(MinecraftClient.java:85) ~[authlib-4.0.43.jar:?]
+122-	at com.mojang.authlib.minecraft.client.MinecraftClient.get(MinecraftClient.java:48) ~[authlib-4.0.43.jar:?]
+123-	at com.mojang.authlib.yggdrasil.YggdrasilUserApiService.fetchProperties(YggdrasilUserApiService.java:129) ~[authlib-4.0.43.jar:?]
+124-	... 8 more
+125-[18:48:10] [Render thread/INFO]: Setting user: BreezeDev
+126-[18:48:10] [Render thread/INFO]: Bypassed Mojang DFU
+127-[18:48:10] [Thread-2/WARN]: Failed to download JCEF hash.
+128-[18:48:10] [Thread-2/INFO]: https://mcef-download.cinemamod.com/java-cef-builds/a78e832f9f13c2c688caea3d04d8b84fcd238d94/linux_amd64.tar.gz -> /home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test/game/mods/mcef-libraries/linux_amd64.tar.gz
+129-[18:48:11] [Render thread/INFO]: [Breeze] Initializing on Minecraft 1.20.1
+130-[18:48:11] [Render thread/INFO]: [Breeze] Registered 81 modules
+131-[18:48:11] [Render thread/INFO]: [Breeze] Web interface found at assets/breeze/html/index.html
+132-[18:48:11] [Render thread/INFO]: [Breeze autotest] {"dir":"/home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test","event":"start","t":1791485291058}
+--
+170:[18:48:18] [Realms Notification Availability checker #1/INFO]: Could not authorize you against Realms server: javax.ws.rs.BadRequestException: Invalid session
+171-[18:48:18] [Render thread/INFO]: [Breeze autotest] {"file":"screenshots/autotest-title-menu.png","event":"screenshot","t":1791485298220}
+172-[18:48:18] [Render thread/INFO]: [Breeze autotest] {"modules":"81","found":"81","missing":"","fallbacks":{"Saturation":"textures/gui/icons.png","Hearts":"textures/gui/icons.png"},"pass":"true","event":"module-icons","t":1791485298243}
+173-[18:48:18] [Render thread/INFO]: [Breeze autotest] {"integrations":[{"id":"modmenu","name":"Mod Menu","provider":"modmenu","actions":[{"id":"mods","label":"Mod Menu"},{"id":"config:appleskin","label":"AppleSkin settings","mod":"appleskin"},{"id":"config:cloth-config","label":"Cloth Config v11 settings","mod":"cloth-config"},{"id":"config:iris","label":"Iris settings","mod":"iris"},{"id":"config:jade","label":"Jade settings","mod":"jade"},{"id":"config:modernfix","label":"ModernFix settings","mod":"modernfix"},{"id":"config:modmenu","label":"Mod Menu settings","mod":"modmenu"}]}],"problems":[],"event":"integrations","t":1791485298244}
+174-[18:48:18] [Render thread/INFO]: [Breeze autotest] {"kind":"breeze-web","scale":3.0,"items":[],"event":"targets","t":1791485298245}
+175-[18:48:18] [Render thread/INFO]: [Breeze autotest] {"mode":"web","event":"READY_FOR_INPUT","t":1791485298246}
+176-[18:48:18] [Render thread/WARN]: Missing sound for event: minecraft:item.goat_horn.play
+177-[18:48:18] [Render thread/WARN]: Missing sound for event: minecraft:entity.goat.screaming.horn_break
+178-[18:48:18] [Render thread/ERROR]: Error starting SoundSystem. Turning off sounds & music
+179:java.lang.IllegalStateException: Failed to open OpenAL device
+180-	at net.minecraft.class_4225.method_38501(class_4225.java:283) ~[client-intermediary.jar:?]
+181-	at net.minecraft.class_4225.method_19661(class_4225.java:153) ~[client-intermediary.jar:?]
+182-	at net.minecraft.class_1140.method_4846(class_1140.java:116) ~[client-intermediary.jar:?]
+183-	at net.minecraft.class_1140.method_4837(class_1140.java:106) ~[client-intermediary.jar:?]
+184-	at net.minecraft.class_1144.method_18182(class_1144.java:125) ~[client-intermediary.jar:?]
+185-	at net.minecraft.class_1144.method_18788(class_1144.java:40) ~[client-intermediary.jar:?]
+186-	at net.minecraft.class_4080.method_18790(class_4080.java:13) ~[client-intermediary.jar:?]
+187-	at java.util.concurrent.CompletableFuture$UniAccept.tryFire(CompletableFuture.java:718) ~[?:?]
+188-	at java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:482) ~[?:?]
+189-	at net.minecraft.class_4014.method_18365(class_4014.java:69) ~[client-intermediary.jar:?]
+190-	at net.minecraft.class_1255.method_18859(class_1255.java:156) ~[client-intermediary.jar:?]
+191-	at net.minecraft.class_4093.method_18859(class_4093.java:23) ~[client-intermediary.jar:?]

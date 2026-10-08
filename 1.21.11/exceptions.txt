@@ -1,0 +1,126 @@
+80:[18:48:02] [main/WARN]: Error loading class: mezz/jei/fabric/platform/RenderHelper (java.lang.ClassNotFoundException: mezz/jei/fabric/platform/RenderHelper)
+81-[18:48:02] [main/WARN]: @Mixin target mezz.jei.fabric.platform.RenderHelper was not found appleskin.jei.mixins.json:JEIRenderHelperMixin from mod appleskin
+82-[18:48:03] [main/WARN]: Force-disabling mixin 'features.render.world.sky.LevelRendererMixin' as rule 'mixin.features.render.world.sky' (added by mods [iris]) disables it and children
+83-[18:48:03] [main/INFO]: Searching for graphics cards...
+84-[18:48:03] [main/WARN]: Could not find any graphics adapters! Probably the device is not on a bus we can probe, or there are no devices supporting 3D acceleration.
+85-[18:48:03] [main/WARN]: Sodium has applied one or more workarounds to prevent crashes or other issues on your system: [NO_ERROR_CONTEXT_UNSUPPORTED]
+86-[18:48:03] [main/WARN]: This is not necessarily an issue, but it may result in certain features or optimizations being disabled. You can sometimes fix these issues by upgrading your graphics driver.
+87-[18:48:03] [main/INFO]: Initializing MixinExtras via com.llamalad7.mixinextras.service.MixinExtrasServiceImpl(version=0.5.5).
+88-[18:48:04] [Datafixer Bootstrap/INFO]: 287 Datafixer optimizations took 528 milliseconds
+89-[18:48:09] [Rinku-Downloader/INFO]: java-cef commit: 2eb4ca2648bda91d1dfed81e9a37ba92e757aff9
+90-[18:48:09] [Rinku-Downloader/INFO]: Downloading JCEF asset archive.tar.gz.sha256 from https://github.com
+91-[18:48:10] [Render thread/INFO]: Environment: Environment[sessionHost=https://sessionserver.mojang.com, servicesHost=https://api.minecraftservices.com, profilesHost=https://api.mojang.com, name=PROD]
+92-[18:48:10] [Render thread/INFO]: Setting user: BreezeDev
+--
+95:com.mojang.authlib.exceptions.InvalidCredentialsException: Status: 401
+96:	at knot//com.mojang.authlib.exceptions.MinecraftClientHttpException.toAuthenticationException(MinecraftClientHttpException.java:59)
+97-	at knot//com.mojang.authlib.yggdrasil.YggdrasilUserApiService.fetchProperties(YggdrasilUserApiService.java:150)
+98-	at knot//net.minecraft.class_310.method_55608(class_310.java:457)
+99-	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1768)
+100-	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+101-	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+102-	at java.base/java.lang.Thread.run(Thread.java:1583)
+103:Caused by: com.mojang.authlib.exceptions.MinecraftClientHttpException: Status: 401
+104-	at knot//com.mojang.authlib.minecraft.client.MinecraftClient.readInputStream(MinecraftClient.java:103)
+105-	at knot//com.mojang.authlib.minecraft.client.MinecraftClient.get(MinecraftClient.java:56)
+106-	at knot//com.mojang.authlib.yggdrasil.YggdrasilUserApiService.fetchProperties(YggdrasilUserApiService.java:121)
+107-	... 5 more
+108-[18:48:10] [Render thread/INFO]: [Breeze] Registered 81 modules
+109-[18:48:10] [Render thread/INFO]: [Breeze] Web interface found at assets/breeze/html/index.html
+110-[18:48:10] [Render thread/INFO]: [Breeze autotest] {"dir":"/home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test","event":"start","t":1791485290584}
+111-[18:48:10] [Rinku-Downloader/INFO]: Downloading JCEF asset archive.tar.gz from https://github.com
+112-[18:48:10] [Render thread/INFO]: [Indigo] Different rendering plugin detected; not applying Indigo.
+113-[18:48:10] [Render thread/ERROR]: Mod appleskin provides a broken implementation of ModMenuApi
+114:java.lang.RuntimeException: cloth-config not loaded
+115-	at knot//squeek.appleskin.gui.ModMenuIntegration.getModConfigScreenFactory(ModMenuIntegration.java:20)
+116-	at knot//com.terraformersmc.modmenu.ModMenu.lambda$onInitializeClient$0(ModMenu.java:107)
+117-	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+118-	at knot//com.terraformersmc.modmenu.ModMenu.onInitializeClient(ModMenu.java:101)
+119-	at net.fabricmc.loader.impl.FabricLoaderImpl.invokeEntrypoints(FabricLoaderImpl.java:409)
+120-	at net.fabricmc.loader.impl.game.minecraft.Hooks.startClient(Hooks.java:53)
+121-	at knot//net.minecraft.class_310.<init>(class_310.java:475)
+122-	at knot//net.minecraft.client.main.Main.main(Main.java:234)
+123-	at net.fabricmc.loader.impl.game.minecraft.MinecraftGameProvider.launch(MinecraftGameProvider.java:517)
+124-	at net.fabricmc.loader.impl.launch.knot.Knot.launch(Knot.java:72)
+125-	at net.fabricmc.loader.impl.launch.knot.KnotClient.main(KnotClient.java:23)
+126-[18:48:10] [Render thread/INFO]: Checking mod updates...
+--
+143:[18:48:13] [Download-1/INFO]: Could not authorize you against Realms server: javax.ws.rs.BadRequestException: Invalid session
+144-[18:48:13] [Download-1/ERROR]: Failed to fetch Realms feature flags
+145:net.minecraft.class_4355: Realms authentication error with message 'javax.ws.rs.BadRequestException: Invalid session'
+146-	at knot//net.minecraft.class_4341.method_20998(class_4341.java:526)
+147-	at knot//net.minecraft.class_4341.method_68466(class_4341.java:186)
+148-	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1768)
+149-	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+150-	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+151-	at java.base/java.lang.Thread.run(Thread.java:1583)
+152-[18:48:13] [Render thread/INFO]: Reloading ResourceManager: vanilla, appleskin, breeze, entityculling, fabric-api, fabric-api-base, fabric-api-lookup-api-v1, fabric-biome-api-v1, fabric-block-api-v1, fabric-block-view-api-v2, fabric-command-api-v2, fabric-content-registries-v0, fabric-convention-tags-v1, fabric-convention-tags-v2, fabric-crash-report-info-v1, fabric-data-attachment-api-v1, fabric-data-generation-api-v1, fabric-dimensions-v1, fabric-entity-events-v1, fabric-events-interaction-v0, fabric-game-rule-api-v1, fabric-item-api-v1, fabric-item-group-api-v1, fabric-key-binding-api-v1, fabric-lifecycle-events-v1, fabric-loot-api-v2, fabric-loot-api-v3, fabric-message-api-v1, fabric-model-loading-api-v1, fabric-networking-api-v1, fabric-object-builder-api-v1, fabric-particles-v1, fabric-recipe-api-v1, fabric-registry-sync-v0, fabric-renderer-api-v1, fabric-renderer-indigo, fabric-rendering-fluids-v1, fabric-rendering-v1, fabric-resource-conditions-api-v1, fabric-resource-loader-v0, fabric-resource-loader-v1, fabric-screen-api-v1, fabric-screen-handler-api-v1, fabric-serialization-api-v1, fabric-sound-api-v1, fabric-tag-api-v1, fabric-transfer-api-v1, fabric-transitive-access-wideners-v1, fabricloader, immediatelyfast, iris, jade, lithium, modmenu, placeholder-api, rinku, sodium, trender
+153:[18:48:13] [Render thread/WARN]: [Breeze] AppleSkin's settings could not be read: RuntimeException: cloth-config not loaded
+154-[18:48:13] [Render thread/INFO]: [Breeze] Integrations: Mod Menu available, 6 settings screens, 0 Breeze entries, 1 problems
+155-[18:48:13] [Render thread/INFO]: Start loading plugin from Jade: snownee.jade.addon.core.CorePlugin
+156-[18:48:13] [Render thread/INFO]: Start loading plugin from Jade: snownee.jade.addon.vanilla.VanillaPlugin
+157-[18:48:13] [Render thread/INFO]: Start loading plugin from Jade: snownee.jade.addon.universal.UniversalPlugin
+158-[18:48:13] [Render thread/INFO]: Start loading plugin from Jade: snownee.jade.addon.access.AccessibilityPlugin
+159-[18:48:13] [Render thread/INFO]: Start loading plugin from Jade: snownee.jade.addon.debug.DebugPlugin
+160-[18:48:14] [Render thread/INFO]: [Breeze autotest] {"class":"de.keksuccino.rinku.binarydownload.RinkuDownloaderScreen","kind":"other","liveBrowsers":"0","event":"screen","t":1791485294043}
+161-[18:48:14] [ForkJoinPool.commonPool-worker-2/WARN]: [Breeze] friends refresh failed: HTTP 404
+162-[18:48:14] [Render thread/INFO]: [Breeze autotest] {"kind":"other","scale":3.0,"items":[],"event":"targets","t":1791485294144}
+163-[18:48:14] [Worker-Main-2/INFO]: Found unifont_all_no_pua-17.0.01.hex, loading
+164-[18:48:14] [Worker-Main-1/INFO]: Found unifont_pua-17.0.01.hex, loading
+165-[18:48:14] [Worker-Main-2/INFO]: Found unifont_jp_patch-17.0.01.hex, loading
+--
+167:java.lang.IllegalStateException: Failed to open OpenAL device
+168-	at knot//net.minecraft.class_4225.method_38501(class_4225.java:292)
+169-	at knot//net.minecraft.class_4225.method_19661(class_4225.java:150)
+170-	at knot//net.minecraft.class_1140.method_4846(class_1140.java:119)
+171-	at knot//net.minecraft.class_1140.method_4837(class_1140.java:109)
+172-	at knot//net.minecraft.class_1144.method_18182(class_1144.java:122)
+173-	at knot//net.minecraft.class_1144.method_18788(class_1144.java:41)
+174-	at knot//net.minecraft.class_4080.method_18790(class_4080.java:15)
+175-	at java.base/java.util.concurrent.CompletableFuture$UniAccept.tryFire(CompletableFuture.java:718)
+176-	at java.base/java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:482)
+177-	at knot//net.minecraft.class_4014.method_67574(class_4014.java:59)
+178-	at knot//net.minecraft.class_1255.method_18859(class_1255.java:169)
+179-	at knot//net.minecraft.class_4093.method_18859(class_4093.java:23)
+--
+215:[18:48:24] [IO-Worker-1/INFO]: Could not authorize you against Realms server: javax.ws.rs.BadRequestException: Invalid session
+216-[18:48:24] [IO-Worker-1/ERROR]: Couldn't connect to realms
+217:net.minecraft.class_4355: Realms authentication error with message 'javax.ws.rs.BadRequestException: Invalid session'
+218-	at knot//net.minecraft.class_4341.method_20998(class_4341.java:526)
+219-	at knot//net.minecraft.class_4341.method_21027(class_4341.java:307)
+220-	at knot//net.minecraft.class_8647.method_52627(class_8647.java:48)
+221-	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1768)
+222-	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+223-	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+224-	at java.base/java.lang.Thread.run(Thread.java:1583)
+225-[18:48:24] [ForkJoinPool.commonPool-worker-2/WARN]: [Breeze] friends refresh failed: HTTP 404
+226-[18:48:24] [Render thread/INFO]: [Breeze autotest] {"kind":"breeze-web","scale":3.0,"items":[],"event":"targets","t":1791485304371}
+227-[18:48:24] [Render thread/INFO]: [Breeze autotest] {"file":"screenshots/autotest-title-menu.png","event":"screenshot","t":1791485304819}
+228-[18:48:24] [Render thread/INFO]: [Breeze autotest] {"modules":"81","found":"81","missing":"","fallbacks":{"Reconnect":"textures/item/iron_chain.png"},"pass":"true","event":"module-icons","t":1791485304875}
+229:[18:48:24] [Render thread/INFO]: [Breeze autotest] {"integrations":[{"id":"modmenu","name":"Mod Menu","provider":"modmenu","actions":[{"id":"mods","label":"Mod Menu"},{"id":"config:entityculling","label":"EntityCulling settings","mod":"entityculling"},{"id":"config:iris","label":"Iris settings","mod":"iris"},{"id":"config:jade","label":"Jade settings","mod":"jade"},{"id":"config:modmenu","label":"Mod Menu settings","mod":"modmenu"},{"id":"config:rinku","label":"Rinku settings","mod":"rinku"},{"id":"config:trender","label":"TRender settings","mod":"trender"}]}],"problems":[{"provider":"modmenu","mod":"appleskin","detail":"AppleSkin's settings could not be read: RuntimeException: cloth-config not loaded"}],"event":"integrations","t":1791485304875}
+230-[18:48:24] [Render thread/INFO]: [Breeze autotest] {"kind":"breeze-web","scale":3.0,"items":[],"event":"targets","t":1791485304876}
+231-[18:48:24] [Render thread/INFO]: [Breeze autotest] {"mode":"web","event":"READY_FOR_INPUT","t":1791485304877}
+232-[18:48:24] [JCEF-Lifecycle/INFO]: [Breeze] the interface page answered 605 ms after its browser opened
+233-[18:48:24] [JCEF-Lifecycle/INFO]: [Breeze autotest] {"action":"app.hello","event":"bridge","t":1791485304952}
+234-[18:48:25] [JCEF-Lifecycle/INFO]: [Breeze autotest] {"action":"settings.get","event":"bridge","t":1791485305043}
+235-[18:48:25] [JCEF-Lifecycle/INFO]: [Breeze autotest] {"action":"game.state","event":"bridge","t":1791485305184}
+236-[18:48:25] [JCEF-Lifecycle/INFO]: [Breeze autotest] {"action":"account.get","event":"bridge","t":1791485305185}
+237-[18:48:25] [JCEF-Lifecycle/INFO]: [Breeze autotest] {"action":"modules.list","event":"bridge","t":1791485305225}
+238-[18:48:25] [JCEF-Lifecycle/INFO]: [Breeze autotest] {"action":"integrations.list","event":"bridge","t":1791485305226}
+239-[18:48:25] [JCEF-Lifecycle/INFO]: [Breeze autotest] {"action":"ui.route","params":{"route":"home"},"event":"bridge","t":1791485305226}
+240-[18:48:29] [ForkJoinPool.commonPool-worker-2/WARN]: [Breeze] friends refresh failed: HTTP 404
+241-[18:48:30] [Render thread/INFO]: [Breeze autotest] {"code":"258","event":"key","t":1791485310658}
+--
+294:[18:48:56] [Render thread/INFO]: [Breeze autotest] {"integrations":[{"id":"modmenu","name":"Mod Menu","provider":"modmenu","actions":[{"id":"mods","label":"Mod Menu"},{"id":"config:entityculling","label":"EntityCulling settings","mod":"entityculling"},{"id":"config:iris","label":"Iris settings","mod":"iris"},{"id":"config:jade","label":"Jade settings","mod":"jade"},{"id":"config:modmenu","label":"Mod Menu settings","mod":"modmenu"},{"id":"config:rinku","label":"Rinku settings","mod":"rinku"},{"id":"config:trender","label":"TRender settings","mod":"trender"}]}],"problems":[{"provider":"modmenu","mod":"appleskin","detail":"AppleSkin's settings could not be read: RuntimeException: cloth-config not loaded"}],"event":"integrations","t":1791485336706}
+295-[18:48:56] [Render thread/INFO]: [Breeze autotest] {"id":"modmenu","screen":"com.terraformersmc.modmenu.gui.ModsScreen","pass":"true","event":"integration-open","t":1791485336707}
+296-[18:48:56] [Render thread/INFO]: [Breeze] interface browser closed (0 live)
+297-[18:48:56] [Render thread/INFO]: [Breeze autotest] {"class":"com.terraformersmc.modmenu.gui.ModsScreen","kind":"other","liveBrowsers":"0","event":"screen","t":1791485336903}
+298-[18:48:56] [Render thread/INFO]: [Breeze autotest] {"cycle":"0","liveBrowsers":"0","heapMb":"401","event":"cycle-close","t":1791485336903}
+299-[18:48:56] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live)
+300-[18:48:56] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1791485336904}
+301-[18:48:56] [Render thread/INFO]: [Breeze autotest] {"cycle":"1","painted":"true","ms":"91","liveBrowsers":"1","event":"cycle-open","t":1791485336995}
+302-[18:48:56] [Render thread/INFO]: [Breeze] interface browser closed (0 live)
+303-[18:48:57] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_429","kind":"options","liveBrowsers":"0","event":"screen","t":1791485337185}
+304-[18:48:57] [Render thread/INFO]: [Breeze autotest] {"cycle":"1","liveBrowsers":"0","heapMb":"284","event":"cycle-close","t":1791485337187}
+305-[18:48:57] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live)
+306-[18:48:57] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1791485337191}
