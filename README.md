@@ -1,11 +1,6 @@
 # launcher-build
 
-A branch of its own for building the Breeze Launcher installers while the
-private repository's Actions are unavailable. It shares no history with
-`main` and holds no launcher source at its tip: the source is pushed in the
-commit before the one that runs, the workflow
-(`.github/workflows/launcher.yml`) restores it from there, and the branch is
-emptied to this README when the build is done.
-
-The installers go to a draft release (visible only to the owner). Launch
-screenshots go to `ci/launcher-smoke-<run>-<os>` branches.
+Used once, on 2026-10-08 (run 37816327891), to build the Breeze Launcher
+1.0.28 installers while the private repository's Actions were unavailable.
+Nothing here now: the launcher source and the workflow are gone from this
+branch. The installers are in a draft release, visible only to the owner.
