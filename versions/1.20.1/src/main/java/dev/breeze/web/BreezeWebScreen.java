@@ -43,6 +43,8 @@ public final class BreezeWebScreen extends BreezeScreen {
     private final ConcurrentLinkedQueue<Runnable> afterAnswer = new ConcurrentLinkedQueue<>();
     private volatile long escapeDeadline;
     private volatile int escapeAnswer; // 0 none, 1 handled, 2 not handled
+    /** This screen could not open its browser and is handing over to another. */
+    private boolean fellBack;
     /** Escapes in a row the page did not answer. Reset by any answer. */
     private int unansweredEscapes;
 
@@ -63,6 +65,10 @@ public final class BreezeWebScreen extends BreezeScreen {
 
     @Override
     protected void init() {
+        // Minecraft can call init again (a resize) before the fallback has
+        // switched screens; one failed screen is one failed open, not two
+        // (the web-open probe, run 37776057267, counted two in one second).
+        if (fellBack) return;
         if (browser == null || browser.isClosed()) {
             browser = BreezeBrowser.open(Handlers.build(this), width, height);
             if (browser == null) {
@@ -84,6 +90,7 @@ public final class BreezeWebScreen extends BreezeScreen {
      * setScreen halfway through the one that is showing this screen.
      */
     private void fallBack(String why) {
+        fellBack = true;
         Minecraft mc = Minecraft.getInstance();
         if (ingame) {
             BreezeClient.LOGGER.warn("[Breeze] web menu unavailable ({}); using the native menu", why);
