@@ -60,6 +60,16 @@ settings one click from Breeze's, and other mods in Breeze's menus.
   Settings page, and a button at the top of the native settings screen. It
   opens Minecraft's own options; Done comes back to Breeze.
 
+### Fixed
+- **Mod Menu's mods list crashed the game** on versions with an older Mod
+  Menu (seen with 7.2.2 on 1.20.1): Breeze's `fabric.mod.json` declared the
+  badge `client`, which is not a badge key (Mod Menu gives that badge from
+  `"environment": "client"` itself), and that Mod Menu drew the unknown key as
+  a null badge (`Mod$Badge.getText()` on null in `ModBadgeRenderer`). The
+  block is gone; Breeze still shows as client-side. Found in run 37769870690,
+  whose mods summary lists every mod's declared badges: only Breeze declared
+  `client`.
+
 ### Tests
 - `ModuleIconsTest` (6), `ImageDataTest` (PNG size), `ArmorHudLayoutTest`
   (hands and stack counts).
