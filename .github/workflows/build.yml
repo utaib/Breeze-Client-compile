@@ -37,6 +37,9 @@ on:
       fail_web_opens:
         description: 'Web menu recovery probe: the first N opens of the web menu fail on purpose, and it must come back by itself (empty for off)'
         default: ''
+      stall_web_pages:
+        description: 'Web page watchdog probe: the first N web menu browsers open a page that never starts, and each must be replaced by itself (empty for off)'
+        default: ''
 
 concurrency:
   group: breeze-mod-new-${{ github.ref }}
@@ -292,6 +295,7 @@ jobs:
       - name: Launch in a real Fabric install, drive and check
         env:
           BREEZE_FAIL_WEB_OPENS: ${{ inputs.fail_web_opens }}
+          BREEZE_STALL_WEB_PAGES: ${{ inputs.stall_web_pages }}
         run: |
           BREEZE_LAUNCH=prod BREEZE_MC="$MC" BREEZE_LOADER="${LAUNCHER_LOADER:-$LOADER}" \
           BREEZE_ADDMODS="${LAUNCHER_LOADER:+1}" \
@@ -359,6 +363,11 @@ jobs:
           tail -150 "$RESULT/minecraft-latest.log" > "$RUNNER_TEMP/shots/$MC/latest-log-tail.txt" 2>/dev/null || true
           # Mod Menu's own word on badges it does not know, and who declared them.
           grep -iE 'badge' "$RESULT/minecraft-latest.log" > "$RUNNER_TEMP/shots/$MC/modmenu-badges.txt" 2>/dev/null || true
+          # Font loading (Breeze adds a glyph to Minecraft's default font).
+          grep -iE 'font|glyph|provider' "$RESULT/minecraft-latest.log" | head -80 > "$RUNNER_TEMP/shots/$MC/fonts.txt" 2>/dev/null || true
+          # Start-up, where resources and fonts load, and every exception with its first lines.
+          head -300 "$RESULT/minecraft-latest.log" > "$RUNNER_TEMP/shots/$MC/startup-log.txt" 2>/dev/null || true
+          grep -n -A12 -E 'Exception|Error:' "$RESULT/minecraft-latest.log" | head -200 > "$RUNNER_TEMP/shots/$MC/exceptions.txt" 2>/dev/null || true
           cp "$RESULT/mods-summary.jsonl" "$RESULT/runtime-mods.json" "$RUNNER_TEMP/shots/$MC/" 2>/dev/null || true
           grep -hE '"event":"(integrations|integration-open)"' "$RESULT/breeze-autotest.log" > "$RUNNER_TEMP/shots/$MC/integrations.jsonl" 2>/dev/null || true
           grep -E '\.java:[0-9]+: error:' "$RUNNER_TEMP/gradle.log" > "$RUNNER_TEMP/shots/$MC/compile-errors.txt" 2>/dev/null || true

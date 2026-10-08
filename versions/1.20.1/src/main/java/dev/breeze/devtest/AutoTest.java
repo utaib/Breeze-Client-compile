@@ -256,7 +256,7 @@ public final class AutoTest {
 
     // ── In a world (after the menu checks) ─────────────────────────────────
 
-    private enum World { IDLE, OPENED, FPS, IN_WORLD, ARMOR, INVENTORY, PERSONAL_CAPE, LAYOUT, SWEEP, EDITING, WARDROBE, REAL, DONE }
+    private enum World { IDLE, OPENED, FPS, IN_WORLD, ARMOR, INVENTORY, PERSONAL_CAPE, LAYOUT, SWEEP, EDITING, WARDROBE, TAGS, REAL, DONE }
 
     /** Taken off again once the Armor HUD has been looked at. */
     private static boolean armourOff;
@@ -449,11 +449,25 @@ public final class AutoTest {
                 shot(mc, "autotest-in-world");
                 write("hud-check", HudSweep.check());
 
-                // Tags are a Wind Charge icon: a character the mod's font files
-                // map to an 8 pixel picture, so it is 9 wide with its spacing.
-                // Without the font it would be the narrower missing-glyph box.
-                int iconW = mc.font.width(dev.breeze.BreezeTag.ICON);
-                log("tag-icon", "width", String.valueOf(iconW), "pass", String.valueOf(iconW == 9));
+                // Tags are Wind Charge pictures, one character per colour that
+                // the mod's font files map to a 12 by 10 picture drawn 8 high,
+                // so each is 11 wide with its spacing. A character the font
+                // lacks would be the narrower missing-glyph box.
+                int wantW = dev.breeze.compat.TagGlyph.WIDTH;
+                StringBuilder widths = new StringBuilder();
+                boolean iconsOk = true;
+                for (int rgb : new int[] {0xFFFFFF, 0x55C8FF, 0x55FF55, 0xFF69B4, 0xA56EFF, 0xFF5555, 0xFFD23F}) {
+                    int w = mc.font.width(dev.breeze.BreezeTag.icon(rgb));
+                    if (widths.length() > 0) widths.append(',');
+                    widths.append(w);
+                    iconsOk &= wantW < 0 ? w > 0 : w == wantW;
+                }
+                log("tag-icon", "width", widths.toString(), "pass", String.valueOf(iconsOk));
+                // Minecraft's own text must still draw: with every glyph
+                // missing, each character is the same box and "i" is as wide
+                // as "W" (1.17 from 2.10.0 until 2.12.0).
+                int narrow = mc.font.width("i"), wide = mc.font.width("W");
+                log("font-check", "i", String.valueOf(narrow), "W", String.valueOf(wide), "pass", String.valueOf(narrow > 0 && narrow < wide));
 
                 String breeze = String.valueOf(dev.breeze.cape.RemoteCapes.capeFor(mc.player.getUUID()));
                 String vanilla = String.valueOf(dev.breeze.compat.Capes.vanillaCape(mc.player));
@@ -653,6 +667,26 @@ public final class AutoTest {
                 log("wardrobe-check", "status", String.valueOf(dev.breeze.cosmetics.OwnedModels.status()),
                         "listed", String.valueOf(listed), "equipped", String.valueOf(equipped),
                         "worn", String.valueOf(worn), "draws", String.valueOf(draws), "pass", String.valueOf(pass));
+                // Then the Tags tab: each tag the stand-in API lists, drawn
+                // with its Wind Charge picture, for the screenshot.
+                dev.breeze.compat.ActiveScreen.set(mc, new dev.breeze.menu.WardrobeScreen(null, "Tags"));
+                world = World.TAGS;
+                worldAt = System.currentTimeMillis();
+            }
+            case TAGS -> {
+                java.util.List<dev.breeze.cosmetics.CosmeticState.TagInfo> tags =
+                        dev.breeze.cosmetics.CosmeticState.get(mc.player.getUUID()).availableTags;
+                if ((tags.isEmpty() || age < 2_500) && age < 20_000) return;
+                shot(mc, "autotest-wardrobe-tags");
+                StringBuilder pictures = new StringBuilder();
+                synchronized (tags) {
+                    for (dev.breeze.cosmetics.CosmeticState.TagInfo t : tags) {
+                        if (pictures.length() > 0) pictures.append(',');
+                        pictures.append(t.name).append(':').append(dev.breeze.ui.TagArt.of(t.color & 0xFFFFFF));
+                    }
+                }
+                log("wardrobe-tags", "count", String.valueOf(tags.size()), "pictures", pictures.toString(),
+                        "pass", String.valueOf(!tags.isEmpty()));
                 dev.breeze.compat.ActiveScreen.set(mc, null);
                 // Then the real cosmetics, if the catalogue could be read.
                 realIds.clear();

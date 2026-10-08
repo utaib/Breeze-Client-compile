@@ -94,6 +94,7 @@ if [ "$MODE" = prod ]; then
   # The first N opens of the web menu fail on purpose: it must come back on
   # its own (drive-minecraft.sh checks the log).
   [ -n "${BREEZE_FAIL_WEB_OPENS:-}" ] && jvm="$jvm -Dbreeze.autotest.failWebOpens=$BREEZE_FAIL_WEB_OPENS"
+  [ -n "${BREEZE_STALL_WEB_PAGES:-}" ] && jvm="$jvm -Dbreeze.autotest.stallWebPages=$BREEZE_STALL_WEB_PAGES"
   if [ "${BREEZE_ADDMODS:-}" = 1 ]; then
     jvm="$jvm -Dfabric.addMods=$RUN/breeze-runtime/$(basename "$BREEZE_JAR")"
     echo "[run] Breeze handed over with -Dfabric.addMods, as the launcher does" | tee -a "$OUT/driver.log"

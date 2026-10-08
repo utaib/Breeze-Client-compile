@@ -90,6 +90,22 @@ if [ -n "${BREEZE_FAIL_WEB_OPENS:-}" ] && ! grep '"event":"READY_FOR_INPUT"' "$L
   fi
 fi
 
+# Pages that never start (BREEZE_STALL_WEB_PAGES): each browser must be
+# replaced by itself, with the reason logged, and the page must then start.
+if [ -n "${BREEZE_STALL_WEB_PAGES:-}" ] && ! grep '"event":"READY_FOR_INPUT"' "$LOG" | tail -1 | grep -q '"mode":"native"'; then
+  game_log="${BREEZE_GAME_LOG:-$OUT/minecraft-latest.log}"
+  i=0
+  while [ "$i" -lt 60 ] && [ "$(grep -c 'interface page answered' "$game_log" 2>/dev/null || true)" -lt 1 ]; do sleep 1; i=$((i + 1)); done
+  stalled=$(grep -c 'page did not start' "$game_log" 2>/dev/null || true)
+  started=$(grep -c 'interface page answered' "$game_log" 2>/dev/null || true)
+  grep -E 'never starts|page did not start|interface page answered|trying the web menu again' "$game_log" 2>/dev/null | tee -a "$DRIVER"
+  if [ "${stalled:-0}" -eq "$BREEZE_STALL_WEB_PAGES" ] && [ "${started:-0}" -ge 1 ]; then
+    pass "after $BREEZE_STALL_WEB_PAGES page(s) that never started, each browser was replaced by itself and the page then started"
+  else
+    fail "after $BREEZE_STALL_WEB_PAGES stalled page(s): $stalled replaced, $started started"
+  fi
+fi
+
 # No embedded browser on this Minecraft version: the native menus are the
 # interface, and drive-native.sh tests those.
 if grep '"event":"READY_FOR_INPUT"' "$LOG" | tail -1 | grep -q '"mode":"native"'; then
@@ -115,9 +131,13 @@ click() { xdotool mousemove --window "$WID" "$1" "$2"; sleep 0.25; xdotool click
 # that go nowhere: in run 36837259634 (1.20.4, 1.21.2) the page mounted 2.5
 # to 3 s after READY_FOR_INPUT, one Tab was lost, and Enter opened
 # Multiplayer instead of Mods.
+# A page that has not started 12 s after its browser opened is replaced
+# (BreezeWebScreen.watchPage: Minecraft's title for 3 s, then a fresh
+# browser), so the wait covers one replacement.
 i=0
-while [ "$i" -lt 30 ] && ! grep -q '"action":"ui.route"' "$LOG"; do sleep 1; i=$((i + 1)); done
+while [ "$i" -lt 45 ] && ! grep -q '"action":"ui.route"' "$LOG"; do sleep 1; i=$((i + 1)); done
 grep -q '"action":"ui.route"' "$LOG" || say "the page never reported a route; going on"
+grep -E 'page did not start|interface page answered' "${BREEZE_GAME_LOG:-$OUT/minecraft-latest.log}" 2>/dev/null | tee -a "$DRIVER" || true
 sleep 1
 shot 01-title-menu 2
 

@@ -98,7 +98,35 @@ settings one click from Breeze's, and other mods in Breeze's menus.
   Settings page, and a button at the top of the native settings screen. It
   opens Minecraft's own options; Done comes back to Breeze.
 
+### Changed
+- **Tags are Breeze's own Wind Charge art** (owner: "the asset we have like
+  the wind charge"). Since 2.10.0 a tag was a small grey 8 pixel drawing
+  tinted with the tag's colour. Now it is the repository's Wind Charge
+  pictures (`sty/*wind_charge.png`, the same files as the web menu's), each
+  cut to the 12x10 pixels the charge covers, unscaled and checked pixel for
+  pixel against the 512 pixel originals, and drawn in their own colours:
+  red for Owner, purple for Developer and Admin, yellow for Creator and
+  Donator, blue for Breeze, green, pink, and the plain one for a grey
+  (`common/.../ui/TagArt` picks it from the API's tag colour). They are
+  seven characters of the font (U+EB2E to U+EB34,
+  `assets/breeze/textures/font/tags.png`), 8 high like Minecraft's letters,
+  above the head, in the tab list, in chat and in the Wardrobe (which shows
+  each tag's picture with its name in the tag's colour). On 1.17 the tag
+  stays a star in the tag's colour: that version's font cannot take Breeze's
+  font file (see the 1.17 fix below).
+
 ### Fixed
+- **Every text in Minecraft 1.17 drew as empty boxes** (2.10.0 to 2.11.0,
+  1.17 only), Minecraft's own menus and chat included. The Wind Charge tag
+  glyph is added through `minecraft:font/default.json` and `uniform.json`;
+  with the Fabric API that exists for 1.17 (0.36.0, which serves every mod's
+  resources as one pack) that file took the place of Minecraft's font
+  instead of adding to it, silently. 1.17.1 and later add to it as they
+  should (checked in screenshots of 1.17.1, 1.18, 1.18.2, 1.19, 1.19.2 to
+  1.19.4, 1.20). The 1.17 jar no longer carries those files, and its tag is
+  a star from Minecraft's own font. The self-test now checks that "i" draws
+  narrower than "W" on every version (`font-check`); the old tag check
+  passed on 1.17 because the Wind Charge glyph itself was there.
 - **One failed open of the web menu switched it off until restart.** When
   the embedded browser could not be created, or its page origin or bridge
   could not be set up, the title screen became Minecraft's for the whole
@@ -112,6 +140,18 @@ settings one click from Breeze's, and other mods in Breeze's menus.
   own lines before it. The cause of the fallback players saw is not proven:
   CI starts the web menu on every web version; a player's `latest.log` from
   a session where it happened would show which reason it was.
+- **The web menu could stay dark with a page that never started.** In run
+  37783649946 on 26.1.1, the first browser after Chromium's first download
+  painted nothing and its page never ran for over a minute (keys and clicks
+  did nothing), while the next browser, opened later in the run, worked.
+  Nothing noticed: the open had "succeeded" when the browser was created.
+  Now an open succeeds when the page first calls the bridge (logged as "the
+  interface page answered N ms after its browser opened"). A page that has
+  not done so 12 s after its browser opened counts as a failed open, with
+  the reason (Chromium painted nothing, or painted but the script never
+  reached the bridge): Minecraft's title screen for 3 s, then a fresh
+  browser, up to 3 times a session, as for the other failed opens. Whether
+  this is what players saw as the fallback is not proven (UNVERIFIED).
 - **Mod Menu's mods list crashed the game** on versions with an older Mod
   Menu (seen with 7.2.2 on 1.20.1): Breeze's `fabric.mod.json` declared the
   badge `client`, which is not a badge key (Mod Menu gives that badge from
@@ -124,6 +164,13 @@ settings one click from Breeze's, and other mods in Breeze's menus.
 ### Tests
 - `ModuleIconsTest` (6), `ImageDataTest` (PNG size), `ArmorHudLayoutTest`
   (hands and stack counts).
+- `TagArtTest` (4): the API's role colours get their pictures, the font
+  files list one character per picture over the whole sheet with letter
+  metrics, and every picture reaches its cell's edge. In game, `tag-icon`
+  measures all seven characters (11 wide each, or the star on 1.17), and
+  the world step opens the Wardrobe's Tags tab with the six tags of the live
+  tags table (served by the stand-in API, Owner worn) and screenshots it
+  (`autotest-wardrobe-tags`, event `wardrobe-tags`).
 - In game: the self-test logs `module-icons` (every module found its icon in
   that version's textures, and which needed a later place to look); the
   world step equips worn diamond and iron armour, a diamond sword and a
@@ -152,6 +199,11 @@ settings one click from Breeze's, and other mods in Breeze's menus.
 - `fail_web_opens` (CI input): the first N opens of the web menu fail on
   purpose (`-Dbreeze.autotest.failWebOpens`); the driver requires each to be
   logged with its reason and the web menu to come back by itself.
+- `stall_web_pages` (CI input): the first N browsers open `about:blank`, a
+  page that never calls the bridge (`-Dbreeze.autotest.stallWebPages`); the
+  driver requires each to be replaced by itself and the real page to start.
+  The driver now waits up to 45 s for the page's first route, enough for one
+  replacement, and prints the page's start time from the game log.
 - Test harness: the test player's air is kept full under water (a random
   seed spawned 1.19.1 in the sea and it drowned during the module sweep,
   which failed three later checks); "Display, input and capture tools"
