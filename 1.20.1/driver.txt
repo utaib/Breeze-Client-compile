@@ -1,0 +1,31 @@
+[driver] waiting for the Breeze title menu to paint
+[driver] PASS Breeze title menu painted in a real Minecraft client
+[driver] window 6291463 at 1,60 size 1280x720
+[driver] screenshot 01-title-menu.png
+[driver] PASS keyboard Tab and Enter opened Mods
+[driver] PASS the Mods page asked for the modules' Minecraft icons
+[driver] screenshot 02-mods.png
+[driver] screenshot 03-mods-typed-search.png
+[driver] PASS mouse click opened Settings
+[driver] screenshot 04-settings.png
+[driver] screenshot 05-settings-scrolled.png
+[driver] PASS Escape went back and the page acknowledged it
+[driver] screenshot 06-home.png
+[driver] PASS Singleplayer opened Minecraft's world selection or Create World
+[driver] screenshot 07-select-world.png
+[driver] PASS Back from world selection returned to the Breeze menu
+[driver] screenshot 08-back-to-menu.png
+[driver] PASS Escape at the title root was declined by the page
+[driver] PASS the title menu stayed open after Escape at the root
+[driver] FAIL the open and close cycles did not finish
+[driver] screenshot 09-after-cycles.png
+[driver] integrations: {"integrations":[{"id":"modmenu","name":"Mod Menu","provider":"modmenu","actions":[{"id":"mods","label":"Mod Menu"},{"id":"config:modmenu","label":"Mod Menu settings","mod":"modmenu"},{"id":"config:xaerominimap","label":"Xaero's Minimap settings","mod":"xaerominimap"},{"id":"config:xaeroworldmap","label":"Xaero's World Map settings","mod":"xaeroworldmap"},{"id":"config:zoomify","label":"Zoomify settings","mod":"zoomify"}]}],"problems":[],"event":"integrations","t":1791457694093}
+[driver] PASS Breeze found Mod Menu through its API
+[driver] Mod Menu opened: {"id":"modmenu","screen":"com.terraformersmc.modmenu.gui.ModsScreen","pass":"true","event":"integration-open","t":1791457694096}
+[driver] PASS the menu's Mod Menu entry opened Mod Menu's own list
+[driver] FAIL the self-test opened Singleplayer
+[driver] screenshot 10-quit-dialog.png
+[driver] FAIL Quit, confirmed from the dialog, reached the game (no '"action":"game.quit"' in the harness log)
+[driver] FAIL a Breeze mixin does not apply: {"ok":"false","targets":"0","ms":"0","event":"mixin-audit","t":1791457666798}
+[driver] done: 4 failed check(s)
+[run] game exited on its own after Quit
