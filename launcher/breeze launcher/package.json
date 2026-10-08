@@ -1,0 +1,44 @@
+{
+  "name": "breeze-launcher",
+  "private": true,
+  "version": "1.0.28",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "node scripts/version-sync-check.cjs && node scripts/css-var-check.js && node scripts/css-motion-check.js && node scripts/icon-check.cjs && node scripts/undef-check.cjs && node scripts/build-splash.cjs && node scripts/build-installer-art.cjs && tsc && vite build",
+    "preview": "vite preview",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build",
+    "tauri:build:debug": "tauri build --debug",
+    "check:css": "node scripts/css-var-check.js",
+    "check:motion": "node scripts/css-motion-check.js",
+    "publish:build": "node scripts/publish-build.cjs",
+    "check:version": "node scripts/version-sync-check.cjs",
+    "build:splash": "node scripts/build-splash.cjs",
+    "build:installer-art": "node scripts/build-installer-art.cjs"
+  },
+  "dependencies": {
+    "@fontsource/dm-sans": "^5.3.0",
+    "@fontsource/jetbrains-mono": "^5.3.0",
+    "@tauri-apps/api": "^2",
+    "@tauri-apps/plugin-opener": "^2",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "skinview3d": "^3.4.1",
+    "three": "^0.156.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1",
+    "@tauri-apps/cli": "^2",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-react": "^4.6.0",
+    "autoprefixer": "^10.4.27",
+    "axe-core": "4.13.0",
+    "postcss": "^8.5.9",
+    "tailwindcss": "^4.2.2",
+    "typescript": "~5.8.3",
+    "vite": "^7.0.4"
+  }
+}

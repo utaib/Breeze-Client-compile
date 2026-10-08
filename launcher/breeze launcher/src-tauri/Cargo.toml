@@ -1,0 +1,55 @@
+[package]
+name = "breeze-launcher"
+version = "1.0.28"
+description = "Native launcher shell for Breeze Client"
+authors = ["Breeze Client"]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+# The `_lib` suffix may seem redundant but it is necessary
+# to make the lib name unique and wouldn't conflict with the bin name.
+# This seems to be only an issue on Windows, see https://github.com/rust-lang/cargo/issues/8519
+name = "breeze_launcher_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["protocol-asset"] }
+tauri-plugin-opener = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+dotenvy = "0.15"
+reqwest = { version = "0.12", default-features = false, features = ["json", "stream", "rustls-tls", "rustls-tls-webpki-roots"] }
+zip = { version = "2", default-features = false, features = ["deflate"] }
+url = "2"
+futures-util = "0.3"
+# Verifies the sha256 of a downloaded installer before it is executed.
+# Already in Cargo.lock as a transitive dependency, so this adds no new fetch.
+sha2 = "0.10"
+# Checks each file of the Java runtimes Mojang publishes, which are listed by SHA-1.
+sha1 = "0.10"
+# Only for the retry backoff in ensure_download_checked. tokio is already in the
+# tree as reqwest's runtime; this just declares the timer so we can await it
+# instead of blocking the executor with std::thread::sleep.
+tokio = { version = "1", features = ["time"] }
+keyring = "3"
+base64 = "0.22"
+
+# Production build: strip symbols, LTO, and size-optimise. This drops the
+# bundled exe from ~50MB to ~8-10MB and is what keeps the installer small
+# enough that a first-launch JRE fetch still gives a net size win.
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+
+[dev-dependencies]
+# A runtime, so the download tests can await the real async function rather than
+# a reimplementation of it.
+tokio = { version = "1", features = ["rt", "macros", "time"] }
