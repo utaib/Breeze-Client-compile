@@ -14,7 +14,7 @@ package dev.breeze.compat;
  */
 public final class TagGlyph {
 
-    public static final String ICON = "✦";
+    public static final String ICON = "\u2726";
     /** Any drawn width: the star's comes from Minecraft's font, not Breeze's. */
     public static final int WIDTH = -1;
     /** The star is plain white in the font, so the tag's colour is what tells tags apart. */

@@ -9,8 +9,10 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 class TagArtTest {
 
@@ -41,22 +43,35 @@ class TagArtTest {
     void oneFontCharacterEachInTheSheetsOrder() {
         // assets/minecraft/font/default.json lists U+EB2E to U+EB34 for the
         // sheet's seven cells: plain, blue, green, pink, purple, red, yellow.
-        assertEquals("", TagArt.PLAIN.glyph());
-        assertEquals("", TagArt.GREEN.glyph());
-        assertEquals("", TagArt.YELLOW.glyph());
+        assertEquals("\uEB2E", TagArt.PLAIN.glyph());
+        assertEquals("\uEB30", TagArt.GREEN.glyph());
+        assertEquals("\uEB34", TagArt.YELLOW.glyph());
         assertEquals(7, TagArt.values().length);
     }
 
-    /** The font files the base version ships, read from the source tree. */
-    private static Path assets() {
-        return Path.of(System.getProperty("user.dir"))
-                .resolve("../versions/1.20.1/src/main/resources/assets").normalize();
+    /**
+     * The font files a version ships, read from the source tree: the base
+     * version's in the repository, the one version's in a version's source
+     * ZIP (which holds only versions/<mc>/, merged). Null where the version
+     * leaves Minecraft's font alone (1.17).
+     */
+    private static Path assets() throws Exception {
+        Path versions = Path.of(System.getProperty("user.dir")).resolve("../versions").normalize();
+        Path base = versions.resolve("1.20.1/src/main/resources/assets");
+        if (Files.exists(base.resolve("minecraft/font/default.json"))) return base;
+        try (Stream<Path> each = Files.list(versions)) {
+            return each.map(v -> v.resolve("src/main/resources/assets"))
+                    .filter(a -> Files.exists(a.resolve("minecraft/font/default.json")))
+                    .sorted().findFirst().orElse(null);
+        }
     }
 
     @Test
     void theFontListsEveryPictureOnceOverTheWholeSheet() throws Exception {
+        Path assets = assets();
+        assumeTrue(assets != null, "this version ships no font files");
         for (String font : new String[] {"default", "uniform"}) {
-            JsonObject provider = JsonParser.parseString(Files.readString(assets().resolve("minecraft/font/" + font + ".json")))
+            JsonObject provider = JsonParser.parseString(Files.readString(assets.resolve("minecraft/font/" + font + ".json")))
                     .getAsJsonObject().getAsJsonArray("providers").get(0).getAsJsonObject();
             assertEquals("breeze:font/tags.png", provider.get("file").getAsString(), font);
             JsonArray rows = provider.getAsJsonArray("chars");
@@ -68,7 +83,7 @@ class TagArtTest {
             assertEquals(8, provider.get("height").getAsInt(), font);
             assertEquals(7, provider.get("ascent").getAsInt(), font);
         }
-        BufferedImage sheet = ImageIO.read(assets().resolve("breeze/textures/font/tags.png").toFile());
+        BufferedImage sheet = ImageIO.read(assets.resolve("breeze/textures/font/tags.png").toFile());
         assertEquals(12 * TagArt.values().length, sheet.getWidth());
         assertEquals(10, sheet.getHeight());
         for (int cell = 0; cell < TagArt.values().length; cell++) {
