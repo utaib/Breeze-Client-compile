@@ -256,7 +256,7 @@ public final class AutoTest {
 
     // ── In a world (after the menu checks) ─────────────────────────────────
 
-    private enum World { IDLE, OPENED, FPS, IN_WORLD, ARMOR, PERSONAL_CAPE, LAYOUT, SWEEP, EDITING, WARDROBE, REAL, DONE }
+    private enum World { IDLE, OPENED, FPS, IN_WORLD, ARMOR, INVENTORY, PERSONAL_CAPE, LAYOUT, SWEEP, EDITING, WARDROBE, REAL, DONE }
 
     /** Taken off again once the Armor HUD has been looked at. */
     private static boolean armourOff;
@@ -511,11 +511,15 @@ public final class AutoTest {
                     o.addProperty("drawn", String.join(" | ", drawn));
                     o.addProperty("pass", String.valueOf(six && red && sword && shield));
                     write("armor-check", o);
-                    equipArmour(mc, false);
+                    // Next, with the armour still on: a filled inventory and
+                    // the modules that draw items or Minecraft's pictures.
+                    fillInventory(mc, true);
                     for (dev.breeze.modules.AbstractHudModule h : HudSweep.huds()) {
-                        if (!h.isEnabled()) h.setEnabled(true);
+                        boolean keep = INVENTORY_HUDS.contains(h.getName());
+                        if (h.isEnabled() != keep) h.setEnabled(keep);
                     }
-                    armourOff = true;
+                    setBool("Inventory HUD", "armour", true);
+                    world = World.INVENTORY;
                     worldAt = System.currentTimeMillis();
                     return;
                 }
@@ -535,6 +539,20 @@ public final class AutoTest {
                 // Every element moved to its own place, saved, read back.
                 HudSweep.place(mc);
                 world = World.LAYOUT;
+                worldAt = System.currentTimeMillis();
+            }
+            case INVENTORY -> {
+                if (age < 4_000) return;
+                shot(mc, "autotest-inventory-hud");
+                write("inventory-check", inventoryCheck());
+                fillInventory(mc, false);
+                setBool("Inventory HUD", "armour", false);
+                equipArmour(mc, false);
+                for (dev.breeze.modules.AbstractHudModule h : HudSweep.huds()) {
+                    if (!h.isEnabled()) h.setEnabled(true);
+                }
+                armourOff = true;
+                world = World.ARMOR;
                 worldAt = System.currentTimeMillis();
             }
             case PERSONAL_CAPE -> {
@@ -733,6 +751,100 @@ public final class AutoTest {
             p.setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND, worn(on, net.minecraft.world.item.Items.DIAMOND_SWORD, 0.5f));
             p.setItemSlot(net.minecraft.world.entity.EquipmentSlot.OFFHAND, worn(on, net.minecraft.world.item.Items.SHIELD, 0.1f));
         });
+    }
+
+    /** The modules the inventory step shows: each draws the player's real items or Minecraft's own pictures. */
+    private static final java.util.Set<String> INVENTORY_HUDS = java.util.Set.of(
+            "Inventory HUD", "Totem Counter", "Held Item", "Item Info", "Armor Bar");
+
+    /**
+     * Puts real items in the test player's inventory through the game's own
+     * server (or clears those slots): full and partial stacks, ores, a worn
+     * tool, a totem. The sword from equipArmour stays in hotbar slot 0.
+     */
+    private static void fillInventory(Minecraft mc, boolean on) {
+        net.minecraft.client.server.IntegratedServer server = mc.getSingleplayerServer();
+        if (server == null || mc.player == null) return;
+        java.util.UUID id = mc.player.getUUID();
+        server.execute(() -> {
+            net.minecraft.server.level.ServerPlayer p = server.getPlayerList().getPlayer(id);
+            if (p == null) return;
+            net.minecraft.world.entity.player.Inventory inv = p.getInventory();
+            inv.setItem(1, stack(on, net.minecraft.world.item.Items.OAK_PLANKS, 16));
+            inv.setItem(9, stack(on, net.minecraft.world.item.Items.STONE, 64));
+            inv.setItem(10, stack(on, net.minecraft.world.item.Items.DIRT, 32));
+            inv.setItem(11, stack(on, net.minecraft.world.item.Items.IRON_INGOT, 7));
+            inv.setItem(12, stack(on, net.minecraft.world.item.Items.DIAMOND, 3));
+            inv.setItem(13, stack(on, net.minecraft.world.item.Items.NETHERITE_INGOT, 1));
+            inv.setItem(14, worn(on, net.minecraft.world.item.Items.IRON_PICKAXE, 0.3f));
+            inv.setItem(15, stack(on, net.minecraft.world.item.Items.DIAMOND_AXE, 1));
+            inv.setItem(16, stack(on, net.minecraft.world.item.Items.TOTEM_OF_UNDYING, 1));
+            inv.setItem(35, stack(on, net.minecraft.world.item.Items.BREAD, 12));
+        });
+    }
+
+    private static net.minecraft.world.item.ItemStack stack(boolean on, net.minecraft.world.item.Item item, int count) {
+        return on ? new net.minecraft.world.item.ItemStack(item, count) : net.minecraft.world.item.ItemStack.EMPTY;
+    }
+
+    private static void setBool(String module, String key, boolean value) {
+        for (Module m : ModuleManager.getModules()) {
+            if (!m.getName().equals(module)) continue;
+            for (dev.breeze.settings.Setting s : m.getSettings()) {
+                if (s instanceof dev.breeze.settings.Setting.Bool b && s.id.equals(key)) b.value = value;
+            }
+        }
+    }
+
+    /**
+     * What the inventory step drew: each slot the Inventory HUD filled (item
+     * and count, from the real inventory), the item the totem, held item and
+     * item info modules drew, and which of Minecraft's own pictures this
+     * version has (slot, empty armour slots, armour point, an effect icon).
+     */
+    private static JsonObject inventoryCheck() {
+        java.util.List<String> slots = java.util.List.of();
+        java.util.Map<String, java.util.List<String>> icons = new java.util.LinkedHashMap<>();
+        for (Module m : ModuleManager.getModules()) {
+            if (m instanceof dev.breeze.modules.InventoryHud inv) slots = inv.lastDrawn();
+            if (m instanceof dev.breeze.modules.AbstractHudModule h && INVENTORY_HUDS.contains(m.getName())) {
+                icons.put(m.getName(), h.drawnIcons());
+            }
+        }
+        java.util.List<String> want = java.util.List.of(
+                "inventory0 minecraft:diamond_sword 1", "inventory1 minecraft:oak_planks 16",
+                "inventory9 minecraft:stone 64", "inventory10 minecraft:dirt 32", "inventory11 minecraft:iron_ingot 7",
+                "inventory12 minecraft:diamond 3", "inventory13 minecraft:netherite_ingot 1",
+                "inventory14 minecraft:iron_pickaxe 1", "inventory15 minecraft:diamond_axe 1",
+                "inventory16 minecraft:totem_of_undying 1", "inventory35 minecraft:bread 12",
+                "armor0 minecraft:diamond_helmet 1", "armor1 minecraft:iron_chestplate 1",
+                "armor2 minecraft:diamond_leggings 1", "armor3 minecraft:golden_boots 1", "offhand0 minecraft:shield 1");
+        java.util.List<String> missing = new java.util.ArrayList<>();
+        for (String w : want) if (!slots.contains(w)) missing.add(w);
+        boolean totem = icons.getOrDefault("Totem Counter", java.util.List.of()).contains("minecraft:totem_of_undying");
+        boolean held = icons.getOrDefault("Held Item", java.util.List.of()).contains("minecraft:diamond_sword");
+        boolean info = icons.getOrDefault("Item Info", java.util.List.of()).contains("minecraft:diamond_sword");
+        java.util.List<String> armorBar = icons.getOrDefault("Armor Bar", java.util.List.of());
+        boolean armorIcon = armorBar.size() == 1 && !armorBar.get(0).endsWith("(none)");
+        JsonObject pictures = new JsonObject();
+        boolean allPictures = true;
+        java.util.List<String> names = new java.util.ArrayList<>(dev.breeze.ui.GameTextures.names());
+        for (String name : names) {
+            dev.breeze.ui.ModuleIconCache.Icon icon = dev.breeze.ui.ModuleIconCache.texture(name, dev.breeze.ui.GameTextures.sources(name));
+            pictures.addProperty(name, icon == null ? "none" : icon.source());
+            allPictures &= icon != null;
+        }
+        String speed = "effect.minecraft.speed";
+        dev.breeze.ui.ModuleIconCache.Icon effect = dev.breeze.ui.ModuleIconCache.texture("effect:" + speed, dev.breeze.ui.GameTextures.effect(speed));
+        pictures.addProperty("effect speed", effect == null ? "none" : effect.source());
+        allPictures &= effect != null;
+        JsonObject o = new JsonObject();
+        o.addProperty("drawn", String.join(" | ", slots));
+        o.addProperty("missing", String.join(" | ", missing));
+        o.addProperty("icons", icons.toString());
+        o.add("pictures", pictures);
+        o.addProperty("pass", String.valueOf(missing.isEmpty() && totem && held && info && armorIcon && allPictures));
+        return o;
     }
 
     private static net.minecraft.world.item.ItemStack worn(boolean on, net.minecraft.world.item.Item item, float used) {

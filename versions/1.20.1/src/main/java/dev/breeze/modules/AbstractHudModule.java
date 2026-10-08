@@ -45,6 +45,16 @@ public abstract class AbstractHudModule extends Module {
     private final HudStyle style = new HudStyle(!drawsShapes());
     private final List<String> lineText = new ArrayList<>();
     private final List<Integer> lineColor = new ArrayList<>();
+    /** Per line: the item or game picture before the text (Minecraft's own), or null. */
+    private final List<LineIcon> lineIcon = new ArrayList<>();
+    /** What the last frame drew before its lines, for the self-test: item ids and texture paths. */
+    private final List<String> drawnIcons = new ArrayList<>();
+    private static final boolean RECORD_ICONS = System.getProperty("breeze.autotest") != null;
+    /** An item, drawn by Minecraft's item renderer, or a game texture by name and places to look. */
+    private record LineIcon(net.minecraft.world.item.ItemStack stack, String texture,
+                            List<dev.breeze.ui.ModuleIcons.Source> sources, int size) {}
+    private static final int ICON = 16;
+    private static final int ICON_GAP = 2;
     /** Reused across frames. Grows to the largest line count this module has had. */
     private int[] widths = new int[8];
 
@@ -74,6 +84,7 @@ public abstract class AbstractHudModule extends Module {
     protected final void onHudRender(GuiGraphics g, float partialTick) {
         lineText.clear();
         lineColor.clear();
+        lineIcon.clear();
         Minecraft mc = Minecraft.getInstance();
         Font font = mc.font;
         resolvePosition(mc);
@@ -124,18 +135,30 @@ public abstract class AbstractHudModule extends Module {
                 // double that for nothing.
                 int n = lineText.size();
                 if (widths.length < n) widths = new int[n];
+                // Lines with a picture are 16 high, the item's size, and every
+                // line's text starts after the picture column, so text lines
+                // without one still line up.
+                boolean icons = false;
+                for (LineIcon li : lineIcon) icons |= li != null;
+                int pad = icons ? ICON + ICON_GAP : 0;
                 int w = 0;
                 for (int i = 0; i < n; i++) {
-                    widths[i] = font.width(lineText.get(i));
+                    widths[i] = pad + font.width(lineText.get(i));
                     if (widths[i] > w) w = widths[i];
                 }
-                int lh = style.lineHeight(font);
+                int lh = icons ? Math.max(style.lineHeight(font), ICON + style.lineGap.value) : style.lineHeight(font);
                 int h = n * lh - style.lineGap.value;
+                int textDy = icons ? (ICON - font.lineHeight) / 2 + 1 : 0;
 
                 style.drawBackground(g, x, y, w, h);
 
+                if (RECORD_ICONS) drawnIcons.clear();
                 for (int i = 0; i < n; i++) {
-                    g.drawString(font, lineText.get(i), style.lineX(x, w, widths[i]), y + i * lh,
+                    int lx = style.lineX(x, w, widths[i]);
+                    int ly = y + i * lh;
+                    LineIcon li = lineIcon.get(i);
+                    if (li != null) drawIcon(g, li, lx, ly);
+                    g.drawString(font, lineText.get(i), lx + pad, ly + textDy,
                             lineColor.get(i), style.textShadow.value);
                 }
                 lastW = w;
@@ -206,6 +229,48 @@ public abstract class AbstractHudModule extends Module {
     }
 
     protected void line(GuiGraphics g, Font font, String s, int color) {
+        addLine(s, color, null);
+    }
+
+    /** A line with the item drawn before it by Minecraft's own item renderer (count and durability bar included). */
+    protected void itemLine(GuiGraphics g, Font font, net.minecraft.world.item.ItemStack stack, String s, int color) {
+        addLine(s, color, stack == null || stack.isEmpty() ? null : new LineIcon(stack, null, null, ICON));
+    }
+
+    /**
+     * A line with one of Minecraft's own pictures before it
+     * ({@link dev.breeze.ui.GameTextures}), size pixels square and centred in
+     * the 16 pixel column (9 for the HUD's own 9 pixel icons, so they are not
+     * stretched); text alone if this game has none of its places.
+     */
+    protected void textureLine(GuiGraphics g, Font font, String key, List<dev.breeze.ui.ModuleIcons.Source> sources,
+                               int size, String s, int color) {
+        boolean found = !sources.isEmpty() && dev.breeze.ui.ModuleIconCache.texture(key, sources) != null;
+        addLine(s, color, found ? new LineIcon(null, key, sources, Math.max(1, Math.min(ICON, size))) : null);
+    }
+
+    private void drawIcon(GuiGraphics g, LineIcon li, int x, int y) {
+        if (li.stack() != null) {
+            g.renderItem(li.stack(), x, y);
+            g.renderItemDecorations(Minecraft.getInstance().font, li.stack(), x, y);
+            if (RECORD_ICONS) drawnIcons.add(String.valueOf(net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(li.stack().getItem())));
+        } else {
+            int off = (ICON - li.size()) / 2;
+            dev.breeze.ui.ModuleIconCache.drawTexture(g, li.texture(), li.sources(), x + off, y + off, li.size());
+            if (RECORD_ICONS) {
+                dev.breeze.ui.ModuleIconCache.Icon icon = dev.breeze.ui.ModuleIconCache.texture(li.texture(), li.sources());
+                drawnIcons.add(icon == null ? li.texture() + " (none)" : icon.source());
+            }
+        }
+    }
+
+    /** For the self-test: the pictures the last frame drew before its lines (item ids, texture paths). */
+    public List<String> drawnIcons() {
+        return List.copyOf(drawnIcons);
+    }
+
+    private void addLine(String s, int color, LineIcon icon) {
+        lineIcon.add(icon);
         lineText.add(style.applyCase(s == null ? "" : s));
         // The configured text colour only overrides plain white. A module that
         // passes a meaningful colour, such as red for low health, is saying

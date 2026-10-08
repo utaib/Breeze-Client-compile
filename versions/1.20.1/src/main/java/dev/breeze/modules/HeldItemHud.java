@@ -1,6 +1,7 @@
 package dev.breeze.modules;
 
 import dev.breeze.Category;
+import dev.breeze.hud.HudHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -21,6 +22,9 @@ import net.minecraft.world.item.ItemStack;
  */
 public class HeldItemHud extends AbstractHudModule {
 
+    private final dev.breeze.settings.Setting.Bool icon =
+            add(new dev.breeze.settings.Setting.Bool("icon", "Item icon", "Held Item", true));
+
     public HeldItemHud() {
         super("Held Item", Category.HUD, "Shows the item in your hand.", KEY_NONE, 4, 184);
     }
@@ -31,6 +35,11 @@ public class HeldItemHud extends AbstractHudModule {
         ItemStack held = mc.player.getMainHandItem();
         if (held.isEmpty()) {
             line(g, font, "Held: -");
+            return;
+        }
+        if (icon.value) {
+            // The item as Minecraft draws it in a slot: its count is on it.
+            itemLine(g, font, held, held.getHoverName().getString(), HudHelper.WHITE);
             return;
         }
         String s = "Held: " + held.getHoverName().getString();

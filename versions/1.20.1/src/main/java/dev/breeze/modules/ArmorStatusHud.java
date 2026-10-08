@@ -35,6 +35,12 @@ public class ArmorStatusHud extends AbstractHudModule {
             EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET,
             EquipmentSlot.MAINHAND, EquipmentSlot.OFFHAND
     };
+    /** Minecraft's empty-slot picture for each of SLOTS ({@link dev.breeze.ui.GameTextures}). */
+    private static final String[] EMPTY_PICTURES = {
+            dev.breeze.ui.GameTextures.EMPTY_HELMET, dev.breeze.ui.GameTextures.EMPTY_CHESTPLATE,
+            dev.breeze.ui.GameTextures.EMPTY_LEGGINGS, dev.breeze.ui.GameTextures.EMPTY_BOOTS,
+            null, dev.breeze.ui.GameTextures.EMPTY_SHIELD
+    };
     /** SLOTS from here on are the hands. */
     private static final int FIRST_HAND = 4;
 
@@ -98,7 +104,20 @@ public class ArmorStatusHud extends AbstractHudModule {
                 lastDrawn.add(SLOTS[c.slot()].name().toLowerCase(java.util.Locale.ROOT) + " " + c.text()
                         + " #" + Integer.toHexString(c.textColor()));
             }
-            if (c.icon()) g.renderItem(stacks[c.slot()], x + c.x(), y + c.y());
+            if (c.icon()) {
+                ItemStack st = stacks[c.slot()];
+                if (!st.isEmpty()) {
+                    g.renderItem(st, x + c.x(), y + c.y());
+                } else {
+                    // An empty slot shows Minecraft's own empty-slot picture,
+                    // as its inventory does (the main hand has none).
+                    String empty = EMPTY_PICTURES[c.slot()];
+                    if (empty != null) {
+                        dev.breeze.ui.ModuleIconCache.drawTexture(g, empty, dev.breeze.ui.GameTextures.sources(empty),
+                                x + c.x(), y + c.y(), 16);
+                    }
+                }
+            }
             if (c.bar()) {
                 int bx = x + c.barX(), by = y + c.barY();
                 g.fill(bx, by, bx + ArmorHudLayout.BAR_W, by + ArmorHudLayout.BAR_H, 0xFF000000);

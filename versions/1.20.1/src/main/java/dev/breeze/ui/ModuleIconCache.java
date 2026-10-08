@@ -43,7 +43,11 @@ public final class ModuleIconCache {
     }
 
     private static Optional<Icon> find(String module) {
-        for (ModuleIcons.Source s : ModuleIcons.sources(module)) {
+        return find(ModuleIcons.sources(module));
+    }
+
+    private static Optional<Icon> find(List<ModuleIcons.Source> sources) {
+        for (ModuleIcons.Source s : sources) {
             ResourceLocation id = Ids.of(s.namespace(), s.path());
             byte[] png = Resources.read(id, MAX_BYTES);
             int[] size = ImageData.pngSize(png);
@@ -58,6 +62,26 @@ public final class ModuleIconCache {
     /** Draws the module's icon size x size at (x, y); false when it has none, so the caller can leave the space. */
     public static boolean draw(GuiGraphics g, String module, int x, int y, int size) {
         Icon icon = get(module);
+        if (icon == null) return false;
+        ModuleIcons.Crop c = icon.crop();
+        Draw.blit(g, icon.texture(), x, y, size, size, c.x(), c.y(), c.size(), c.size(), c.sheetW(), c.sheetH());
+        return true;
+    }
+
+    /**
+     * One of Minecraft's own pictures that is not a module's icon (an empty
+     * armour slot, an effect icon; see {@link GameTextures}), looked up the
+     * same way: the first place that exists in this game, kept for the
+     * session. Null when none does.
+     */
+    public static Icon texture(String key, List<ModuleIcons.Source> sources) {
+        if (sources.isEmpty()) return null;
+        return CACHE.computeIfAbsent("texture:" + key, k -> find(sources)).orElse(null);
+    }
+
+    /** Draws {@link #texture} size x size at (x, y); false when this game has none of its places. */
+    public static boolean drawTexture(GuiGraphics g, String key, List<ModuleIcons.Source> sources, int x, int y, int size) {
+        Icon icon = texture(key, sources);
         if (icon == null) return false;
         ModuleIcons.Crop c = icon.crop();
         Draw.blit(g, icon.texture(), x, y, size, size, c.x(), c.y(), c.size(), c.size(), c.sheetW(), c.sheetH());

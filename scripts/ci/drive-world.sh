@@ -176,6 +176,12 @@ case "$armor" in
   *'"pass":"true"'*) pass "the Armor HUD drew four armour pieces, the sword and the shield, the worn chestplate in red" ;;
   *) fail "the Armor HUD did not draw the worn gear as it should" ;;
 esac
+inventory=$(grep '"event":"inventory-check"' "$LOG" | tail -1)
+say "inventory: $inventory"
+case "$inventory" in
+  *'"pass":"true"'*) pass "the Inventory HUD drew the real inventory (16 slots, counts, armour, off hand), the totem, held item and armour modules drew Minecraft's own items and icons" ;;
+  *) fail "the Inventory HUD or an item module did not draw the player's real items or Minecraft's pictures" ;;
+esac
 icons=$(grep '"event":"module-icons"' "$LOG" | tail -1)
 say "module icons: $icons"
 case "$icons" in

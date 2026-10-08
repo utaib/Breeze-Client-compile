@@ -7,6 +7,44 @@ fixes bump PATCH. `scripts/check-version.sh` keeps `gradle.properties`,
 Each entry says what was verified and how. Anything not verified is marked
 **UNVERIFIED**.
 
+## [2.13.0] - 2026-10-08
+
+Minecraft's own items and pictures on the HUD, and your real inventory laid
+out as Minecraft's inventory screen.
+
+### Added
+- **Item icons on the item modules.** Totem Counter, Held Item, Item
+  Counter and Item Info draw the item itself with Minecraft's item renderer
+  (its count, durability bar and enchantment glint are Minecraft's own), with
+  the number or name beside it. Armor Bar draws Minecraft's armour point.
+  Each has an icon switch; off, the text is as before.
+- **Potion Effects** lists each effect with Minecraft's icon for it, its
+  name in your language, its level and the time left (m:ss, "infinite" for
+  an effect without an end). Before, a line read only "II (30s)" and did not
+  say which effect.
+- **Inventory HUD** lays your real inventory out as Minecraft's inventory
+  screen does: three rows, then the hotbar below them, on Minecraft's slot
+  picture. New switches: Hotbar row, Armour and off hand (the armour you wear
+  in a column on the left, the off hand after the hotbar), Slot
+  backgrounds. Read from the player every frame; nothing is copied.
+- **Empty slots** in Armor Status (with "Keep empty slots") and in the
+  Inventory HUD's armour column show Minecraft's empty-slot pictures.
+- Every picture is looked up in the running game (`GameTextures`, common):
+  the sprite where this version has one, the older texture where it does not
+  (empty armour slots, the armour point), so a resource pack changes them as
+  it changes Minecraft's. Nothing is copied into the jar.
+
+### Tests
+- `GameTexturesTest` (6), `InventoryHudLayoutTest` (5).
+- In game: after the Armor HUD check, the self-test fills the inventory
+  through the game's own server (stone 64, dirt 32, iron ingots, diamonds, a
+  netherite ingot, a worn iron pickaxe, a diamond axe, a totem, bread,
+  planks; the armour, sword and shield stay on), shows the Inventory HUD with
+  armour and the item modules, screenshots them (`autotest-inventory-hud`)
+  and checks each slot drew the right item and count, the totem, held item
+  and item info modules drew Minecraft's items, the armour point was found,
+  and which of Minecraft's pictures this version has (`inventory-check`).
+
 ## [2.12.0] - 2026-10-03
 
 Minecraft icons for every module, hands on the Armor HUD, Minecraft's own
