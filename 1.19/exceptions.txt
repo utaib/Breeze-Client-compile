@@ -1,0 +1,56 @@
+62:com.mojang.authlib.exceptions.InvalidCredentialsException: Status: 401
+63:	at com.mojang.authlib.exceptions.MinecraftClientHttpException.toAuthenticationException(MinecraftClientHttpException.java:56) ~[authlib-3.5.41.jar:?]
+64-	at com.mojang.authlib.yggdrasil.YggdrasilUserApiService.fetchProperties(YggdrasilUserApiService.java:140) ~[authlib-3.5.41.jar:?]
+65-	at com.mojang.authlib.yggdrasil.YggdrasilUserApiService.<init>(YggdrasilUserApiService.java:47) ~[authlib-3.5.41.jar:?]
+66-	at com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService.createUserApiService(YggdrasilAuthenticationService.java:158) ~[authlib-3.5.41.jar:?]
+67-	at net.minecraft.class_310.method_31382(class_310.java:677) [client-intermediary.jar:?]
+68-	at net.minecraft.class_310.<init>(class_310.java:415) [client-intermediary.jar:?]
+69-	at net.minecraft.client.main.Main.main(Main.java:198) [client-intermediary.jar:?]
+70-	at net.fabricmc.loader.impl.game.minecraft.MinecraftGameProvider.launch(MinecraftGameProvider.java:517) [fabric-loader-0.19.5.jar:?]
+71-	at net.fabricmc.loader.impl.launch.knot.Knot.launch(Knot.java:72) [fabric-loader-0.19.5.jar:?]
+72-	at net.fabricmc.loader.impl.launch.knot.KnotClient.main(KnotClient.java:23) [fabric-loader-0.19.5.jar:?]
+73:Caused by: com.mojang.authlib.exceptions.MinecraftClientHttpException: Status: 401
+74-	at com.mojang.authlib.minecraft.client.MinecraftClient.readInputStream(MinecraftClient.java:85) ~[authlib-3.5.41.jar:?]
+75-	at com.mojang.authlib.minecraft.client.MinecraftClient.get(MinecraftClient.java:48) ~[authlib-3.5.41.jar:?]
+76-	at com.mojang.authlib.yggdrasil.YggdrasilUserApiService.fetchProperties(YggdrasilUserApiService.java:121) ~[authlib-3.5.41.jar:?]
+77-	... 8 more
+78-[18:57:38] [Render thread/INFO]: Setting user: BreezeDev
+79-[18:57:38] [Render thread/INFO]: [Breeze] Initializing on Minecraft 1.19
+80-[18:57:38] [Render thread/INFO]: [Breeze] Registered 81 modules
+81-[18:57:38] [Render thread/INFO]: [Breeze] No embedded browser exists for this Minecraft version; native screens are the interface
+82-[18:57:38] [Render thread/INFO]: [Breeze autotest] {"dir":"/home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test","event":"start","t":1791485858729}
+83-[18:57:38] [Render thread/INFO]: [Indigo] Registering Indigo renderer!
+84-[18:57:39] [Render thread/INFO]: Backend library: LWJGL version 3.3.1 SNAPSHOT
+85-[18:57:41] [Worker-Main-4/ERROR]: Failed to retrieve profile key pair
+86:java.io.IOException: Could not retrieve profile key pair
+87-	at net.minecraft.class_7434.method_43605(class_7434.java:112) ~[client-intermediary.jar:?]
+88-	at net.minecraft.class_7434.method_44291(class_7434.java:56) ~[client-intermediary.jar:?]
+89-	at java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1768) [?:?]
+90-	at java.util.concurrent.CompletableFuture$AsyncSupply.exec(CompletableFuture.java:1760) [?:?]
+91-	at java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:373) [?:?]
+92-	at java.util.concurrent.ForkJoinPool$WorkQueue.topLevelExec(ForkJoinPool.java:1182) [?:?]
+93-	at java.util.concurrent.ForkJoinPool.scan(ForkJoinPool.java:1655) [?:?]
+94-	at java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1622) [?:?]
+95-	at java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:165) [?:?]
+96-[18:57:41] [Render thread/INFO]: Reloading ResourceManager: Default, Fabric Mods (Breeze, Fabric API, Fabric API Base, Fabric API Lookup API (v1), Fabric Biome API (v1), Fabric BlockRenderLayer Registration (v1), Fabric Command API (v1), Fabric Command API (v2), Fabric Commands (v0), Fabric Containers (v0), Fabric Content Registries (v0), Fabric Convention Tags, Fabric Crash Report Info (v1), Fabric Data Generation API (v1), Fabric Dimensions API (v1), Fabric Entity Events (v1), Fabric Events Interaction (v0), Fabric Events Lifecycle (v0), Fabric Game Rule API (v1), Fabric Item API (v1), Fabric Item Groups (v0), Fabric Key Binding API (v1), Fabric Key Bindings (v0), Fabric Lifecycle Events (v1), Fabric Loot API (v2), Fabric Loot Tables (v1), Fabric Message API (v1), Fabric Mining Level API (v1), Fabric Models (v0), Fabric Networking API (v1), Fabric Networking (v0), Fabric Object Builder API (v1), Fabric Particles (v1), Fabric Registry Sync (v0), Fabric Renderer API (v1), Fabric Renderer - Indigo, Fabric Renderer Registries (v1), Fabric Rendering Data Attachment (v1), Fabric Rendering Fluids (v1), Fabric Rendering (v0), Fabric Rendering (v1), Fabric Resource Conditions API (v1), Fabric Resource Loader (v0), Fabric Screen API (v1), Fabric Screen Handler API (v1), Fabric Textures (v0), Fabric Transfer API (v1), Fabric Transitive Access Wideners (v1), Fabric Loader)
+97-[18:57:41] [Render thread/INFO]: [Breeze] Integrations: Mod Menu absent, 0 settings screens, 0 Breeze entries, 0 problems
+98-[18:57:41] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_442","kind":"title","liveBrowsers":"0","event":"screen","t":1791485861812}
+99:[18:57:41] [Realms Notification Availability checker #1/INFO]: Could not authorize you against Realms server: javax.ws.rs.BadRequestException: Invalid session
+100-[18:57:41] [Render thread/INFO]: [Breeze autotest] {"kind":"title","scale":3.0,"items":[{"name":"Singleplayer","type":"widget","x":639,"y":354,"active":true},{"name":"Multiplayer","type":"widget","x":639,"y":426,"active":true},{"name":"Minecraft Realms","type":"widget","x":639,"y":498,"active":true},{"name":"Language","type":"widget","x":297,"y":606,"active":true},{"name":"Options...","type":"widget","x":486,"y":606,"active":true},{"name":"Quit Game","type":"widget","x":792,"y":606,"active":true},{"name":"Accessibility","type":"widget","x":981,"y":606,"active":true},{"name":"Copyright Mojang AB. Do not distribute!","type":"widget","x":924,"y":705,"active":true}],"event":"targets","t":1791485861939}
+101-[18:57:42] [ForkJoinPool.commonPool-worker-1/WARN]: [Breeze] friends refresh failed: HTTP 404
+102-[18:57:45] [Render thread/WARN]: Missing sound for event: minecraft:item.goat_horn.play
+103-[18:57:45] [Render thread/WARN]: Missing sound for event: minecraft:entity.goat.screaming.horn_break
+104-[18:57:45] [Render thread/ERROR]: Error starting SoundSystem. Turning off sounds & music
+105:java.lang.IllegalStateException: Failed to open OpenAL device
+106-	at net.minecraft.class_4225.method_38501(class_4225.java:284) ~[client-intermediary.jar:?]
+107-	at net.minecraft.class_4225.method_19661(class_4225.java:152) ~[client-intermediary.jar:?]
+108-	at net.minecraft.class_1140.method_4846(class_1140.java:113) ~[client-intermediary.jar:?]
+109-	at net.minecraft.class_1140.method_4837(class_1140.java:103) ~[client-intermediary.jar:?]
+110-	at net.minecraft.class_1144.method_18182(class_1144.java:112) ~[client-intermediary.jar:?]
+111-	at net.minecraft.class_1144.method_18788(class_1144.java:38) ~[client-intermediary.jar:?]
+112-	at net.minecraft.class_4080.method_18790(class_4080.java:13) ~[client-intermediary.jar:?]
+113-	at java.util.concurrent.CompletableFuture$UniAccept.tryFire(CompletableFuture.java:718) ~[?:?]
+114-	at java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:482) ~[?:?]
+115-	at net.minecraft.class_4014.method_18365(class_4014.java:69) ~[client-intermediary.jar:?]
+116-	at net.minecraft.class_1255.execute(class_1255.java:103) ~[client-intermediary.jar:?]
+117-	at net.minecraft.class_4014.method_18367(class_4014.java:68) ~[client-intermediary.jar:?]
