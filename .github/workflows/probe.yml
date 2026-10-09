@@ -1,0 +1,13 @@
+name: probe
+on: push
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          api=https://api.breezeclient.net
+          for p in /versions/mod/1.20.1.jar /versions/mod/1.21.11.jar /mod/runtime/1.20.1 "/versions/mod/resolve?mc=1.20.1" /versions/mod/list /versions/check /health; do
+            code=$(curl -s -o b.bin -w '%{http_code} %{content_type} %{size_download}' "$api$p")
+            head=$(head -c 160 b.bin | tr -d '\r\n' | tr -c '[:print:]' '.')
+            echo "::notice title=$p::$code $head"
+          done
