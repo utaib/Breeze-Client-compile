@@ -1,0 +1,21 @@
+name: Probe the live API version
+# One-off: is the payments fix deployed? Public URLs only; the capture call
+# sends an empty body, which the new code refuses with 400 and the old code
+# does not know (404).
+on: push
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - run: |
+          set +e
+          r=$(curl -s -o b.txt -w '%{http_code}' --max-time 20 -X POST -H 'Content-Type: application/json' -d '{}' https://api.breezeclient.net/purchases/capture)
+          echo "::notice title=POST /purchases/capture {}::$r $(head -c 160 b.txt)"
+          url=$(curl -s --max-time 20 https://api.breezeclient.net/capes | python3 -c 'import sys,json; print(json.load(sys.stdin)["capes"][0]["image_url"])')
+          h=$(curl -s -o /dev/null -D - --max-time 20 "$url" | tr -d '\r' | grep -i '^cross-origin-resource-policy' | tr '\n' ' ')
+          echo "::notice title=cape image CORP::$h"
+          echo "::notice title=/health::$(curl -s --max-time 20 https://api.breezeclient.net/health | head -c 300)"
+          echo "::notice title=/versions launcher::$(curl -s --max-time 20 https://api.breezeclient.net/versions | python3 -c 'import sys,json; d=json.load(sys.stdin); print((d.get("launcher") or {}).get("latestVersion"))')"
