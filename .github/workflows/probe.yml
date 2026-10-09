@@ -1,0 +1,26 @@
+name: Probe what crawlers get from breezeclient.net
+# One-off: status and Cloudflare challenge headers for public pages, with
+# several user agents. Reads public URLs only.
+on: push
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - run: |
+          set +e
+          for ua in "curl/8" "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)" "Mediapartners-Google" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36"; do
+            out=""
+            for path in / /ads.txt /robots.txt /docs/ /privacy; do
+              r=$(curl -s -o body.txt -D h.txt --max-time 20 -A "$ua" -w '%{http_code}' "https://breezeclient.net$path")
+              mit=$(tr -d '\r' < h.txt | grep -i '^cf-mitigated' | cut -d' ' -f2)
+              t=$(grep -o '<title>[^<]*' body.txt | head -1 | cut -c8-40)
+              out="$out $path=$r${mit:+/$mit}[${t}]"
+            done
+            echo "::notice title=UA ${ua:0:24}::$out"
+          done
+          r=$(curl -s -o /dev/null -D - --max-time 20 https://www.breezeclient.net/ | tr -d '\r' | grep -iE '^(HTTP|location|cf-mitigated)' | tr '\n' ' ')
+          echo "::notice title=www::$r"
+          echo "::notice title=ads.txt body::$(curl -s --max-time 20 -A 'Mediapartners-Google' https://breezeclient.net/ads.txt | head -c 200)"
