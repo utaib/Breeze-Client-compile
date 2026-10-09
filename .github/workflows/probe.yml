@@ -1,54 +1,17 @@
 name: Probe the live store
-# One-off: does breezeclient.net/store show the capes? Reads public URLs only.
+# One-off: response headers of a public cape image. Reads public URLs only.
 on: push
 permissions:
   contents: read
 jobs:
   probe:
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 5
     steps:
-      - name: API and images
-        run: |
+      - run: |
           set +e
-          body=$(curl -s --max-time 20 https://api.breezeclient.net/capes)
-          echo "::notice title=capes::$(echo "$body" | head -c 700 | tr '\n' ' ')"
-          url=$(echo "$body" | python3 -c 'import sys,json; d=json.load(sys.stdin); print(d["capes"][0]["image_url"])' 2>&1)
-          echo "::notice title=first image_url::$url"
-          https="${url/http:/https:}"
-          echo "::notice title=image over http::$(curl -s -o /dev/null --max-time 20 -w '%{http_code} %{content_type} %{size_download} redirect=%{redirect_url}' "$url")"
-          echo "::notice title=image over https::$(curl -s -o /dev/null --max-time 20 -w '%{http_code} %{content_type} %{size_download}' "$https")"
-          echo "::notice title=cors::$(curl -s -o /dev/null -D - --max-time 20 -H 'Origin: https://breezeclient.net' https://api.breezeclient.net/capes | grep -i '^access-control' | tr '\r\n' '  ')"
-      - name: The store in a browser
-        run: |
-          mkdir p && cd p && npm init -y >/dev/null && npm i playwright@1.56.1 >/dev/null 2>&1 && npx playwright install --with-deps chromium >/dev/null 2>&1
-          cat > probe.mjs <<'EOF'
-          import { chromium } from 'playwright';
-          const b = await chromium.launch();
-          for (const url of ['https://breezeclient.net/store', 'https://breezeclient.net/']) {
-            const p = await b.newPage({ viewport: { width: 1280, height: 900 } });
-            const errs = [], failed = [], imgs = [];
-            p.on('console', (m) => { if (m.type() === 'error' || m.type() === 'warning') errs.push(m.type() + ': ' + m.text().slice(0, 200)); });
-            p.on('pageerror', (e) => errs.push('pageerror: ' + String(e).slice(0, 200)));
-            p.on('requestfailed', (r) => failed.push(r.url().slice(0, 140) + ' ' + (r.failure() || {}).errorText));
-            p.on('response', (r) => { if (/assets\/capes/.test(r.url())) imgs.push(r.status() + ' ' + r.url().slice(0, 120)); });
-            await p.goto(url, { waitUntil: 'load' }).catch((e) => errs.push('goto: ' + e.message));
-            await p.waitForTimeout(6000);
-            const s = await p.evaluate(() => ({
-              title: document.title,
-              cards: document.querySelectorAll('.cape-card').length,
-              painted: [...document.querySelectorAll('canvas.cape-face')].filter((c) => c.width === 120).length,
-              hidden: [...document.querySelectorAll('canvas.cape-face')].filter((c) => c.style.display === 'none').length,
-              empty: (document.getElementById('empty-state') || {}).className || null,
-              emptyText: ((document.getElementById('empty-state') || {}).textContent || '').trim().slice(0, 120),
-              opening: !!document.querySelector('.opening'),
-            }));
-            console.log(`::notice title=${url}::${JSON.stringify(s)}`);
-            console.log(`::notice title=${url} cape images::${imgs.slice(0, 4).join(' | ') || 'none'}`);
-            console.log(`::notice title=${url} failed requests::${failed.slice(0, 6).join(' | ') || 'none'}`);
-            console.log(`::notice title=${url} console::${errs.slice(0, 6).join(' | ') || 'none'}`);
-            await p.close();
-          }
-          await b.close();
-          EOF
-          node probe.mjs
+          url=$(curl -s --max-time 20 https://api.breezeclient.net/capes | python3 -c 'import sys,json; print(json.load(sys.stdin)["capes"][0]["image_url"])')
+          h=$(curl -s -o /dev/null -D - --max-time 20 -H 'Origin: https://breezeclient.net' "$url" | tr -d '\r' | grep -iE '^(cross-origin|access-control|content-type|content-security)' | tr '\n' ' ')
+          echo "::notice title=cape image headers::$h"
+          h2=$(curl -s -o /dev/null -D - --max-time 20 https://api.breezeclient.net/capes | tr -d '\r' | grep -iE '^cross-origin' | tr '\n' ' ')
+          echo "::notice title=api headers::$h2"
