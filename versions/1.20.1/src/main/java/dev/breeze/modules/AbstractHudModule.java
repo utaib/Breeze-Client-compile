@@ -326,7 +326,7 @@ public abstract class AbstractHudModule extends Module {
     /**
      * Where the element sits until it is moved: the constructor's position,
      * top-left anchored. A module that belongs elsewhere by default (the
-     * inventory, top right) overrides this.
+     * inventory, bottom right) overrides this.
      */
     protected dev.breeze.hud.HudPlacement defaultPlacement() {
         return dev.breeze.hud.HudPlacement.topLeft(defaultX, defaultY);

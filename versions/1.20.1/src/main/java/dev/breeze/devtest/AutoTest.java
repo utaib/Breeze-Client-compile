@@ -533,6 +533,12 @@ public final class AutoTest {
                         if (h.isEnabled() != keep) h.setEnabled(keep);
                     }
                     setBool("Inventory HUD", "armour", true);
+                    // At its default place, as a player sees it first: the
+                    // in-world check switched every HUD element on at once,
+                    // which had pushed it to wherever was still free.
+                    for (Module m : ModuleManager.getModules()) {
+                        if (m instanceof dev.breeze.modules.InventoryHud inv) inv.resetPlacement();
+                    }
                     world = World.INVENTORY;
                     worldAt = System.currentTimeMillis();
                     return;
@@ -872,12 +878,31 @@ public final class AutoTest {
         dev.breeze.ui.ModuleIconCache.Icon effect = dev.breeze.ui.ModuleIconCache.texture("effect:" + speed, dev.breeze.ui.GameTextures.effect(speed));
         pictures.addProperty("effect speed", effect == null ? "none" : effect.source());
         allPictures &= effect != null;
+        // Its default place: bottom right, above the hotbar and its bars,
+        // clear of the top right where Minecraft draws its pop-ups and status
+        // effect icons (a pop-up is 160 wide, 32 high).
+        Minecraft mc = Minecraft.getInstance();
+        int sw = mc.getWindow().getGuiScaledWidth(), sh = mc.getWindow().getGuiScaledHeight();
+        String at = "none";
+        boolean placeOk = false;
+        for (Module m : ModuleManager.getModules()) {
+            if (!(m instanceof dev.breeze.modules.InventoryHud inv)) continue;
+            int x = inv.getHudX(), y = inv.getHudY(), w = inv.getHudW(), h = inv.getHudH();
+            at = w + "x" + h + " at " + x + "," + y + " on " + sw + "x" + sh;
+            dev.breeze.hud.HudPlacement.Box bars = dev.breeze.modules.AbstractHudModule.vanillaBars(sw, sh);
+            boolean clearOfBars = y + h <= bars.y() || x + w <= bars.x() || bars.x() + bars.w() <= x;
+            boolean clearOfPopups = y >= 32 || x + w <= sw - 160;
+            boolean bottomRight = Math.abs(sw - 4 - (x + w)) <= 1 && Math.abs(sh - 54 - (y + h)) <= 1;
+            placeOk = inv.getPlacement() == null && bottomRight && clearOfBars && clearOfPopups;
+        }
         JsonObject o = new JsonObject();
+        o.addProperty("at", at);
+        o.addProperty("defaultPlace", String.valueOf(placeOk));
         o.addProperty("drawn", String.join(" | ", slots));
         o.addProperty("missing", String.join(" | ", missing));
         o.addProperty("icons", icons.toString());
         o.add("pictures", pictures);
-        o.addProperty("pass", String.valueOf(missing.isEmpty() && totem && held && info && armorIcon && allPictures));
+        o.addProperty("pass", String.valueOf(missing.isEmpty() && totem && held && info && armorIcon && allPictures && placeOk));
         return o;
     }
 

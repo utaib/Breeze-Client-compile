@@ -30,7 +30,19 @@ Minecraft's pop-ups, and test runs that survive a stalled package mirror.
 ### Tests
 - `TagArtTest`: Breeze's own tag font lists the same seven characters over
   the same sheet. In game, `tag-icon` now expects 11 on 1.17 too, which only
-  holds when `breeze:tags` loaded (a missing character is narrower).
+  holds when `breeze:tags` loaded (a missing character is narrower); it did
+  in run 37827527093, and the Wardrobe's Tags tab shows the pictures there.
+- `inventory-check` now resets the Inventory HUD to its default place and
+  requires it there: bottom right above the hotbar band, clear of the top
+  right (run 37827527093 showed it at the top right only because the
+  in-world check had switched all 36 HUD elements on at once, which pushed
+  it to the last free place).
+- Popular mods beside Breeze (run 37826660217, 2.13.0): Mod Menu, Sodium,
+  Iris, Lithium, FerriteCore, EntityCulling, ImmediatelyFast, ModernFix,
+  AppleSkin and Jade on 1.20.1, 1.21.1 and 1.21.4, the same without
+  ModernFix (no build) on 1.21.11 and 26.3: every check passed on all five.
+  AppleSkin's settings screen needs Cloth Config, which was not installed;
+  Breeze reported that and left the entry out.
 - CI runs on Ubuntu 24.04 by name (`ubuntu-latest` becomes Ubuntu 26 from
   2026-10-19). The packages for the virtual display come from the Actions
   cache once one job of a runner image has downloaded them, so most jobs no

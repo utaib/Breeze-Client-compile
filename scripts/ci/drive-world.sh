@@ -185,7 +185,7 @@ esac
 inventory=$(grep '"event":"inventory-check"' "$LOG" | tail -1)
 say "inventory: $inventory"
 case "$inventory" in
-  *'"pass":"true"'*) pass "the Inventory HUD drew the real inventory (16 slots, counts, armour, off hand), the totem, held item and armour modules drew Minecraft's own items and icons" ;;
+  *'"pass":"true"'*) pass "the Inventory HUD drew the real inventory (16 slots, counts, armour, off hand) at its default place above the hotbar, clear of Minecraft's pop-ups, the totem, held item and armour modules drew Minecraft's own items and icons" ;;
   *) fail "the Inventory HUD or an item module did not draw the player's real items or Minecraft's pictures" ;;
 esac
 icons=$(grep '"event":"module-icons"' "$LOG" | tail -1)
