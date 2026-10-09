@@ -1,17 +1,39 @@
-name: Probe the live store
-# One-off: response headers of a public cape image. Reads public URLs only.
+name: Probe the store preview
+# One-off: do capes draw on the website preview against the live API? Reads public URLs only.
 on: push
 permissions:
   contents: read
 jobs:
   probe:
     runs-on: ubuntu-24.04
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
-      - run: |
-          set +e
-          url=$(curl -s --max-time 20 https://api.breezeclient.net/capes | python3 -c 'import sys,json; print(json.load(sys.stdin)["capes"][0]["image_url"])')
-          h=$(curl -s -o /dev/null -D - --max-time 20 -H 'Origin: https://breezeclient.net' "$url" | tr -d '\r' | grep -iE '^(cross-origin|access-control|content-type|content-security)' | tr '\n' ' ')
-          echo "::notice title=cape image headers::$h"
-          h2=$(curl -s -o /dev/null -D - --max-time 20 https://api.breezeclient.net/capes | tr -d '\r' | grep -iE '^cross-origin' | tr '\n' ' ')
-          echo "::notice title=api headers::$h2"
+      - name: The store in a browser
+        run: |
+          mkdir p && cd p && npm init -y >/dev/null && npm i playwright@1.56.1 >/dev/null 2>&1 && npx playwright install --with-deps chromium >/dev/null 2>&1
+          cat > probe.mjs <<'EOF'
+          import { chromium } from 'playwright';
+          const b = await chromium.launch();
+          for (const url of ['https://ccr-a07e84ab-qg92p3.breezeclient.pages.dev/store', 'https://breezeclient.net/store']) {
+            const p = await b.newPage({ viewport: { width: 1280, height: 900 } });
+            const errs = [], imgs = [];
+            p.on('console', (m) => { if (m.type() === 'error') errs.push(m.text().slice(0, 160)); });
+            p.on('pageerror', (e) => errs.push('pageerror: ' + String(e).slice(0, 160)));
+            p.on('response', (r) => { if (/assets\/capes/.test(r.url())) imgs.push(r.status() + ' ' + r.request().headers()['sec-fetch-mode'] + ' ' + r.url().slice(0, 90)); });
+            await p.goto(url, { waitUntil: 'load' }).catch((e) => errs.push('goto: ' + e.message));
+            await p.waitForTimeout(6000);
+            const s = await p.evaluate(() => ({
+              cards: document.querySelectorAll('.cape-card').length,
+              canvases: document.querySelectorAll('canvas.cape-face').length,
+              painted: [...document.querySelectorAll('canvas.cape-face')].filter((c) => c.width === 120 && c.style.opacity === '1').length,
+              hidden: [...document.querySelectorAll('canvas.cape-face')].filter((c) => c.style.display === 'none').length,
+              shared: typeof window.paintCapeFaces,
+            }));
+            console.log(`::notice title=${url}::${JSON.stringify(s)}`);
+            console.log(`::notice title=${url} cape images::${imgs.slice(0, 4).join(' | ') || 'none'}`);
+            console.log(`::notice title=${url} console errors::${errs.slice(0, 5).join(' | ') || 'none'}`);
+            await p.close();
+          }
+          await b.close();
+          EOF
+          node probe.mjs
