@@ -17,7 +17,7 @@ jobs:
           cat > probe.mjs <<'EOF'
           import { chromium } from 'playwright';
           const b = await chromium.launch();
-          const sources = { old: 'https://breezeclient.pages.dev', new: 'https://ccr-a07e84ab-qg92p3.breezeclient.pages.dev' };
+          const sources = { live: 'https://breezeclient.pages.dev' };
           for (const [label, src] of Object.entries(sources)) {
             const ctx = await b.newContext({ viewport: { width: 1280, height: 900 } });
             const p = await ctx.newPage();
