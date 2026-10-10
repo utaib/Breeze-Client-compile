@@ -1,0 +1,56 @@
+68:[08:56:26] [main/WARN]: Error loading class: nukeduck/armorchroma/GuiArmor (java.lang.ClassNotFoundException: nukeduck/armorchroma/GuiArmor)
+69-[08:56:26] [main/WARN]: Force-disabling mixin 'alloc.blockstate.StateMixin' as rule 'mixin.alloc.blockstate' (added by mods [ferritecore]) disables it and children
+70-[08:56:26] [main/INFO]: Initializing MixinExtras via com.llamalad7.mixinextras.service.MixinExtrasServiceImpl(version=0.5.5).
+71-[08:56:30] [main/INFO]: Building optimized datafixer
+72-[08:56:32] [main/WARN]: Unrecognized user type: 
+73-[08:56:32] [Render thread/INFO]: Launching a new process to probe the system configuration!
+74-[08:56:33] [Render thread/INFO]: OpenGL Vendor: Mesa
+75-[08:56:33] [Render thread/INFO]: OpenGL Renderer: llvmpipe (LLVM 20.1.2, 256 bits)
+76-[08:56:33] [Render thread/INFO]: OpenGL Version: 4.5 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.4
+77-[08:56:34] [Render thread/INFO]: Environment: authHost='https://authserver.mojang.com', accountsHost='https://api.mojang.com', sessionHost='https://sessionserver.mojang.com', servicesHost='https://api.minecraftservices.com', name='PROD'
+78-[08:56:34] [Render thread/ERROR]: Failed to verify authentication
+79:com.mojang.authlib.exceptions.InvalidCredentialsException: Status: 401
+80:	at com.mojang.authlib.exceptions.MinecraftClientHttpException.toAuthenticationException(MinecraftClientHttpException.java:56) ~[authlib-3.16.29.jar:?]
+81-	at com.mojang.authlib.yggdrasil.YggdrasilUserApiService.fetchProperties(YggdrasilUserApiService.java:156) ~[authlib-3.16.29.jar:?]
+82-	at com.mojang.authlib.yggdrasil.YggdrasilUserApiService.<init>(YggdrasilUserApiService.java:55) ~[authlib-3.16.29.jar:?]
+83-	at com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService.createUserApiService(YggdrasilAuthenticationService.java:161) ~[authlib-3.16.29.jar:?]
+84-	at net.minecraft.class_310.method_31382(class_310.java:724) ~[client-intermediary.jar:?]
+85-	at net.minecraft.class_310.<init>(class_310.java:437) ~[client-intermediary.jar:?]
+86-	at net.minecraft.client.main.Main.method_44604(Main.java:205) ~[fabric-1.19.3-0.19.5.jar:?]
+87-	at net.minecraft.client.main.Main.main(Main.java:51) ~[fabric-1.19.3-0.19.5.jar:?]
+88-	at net.fabricmc.loader.impl.game.minecraft.MinecraftGameProvider.launch(MinecraftGameProvider.java:517) ~[fabric-loader-0.19.5.jar:?]
+89-	at net.fabricmc.loader.impl.launch.knot.Knot.launch(Knot.java:72) ~[fabric-loader-0.19.5.jar:?]
+90-	at net.fabricmc.loader.impl.launch.knot.KnotClient.main(KnotClient.java:23) ~[fabric-loader-0.19.5.jar:?]
+91:Caused by: com.mojang.authlib.exceptions.MinecraftClientHttpException: Status: 401
+92-	at com.mojang.authlib.minecraft.client.MinecraftClient.readInputStream(MinecraftClient.java:85) ~[authlib-3.16.29.jar:?]
+93-	at com.mojang.authlib.minecraft.client.MinecraftClient.get(MinecraftClient.java:48) ~[authlib-3.16.29.jar:?]
+94-	at com.mojang.authlib.yggdrasil.YggdrasilUserApiService.fetchProperties(YggdrasilUserApiService.java:129) ~[authlib-3.16.29.jar:?]
+95-	... 9 more
+96-[08:56:35] [Render thread/INFO]: Setting user: BreezeDev
+97-[08:56:35] [Render thread/INFO]: [Breeze] Initializing on Minecraft 1.19.3
+98-[08:56:35] [Render thread/INFO]: [Breeze] Registered 81 modules
+99-[08:56:35] [Render thread/INFO]: [Breeze] No embedded browser exists for this Minecraft version; native screens are the interface
+100-[08:56:35] [Render thread/INFO]: [Breeze autotest] {"dir":"/home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test","event":"start","t":1791622595436}
+101-[08:56:35] [Render thread/INFO]: [Indigo] Different rendering plugin detected; not applying Indigo.
+102-[08:56:35] [Render thread/INFO]: Loading ImmediatelyFast 1.1.12
+103-[08:56:36] [Render thread/INFO]: Backend library: LWJGL version 3.3.1 SNAPSHOT
+--
+108:[08:56:38] [Realms Notification Availability checker #1/INFO]: Could not authorize you against Realms server: javax.ws.rs.BadRequestException: Invalid session
+109-[08:56:38] [Render thread/INFO]: [Breeze autotest] {"kind":"title","scale":3.0,"items":[{"name":"Singleplayer","type":"widget","x":639,"y":354,"active":true},{"name":"Multiplayer","type":"widget","x":639,"y":426,"active":true},{"name":"Minecraft Realms","type":"widget","x":639,"y":498,"active":true},{"name":"Language","type":"widget","x":297,"y":606,"active":true},{"name":"Options...","type":"widget","x":486,"y":606,"active":true},{"name":"Quit Game","type":"widget","x":792,"y":606,"active":true},{"name":"Accessibility","type":"widget","x":981,"y":606,"active":true},{"name":"Copyright Mojang AB. Do not distribute!","type":"widget","x":921,"y":705,"active":true}],"event":"targets","t":1791622598596}
+110-[08:56:38] [ForkJoinPool.commonPool-worker-1/WARN]: [Breeze] friends refresh failed: HTTP 404
+111-[08:56:42] [Render thread/WARN]: Missing sound for event: minecraft:item.goat_horn.play
+112-[08:56:42] [Render thread/WARN]: Missing sound for event: minecraft:entity.goat.screaming.horn_break
+113-[08:56:42] [Render thread/ERROR]: Error starting SoundSystem. Turning off sounds & music
+114:java.lang.IllegalStateException: Failed to open OpenAL device
+115-	at net.minecraft.class_4225.method_38501(class_4225.java:283) ~[client-intermediary.jar:?]
+116-	at net.minecraft.class_4225.method_19661(class_4225.java:153) ~[client-intermediary.jar:?]
+117-	at net.minecraft.class_1140.method_4846(class_1140.java:113) ~[client-intermediary.jar:?]
+118-	at net.minecraft.class_1140.method_4837(class_1140.java:103) ~[client-intermediary.jar:?]
+119-	at net.minecraft.class_1144.method_18182(class_1144.java:119) ~[client-intermediary.jar:?]
+120-	at net.minecraft.class_1144.method_18788(class_1144.java:40) ~[client-intermediary.jar:?]
+121-	at net.minecraft.class_4080.method_18790(class_4080.java:13) ~[client-intermediary.jar:?]
+122-	at java.util.concurrent.CompletableFuture$UniAccept.tryFire(CompletableFuture.java:718) ~[?:?]
+123-	at java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:482) ~[?:?]
+124-	at net.minecraft.class_4014.method_18365(class_4014.java:69) ~[client-intermediary.jar:?]
+125-	at net.minecraft.class_1255.method_18859(class_1255.java:156) ~[client-intermediary.jar:?]
+126-	at net.minecraft.class_4093.method_18859(class_4093.java:23) ~[client-intermediary.jar:?]

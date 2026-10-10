@@ -1,0 +1,24 @@
+73:com.mojang.authlib.exceptions.InvalidCredentialsException: Status: 401
+74:	at com.mojang.authlib.exceptions.MinecraftClientHttpException.toAuthenticationException(MinecraftClientHttpException.java:56) ~[authlib-3.5.41.jar:?]
+75-	at com.mojang.authlib.yggdrasil.YggdrasilUserApiService.fetchProperties(YggdrasilUserApiService.java:140) ~[authlib-3.5.41.jar:?]
+76-	at com.mojang.authlib.yggdrasil.YggdrasilUserApiService.<init>(YggdrasilUserApiService.java:47) ~[authlib-3.5.41.jar:?]
+77-	at com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService.createUserApiService(YggdrasilAuthenticationService.java:158) ~[authlib-3.5.41.jar:?]
+78-	at net.minecraft.class_310.method_31382(class_310.java:677) [client-intermediary.jar:?]
+79-	at net.minecraft.class_310.<init>(class_310.java:415) [client-intermediary.jar:?]
+80-	at net.minecraft.client.main.Main.main(Main.java:198) [client-intermediary.jar:?]
+81-	at net.fabricmc.loader.impl.game.minecraft.MinecraftGameProvider.launch(MinecraftGameProvider.java:517) [fabric-loader-0.19.5.jar:?]
+82-	at net.fabricmc.loader.impl.launch.knot.Knot.launch(Knot.java:72) [fabric-loader-0.19.5.jar:?]
+83-	at net.fabricmc.loader.impl.launch.knot.KnotClient.main(KnotClient.java:23) [fabric-loader-0.19.5.jar:?]
+84:Caused by: com.mojang.authlib.exceptions.MinecraftClientHttpException: Status: 401
+85-	at com.mojang.authlib.minecraft.client.MinecraftClient.readInputStream(MinecraftClient.java:85) ~[authlib-3.5.41.jar:?]
+86-	at com.mojang.authlib.minecraft.client.MinecraftClient.get(MinecraftClient.java:48) ~[authlib-3.5.41.jar:?]
+87-	at com.mojang.authlib.yggdrasil.YggdrasilUserApiService.fetchProperties(YggdrasilUserApiService.java:121) ~[authlib-3.5.41.jar:?]
+88-	... 8 more
+89-[08:56:41] [Render thread/INFO]: Setting user: BreezeDev
+90-[08:56:41] [Render thread/INFO]: [Breeze] Initializing on Minecraft 1.19
+91-[08:56:41] [Render thread/INFO]: [Breeze] Registered 81 modules
+92-[08:56:41] [Render thread/INFO]: [Breeze] No embedded browser exists for this Minecraft version; native screens are the interface
+93-[08:56:41] [Render thread/INFO]: [Breeze autotest] {"dir":"/home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test","event":"start","t":1791622601668}
+94-[08:56:41] [Render thread/INFO]: [Indigo] Different rendering plugin detected; not applying Indigo.
+95-[08:56:42] [Render thread/INFO]: Backend library: LWJGL version 3.3.1 SNAPSHOT
+96-[08:56:42] [Render thread/INFO]: Initializing ImmediatelyFast 1.4.0+1.19.2 on llvmpipe (LLVM 20.1.2, 256 bits) (Mesa) with OpenGL 4.5 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.4
