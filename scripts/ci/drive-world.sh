@@ -182,6 +182,12 @@ case "$armor" in
   *'"pass":"true"'*) pass "the Armor HUD drew four armour pieces, the sword and the shield, the worn chestplate in red" ;;
   *) fail "the Armor HUD did not draw the worn gear as it should" ;;
 esac
+hotbar=$(grep '"event":"armor-hotbar-check"' "$LOG" | tail -1)
+say "armor hotbar: $hotbar"
+case "$hotbar" in
+  *'"pass":"true"'*) pass "the Armor HUD's Hotbar look drew the six pieces in slots cut from this version's own hotbar picture" ;;
+  *) fail "the Armor HUD's Hotbar look did not find the hotbar picture or did not draw the six pieces" ;;
+esac
 inventory=$(grep '"event":"inventory-check"' "$LOG" | tail -1)
 say "inventory: $inventory"
 case "$inventory" in

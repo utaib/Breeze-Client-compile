@@ -27,8 +27,10 @@ import java.util.List;
  * History: this module once drew the held item under this name. It then became
  * a text list ("Head: Diamond Helmet 87%"). The spec asks for number, bar and
  * percentage formats, orientation and the usual appearance controls. 2.14.0
- * adds Vanilla (Show), for players who want it to look like Minecraft's own
- * hotbar: the items with their own durability bars and counts, nothing else.
+ * adds the Hotbar look, asked for by a creator: the pieces in slots cut from
+ * Minecraft's own hotbar ({@link dev.breeze.ui.HotbarFrames}), so the armour
+ * reads as a second hotbar beside the real one, with Minecraft's own
+ * durability bar on each item or the number in the chosen format.
  */
 public class ArmorStatusHud extends AbstractHudModule {
 
@@ -46,6 +48,8 @@ public class ArmorStatusHud extends AbstractHudModule {
     /** SLOTS from here on are the hands. */
     private static final int FIRST_HAND = 4;
 
+    private final Setting.Mode look =
+            add(new Setting.Mode("look", "Look", GROUP, new String[]{"Breeze", "Hotbar"}, 0));
     private final Setting.Mode format =
             add(new Setting.Mode("format", "Show", GROUP, ArmorHudLayout.Format.labels(), 0));
     private final Setting.Mode orientation =
@@ -63,9 +67,11 @@ public class ArmorStatusHud extends AbstractHudModule {
     private static final boolean RECORD = System.getProperty("breeze.autotest") != null;
     /** What the last frame drew, for the self-test: one entry per piece shown. */
     private final List<String> lastDrawn = new ArrayList<>(SLOTS.length);
+    /** For the self-test: how many strips of hotbar slots the last frame drew. */
+    private int lastFrames;
 
     public ArmorStatusHud() {
-        super("Armor Status", Category.HUD, "Shows your armour and what is in your hands, with durability as a percentage, a number or a bar.", KEY_NONE, 4, 264);
+        super("Armor Status", Category.HUD, "Shows your armour and what is in your hands, with durability as a number or a bar, in Breeze's look or in Minecraft's hotbar slots.", KEY_NONE, 4, 264);
     }
 
     @Override
@@ -96,11 +102,15 @@ public class ArmorStatusHud extends AbstractHudModule {
                 orientation.is("Vertical"),
                 ArmorHudLayout.Align.of(style().align.value()),
                 icons.value, names.value, empties.value, colours.value,
-                style().lineGap.value);
+                style().lineGap.value, look.is("Hotbar"));
         ArmorHudLayout.Result layout = ArmorHudLayout.layout(pieces, options,
                 s -> font.width(style().applyCase(s)), style().textColor.argb);
 
         if (RECORD) lastDrawn.clear();
+        for (ArmorHudLayout.Frame f : layout.frames()) {
+            dev.breeze.ui.HotbarFrames.draw(g, x + f.x(), y + f.y(), f.slots(), f.vertical());
+        }
+        if (RECORD) lastFrames = layout.frames().size();
         for (Cell c : layout.cells()) {
             if (RECORD) {
                 lastDrawn.add(SLOTS[c.slot()].name().toLowerCase(java.util.Locale.ROOT) + " " + c.text()
@@ -110,8 +120,8 @@ public class ArmorStatusHud extends AbstractHudModule {
                 ItemStack st = stacks[c.slot()];
                 if (!st.isEmpty()) {
                     g.renderItem(st, x + c.x(), y + c.y());
-                    // Vanilla: the durability bar and count exactly as the
-                    // hotbar draws them.
+                    // Hotbar look: the durability bar and count exactly as
+                    // the hotbar draws them.
                     if (c.decorations()) g.renderItemDecorations(font, st, x + c.x(), y + c.y());
                 } else {
                     // An empty slot shows Minecraft's own empty-slot picture,
@@ -139,5 +149,15 @@ public class ArmorStatusHud extends AbstractHudModule {
     /** For the self-test: each piece the last frame drew, as "slot text #colour". */
     public List<String> lastDrawn() {
         return List.copyOf(lastDrawn);
+    }
+
+    /** For the self-test: the strips of hotbar slots the last frame drew. */
+    public int lastFrames() {
+        return lastFrames;
+    }
+
+    /** For the self-test: switch between the Breeze and Hotbar looks. */
+    public void hotbarLook(boolean on) {
+        look.index = on ? 1 : 0;
     }
 }

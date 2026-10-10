@@ -92,6 +92,10 @@ test('Armor HUD settings fit the smallest window', async ({ page }, info) => {
   await page.getByRole('group', { name: 'Orientation' }).getByRole('button', { name: 'Horizontal' }).click()
   await expect.poll(async () => (await calls(page, 'modules.setSetting')).at(-1)?.params)
     .toEqual({ name: 'Armor Status', id: 'orientation', value: 'Horizontal' })
+  // The Hotbar look (2.14.0): the armour in Minecraft's own hotbar slots.
+  await page.getByRole('group', { name: 'Look' }).getByRole('button', { name: 'Hotbar' }).click()
+  await expect.poll(async () => (await calls(page, 'modules.setSetting')).at(-1)?.params)
+    .toEqual({ name: 'Armor Status', id: 'look', value: 'Hotbar' })
 })
 
 test('segmented controls never wrap their labels', async ({ page }) => {

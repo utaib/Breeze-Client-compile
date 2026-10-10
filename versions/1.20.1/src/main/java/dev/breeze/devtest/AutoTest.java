@@ -260,6 +260,8 @@ public final class AutoTest {
 
     /** Taken off again once the Armor HUD has been looked at. */
     private static boolean armourOff;
+    /** When the Armor HUD went to its Hotbar look; 0 before. */
+    private static long hotbarAt;
 
     /**
      * Frame rate in the new world before anything is switched on: one reading
@@ -498,17 +500,38 @@ public final class AutoTest {
                     if (h.isEnabled() != keep) h.setEnabled(keep);
                 }
                 armourOff = false;
+                hotbarAt = 0;
                 world = World.ARMOR;
                 worldAt = System.currentTimeMillis();
             }
             case ARMOR -> {
                 if (!armourOff) {
                     if (age < 4_000) return;
-                    shot(mc, "autotest-armor-hud");
-                    java.util.List<String> drawn = java.util.List.of();
+                    dev.breeze.modules.ArmorStatusHud armorHud = null;
                     for (Module m : ModuleManager.getModules()) {
-                        if (m instanceof dev.breeze.modules.ArmorStatusHud a) drawn = a.lastDrawn();
+                        if (m instanceof dev.breeze.modules.ArmorStatusHud a) armorHud = a;
                     }
+                    if (hotbarAt != 0) {
+                        // The same gear in the Hotbar look: Minecraft's own
+                        // hotbar slots (one strip, or one per piece across
+                        // with numbers), the six pieces in them.
+                        if (System.currentTimeMillis() - hotbarAt < 1_500) return;
+                        shot(mc, "autotest-armor-hotbar");
+                        java.util.List<String> drawnHotbar = armorHud == null ? java.util.List.of() : armorHud.lastDrawn();
+                        int frames = armorHud == null ? 0 : armorHud.lastFrames();
+                        String source = dev.breeze.ui.HotbarFrames.source();
+                        JsonObject h = new JsonObject();
+                        h.addProperty("source", String.valueOf(source));
+                        h.addProperty("frames", String.valueOf(frames));
+                        h.addProperty("drawn", String.join(" | ", drawnHotbar));
+                        h.addProperty("pass", String.valueOf(source != null && frames >= 1 && drawnHotbar.size() == 6));
+                        write("armor-hotbar-check", h);
+                        if (armorHud != null) armorHud.hotbarLook(false);
+                        afterArmour(mc);
+                        return;
+                    }
+                    shot(mc, "autotest-armor-hud");
+                    java.util.List<String> drawn = armorHud == null ? java.util.List.<String>of() : armorHud.lastDrawn();
                     // Six pieces: four armour, the sword, the shield. The
                     // chestplate is nearly worn out, so its number is red.
                     boolean six = drawn.size() == 6;
@@ -525,22 +548,8 @@ public final class AutoTest {
                     o.addProperty("drawn", String.join(" | ", drawn));
                     o.addProperty("pass", String.valueOf(six && red && sword && shield));
                     write("armor-check", o);
-                    // Next, with the armour still on: a filled inventory and
-                    // the modules that draw items or Minecraft's pictures.
-                    fillInventory(mc, true);
-                    for (dev.breeze.modules.AbstractHudModule h : HudSweep.huds()) {
-                        boolean keep = INVENTORY_HUDS.contains(h.getName());
-                        if (h.isEnabled() != keep) h.setEnabled(keep);
-                    }
-                    setBool("Inventory HUD", "armour", true);
-                    // At its default place, as a player sees it first: the
-                    // in-world check switched every HUD element on at once,
-                    // which had pushed it to wherever was still free.
-                    for (Module m : ModuleManager.getModules()) {
-                        if (m instanceof dev.breeze.modules.InventoryHud inv) inv.resetPlacement();
-                    }
-                    world = World.INVENTORY;
-                    worldAt = System.currentTimeMillis();
+                    if (armorHud != null) armorHud.hotbarLook(true);
+                    hotbarAt = System.currentTimeMillis();
                     return;
                 }
                 // Long enough for the empty slots to reach the client before
@@ -825,6 +834,27 @@ public final class AutoTest {
 
     private static net.minecraft.world.item.ItemStack stack(boolean on, net.minecraft.world.item.Item item, int count) {
         return on ? new net.minecraft.world.item.ItemStack(item, count) : net.minecraft.world.item.ItemStack.EMPTY;
+    }
+
+    /**
+     * After the Armor HUD: with the armour still on, a filled inventory and
+     * the modules that draw items or Minecraft's pictures.
+     */
+    private static void afterArmour(Minecraft mc) {
+        fillInventory(mc, true);
+        for (dev.breeze.modules.AbstractHudModule h : HudSweep.huds()) {
+            boolean keep = INVENTORY_HUDS.contains(h.getName());
+            if (h.isEnabled() != keep) h.setEnabled(keep);
+        }
+        setBool("Inventory HUD", "armour", true);
+        // At its default place, as a player sees it first: the in-world check
+        // switched every HUD element on at once, which had pushed it to
+        // wherever was still free.
+        for (Module m : ModuleManager.getModules()) {
+            if (m instanceof dev.breeze.modules.InventoryHud inv) inv.resetPlacement();
+        }
+        world = World.INVENTORY;
+        worldAt = System.currentTimeMillis();
     }
 
     private static void setBool(String module, String key, boolean value) {

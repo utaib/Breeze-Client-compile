@@ -12,9 +12,14 @@ import java.util.function.ToIntFunction;
  * bar, and a line of text, all relative to the HUD's own origin.
  *
  * Formats, as the spec lists them: a percentage, the number (remaining, or
- * remaining out of maximum), a bar, or a bar with the percentage. And Vanilla
- * (2.14.0, a creator tester's request): only the items, with Minecraft's own
- * durability bar and stack count drawn on them as in the hotbar, no text.
+ * remaining out of maximum), a bar, or a bar with the percentage.
+ *
+ * Two looks. Breeze: icon, bar and text in a line per piece. Hotbar (2.14.0, a
+ * creator tester's request): each piece in a slot cut from Minecraft's own
+ * hotbar ({@link HotbarArt}), joined into one strip like a second hotbar, the
+ * item drawn as the hotbar draws it. There "Bar" is Minecraft's own durability
+ * bar on the item; the text formats put the number beside the strip (down) or
+ * above each slot (across).
  */
 public final class ArmorHudLayout {
 
@@ -32,9 +37,7 @@ public final class ArmorHudLayout {
         DURABILITY("Durability"),
         REMAINING("Remaining"),
         BAR("Bar"),
-        BAR_AND_PERCENT("Bar and percent"),
-        /** Last, so a saved choice keeps its meaning (saved by name anyway). */
-        VANILLA("Vanilla");
+        BAR_AND_PERCENT("Bar and percent");
 
         public final String label;
 
@@ -55,9 +58,6 @@ public final class ArmorHudLayout {
         }
 
         boolean bar() { return this == BAR || this == BAR_AND_PERCENT; }
-
-        /** Items only, decorated by Minecraft; always with icons. */
-        public boolean vanilla() { return this == VANILLA; }
     }
 
     public enum Align { LEFT, CENTER, RIGHT;
@@ -81,27 +81,40 @@ public final class ArmorHudLayout {
         }
     }
 
+    /** {@code hotbar}: the Hotbar look; {@code icons} then does not apply (a slot always shows its item). */
     public record Options(Format format, boolean vertical, Align align, boolean icons, boolean names,
-                          boolean empties, boolean colours, int gap) {}
+                          boolean empties, boolean colours, int gap, boolean hotbar) {
+        public Options(Format format, boolean vertical, Align align, boolean icons, boolean names,
+                       boolean empties, boolean colours, int gap) {
+            this(format, vertical, align, icons, names, empties, colours, gap, false);
+        }
+    }
 
     /**
      * One piece, relative to the HUD origin. {@code slot} is the index into the
      * pieces passed in, so the caller can find the item to draw.
      * {@code decorations}: draw Minecraft's own durability bar and count on the
-     * icon (Vanilla).
+     * item (Hotbar look).
      */
     public record Cell(int slot, int x, int y, boolean icon, String text, int textX, int textY, int textColor,
                        boolean bar, int barX, int barY, int barFill, int barColor, boolean decorations) {}
 
-    public record Result(List<Cell> cells, int width, int height) {}
+    /**
+     * A strip of hotbar slots to draw first, at (x, y) relative to the HUD
+     * origin ({@link HotbarArt#strip}).
+     */
+    public record Frame(int x, int y, int slots, boolean vertical) {}
+
+    public record Result(List<Cell> cells, int width, int height, List<Frame> frames) {
+        public Result(List<Cell> cells, int width, int height) {
+            this(cells, width, height, List.of());
+        }
+    }
 
     private ArmorHudLayout() {}
 
     public static Result layout(List<Piece> pieces, Options o, ToIntFunction<String> textWidth, int textColor) {
-        if (o.format().vanilla() && !o.icons()) {
-            // Vanilla is the items themselves; without icons there is nothing to show.
-            o = new Options(o.format(), o.vertical(), o.align(), true, o.names(), o.empties(), o.colours(), o.gap());
-        }
+        if (o.hotbar()) return hotbar(pieces, o, textWidth, textColor);
         List<Cell> cells = new ArrayList<>(pieces.size());
         int[] widths = new int[pieces.size()];
         int cellH = o.icons() ? ICON : TEXT_H;
@@ -163,10 +176,11 @@ public final class ArmorHudLayout {
                 if (at > cx) at += INNER_GAP;
                 textX = at;
             }
-            cells.add(new Cell(i, cx, cy, icon, texts[i], textX, cy + (cellH - TEXT_H) / 2, colour,
+            // With icons on, an empty slot kept in the list shows Minecraft's
+            // empty-slot picture in its place (2.13.0 left that space blank).
+            cells.add(new Cell(i, cx, cy, o.icons(), texts[i], textX, cy + (cellH - TEXT_H) / 2, colour,
                     bars[i], barX, cy + (cellH - BAR_H) / 2, barFill,
-                    p.damageable() ? durabilityColor(p.left(), p.max()) : textColor,
-                    icon && o.format().vanilla()));
+                    p.damageable() ? durabilityColor(p.left(), p.max()) : textColor, false));
             cursor += (o.vertical() ? cellH : widths[i]) + gap;
         }
         return new Result(cells, width, height);
@@ -174,8 +188,7 @@ public final class ArmorHudLayout {
 
     /** The words for one piece in the chosen format. */
     public static String text(Piece p, Options o) {
-        // Vanilla: no words; Minecraft draws the bar and the count on the item.
-        if (o.format().vanilla()) return o.names() && p.present() ? p.name() : "";
+        if (o.hotbar()) return hotbarText(p, o.format(), o.names());
         if (!p.present()) return o.icons() ? "" : "-";
         String value = p.damageable() ? value(p, o.format()) : "";
         if (!p.damageable()) {
@@ -185,6 +198,102 @@ public final class ArmorHudLayout {
         }
         if (o.names()) return value.isEmpty() ? p.name() : p.name() + " " + value;
         return value;
+    }
+
+    /**
+     * The Hotbar look. All the slots shown make one strip, as the hotbar is
+     * one; empty ones only when kept. Down, the words sit beside each slot
+     * (left of the strip when aligned right). Across, they sit above each
+     * slot, and then the slots stand apart, each in its own outline, far
+     * enough for the widest words: those are measured at full durability, so
+     * nothing moves as the armour wears.
+     */
+    private static Result hotbar(List<Piece> pieces, Options o, ToIntFunction<String> textWidth, int textColor) {
+        List<Integer> shown = new ArrayList<>(pieces.size());
+        for (int i = 0; i < pieces.size(); i++) {
+            if (pieces.get(i).present() || o.empties()) shown.add(i);
+        }
+        int n = Math.min(shown.size(), HotbarArt.MAX_SLOTS);
+        if (n == 0) return new Result(List.of(), 0, 0, List.of());
+
+        int widest = 0;
+        for (int k = 0; k < n; k++) {
+            Piece p = pieces.get(shown.get(k));
+            String full = hotbarText(new Piece(p.present(), p.damageable(), p.max(), p.max(), p.name(), p.count()),
+                    o.format(), o.names());
+            if (!full.isEmpty()) widest = Math.max(widest, textWidth.applyAsInt(full));
+        }
+
+        List<Cell> cells = new ArrayList<>(n);
+        List<Frame> frames = new ArrayList<>(o.vertical() || widest == 0 ? 1 : n);
+        int width;
+        int height;
+        if (o.vertical()) {
+            boolean left = o.align() == Align.RIGHT && widest > 0;
+            int stripX = left ? widest + INNER_GAP : 0;
+            frames.add(new Frame(stripX, 0, n, true));
+            for (int k = 0; k < n; k++) {
+                int i = shown.get(k);
+                Piece p = pieces.get(i);
+                String text = hotbarText(p, o.format(), o.names());
+                int itemY = HotbarArt.itemOffset(k);
+                int textX = left ? stripX - INNER_GAP - textWidth.applyAsInt(text) : stripX + HotbarArt.SLOT + INNER_GAP;
+                cells.add(hotbarCell(i, p, stripX + HotbarArt.ITEM_INSET, itemY, text, textX,
+                        itemY + (ICON - TEXT_H) / 2, o, textColor));
+            }
+            width = HotbarArt.SLOT + (widest > 0 ? INNER_GAP + widest : 0);
+            height = HotbarArt.length(n);
+        } else if (widest == 0) {
+            frames.add(new Frame(0, 0, n, false));
+            for (int k = 0; k < n; k++) {
+                int i = shown.get(k);
+                cells.add(hotbarCell(i, pieces.get(i), HotbarArt.itemOffset(k), HotbarArt.ITEM_INSET, "", 0, 0,
+                        o, textColor));
+            }
+            width = HotbarArt.length(n);
+            height = HotbarArt.HEIGHT;
+        } else {
+            int gap = Math.max(0, o.gap());
+            int pitch = Math.max(HotbarArt.SLOT + Math.max(2, gap), widest + Math.max(MIN_ACROSS_GAP, gap));
+            int top = TEXT_H + 2;
+            for (int k = 0; k < n; k++) {
+                int i = shown.get(k);
+                Piece p = pieces.get(i);
+                int boxX = k * pitch + (pitch - HotbarArt.SLOT) / 2;
+                frames.add(new Frame(boxX, top, 1, false));
+                String text = hotbarText(p, o.format(), o.names());
+                int textX = boxX + HotbarArt.SLOT / 2 - textWidth.applyAsInt(text) / 2;
+                cells.add(hotbarCell(i, p, boxX + HotbarArt.ITEM_INSET, top + HotbarArt.ITEM_INSET, text, textX, 0,
+                        o, textColor));
+            }
+            width = pitch * n;
+            height = top + HotbarArt.SLOT;
+        }
+        return new Result(cells, width, height, frames);
+    }
+
+    private static Cell hotbarCell(int slot, Piece p, int x, int y, String text, int textX, int textY,
+                                   Options o, int textColor) {
+        int colour = p.present() && p.damageable() && o.colours() ? durabilityColor(p.left(), p.max()) : textColor;
+        // Minecraft's bar for worn gear when the format has a bar, and always
+        // the count (a stack of totems or arrows), as the hotbar draws them.
+        boolean decorations = p.present() && (!p.damageable() || o.format().bar());
+        return new Cell(slot, x, y, true, text, textX, textY, colour, false, 0, 0, 0,
+                p.damageable() ? durabilityColor(p.left(), p.max()) : textColor, decorations);
+    }
+
+    /**
+     * The words beside a slot in the Hotbar look: the durability in the
+     * chosen format (none for Bar, which Minecraft draws on the item), after
+     * the name when names are on. A stack's count is Minecraft's to draw, so
+     * other items have words only for their name.
+     */
+    static String hotbarText(Piece p, Format f, boolean names) {
+        if (!p.present()) return "";
+        if (!p.damageable()) return names ? p.name() : "";
+        String value = value(p, f);
+        if (!names) return value;
+        return value.isEmpty() ? p.name() : p.name() + " " + value;
     }
 
     private static String value(Piece p, Format f) {

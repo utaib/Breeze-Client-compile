@@ -177,44 +177,116 @@ class ArmorHudLayoutTest {
         assertEquals(ArmorHudLayout.durabilityColor(780, 1561), swordCell.textColor());
     }
 
+    private static Options hotbar(Format f, boolean vertical, Align align, boolean names, boolean empties) {
+        return new Options(f, vertical, align, true, names, empties, true, 2, true);
+    }
+
     /**
-     * Vanilla (2.14.0): the items only, with Minecraft's own durability bar and
-     * count drawn on them, as in the hotbar. No words, no Breeze bar.
+     * Hotbar look (2.14.0), with Bar: the pieces in one strip of Minecraft's
+     * hotbar slots, each item where the hotbar puts its own, Minecraft's bar
+     * and count on it, no words and no Breeze bar.
      */
     @Test
-    void vanillaIsJustTheItemsWithMinecraftsOwnDecorations() {
+    void hotbarWithBarIsOneStripOfSlotsDecoratedByMinecraft() {
         Piece totems = new Piece(true, false, 0, 0, "Totem of Undying", 3);
-        Options o = opts(Format.VANILLA, false, true);
-        assertEquals("", ArmorHudLayout.text(CHEST, o), "no percentage");
+        Options o = hotbar(Format.BAR, false, Align.LEFT, false, false);
+        assertEquals("", ArmorHudLayout.text(CHEST, o), "the bar is Minecraft's, on the item");
         assertEquals("", ArmorHudLayout.text(totems, o), "the count is Minecraft's to draw");
 
         Result r = ArmorHudLayout.layout(List.of(HELMET, CHEST, Piece.EMPTY, totems), o, WIDTH, WHITE);
-        assertEquals(3, r.cells().size(), "an empty slot is left out unless kept");
-        for (Cell c : r.cells()) {
+        assertEquals(List.of(new ArmorHudLayout.Frame(0, 0, 3, false)), r.frames(), "one strip, the empty slot left out");
+        assertEquals(3, r.cells().size());
+        for (int k = 0; k < 3; k++) {
+            Cell c = r.cells().get(k);
+            assertEquals(3 + 20 * k, c.x(), "where the hotbar draws its own items");
+            assertEquals(3, c.y());
             assertTrue(c.icon());
-            assertTrue(c.decorations(), "Minecraft draws the bar and count");
+            assertTrue(c.decorations());
             assertFalse(c.bar(), "no Breeze bar");
             assertEquals("", c.text());
         }
-        // Three items side by side, the across gap between them, one icon high.
-        assertEquals(3 * ArmorHudLayout.ICON + 2 * ArmorHudLayout.MIN_ACROSS_GAP, r.width());
-        assertEquals(ArmorHudLayout.ICON, r.height());
+        assertEquals(62, r.width(), "three slots and the outline, as the hotbar measures");
+        assertEquals(22, r.height());
     }
 
     @Test
-    void vanillaAlwaysShowsTheItemsAndKeepsEmptySlotsUndecorated() {
-        // Icons switched off would leave nothing to show, so Vanilla draws them anyway.
-        Options noIcons = new Options(Format.VANILLA, true, Align.LEFT, false, false, true, true, 2);
-        Result r = ArmorHudLayout.layout(List.of(HELMET, Piece.EMPTY), noIcons, WIDTH, WHITE);
-        assertEquals(2, r.cells().size());
-        assertTrue(r.cells().get(0).decorations());
-        assertTrue(r.cells().get(1).icon() == false && !r.cells().get(1).decorations(),
-                "an empty slot has no item to decorate");
-        assertEquals(2 * ArmorHudLayout.ICON + 2, r.height(), "two icons high with the gap");
-        // Names still work for those who want them.
-        Options named = new Options(Format.VANILLA, true, Align.LEFT, true, true, false, true, 2);
-        assertEquals("Diamond Helmet", ArmorHudLayout.text(HELMET, named));
-        assertEquals(Format.VANILLA, Format.of("Vanilla"));
-        assertEquals("Vanilla", Format.labels()[Format.labels().length - 1], "added last");
+    void hotbarWithTextPutsTheNumberAboveEachSlotWithoutMovingAsItWears() {
+        Options o = hotbar(Format.PERCENT, false, Align.LEFT, false, false);
+        Result r = ArmorHudLayout.layout(List.of(HELMET, CHEST), o, WIDTH, WHITE);
+        // "100%" is the widest a percentage gets: 24 pixels, so each slot
+        // stands in a 28 pixel cell with its own outline.
+        assertEquals(2, r.frames().size());
+        assertEquals(new ArmorHudLayout.Frame(3, 10, 1, false), r.frames().get(0));
+        assertEquals(new ArmorHudLayout.Frame(31, 10, 1, false), r.frames().get(1));
+        Cell chest = r.cells().get(1);
+        assertEquals("50%", chest.text());
+        assertEquals(0, chest.textY(), "above the slot");
+        assertEquals(31 + 11 - 9, chest.textX(), "centred over the slot");
+        assertEquals(31 + 3, chest.x());
+        assertEquals(13, chest.y());
+        assertFalse(chest.decorations(), "a number instead of Minecraft's bar");
+        assertEquals(ArmorHudLayout.durabilityColor(264, 528), chest.textColor());
+        assertEquals(56, r.width());
+        assertEquals(32, r.height());
+
+        // Worn down to 9%, the slots stay where they were.
+        Piece worn = new Piece(true, true, 40, 528, "Diamond Chestplate");
+        Result later = ArmorHudLayout.layout(List.of(HELMET, worn), o, WIDTH, WHITE);
+        assertEquals(r.frames(), later.frames());
+        assertEquals(r.width(), later.width());
+
+        // Bar and percent: both Minecraft's bar and the number.
+        Cell both = ArmorHudLayout.layout(List.of(CHEST), hotbar(Format.BAR_AND_PERCENT, false, Align.LEFT, false, false),
+                WIDTH, WHITE).cells().get(0);
+        assertTrue(both.decorations());
+        assertEquals("50%", both.text());
+    }
+
+    @Test
+    void hotbarDownIsOneColumnWithTheWordsBeside() {
+        Options o = hotbar(Format.REMAINING, true, Align.LEFT, false, true);
+        Result r = ArmorHudLayout.layout(List.of(HELMET, Piece.EMPTY, LEGS), o, WIDTH, WHITE);
+        assertEquals(List.of(new ArmorHudLayout.Frame(0, 0, 3, true)), r.frames(), "the kept empty slot is in the strip");
+        Cell empty = r.cells().get(1);
+        assertTrue(empty.icon(), "an empty slot shows Minecraft's empty-slot picture");
+        assertFalse(empty.decorations());
+        assertEquals("", empty.text());
+        Cell legs = r.cells().get(2);
+        assertEquals(3, legs.x());
+        assertEquals(43, legs.y());
+        assertEquals("1", legs.text());
+        assertEquals(22 + 4, legs.textX());
+        assertEquals(47, legs.textY());
+        // Widest words at full durability: "495" and "363", 18 pixels.
+        assertEquals(22 + 4 + 18, r.width());
+        assertEquals(62, r.height());
+
+        // Aligned right, the words go on the left and end at the strip.
+        Result right = ArmorHudLayout.layout(List.of(HELMET, LEGS), hotbar(Format.REMAINING, true, Align.RIGHT, false, false),
+                WIDTH, WHITE);
+        assertEquals(new ArmorHudLayout.Frame(22, 0, 2, true), right.frames().get(0));
+        assertEquals(22 - 4 - 6, right.cells().get(1).textX());
+        assertEquals(25, right.cells().get(0).x());
+    }
+
+    @Test
+    void hotbarNamesAndNothingToDraw() {
+        Piece totems = new Piece(true, false, 0, 0, "Totem of Undying", 3);
+        Options named = hotbar(Format.PERCENT, true, Align.LEFT, true, false);
+        assertEquals("Diamond Chestplate 50%", ArmorHudLayout.text(CHEST, named));
+        assertEquals("Totem of Undying", ArmorHudLayout.text(totems, named), "the count stays Minecraft's");
+        Result none = ArmorHudLayout.layout(List.of(Piece.EMPTY, Piece.EMPTY), named, WIDTH, WHITE);
+        assertTrue(none.cells().isEmpty());
+        assertTrue(none.frames().isEmpty());
+        assertEquals(0, none.width());
+    }
+
+    @Test
+    void breezeLookShowsMinecraftsEmptySlotPictureWhenEmptySlotsAreKept() {
+        Options o = new Options(Format.PERCENT, true, Align.LEFT, true, false, true, true, 2);
+        Result r = ArmorHudLayout.layout(List.of(HELMET, Piece.EMPTY), o, WIDTH, WHITE);
+        assertTrue(r.cells().get(1).icon(), "drawn as the picture, not left blank");
+        assertTrue(r.frames().isEmpty(), "no hotbar slots in the Breeze look");
+        assertFalse(r.cells().get(0).decorations());
     }
 }

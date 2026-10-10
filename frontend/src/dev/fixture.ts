@@ -66,6 +66,7 @@ function hudStyle(): ModuleSetting[] {
 function armorSettings(): ModuleSetting[] {
   // Mirrors versions/1.20.1/src/main/java/dev/breeze/modules/ArmorStatusHud.java.
   return [
+    { type: 'mode', id: 'look', label: 'Look', group: 'Armor', value: 'Breeze', options: ['Breeze', 'Hotbar'] },
     { type: 'mode', id: 'format', label: 'Show', group: 'Armor', value: 'Percent', options: ['Percent', 'Durability', 'Remaining', 'Bar', 'Bar and percent'] },
     { type: 'mode', id: 'orientation', label: 'Orientation', group: 'Armor', value: 'Vertical', options: ['Vertical', 'Horizontal'] },
     { type: 'bool', id: 'icons', label: 'Item icons', group: 'Armor', value: true },
@@ -77,7 +78,7 @@ function armorSettings(): ModuleSetting[] {
 
 const MODULE_ROWS: [string, ModuleInfo['category'], string][] = [
   ['FPS', 'HUD', 'Shows current framerate.'],
-  ['Armor Status', 'HUD', 'Shows your armour and what is in your hands, with durability as a percentage, a number or a bar.'],
+  ['Armor Status', 'HUD', 'Shows your armour and what is in your hands, with durability as a number or a bar, in Breeze\'s look or in Minecraft\'s hotbar slots.'],
   ['Coordinates', 'HUD', 'Shows player coordinates.'],
   ['CPS', 'HUD', 'Shows clicks per second.'],
   ['Keystrokes', 'HUD', 'Shows WASD + jump keys.'],

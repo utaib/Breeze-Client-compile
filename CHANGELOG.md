@@ -9,22 +9,37 @@ Each entry says what was verified and how. Anything not verified is marked
 
 ## [2.14.0] - 2026-10-10
 
-A vanilla look for the Armor HUD, asked for by a creator tester.
+A Hotbar look for the Armor HUD, asked for by a creator tester: the armour in
+what looks like a second hotbar beside the real one.
 
 ### Added
-- **Armor HUD: Show, Vanilla.** The items only, each with Minecraft's own
-  durability bar and stack count drawn on it exactly as the hotbar draws
-  them (`renderItemDecorations`, already used by the Inventory HUD on all 34
-  versions), no percentages and no Breeze bar. It always shows the item
-  icons, and Item names still work with it. The Armor HUD's panel is off by
-  default, so it looks like part of Minecraft. Added last to the Show list,
-  and saved by name, so nobody's choice changes.
+- **Armor HUD: Look, Hotbar.** Each piece sits in a slot cut from Minecraft's
+  own hotbar picture (the `hud/hotbar` sprite from 1.20.2, `gui/widgets.png`
+  before, or a resource pack's), the slots joined into one strip like the
+  hotbar, each item where the hotbar draws its own. Show still decides the
+  durability: Bar is Minecraft's own durability bar on the item, exactly as
+  the hotbar draws it; Percent, Durability and Remaining put the number beside
+  the strip (Vertical) or above each slot (Horizontal, the slots then stand
+  apart, spaced for the widest number at full durability so nothing moves as
+  the armour wears); Bar and percent shows both. Stacks keep Minecraft's
+  count. Empty slots, when kept, show Minecraft's empty-slot picture. Breeze
+  stays the default look, so nobody's HUD changes.
+
+### Fixed
+- **Armor HUD: Keep empty slots** showed a blank space with Item icons on;
+  it now shows Minecraft's empty-slot picture there, as 2.13.0 meant to.
 
 ### Verified
-- `:common:test`: 167 tests, 2 new for Vanilla (no words, no Breeze bar,
-  Minecraft's decorations on every item and none on an empty slot, icons
-  always on, sizes). `check-java-offline.sh 1.20.1` on ArmorStatusHud: 0
-  errors. The full 34-version run decides the jars (Breeze Jars/README.md).
+- `:common:test`: 176 tests, 11 new: the Hotbar look's strips, item places,
+  text above or beside, spacing that does not move as armour wears, names,
+  empty slots; the hotbar cut into rows and columns (every pixel of a column
+  covered once), resource pack sizes, items where the hotbar puts its own.
+  Frontend: typecheck, 19 Vitest and 86 Playwright tests (Look switches to
+  Hotbar). `check-java-offline.sh 1.20.1`: no errors in the changed code.
+- In game, every version's self-test now also switches the Armor HUD to the
+  Hotbar look, screenshots it (`autotest-armor-hotbar`) and records which
+  hotbar picture it found (`armor-hotbar-check`). The full 34-version run
+  decides the jars (Breeze Jars/README.md).
 
 ## [2.13.1] - 2026-10-08
 
