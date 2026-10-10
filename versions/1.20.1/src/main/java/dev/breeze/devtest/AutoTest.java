@@ -262,6 +262,8 @@ public final class AutoTest {
     private static boolean armourOff;
     /** When the Armor HUD went to its Hotbar look; 0 before. */
     private static long hotbarAt;
+    /** The Hotbar look's steps: 1 a column with numbers, 2 a row with Minecraft's bars, 3 that row placed by the hotbar. */
+    private static int hotbarStep;
 
     /**
      * Frame rate in the new world before anything is switched on: one reading
@@ -501,6 +503,7 @@ public final class AutoTest {
                 }
                 armourOff = false;
                 hotbarAt = 0;
+                hotbarStep = 0;
                 world = World.ARMOR;
                 worldAt = System.currentTimeMillis();
             }
@@ -511,10 +514,9 @@ public final class AutoTest {
                     for (Module m : ModuleManager.getModules()) {
                         if (m instanceof dev.breeze.modules.ArmorStatusHud a) armorHud = a;
                     }
-                    if (hotbarAt != 0) {
+                    if (hotbarStep == 1) {
                         // The same gear in the Hotbar look: Minecraft's own
-                        // hotbar slots (one strip, or one per piece across
-                        // with numbers), the six pieces in them.
+                        // hotbar slots in a column, the numbers beside.
                         if (System.currentTimeMillis() - hotbarAt < 1_500) return;
                         shot(mc, "autotest-armor-hotbar");
                         java.util.List<String> drawnHotbar = armorHud == null ? java.util.List.of() : armorHud.lastDrawn();
@@ -526,7 +528,52 @@ public final class AutoTest {
                         h.addProperty("drawn", String.join(" | ", drawnHotbar));
                         h.addProperty("pass", String.valueOf(source != null && frames >= 1 && drawnHotbar.size() == 6));
                         write("armor-hotbar-check", h);
-                        if (armorHud != null) armorHud.hotbarLook(false);
+                        // Next as the creator tester described it: the four
+                        // armour pieces in a row beside the hotbar, with
+                        // Minecraft's own durability bars.
+                        setMode("Armor Status", "orientation", "Horizontal");
+                        setMode("Armor Status", "format", "Bar");
+                        setBool("Armor Status", "hands", false);
+                        hotbarStep = 2;
+                        hotbarAt = System.currentTimeMillis();
+                        return;
+                    }
+                    if (hotbarStep == 2) {
+                        // A frame at the new size first, so the row's width is known.
+                        if (System.currentTimeMillis() - hotbarAt < 500 || armorHud == null) return;
+                        int sw = mc.getWindow().getGuiScaledWidth(), sh = mc.getWindow().getGuiScaledHeight();
+                        armorHud.setHudPos(sw / 2 - 91 - 6 - armorHud.getHudW(), sh - armorHud.getHudH());
+                        hotbarStep = 3;
+                        hotbarAt = System.currentTimeMillis();
+                        return;
+                    }
+                    if (hotbarStep == 3) {
+                        if (System.currentTimeMillis() - hotbarAt < 1_500) return;
+                        shot(mc, "autotest-armor-hotbar-row");
+                        java.util.List<String> row = armorHud == null ? java.util.List.of() : armorHud.lastDrawn();
+                        int frames = armorHud == null ? 0 : armorHud.lastFrames();
+                        int sw = mc.getWindow().getGuiScaledWidth(), sh = mc.getWindow().getGuiScaledHeight();
+                        // Beside the hotbar: level with its bottom, ending left of it.
+                        boolean beside = armorHud != null
+                                && armorHud.getHudY() + armorHud.getHudH() == sh
+                                && armorHud.getHudX() + armorHud.getHudW() <= sw / 2 - 91;
+                        // Bar: no words, Minecraft draws the bar on each item.
+                        // (An entry is "slot text #colour"; no words leaves two spaces.)
+                        boolean noWords = row.stream().allMatch(d -> d.matches("\\S+  #[0-9a-f]+"));
+                        JsonObject r = new JsonObject();
+                        r.addProperty("frames", String.valueOf(frames));
+                        r.addProperty("drawn", String.join(" | ", row));
+                        r.addProperty("box", armorHud == null ? "" : armorHud.getHudX() + "," + armorHud.getHudY()
+                                + " " + armorHud.getHudW() + "x" + armorHud.getHudH() + " on " + sw + "x" + sh);
+                        r.addProperty("pass", String.valueOf(frames == 1 && row.size() == 4 && beside && noWords));
+                        write("armor-hotbar-row-check", r);
+                        setMode("Armor Status", "orientation", "Vertical");
+                        setMode("Armor Status", "format", "Percent");
+                        setBool("Armor Status", "hands", true);
+                        if (armorHud != null) {
+                            armorHud.hotbarLook(false);
+                            armorHud.resetPlacement();
+                        }
                         afterArmour(mc);
                         return;
                     }
@@ -549,6 +596,7 @@ public final class AutoTest {
                     o.addProperty("pass", String.valueOf(six && red && sword && shield));
                     write("armor-check", o);
                     if (armorHud != null) armorHud.hotbarLook(true);
+                    hotbarStep = 1;
                     hotbarAt = System.currentTimeMillis();
                     return;
                 }
@@ -855,6 +903,18 @@ public final class AutoTest {
         }
         world = World.INVENTORY;
         worldAt = System.currentTimeMillis();
+    }
+
+    private static void setMode(String module, String key, String option) {
+        for (Module m : ModuleManager.getModules()) {
+            if (!m.getName().equals(module)) continue;
+            for (dev.breeze.settings.Setting s : m.getSettings()) {
+                if (!(s instanceof dev.breeze.settings.Setting.Mode mode) || !s.id.equals(key)) continue;
+                for (int i = 0; i < mode.options.length; i++) {
+                    if (mode.options[i].equalsIgnoreCase(option)) mode.index = i;
+                }
+            }
+        }
     }
 
     private static void setBool(String module, String key, boolean value) {

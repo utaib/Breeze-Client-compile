@@ -188,6 +188,12 @@ case "$hotbar" in
   *'"pass":"true"'*) pass "the Armor HUD's Hotbar look drew the six pieces in slots cut from this version's own hotbar picture" ;;
   *) fail "the Armor HUD's Hotbar look did not find the hotbar picture or did not draw the six pieces" ;;
 esac
+row=$(grep '"event":"armor-hotbar-row-check"' "$LOG" | tail -1)
+say "armor hotbar row: $row"
+case "$row" in
+  *'"pass":"true"'*) pass "the Hotbar look as a row of the four armour pieces beside the hotbar, Minecraft's own durability bars, no words" ;;
+  *) fail "the Hotbar look's row beside the hotbar was not drawn as it should be" ;;
+esac
 inventory=$(grep '"event":"inventory-check"' "$LOG" | tail -1)
 say "inventory: $inventory"
 case "$inventory" in

@@ -37,9 +37,11 @@ what looks like a second hotbar beside the real one.
   Frontend: typecheck, 19 Vitest and 86 Playwright tests (Look switches to
   Hotbar). `check-java-offline.sh 1.20.1`: no errors in the changed code.
 - In game, every version's self-test now also switches the Armor HUD to the
-  Hotbar look, screenshots it (`autotest-armor-hotbar`) and records which
-  hotbar picture it found (`armor-hotbar-check`). The full 34-version run
-  decides the jars (Breeze Jars/README.md).
+  Hotbar look: a column with numbers (`autotest-armor-hotbar`,
+  `armor-hotbar-check`, which records the hotbar picture it found), then the
+  four armour pieces as a row beside the hotbar with Minecraft's own bars
+  (`autotest-armor-hotbar-row`, `armor-hotbar-row-check`). The full
+  34-version run decides the jars (Breeze Jars/README.md).
 
 ## [2.13.1] - 2026-10-08
 
