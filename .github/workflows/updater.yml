@@ -1,0 +1,60 @@
+name: Updater chain
+
+# The launcher's update download-and-verify (updater_chain_tests) checks that
+# an installer is for the system it runs on, so the Windows and macOS halves
+# of the chain can only be proved on Windows and macOS. Each job starts the
+# real API with the 1.0.32 installer published as a release, asks
+# /versions/check as a 1.0.31 launcher does, and runs the launcher's own
+# download-and-verify on the answer (breeze-api/breeze-api/scripts/updater-e2e.cjs).
+on:
+  push:
+    branches: [checks-updater]
+
+permissions:
+  contents: write
+
+jobs:
+  chain:
+    name: Update chain (${{ matrix.platform }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            platform: windows
+            asset: 627543569
+            file: Breeze-Client-1.0.32-x86_64.exe
+          - os: macos-latest
+            platform: macos
+            asset: 627543002
+            file: Breeze-Client-1.0.32-universal.dmg
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: dtolnay/rust-toolchain@stable
+      - name: The 1.0.32 installer from the build's draft release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/inst"
+          curl -sSfL -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/octet-stream" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/releases/assets/${{ matrix.asset }}" -o "$RUNNER_TEMP/inst/${{ matrix.file }}"
+          ls -la "$RUNNER_TEMP/inst"
+      - name: Build the launcher front end (the Rust crate embeds it)
+        shell: bash
+        working-directory: breeze launcher
+        run: |
+          npm ci
+          npm run build
+      - name: API dependencies
+        shell: bash
+        working-directory: breeze-api/breeze-api
+        run: npm ci
+      - name: Update chain, as a 1.0.31 launcher sees it
+        shell: bash
+        working-directory: breeze-api/breeze-api
+        run: node scripts/updater-e2e.cjs --installer "$RUNNER_TEMP/inst/${{ matrix.file }}" --version 1.0.32 --platform ${{ matrix.platform }} --current 1.0.31
