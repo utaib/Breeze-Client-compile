@@ -1,0 +1,60 @@
+# Flatpak manifest for Breeze Client.
+#
+# This wraps the already-built .deb rather than compiling from source, which is
+# why CI runs it after the Linux job. Build locally with:
+#
+#   cp path/to/Breeze*.deb breeze-client.deb
+#   flatpak-builder --force-clean --repo=repo build-dir net.breezeclient.BreezeClient.yml
+#   flatpak build-bundle repo BreezeClient.flatpak net.breezeclient.BreezeClient
+
+id: net.breezeclient.BreezeClient
+runtime: org.gnome.Platform
+runtime-version: '46'
+sdk: org.gnome.Sdk
+command: breeze-launcher
+
+finish-args:
+  # Windowing. fallback-x11 keeps X11 working when Wayland is unavailable.
+  - --share=ipc
+  - --socket=fallback-x11
+  - --socket=wayland
+  # The 3D player previews and Minecraft itself both need GPU access.
+  - --device=dri
+  # Audio for Minecraft and Breeze FM.
+  - --socket=pulseaudio
+  # Breeze API, Microsoft auth, mod and asset downloads, multiplayer.
+  - --share=network
+  # Game instances, Java runtime and saves live under ~/.breezeclient.
+  # Without this the launcher starts but cannot install or launch anything.
+  - --filesystem=home
+
+modules:
+  - name: breeze-client
+    buildsystem: simple
+    build-commands:
+      # Unpack the Debian archive. data.tar may be gzip, xz or zstd depending on
+      # the dpkg version that produced it, so probe rather than assume.
+      - ar x breeze-client.deb
+      - |
+        if [ -f data.tar.xz ]; then tar -xf data.tar.xz
+        elif [ -f data.tar.gz ]; then tar -xf data.tar.gz
+        elif [ -f data.tar.zst ]; then tar --zstd -xf data.tar.zst
+        else echo "no recognised data.tar in the .deb" >&2; exit 1; fi
+      - install -Dm755 usr/bin/breeze-launcher /app/bin/breeze-launcher
+      # Desktop entry and icon must be renamed to the app id, otherwise the
+      # bundle validates but shows no name or icon in the desktop menu.
+      - |
+        desktop=$(find usr/share/applications -name '*.desktop' | head -n1)
+        install -Dm644 "$desktop" /app/share/applications/net.breezeclient.BreezeClient.desktop
+        sed -i 's/^Icon=.*/Icon=net.breezeclient.BreezeClient/' \
+          /app/share/applications/net.breezeclient.BreezeClient.desktop
+      - |
+        for size in 32 128 256 512; do
+          icon=$(find usr/share/icons -path "*${size}x${size}*" -name '*.png' | head -n1)
+          [ -n "$icon" ] || continue
+          install -Dm644 "$icon" \
+            "/app/share/icons/hicolor/${size}x${size}/apps/net.breezeclient.BreezeClient.png"
+        done
+    sources:
+      - type: file
+        path: breeze-client.deb

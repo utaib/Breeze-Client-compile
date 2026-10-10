@@ -1,0 +1,41 @@
+name: API
+
+# The repository is private, so Actions minutes are metered: Linux counts 1x,
+# Windows 2x and macOS 10x. Everything that can run on Linux does.
+# Copied from the private repository for one run on the public build
+# repository (its own Actions are blocked); removed again afterwards.
+on:
+  push:
+    branches: [checks]
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Syntax and security tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: breeze-api/breeze-api
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: breeze-api/breeze-api/package-lock.json
+
+      - run: npm ci
+
+      - name: Parse every server module
+        run: |
+          node --check server.js
+          for file in src/*.js src/db/*.js versions/versions.js; do
+            node --check "$file"
+          done
+
+      # These boot the real server against an in-memory database stub and assert
+      # that unauthorised requests are refused. A failure here means a security
+      # regression, not a flaky test.
+      - name: Security and compatibility tests
+        run: npm test
