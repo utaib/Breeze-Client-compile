@@ -24,7 +24,7 @@ const DISSOLVE_MS = 420;
 const SCENE_MAX_DWELL_MS = 12000;
 /** How long an exit may take once it has been asked for, before giving up on
  *  the scene's own messages. */
-const EXIT_FALLBACK_MS = 2500;
+const EXIT_FALLBACK_MS = 1500;
 
 const RECENT_KEY = "breeze.splash.recent";
 const LAUNCHED_KEY = "breeze.splash.hasLaunched";
@@ -96,7 +96,7 @@ export function pickScene(scenes, now = new Date(), recent = readRecent(), first
  *   ambient loop until then, so the hand-off lands on a loaded UI instead of on
  *   loading placeholders.
  */
-export default function SplashScene({ onDone, ready = true, maxMs = 16000 }) {
+export default function SplashScene({ onDone, ready = true, maxMs = 6000 }) {
   const [scene, setScene] = useState(null);
   const [leaving, setLeaving] = useState(false);
   const frameRef = useRef(null);
