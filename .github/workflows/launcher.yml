@@ -12,6 +12,7 @@ name: Launcher build and launch test
 # Nothing built from the source is kept anywhere public: no caches, no
 # artifacts. The installers go to a draft release, which only the owner sees.
 # The launch screenshots (the sign-in screen) go to ci/launcher-smoke-* branches.
+# The 1.0.33 emergency hotfix is validated with Playwright, Rust tests, and native launch smoke checks.
 on:
   push:
     branches: [launcher-build]
