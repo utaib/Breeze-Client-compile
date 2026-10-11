@@ -5696,6 +5696,26 @@ fn validate_natives_directory(path: &Path) -> Result<(), String> {
     }
     Ok(())
 }
+/// LWJGL 3.4.3 moved native binaries into <platform>/<arch>/<module>/
+/// directories inside native JARs. The JVM's java.library.path searches its
+/// root, not those nested directories, so flatten that new layout while keeping
+/// the legacy native-JAR layout unchanged.
+fn native_entry_relative_path(name: &str) -> String {
+    let normalized = name.replace('\\', "/");
+    let parts: Vec<&str> = normalized.split('/').collect();
+    let platform_layout = parts.len() >= 3
+        && matches!(parts[0], "windows" | "linux" | "macos" | "freebsd")
+        && matches!(
+            parts[1],
+            "x64" | "x86" | "arm64" | "arm32" | "ppc64le" | "riscv64"
+        );
+    if platform_layout {
+        parts.last().copied().unwrap_or(&normalized).to_string()
+    } else {
+        normalized
+    }
+}
+
 fn extract_native_jar(path: &Path, output_dir: &Path) -> Result<(), String> {
     let bytes = fs::read(path).map_err(|e| format!("Could not read native jar {}: {e}", path.display()))?;
     let mut archive = ZipArchive::new(Cursor::new(bytes))
@@ -5708,14 +5728,13 @@ fn extract_native_jar(path: &Path, output_dir: &Path) -> Result<(), String> {
         if entry.is_dir() || name.starts_with("META-INF/") {
             continue;
         }
-        // This used to join the raw entry name, so a tampered library jar in the
-        // cache could write outside the natives folder. The JRE extractor already
-        // used enclosed_name(); this now does the same, and checks containment
-        // on top in case the name normalises into something unexpected.
+        // Reject traversal before transforming the path. This keeps a tampered
+        // library jar from writing outside the natives folder.
         if entry.enclosed_name().is_none() {
             return Err(format!("Native jar {} contains an unsafe path: {name}", path.display()));
         }
-        let output_path = contained_join(output_dir, &name)?;
+        let relative_path = native_entry_relative_path(&name);
+        let output_path = contained_join(output_dir, &relative_path)?;
         if let Some(parent) = output_path.parent() {
             fs::create_dir_all(parent).map_err(|e| format!("Could not create native output directory: {e}"))?;
         }
@@ -5784,7 +5803,65 @@ fn substitute_placeholders(value: &str, substitutions: &HashMap<String, String>)
 fn rules_allow(rules: Option<&Vec<Value>>) -> bool { let Some(rules) = rules else { return true; }; let mut allowed = false; for rule in rules { if !rule_matches(rule) { continue; } allowed = rule.get("action").and_then(Value::as_str) == Some("allow"); } allowed }
 fn rule_matches(rule: &Value) -> bool { if let Some(os_name) = rule.get("os").and_then(|os| os.get("name")).and_then(Value::as_str) { let current = if cfg!(target_os = "windows") { "windows" } else if cfg!(target_os = "macos") { "osx" } else { "linux" }; if os_name != current { return false; } } if let Some(os_arch) = rule.get("os").and_then(|os| os.get("arch")).and_then(Value::as_str) { let current_arch = std::env::consts::ARCH; let matches = match os_arch { "x86" => current_arch.contains("86") && !current_arch.contains("64"), "x86_64" => current_arch == "x86_64", "arm64" | "aarch64" => current_arch.contains("arm64") || current_arch.contains("aarch64"), other => current_arch == other, }; if !matches { return false; } } if let Some(features) = rule.get("features").and_then(Value::as_object) { let known = HashMap::from([ ("is_demo_user", false), ("has_custom_resolution", true), ("has_quick_plays_support", false), ("is_quick_play_singleplayer", false), ("is_quick_play_multiplayer", false), ("is_quick_play_realms", false), ]); for (feature, expected) in features { if known.get(feature.as_str()).copied().unwrap_or(false) != expected.as_bool().unwrap_or(false) { return false; } } } true }
 fn library_allowed(library: &Value) -> bool { rules_allow(library.get("rules").and_then(Value::as_array)) }
-fn resolve_library(library: &Value) -> Result<Option<ResolvedLibrary>, String> { let name = library.get("name").and_then(Value::as_str).ok_or_else(|| "Library did not include a name.".to_string())?; if let Some(artifact) = library.get("downloads").and_then(|downloads| downloads.get("artifact")) { let url = artifact.get("url").and_then(Value::as_str).ok_or_else(|| format!("Library {} did not include a download URL.", name))?; let path = artifact.get("path").and_then(Value::as_str).map(str::to_string).unwrap_or_else(|| maven_path(name)); return Ok(Some(ResolvedLibrary { native: is_native_library_name(name), path, url: url.to_string(), })); } if let Some(url) = library.get("url").and_then(Value::as_str) { return Ok(Some(ResolvedLibrary { native: is_native_library_name(name), path: maven_path(name), url: format!("{}{path}", ensure_trailing_slash(url), path = maven_path(name)), })); } Ok(None) }
+fn resolve_library(library: &Value) -> Result<Option<ResolvedLibrary>, String> {
+    let name = library
+        .get("name")
+        .and_then(Value::as_str)
+        .ok_or_else(|| "Library did not include a name.".to_string())?;
+    let parts: Vec<&str> = name.split(':').collect();
+    let classifier = parts.get(3).copied();
+    let native = is_native_library_name(name);
+
+    // Minecraft 26.x lists LWJGL platform natives as Maven classifier
+    // coordinates (for example org.lwjgl:lwjgl:3.4.3:natives-windows), with
+    // the actual URL/path under downloads.classifiers rather than downloads.artifact.
+    // Ignoring classifiers silently skipped lwjgl.dll, causing Sodium's
+    // preLaunch hook to fail with UnsatisfiedLinkError on Windows.
+    if let Some(classifier) = classifier.filter(|value| value.contains("natives")) {
+        if let Some(download) = library
+            .get("downloads")
+            .and_then(|downloads| downloads.get("classifiers"))
+            .and_then(|classifiers| classifiers.get(classifier))
+        {
+            let url = download
+                .get("url")
+                .and_then(Value::as_str)
+                .ok_or_else(|| format!("Native classifier {classifier} for library {name} did not include a download URL."))?;
+            let path = download
+                .get("path")
+                .and_then(Value::as_str)
+                .map(str::to_string)
+                .unwrap_or_else(|| maven_path(name));
+            return Ok(Some(ResolvedLibrary {
+                native: true,
+                path,
+                url: url.to_string(),
+            }));
+        }
+    }
+
+    if let Some(artifact) = library.get("downloads").and_then(|downloads| downloads.get("artifact")) {
+        let url = artifact
+            .get("url")
+            .and_then(Value::as_str)
+            .ok_or_else(|| format!("Library {} did not include a download URL.", name))?;
+        let path = artifact
+            .get("path")
+            .and_then(Value::as_str)
+            .map(str::to_string)
+            .unwrap_or_else(|| maven_path(name));
+        return Ok(Some(ResolvedLibrary { native, path, url: url.to_string() }));
+    }
+    if let Some(url) = library.get("url").and_then(Value::as_str) {
+        let path = maven_path(name);
+        return Ok(Some(ResolvedLibrary {
+            native,
+            path: path.clone(),
+            url: format!("{}{path}", ensure_trailing_slash(url)),
+        }));
+    }
+    Ok(None)
+}
 fn is_native_library_name(name: &str) -> bool {
     let mut parts = name.split(':');
     let _group = parts.next();
@@ -10252,6 +10329,38 @@ mod path_safety_tests {
     }
 
     #[test]
+    fn lwjgl_34_native_jar_layout_is_flattened_to_java_library_path() {
+        use std::io::Write;
+        let base = temp_base("lwjgl-native-layout");
+        let jar = base.join("lwjgl-natives.jar");
+        {
+            let file = fs::File::create(&jar).unwrap();
+            let mut zip = zip::ZipWriter::new(file);
+            let options = zip::write::SimpleFileOptions::default();
+            zip.start_file("windows/x64/org/lwjgl/lwjgl.dll", options).unwrap();
+            zip.write_all(b"core native").unwrap();
+            zip.start_file("windows/x64/org/lwjgl/sdl/SDL3.dll", options).unwrap();
+            zip.write_all(b"sdl native").unwrap();
+            zip.finish().unwrap();
+        }
+
+        let out = base.join("natives");
+        fs::create_dir_all(&out).unwrap();
+        extract_native_jar(&jar, &out).expect("LWJGL 3.4.3 native jar should extract");
+        assert_eq!(fs::read(out.join("lwjgl.dll")).unwrap(), b"core native");
+        assert_eq!(fs::read(out.join("SDL3.dll")).unwrap(), b"sdl native");
+        assert!(!out.join("windows/x64/org/lwjgl/lwjgl.dll").exists());
+
+        // Older native jars already place the library at the archive root.
+        assert_eq!(native_entry_relative_path("lwjgl.dll"), "lwjgl.dll");
+        assert_eq!(
+            native_entry_relative_path("org/lwjgl/lwjgl.dll"),
+            "org/lwjgl/lwjgl.dll"
+        );
+        let _ = fs::remove_dir_all(&base);
+    }
+
+    #[test]
     fn native_jars_with_traversal_entries_are_refused() {
         use std::io::Write;
         let base = temp_base("natives");
@@ -10845,25 +10954,33 @@ mod library_resolution_tests {
             });
             assert_eq!(resolve_library(&library).unwrap().unwrap().native, expected, "{name}");
         }
+    }
 
-        // Minecraft 26.x can publish split natives as standalone Maven
-        // artifacts without an explicit downloads.artifact.path. Verify the
-        // fallback URL path points to the exact jar, and that it is extracted
-        // as a native rather than appended to the Java classpath.
-        let split = json!({
-            "name": "org.lwjgl:lwjgl-natives-windows:3.4.3",
+    #[test]
+    fn minecraft_26_lwjgl_classifier_downloads_are_resolved_as_native_jars() {
+        let library = json!({
+            "name": "org.lwjgl:lwjgl:3.4.3:natives-windows",
             "downloads": {
-                "artifact": {
-                    "url": "https://libraries.minecraft.net/org/lwjgl/lwjgl-natives-windows/3.4.3/lwjgl-natives-windows-3.4.3.jar"
+                "classifiers": {
+                    "natives-windows": {
+                        "path": "org/lwjgl/lwjgl/3.4.3/lwjgl-3.4.3-natives-windows.jar",
+                        "url": "https://libraries.minecraft.net/org/lwjgl/lwjgl/3.4.3/lwjgl-3.4.3-natives-windows.jar"
+                    }
                 }
             }
         });
-        let split = resolve_library(&split).unwrap().unwrap();
-        assert!(split.native);
-        assert_eq!(
-            split.path,
-            "org/lwjgl/lwjgl-natives-windows/3.4.3/lwjgl-natives-windows-3.4.3.jar"
-        );
+        let resolved = resolve_library(&library)
+            .expect("classifier coordinate should resolve")
+            .expect("native classifier download should be selected");
+        assert!(resolved.native);
+        assert_eq!(resolved.path, "org/lwjgl/lwjgl/3.4.3/lwjgl-3.4.3-natives-windows.jar");
+        assert!(resolved.url.ends_with("lwjgl-3.4.3-natives-windows.jar"));
+
+        let missing = json!({
+            "name": "org.lwjgl:lwjgl:3.4.3:natives-windows",
+            "downloads": { "classifiers": {} }
+        });
+        assert!(resolve_library(&missing).unwrap().is_none());
     }
 
     #[test]
