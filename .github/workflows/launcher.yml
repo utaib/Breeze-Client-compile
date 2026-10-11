@@ -116,6 +116,35 @@ jobs:
         shell: bash
         working-directory: launcher/breeze launcher
         run: |
+          # This build snapshot carries the UI tests but omits the dev-only
+          # Playwright config. Generate a local test config in the runner; this
+          # does not add any application source to the public build repository.
+          cat > playwright.config.ts <<'EOF'
+          import { defineConfig } from "@playwright/test";
+
+          export default defineConfig({
+            testDir: "tests/ui",
+            timeout: 60000,
+            expect: { timeout: 15000 },
+            fullyParallel: false,
+            workers: 1,
+            retries: 0,
+            reporter: process.env.CI ? [["list"], ["html", { open: "never" }]] : "list",
+            use: {
+              baseURL: "http://127.0.0.1:1430",
+              viewport: { width: 1180, height: 760 },
+              launchOptions: { args: ["--use-gl=swiftshader", "--enable-webgl", "--ignore-gpu-blocklist"] },
+              trace: "retain-on-failure",
+            },
+            webServer: {
+              command: "npx vite --host 127.0.0.1 --port 1430 --strictPort",
+              url: "http://127.0.0.1:1430/preview.html",
+              reuseExistingServer: !process.env.CI,
+              timeout: 60000,
+            },
+          });
+          EOF
+          sed -i 's#http://localhost:1430/preview.html?fresh=1#http://127.0.0.1:1430/preview.html?fresh=1#' tests/ui/splash.spec.ts
           npx playwright install --with-deps chromium
           npx playwright test
 
