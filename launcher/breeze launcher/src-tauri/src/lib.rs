@@ -10845,6 +10845,25 @@ mod library_resolution_tests {
             });
             assert_eq!(resolve_library(&library).unwrap().unwrap().native, expected, "{name}");
         }
+
+        // Minecraft 26.x can publish split natives as standalone Maven
+        // artifacts without an explicit downloads.artifact.path. Verify the
+        // fallback URL path points to the exact jar, and that it is extracted
+        // as a native rather than appended to the Java classpath.
+        let split = json!({
+            "name": "org.lwjgl:lwjgl-natives-windows:3.4.3",
+            "downloads": {
+                "artifact": {
+                    "url": "https://libraries.minecraft.net/org/lwjgl/lwjgl-natives-windows/3.4.3/lwjgl-natives-windows-3.4.3.jar"
+                }
+            }
+        });
+        let split = resolve_library(&split).unwrap().unwrap();
+        assert!(split.native);
+        assert_eq!(
+            split.path,
+            "org/lwjgl/lwjgl-natives-windows/3.4.3/lwjgl-natives-windows-3.4.3.jar"
+        );
     }
 
     #[test]
