@@ -110,6 +110,19 @@ jobs:
           npm ci
           npm run build
 
+      - name: Playwright interface regression tests
+        if: matrix.os == 'ubuntu-22.04'
+        shell: bash
+        working-directory: launcher/breeze launcher
+        run: |
+          npx playwright install --with-deps chromium
+          npx playwright test
+
+      - name: Rust regression and unit tests
+        shell: bash
+        working-directory: launcher/breeze launcher/src-tauri
+        run: cargo test --locked
+
       - name: Build the installer
         shell: bash
         working-directory: launcher/breeze launcher
