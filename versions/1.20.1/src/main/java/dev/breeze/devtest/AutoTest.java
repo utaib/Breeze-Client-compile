@@ -351,7 +351,16 @@ public final class AutoTest {
      * The classic menu passes once it has been up for a moment. The Music
      * screen (the driver presses M) is checked the same way.
      */
+    private static boolean menuKeyWasDown;
+
     private static void watchMenuInWorld(Minecraft mc) {
+        // Whether the Breeze menu binding saw its key held: tells a key that
+        // never reached Minecraft from one that reached it and opened nothing.
+        boolean keyDown = dev.breeze.keybind.KeybindManager.menuKeyDown();
+        if (keyDown && !menuKeyWasDown && mc.level != null) {
+            log("menu-key", "key", dev.breeze.keybind.KeybindManager.menuKeyName(), "state", "down");
+        }
+        menuKeyWasDown = keyDown;
         net.minecraft.client.gui.screens.Screen s = dev.breeze.compat.ActiveScreen.get(mc);
         boolean menu = s instanceof BreezeWebScreen || s instanceof BreezeMenuScreen || s instanceof dev.breeze.music.MusicScreen;
         if (mc.level == null || !menu) {

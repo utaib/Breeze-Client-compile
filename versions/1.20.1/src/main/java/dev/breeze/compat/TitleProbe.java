@@ -17,7 +17,14 @@ public final class TitleProbe {
 
     public static TitleScreen make(Minecraft mc) {
         TitleScreen s = new TitleScreen();
-        s.init(mc, mc.getWindow().getGuiScaledWidth(), mc.getWindow().getGuiScaledHeight());
+        int w = mc.getWindow().getGuiScaledWidth();
+        int h = mc.getWindow().getGuiScaledHeight();
+        s.init(mc, w, h);
+        // Fabric's screen events, which Replay Mod and others use to add their
+        // buttons, fire when a screen is shown or resized, not on init alone;
+        // Flashback hooks the title screen itself. A resize lays the screen
+        // out again with those events.
+        s.resize(mc, w, h);
         return s;
     }
 

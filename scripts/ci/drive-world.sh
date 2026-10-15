@@ -345,7 +345,8 @@ close_to_game() {
 }
 sleep 1
 b=$(count '"event":"ingame-menu"')
-xdotool key Shift_R
+# Held for a moment, as a player presses it, so the binding can be seen down.
+xdotool keydown Shift_R; sleep 0.3; xdotool keyup Shift_R
 if wait_new '"event":"ingame-menu"' 40 "$b"; then
   im=$(grep '"event":"ingame-menu"' "$LOG" | tail -1)
   say "menu in the world: $im"
@@ -356,6 +357,7 @@ if wait_new '"event":"ingame-menu"' 40 "$b"; then
   shot 08-menu-in-world 0.2
   close_to_game || fail "Escape closed the Breeze menu back to the world"
 else
+  say "menu key seen: $(grep '"event":"menu-key"' "$LOG" | tail -1)"
   fail "Right Shift in a world opened the Breeze menu"
 fi
 sleep 1

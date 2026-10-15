@@ -80,6 +80,15 @@ public final class KeybindManager {
         }
     }
 
+    /** For the self-test: the key the Breeze menu binding is on, and whether it is held now. */
+    public static String menuKeyName() {
+        return menuKey == null ? "unregistered" : menuKey.getTranslatedKeyMessage().getString();
+    }
+
+    public static boolean menuKeyDown() {
+        return menuKey != null && menuKey.isDown();
+    }
+
     private static void notify(String msg) {
         try {
             Minecraft mc = Minecraft.getInstance();
