@@ -1,0 +1,80 @@
+64:[12:26:12] [main/WARN]: Error loading class: net/optifine/render/ChunkVisibility (java.lang.ClassNotFoundException: net/optifine/render/ChunkVisibility)
+65:[12:26:12] [main/WARN]: Error loading class: shadersmod/client/ShadersRender (java.lang.ClassNotFoundException: shadersmod/client/ShadersRender)
+66:[12:26:12] [main/WARN]: Error loading class: net/optifine/shaders/ShadersRender (java.lang.ClassNotFoundException: net/optifine/shaders/ShadersRender)
+67:[12:26:12] [main/WARN]: Error loading class: net/irisshaders/iris/uniforms/SystemTimeUniforms$Timer (java.lang.ClassNotFoundException: net/irisshaders/iris/uniforms/SystemTimeUniforms$Timer)
+68:[12:26:12] [main/WARN]: Error loading class: net/irisshaders/iris/uniforms/CommonUniforms (java.lang.ClassNotFoundException: net/irisshaders/iris/uniforms/CommonUniforms)
+69:[12:26:12] [main/WARN]: Error loading class: net/irisshaders/iris/Iris (java.lang.ClassNotFoundException: net/irisshaders/iris/Iris)
+70-[12:26:12] [main/INFO]: Initializing MixinExtras via com.llamalad7.mixinextras.service.MixinExtrasServiceImpl(version=0.5.5).
+71-[12:26:14] [Datafixer Bootstrap/INFO]: 287 Datafixer optimizations took 565 milliseconds
+72-[12:26:19] [Rinku-Downloader/INFO]: java-cef commit: 2eb4ca2648bda91d1dfed81e9a37ba92e757aff9
+73-[12:26:19] [Rinku-Downloader/INFO]: Downloading JCEF asset archive.tar.gz.sha256 from https://github.com
+74-[12:26:19] [Render thread/INFO]: Environment: Environment[sessionHost=https://sessionserver.mojang.com, servicesHost=https://api.minecraftservices.com, profilesHost=https://api.mojang.com, name=PROD]
+75-[12:26:19] [Render thread/INFO]: Setting user: BreezeDev
+76-[12:26:19] [Render thread/INFO]: [Breeze] Initializing on Minecraft 1.21.11
+77-[12:26:19] [Render thread/INFO]: [Breeze] Registered 82 modules
+78-[12:26:19] [Render thread/INFO]: [Breeze] Web interface found at assets/breeze/html/index.html
+79-[12:26:19] [Render thread/INFO]: [Breeze autotest] {"dir":"/home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test","event":"start","t":1792067179935}
+80-[12:26:20] [Render thread/INFO]: [Indigo] Registering Indigo renderer!
+81-[12:26:20] [Download-2/ERROR]: Failed to fetch user properties
+82:com.mojang.authlib.exceptions.InvalidCredentialsException: Status: 401
+83:	at knot//com.mojang.authlib.exceptions.MinecraftClientHttpException.toAuthenticationException(MinecraftClientHttpException.java:59)
+84-	at knot//com.mojang.authlib.yggdrasil.YggdrasilUserApiService.fetchProperties(YggdrasilUserApiService.java:150)
+85-	at knot//net.minecraft.class_310.method_55608(class_310.java:457)
+86-	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1768)
+87-	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+88-	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+89-	at java.base/java.lang.Thread.run(Thread.java:1583)
+90:Caused by: com.mojang.authlib.exceptions.MinecraftClientHttpException: Status: 401
+91-	at knot//com.mojang.authlib.minecraft.client.MinecraftClient.readInputStream(MinecraftClient.java:103)
+92-	at knot//com.mojang.authlib.minecraft.client.MinecraftClient.get(MinecraftClient.java:56)
+93-	at knot//com.mojang.authlib.yggdrasil.YggdrasilUserApiService.fetchProperties(YggdrasilUserApiService.java:121)
+94-	... 5 more
+95-[12:26:20] [Render thread/INFO]: Checking mod updates...
+96-[12:26:20] [Rinku-Downloader/INFO]: Downloading JCEF asset archive.tar.gz from https://github.com
+97-[12:26:20] [Render thread/INFO]: Backend library: LWJGL version 3.3.3-snapshot
+98-[12:26:21] [Render thread/INFO]: Using optional rendering extensions: GL_ARB_buffer_storage, GL_KHR_debug, GL_ARB_vertex_attrib_binding, GL_ARB_direct_state_access, GL_EXT_texture_filter_anisotropic
+99:[12:26:22] [Download-2/INFO]: Could not authorize you against Realms server: javax.ws.rs.BadRequestException: Invalid session
+100-[12:26:22] [Download-2/ERROR]: Failed to fetch Realms feature flags
+101:net.minecraft.class_4355: Realms authentication error with message 'javax.ws.rs.BadRequestException: Invalid session'
+102-	at knot//net.minecraft.class_4341.method_20998(class_4341.java:526)
+103-	at knot//net.minecraft.class_4341.method_68466(class_4341.java:186)
+104-	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1768)
+105-	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+106-	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+107-	at java.base/java.lang.Thread.run(Thread.java:1583)
+108-[12:26:22] [Render thread/INFO]: Reloading ResourceManager: vanilla, breeze, fabric-api, fabric-api-base, fabric-api-lookup-api-v1, fabric-biome-api-v1, fabric-block-api-v1, fabric-block-view-api-v2, fabric-command-api-v2, fabric-content-registries-v0, fabric-convention-tags-v1, fabric-convention-tags-v2, fabric-crash-report-info-v1, fabric-data-attachment-api-v1, fabric-data-generation-api-v1, fabric-dimensions-v1, fabric-entity-events-v1, fabric-events-interaction-v0, fabric-game-rule-api-v1, fabric-item-api-v1, fabric-item-group-api-v1, fabric-key-binding-api-v1, fabric-lifecycle-events-v1, fabric-loot-api-v2, fabric-loot-api-v3, fabric-message-api-v1, fabric-model-loading-api-v1, fabric-networking-api-v1, fabric-object-builder-api-v1, fabric-particles-v1, fabric-recipe-api-v1, fabric-registry-sync-v0, fabric-renderer-api-v1, fabric-renderer-indigo, fabric-rendering-fluids-v1, fabric-rendering-v1, fabric-resource-conditions-api-v1, fabric-resource-loader-v0, fabric-resource-loader-v1, fabric-screen-api-v1, fabric-screen-handler-api-v1, fabric-serialization-api-v1, fabric-sound-api-v1, fabric-tag-api-v1, fabric-transfer-api-v1, fabric-transitive-access-wideners-v1, fabricloader, flashback, lattice, modmenu, org_apache_commons_commons-math3, placeholder-api, replaymod, rinku, replaymod_lang
+109-[12:26:22] [Render thread/INFO]: [Breeze] Integrations: Mod Menu available, 4 settings screens, 0 Breeze entries, 0 problems
+110-[12:26:22] [Render thread/INFO]: [Breeze autotest] {"class":"de.keksuccino.rinku.binarydownload.RinkuDownloaderScreen","kind":"other","liveBrowsers":"0","event":"screen","t":1792067182491}
+111-[12:26:22] [ForkJoinPool.commonPool-worker-1/WARN]: [Breeze] friends refresh failed: HTTP 404
+112-[12:26:22] [Render thread/INFO]: [Breeze autotest] {"kind":"other","scale":3.0,"items":[],"event":"targets","t":1792067182604}
+113-[12:26:23] [Worker-Main-3/INFO]: Found unifont_all_no_pua-17.0.01.hex, loading
+--
+117:java.lang.IllegalStateException: Failed to open OpenAL device
+118-	at knot//net.minecraft.class_4225.method_38501(class_4225.java:292)
+119-	at knot//net.minecraft.class_4225.mixinextras$bridge$method_38501$20(class_4225.java)
+120-	at knot//net.minecraft.class_4225.wrapOperation$bge000$flashback$init_openDevice(class_4225.java:542)
+121-	at knot//net.minecraft.class_4225.method_19661(class_4225.java:150)
+122-	at knot//net.minecraft.class_1140.method_4846(class_1140.java:119)
+123-	at knot//net.minecraft.class_1140.method_4837(class_1140.java:109)
+124-	at knot//net.minecraft.class_1144.method_18182(class_1144.java:122)
+125-	at knot//net.minecraft.class_1144.method_18788(class_1144.java:41)
+126-	at knot//net.minecraft.class_4080.method_18790(class_4080.java:15)
+127-	at java.base/java.util.concurrent.CompletableFuture$UniAccept.tryFire(CompletableFuture.java:718)
+128-	at java.base/java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:482)
+129-	at knot//net.minecraft.class_4014.method_67574(class_4014.java:59)
+--
+168:[12:26:34] [IO-Worker-1/INFO]: Could not authorize you against Realms server: javax.ws.rs.BadRequestException: Invalid session
+169-[12:26:34] [IO-Worker-1/ERROR]: Couldn't connect to realms
+170:net.minecraft.class_4355: Realms authentication error with message 'javax.ws.rs.BadRequestException: Invalid session'
+171-	at knot//net.minecraft.class_4341.method_20998(class_4341.java:526)
+172-	at knot//net.minecraft.class_4341.method_21027(class_4341.java:307)
+173-	at knot//net.minecraft.class_8647.method_52627(class_8647.java:48)
+174-	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1768)
+175-	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+176-	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+177-	at java.base/java.lang.Thread.run(Thread.java:1583)
+178-[12:26:34] [JCEF-Lifecycle/INFO]: [Breeze] the interface page answered 280 ms after its browser opened
+179-[12:26:34] [JCEF-Lifecycle/INFO]: [Breeze autotest] {"action":"app.hello","event":"bridge","t":1792067194728}
+180-[12:26:34] [JCEF-Lifecycle/INFO]: [Breeze autotest] {"action":"settings.get","event":"bridge","t":1792067194741}
+181-[12:26:34] [Render thread/INFO]: [Breeze autotest] {"file":"screenshots/autotest-title-menu.png","event":"screenshot","t":1792067194857}
+182-[12:26:34] [Render thread/INFO]: [Breeze autotest] {"modules":"82","found":"82","missing":"","fallbacks":{"Reconnect":"textures/item/iron_chain.png"},"pass":"true","event":"module-icons","t":1792067194866}
