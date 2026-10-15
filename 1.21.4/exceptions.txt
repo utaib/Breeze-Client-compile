@@ -1,0 +1,32 @@
+67:[12:02:54] [main/WARN]: Error loading class: net/optifine/render/ChunkVisibility (java.lang.ClassNotFoundException: net/optifine/render/ChunkVisibility)
+68:[12:02:54] [main/WARN]: Error loading class: shadersmod/client/ShadersRender (java.lang.ClassNotFoundException: shadersmod/client/ShadersRender)
+69:[12:02:54] [main/WARN]: Error loading class: net/optifine/shaders/ShadersRender (java.lang.ClassNotFoundException: net/optifine/shaders/ShadersRender)
+70:[12:02:54] [main/WARN]: Error loading class: net/irisshaders/iris/uniforms/SystemTimeUniforms$Timer (java.lang.ClassNotFoundException: net/irisshaders/iris/uniforms/SystemTimeUniforms$Timer)
+71:[12:02:54] [main/WARN]: Error loading class: net/irisshaders/iris/uniforms/CommonUniforms (java.lang.ClassNotFoundException: net/irisshaders/iris/uniforms/CommonUniforms)
+72:[12:02:54] [main/WARN]: Error loading class: net/irisshaders/iris/Iris (java.lang.ClassNotFoundException: net/irisshaders/iris/Iris)
+73-[12:02:55] [main/INFO]: Initializing MixinExtras via com.llamalad7.mixinextras.service.MixinExtrasServiceImpl(version=0.5.5).
+74-[12:02:56] [Datafixer Bootstrap/INFO]: 243 Datafixer optimizations took 486 milliseconds
+75-[12:03:01] [main/WARN]: Unrecognized user type: 
+76-[12:03:01] [Thread-1/INFO]: java-cef commit: eaeb3d4370aa3526ee237ad1981ad59af3de4dd1
+77-[12:03:01] [Thread-1/INFO]: https://mcef-download.cinemamod.com/java-cef-builds/eaeb3d4370aa3526ee237ad1981ad59af3de4dd1/linux_amd64.tar.gz.sha256 -> /home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test/game/mods/mcef-libraries/linux_amd64.tar.gz.sha256.temp
+78-[12:03:01] [Render thread/INFO]: Environment: Environment[sessionHost=https://sessionserver.mojang.com, servicesHost=https://api.minecraftservices.com, name=PROD]
+79-[12:03:01] [Render thread/INFO]: Setting user: BreezeDev
+80-[12:03:01] [Render thread/INFO]: [Breeze] Initializing on Minecraft 1.21.4
+81-[12:03:01] [Render thread/INFO]: [Breeze] Registered 82 modules
+82-[12:03:01] [Render thread/INFO]: [Breeze] Web interface found at assets/breeze/html/index.html
+83-[12:03:01] [Render thread/INFO]: [Breeze autotest] {"dir":"/home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test","event":"start","t":1792065781812}
+84-[12:03:01] [Render thread/INFO]: [Indigo] Registering Indigo renderer!
+--
+98:java.lang.IllegalStateException: Failed to open OpenAL device
+99-	at knot/net.minecraft.class_4225.method_38501(class_4225.java:302) ~[client-intermediary.jar:?]
+100-	at knot/net.minecraft.class_4225.mixinextras$bridge$method_38501$20(class_4225.java) ~[client-intermediary.jar:?]
+101-	at knot/net.minecraft.class_4225.wrapOperation$bca000$flashback$init_openDevice(class_4225.java:542) ~[client-intermediary.jar:?]
+102-	at knot/net.minecraft.class_4225.method_19661(class_4225.java:154) ~[client-intermediary.jar:?]
+103-	at knot/net.minecraft.class_1140.method_4846(class_1140.java:116) ~[client-intermediary.jar:?]
+104-	at knot/net.minecraft.class_1140.method_4837(class_1140.java:106) ~[client-intermediary.jar:?]
+105-	at knot/net.minecraft.class_1144.method_18182(class_1144.java:125) ~[client-intermediary.jar:?]
+106-	at knot/net.minecraft.class_1144.method_18788(class_1144.java:43) ~[client-intermediary.jar:?]
+107-	at knot/net.minecraft.class_4080.method_18790(class_4080.java:14) ~[client-intermediary.jar:?]
+108-	at java.base/java.util.concurrent.CompletableFuture$UniAccept.tryFire(CompletableFuture.java:718) ~[?:?]
+109-	at java.base/java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:482) ~[?:?]
+110-	at knot/net.minecraft.class_4014.method_18365(class_4014.java:68) ~[client-intermediary.jar:?]
