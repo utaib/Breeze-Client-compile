@@ -483,6 +483,7 @@ public final class MusicScreen extends BreezeScreen {
 
     @Override
     protected boolean onKeyPressed(int key, int scanCode, int modifiers) {
+        dev.breeze.devtest.AutoTest.screenKey("music", key, key == InputConstants.KEY_RSHIFT);
         if (key == InputConstants.KEY_ESCAPE) {
             onClose();
             return true;

@@ -1271,6 +1271,15 @@ public final class AutoTest {
         if (dir != null) log("key", "code", String.valueOf(code));
     }
 
+    /**
+     * A key a native Breeze screen received, and whether this Minecraft read
+     * it as Right Shift: tells the test whether the display's Right Shift can
+     * reach the menu binding at all. Only while the self-test runs.
+     */
+    public static void screenKey(String screen, int code, boolean rightShift) {
+        if (dir != null) log("screen-key", "screen", screen, "code", String.valueOf(code), "rshift", String.valueOf(rightShift));
+    }
+
     private static void fail(String why) {
         log("FAIL", "reason", why);
         stage = Stage.DONE;
