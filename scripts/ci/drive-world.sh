@@ -58,13 +58,26 @@ if [ "${EXPECT_MODMENU:-0}" = 1 ]; then
     *'"id":"modmenu"'*) pass "Breeze found Mod Menu through its API" ;;
     *) fail "Breeze found Mod Menu through its API" ;;
   esac
-  opened=$(grep '"event":"integration-open"' "$LOG" | tail -1)
+  opened=$(grep '"event":"integration-open"' "$LOG" | grep '"id":"modmenu"' | tail -1)
   say "Mod Menu opened: $opened"
   case "$opened" in
     *'"pass":"true"'*'terraformersmc'*|*'terraformersmc'*'"pass":"true"'*) pass "the menu's Mod Menu entry opened Mod Menu's own list" ;;
     *) fail "the menu's Mod Menu entry opened Mod Menu's own list" ;;
   esac
-else
+fi
+if [ "${EXPECT_TITLE_BUTTONS:-0}" = 1 ]; then
+  case "$ints" in
+    *'"provider":"title-screen"'*) pass "Breeze offers the buttons other mods put on the title screen" ;;
+    *) fail "Breeze offers the buttons other mods put on the title screen" ;;
+  esac
+  pressed=$(grep '"event":"integration-open"' "$LOG" | grep '"id":"title:' | tail -1)
+  say "title screen button pressed: $pressed"
+  case "$pressed" in
+    *'"pass":"true"'*) pass "a title screen button pressed from the Breeze menu opened its mod's screen" ;;
+    *) fail "a title screen button pressed from the Breeze menu opened its mod's screen" ;;
+  esac
+fi
+if [ "${EXPECT_MODMENU:-0}" != 1 ] && [ "${EXPECT_TITLE_BUTTONS:-0}" != 1 ]; then
   case "$ints" in
     *'"integrations":[]'*) pass "with no other mods, no integration entries are offered" ;;
     *) say "integrations offered: $ints" ;;

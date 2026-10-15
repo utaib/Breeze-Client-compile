@@ -290,6 +290,10 @@ jobs:
           # shellcheck disable=SC2086
           scripts/ci/perf-mods.sh "$MC" "$RUNNER_TEMP/mods" $PERF_MODS
           case " $PERF_MODS " in *" modmenu "*) [ -n "$(ls "$RUNNER_TEMP"/mods/modmenu-*.jar 2>/dev/null)" ] && echo "EXPECT_MODMENU=1" >> "$GITHUB_ENV" ;; esac
+          # Replay Mod and Flashback put a button on Minecraft's title screen.
+          for f in "$RUNNER_TEMP"/mods/*.jar; do
+            case "${f##*/}" in [Rr]eplay[Mm]od*|[Ff]lashback*) echo "EXPECT_TITLE_BUTTONS=1" >> "$GITHUB_ENV"; break ;; esac
+          done
           ls -la "$RUNNER_TEMP/mods"
       - name: A mod installed twice, and what Fabric does with it
         if: ${{ inputs.duplicate != '' && inputs.duplicate != null }}

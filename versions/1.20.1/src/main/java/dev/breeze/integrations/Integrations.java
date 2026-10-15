@@ -51,8 +51,10 @@ public final class Integrations {
 
     /** Integration ids of other mods' title screen buttons start with this. */
     public static final String TITLE_PREFIX = "title:";
-    /** Labels of the buttons other mods put on Minecraft's title screen, read once (titleButtons). */
+    /** Labels of the buttons other mods put on Minecraft's title screen, read once per language (titleButtons). */
     private static List<String> titleButtons;
+    /** "Singleplayer" in the language titleButtons was read in. */
+    private static String titleButtonsLanguage;
 
     private Integrations() {}
 
@@ -241,13 +243,18 @@ public final class Integrations {
     }
 
     /**
-     * What other mods put on Minecraft's title screen: read once a session
-     * from a title screen laid out off screen (TitleProbe), on the game
-     * thread. Never throws; a mod whose title buttons break the probe costs
-     * only these entries.
+     * What other mods put on Minecraft's title screen: read from a title
+     * screen laid out off screen (TitleProbe), on the game thread, once per
+     * language (the labels are matched by text). Nothing while the game is
+     * still loading: other mods' labels are not translated yet then. Never
+     * throws; a mod whose title buttons break the probe costs only these
+     * entries.
      */
     public static synchronized List<String> titleButtons(Minecraft mc) {
-        if (titleButtons != null) return titleButtons;
+        if (dev.breeze.compat.ActiveScreen.overlay(mc) != null) return titleButtons != null ? titleButtons : List.of();
+        String language = net.minecraft.client.resources.language.I18n.get("menu.singleplayer");
+        if (titleButtons != null && language.equals(titleButtonsLanguage)) return titleButtons;
+        titleButtonsLanguage = language;
         List<String> found = new ArrayList<>();
         Screen probe = null;
         try {

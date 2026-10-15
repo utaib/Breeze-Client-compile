@@ -230,7 +230,9 @@ public final class AutoTest {
                             }
                         }
                     }
-                    dev.breeze.compat.ActiveScreen.set(mc, leaveTo);
+                    // The second time, leave through another mod's title screen
+                    // button (Replay Mod, Flashback), pressed as the menu does.
+                    if (cycle != 1 || !pressTitleButton(mc)) dev.breeze.compat.ActiveScreen.set(mc, leaveTo);
                     next(Stage.STRESS_CLOSE, null);
                 }
             }
@@ -1224,6 +1226,29 @@ public final class AutoTest {
         } catch (Throwable t) {
             log("screenshot-failed", "error", t.toString());
         }
+    }
+
+    /**
+     * Presses the first button another mod put on Minecraft's title screen,
+     * the way the menu's entry for it does, and logs the screen it opened.
+     * False when there is no such button or it opened nothing.
+     */
+    private static boolean pressTitleButton(Minecraft mc) {
+        List<String> labels = dev.breeze.integrations.Integrations.titleButtons(mc);
+        if (labels.isEmpty()) return false;
+        String id = dev.breeze.integrations.Integrations.TITLE_PREFIX + labels.get(0);
+        Screen before = dev.breeze.compat.ActiveScreen.get(mc);
+        try {
+            dev.breeze.integrations.Integrations.opener(mc, id, "press", before).run();
+        } catch (dev.breeze.integrations.Integrations.Unavailable u) {
+            log("integration-open", "id", id, "error", u.getMessage(), "pass", "false");
+            return false;
+        }
+        Screen after = dev.breeze.compat.ActiveScreen.get(mc);
+        boolean opened = after != null && after != before && !(after instanceof TitleScreen);
+        log("integration-open", "id", id, "screen", after == null ? "none" : after.getClass().getName(),
+                "pass", String.valueOf(opened));
+        return opened;
     }
 
     private static void next(Stage s, String event) {
