@@ -1,0 +1,64 @@
+68:[16:24:50] [main/WARN]: Error loading class: net/optifine/render/ChunkVisibility (java.lang.ClassNotFoundException: net/optifine/render/ChunkVisibility)
+69:[16:24:50] [main/WARN]: Error loading class: shadersmod/client/ShadersRender (java.lang.ClassNotFoundException: shadersmod/client/ShadersRender)
+70:[16:24:50] [main/WARN]: Error loading class: net/optifine/shaders/ShadersRender (java.lang.ClassNotFoundException: net/optifine/shaders/ShadersRender)
+71:[16:24:50] [main/WARN]: Error loading class: net/irisshaders/iris/uniforms/CommonUniforms (java.lang.ClassNotFoundException: net/irisshaders/iris/uniforms/CommonUniforms)
+72:[16:24:50] [main/WARN]: Error loading class: net/irisshaders/iris/Iris (java.lang.ClassNotFoundException: net/irisshaders/iris/Iris)
+73-[16:24:50] [main/INFO]: Initializing MixinExtras via com.llamalad7.mixinextras.service.MixinExtrasServiceImpl(version=0.5.5).
+74-[16:24:55] [Datafixer Bootstrap/INFO]: 188 Datafixer optimizations took 260 milliseconds
+75-[16:24:57] [main/WARN]: Unrecognized user type: 
+76-[16:24:57] [Thread-2/INFO]: java-cef commit: a78e832f9f13c2c688caea3d04d8b84fcd238d94
+77-[16:24:57] [Thread-2/INFO]: https://mcef-download.cinemamod.com/java-cef-builds/a78e832f9f13c2c688caea3d04d8b84fcd238d94/linux_amd64.tar.gz.sha256 -> /home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test/game/mods/mcef-libraries/linux_amd64.tar.gz.sha256.temp
+78-[16:24:57] [Render thread/INFO]: Environment: authHost='https://authserver.mojang.com', accountsHost='https://api.mojang.com', sessionHost='https://sessionserver.mojang.com', servicesHost='https://api.minecraftservices.com', name='PROD'
+79-[16:24:57] [Render thread/ERROR]: Failed to verify authentication
+80:com.mojang.authlib.exceptions.InvalidCredentialsException: Status: 401
+81:	at com.mojang.authlib.exceptions.MinecraftClientHttpException.toAuthenticationException(MinecraftClientHttpException.java:56) ~[authlib-4.0.43.jar:?]
+82-	at com.mojang.authlib.yggdrasil.YggdrasilUserApiService.fetchProperties(YggdrasilUserApiService.java:156) ~[authlib-4.0.43.jar:?]
+83-	at com.mojang.authlib.yggdrasil.YggdrasilUserApiService.<init>(YggdrasilUserApiService.java:55) ~[authlib-4.0.43.jar:?]
+84-	at com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService.createUserApiService(YggdrasilAuthenticationService.java:124) ~[authlib-4.0.43.jar:?]
+85-	at net.minecraft.class_310.method_31382(class_310.java:733) ~[client-intermediary.jar:?]
+86-	at net.minecraft.class_310.<init>(class_310.java:442) ~[client-intermediary.jar:?]
+87-	at net.minecraft.client.main.Main.main(Main.java:211) ~[fabric-1.20.1-0.19.5.jar:?]
+88-	at net.fabricmc.loader.impl.game.minecraft.MinecraftGameProvider.launch(MinecraftGameProvider.java:517) ~[fabric-loader-0.19.5.jar:?]
+89-	at net.fabricmc.loader.impl.launch.knot.Knot.launch(Knot.java:72) ~[fabric-loader-0.19.5.jar:?]
+90-	at net.fabricmc.loader.impl.launch.knot.KnotClient.main(KnotClient.java:23) ~[fabric-loader-0.19.5.jar:?]
+91:Caused by: com.mojang.authlib.exceptions.MinecraftClientHttpException: Status: 401
+92-	at com.mojang.authlib.minecraft.client.MinecraftClient.readInputStream(MinecraftClient.java:85) ~[authlib-4.0.43.jar:?]
+93-	at com.mojang.authlib.minecraft.client.MinecraftClient.get(MinecraftClient.java:48) ~[authlib-4.0.43.jar:?]
+94-	at com.mojang.authlib.yggdrasil.YggdrasilUserApiService.fetchProperties(YggdrasilUserApiService.java:129) ~[authlib-4.0.43.jar:?]
+95-	... 8 more
+96-[16:24:58] [Render thread/INFO]: Setting user: BreezeDev
+97-[16:24:58] [Render thread/INFO]: [Breeze] Initializing on Minecraft 1.20.1
+98-[16:24:58] [Thread-2/WARN]: Failed to download JCEF hash.
+99-[16:24:58] [Thread-2/INFO]: https://mcef-download.cinemamod.com/java-cef-builds/a78e832f9f13c2c688caea3d04d8b84fcd238d94/linux_amd64.tar.gz -> /home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test/game/mods/mcef-libraries/linux_amd64.tar.gz
+100-[16:24:58] [Render thread/INFO]: [Breeze] Registered 82 modules
+101-[16:24:58] [Render thread/INFO]: [Breeze] Web interface found at assets/breeze/html/index.html
+102-[16:24:58] [Render thread/INFO]: [Breeze autotest] {"dir":"/home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test","event":"start","t":1792081498212}
+103-[16:24:58] [Render thread/INFO]: [Indigo] Registering Indigo renderer!
+--
+115:java.lang.IllegalStateException: Failed to open OpenAL device
+116-	at net.minecraft.class_4225.method_38501(class_4225.java:283) ~[client-intermediary.jar:?]
+117-	at net.minecraft.class_4225.method_19661(class_4225.java:153) ~[client-intermediary.jar:?]
+118-	at net.minecraft.class_1140.method_4846(class_1140.java:116) ~[client-intermediary.jar:?]
+119-	at net.minecraft.class_1140.method_4837(class_1140.java:106) ~[client-intermediary.jar:?]
+120-	at net.minecraft.class_1144.method_18182(class_1144.java:125) ~[client-intermediary.jar:?]
+121-	at net.minecraft.class_1144.method_18788(class_1144.java:40) ~[client-intermediary.jar:?]
+122-	at net.minecraft.class_4080.method_18790(class_4080.java:13) ~[client-intermediary.jar:?]
+123-	at java.util.concurrent.CompletableFuture$UniAccept.tryFire(CompletableFuture.java:718) ~[?:?]
+124-	at java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:482) ~[?:?]
+125-	at net.minecraft.class_4014.method_18365(class_4014.java:69) ~[client-intermediary.jar:?]
+126-	at net.minecraft.class_1255.method_18859(class_1255.java:156) ~[client-intermediary.jar:?]
+127-	at net.minecraft.class_4093.method_18859(class_4093.java:23) ~[client-intermediary.jar:?]
+--
+158:[16:25:05] [Realms Notification Availability checker #1/INFO]: Could not authorize you against Realms server: javax.ws.rs.BadRequestException: Invalid session
+159-[16:25:05] [Render thread/INFO]: [Breeze autotest] {"file":"screenshots/autotest-title-menu.png","event":"screenshot","t":1792081505886}
+160-[16:25:05] [Render thread/INFO]: [Breeze autotest] {"modules":"82","found":"82","missing":"","fallbacks":{"Saturation":"textures/gui/icons.png","Hearts":"textures/gui/icons.png"},"pass":"true","event":"module-icons","t":1792081505905}
+161-[16:25:05] [Render thread/INFO]: [Breeze autotest] {"integrations":[{"id":"modmenu","name":"Mod Menu","provider":"modmenu","actions":[{"id":"mods","label":"Mod Menu"},{"id":"config:modmenu","label":"Mod Menu settings","mod":"modmenu"},{"id":"config:replaymod","label":"Replay Mod settings","mod":"replaymod"}]}],"problems":[],"event":"integrations","t":1792081505906}
+162-[16:25:05] [Render thread/INFO]: [Breeze autotest] {"kind":"breeze-web","scale":3.0,"items":[],"event":"targets","t":1792081505907}
+163-[16:25:05] [Render thread/INFO]: [Breeze autotest] {"mode":"web","event":"READY_FOR_INPUT","t":1792081505909}
+164-[16:25:06] [Render thread/INFO]: [Breeze] the interface page answered 605 ms after its browser opened
+165-[16:25:06] [Render thread/INFO]: [Breeze autotest] {"action":"app.hello","event":"bridge","t":1792081506329}
+166-[16:25:06] [Render thread/INFO]: [Breeze autotest] {"action":"settings.get","event":"bridge","t":1792081506333}
+167-[16:25:06] [Render thread/INFO]: [Breeze autotest] {"action":"game.state","event":"bridge","t":1792081506412}
+168-[16:25:06] [Render thread/INFO]: [Breeze autotest] {"action":"account.get","event":"bridge","t":1792081506414}
+169-[16:25:06] [Render thread/INFO]: [Breeze autotest] {"action":"modules.list","event":"bridge","t":1792081506418}
+170-[16:25:06] [Render thread/INFO]: [Breeze autotest] {"action":"integrations.list","event":"bridge","t":1792081506446}
