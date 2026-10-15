@@ -77,7 +77,7 @@ public final class ModuleIcons {
         put("System Resources", "item/comparator");
         put("TNT Timer", "block/tnt_side");
         put("TPS", "item/repeater");
-        put("Spotify", "item/music_disc_cat");
+        put("Spotify", "item/music_disc_far");
         put("Time", "block/daylight_detector_top");
         put("Totem Counter", "item/totem_of_undying");
         put("Waypoint", "block/lodestone_top", "item/compass_16", "item/compass");
