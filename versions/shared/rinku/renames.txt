@@ -1,0 +1,12 @@
+# Rinku (Keksuccino's continuation of MCEF, LGPL-2.1+) for Minecraft 1.21.11,
+# 26.2 and 26.3: the same API under new names (read in CI with
+# browser-facts.sh, BUILDS). Full names first, so a simple name is only
+# renamed where it stands alone. See gradle/version.gradle, "Sources".
+com.cinemamod.mcef.listeners.MCEFInitListener de.keksuccino.rinku.listeners.RinkuInitListener
+com.cinemamod.mcef.MCEFBrowser de.keksuccino.rinku.RinkuBrowser
+com.cinemamod.mcef.MCEFRenderer de.keksuccino.rinku.RinkuRenderer
+com.cinemamod.mcef.MCEF de.keksuccino.rinku.Rinku
+MCEFInitListener RinkuInitListener
+MCEFBrowser RinkuBrowser
+MCEFRenderer RinkuRenderer
+MCEF Rinku
