@@ -1,0 +1,99 @@
+# Generic compile runner for the private Book SMP repository.
+# Contains NO plugin source. The source is cloned into the runner's temporary workspace with a
+# deploy key that only has access to the private repo, built there, and the JAR plus the full
+# build log are pushed back to the private repo (branch "build-output"). Nothing about the
+# source, compiler output or build products is printed to this public log or uploaded as an artifact.
+name: Book SMP build
+run-name: Book SMP build ${{ inputs.sha }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: Revision of the private source repository to build
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: book-smp-build
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Fetch, build and deliver (details stay private)
+        env:
+          DEPLOY_KEY: ${{ secrets.BOOKSMP_DEPLOY_KEY }}
+          SHA: ${{ inputs.sha }}
+          REPO: utaib/Book-smp
+          GRADLE_VERSION: "8.14.3"
+        run: |
+          set -uo pipefail
+          umask 077
+          case "$SHA" in ""|*[!0-9a-f]*) echo "invalid revision"; exit 2;; esac
+
+          mkdir -p "$HOME/.ssh"
+          printf '%s\n' "$DEPLOY_KEY" > "$HOME/.ssh/bs"
+          chmod 600 "$HOME/.ssh/bs"
+          export GIT_SSH_COMMAND="ssh -i $HOME/.ssh/bs -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new -o LogLevel=ERROR"
+
+          W="$RUNNER_TEMP/work"; mkdir -p "$W"; cd "$W"
+          git clone --quiet "git@github.com:$REPO.git" src >/dev/null 2>&1 || { echo "clone failed"; exit 3; }
+          ( cd src && git -c advice.detachedHead=false checkout --quiet "$SHA" >/dev/null 2>&1 ) || { echo "checkout failed"; exit 3; }
+
+          curl -fsSL "https://services.gradle.org/distributions/gradle-$GRADLE_VERSION-bin.zip" -o g.zip || { echo "gradle download failed"; exit 4; }
+          EXPECTED=$(curl -fsSL "https://services.gradle.org/distributions/gradle-$GRADLE_VERSION-bin.zip.sha256") || { echo "gradle checksum fetch failed"; exit 4; }
+          echo "$EXPECTED  g.zip" | sha256sum -c --quiet - || { echo "gradle checksum mismatch"; exit 4; }
+          unzip -q g.zip
+
+          cd src
+          "$W/gradle-$GRADLE_VERSION/bin/gradle" --no-daemon --console=plain --continue --warning-mode all build > "$W/build.log" 2>&1
+          CODE=$?
+
+          JAR=$(ls build/libs/*.jar 2>/dev/null | grep -v -- '-plain' | head -1 || true)
+          TESTS=$(python3 - <<'PY'
+          import glob, xml.etree.ElementTree as ET
+          t=f=e=s=0
+          for p in glob.glob("build/test-results/**/*.xml", recursive=True):
+              r=ET.parse(p).getroot()
+              t+=int(r.get("tests",0)); f+=int(r.get("failures",0)); e+=int(r.get("errors",0)); s+=int(r.get("skipped",0))
+          print(f"tests={t} failures={f} errors={e} skipped={s}")
+          PY
+          )
+          WARN=$(grep -c -E 'warning:' "$W/build.log" || true)
+          ERR=$(grep -c -E 'error:' "$W/build.log" || true)
+
+          D="$W/deliver"
+          git clone --quiet --branch build-output --single-branch "git@github.com:$REPO.git" "$D" >/dev/null 2>&1 || {
+            git init -q "$D"; git -C "$D" checkout -q -b build-output; git -C "$D" remote add origin "git@github.com:$REPO.git"; }
+          R="$D/builds/${SHA:0:12}-$GITHUB_RUN_ID"; mkdir -p "$R"
+          cp "$W/build.log" "$R/build.log"
+          [ -d build/test-results ] && cp -r build/test-results "$R/test-results"
+          SUM="none"
+          if [ -n "$JAR" ] && [ -s "$JAR" ]; then
+            cp "$JAR" "$R/"; rm -rf "$D/latest"; mkdir -p "$D/latest"; cp "$JAR" "$D/latest/"
+            SUM=$(sha256sum "$JAR" | cut -d' ' -f1); SIZE=$(stat -c %s "$JAR")
+          else SIZE=0; fi
+          {
+            echo "source=$SHA"; echo "exit=$CODE"; echo "jar=$(basename "${JAR:-none}")"; echo "jar_sha256=$SUM"; echo "jar_bytes=$SIZE"
+            echo "$TESTS"; echo "compiler_warnings=$WARN compiler_errors=$ERR"
+            echo "built_utc=$(date -u +%FT%TZ)"; java -version 2>&1 | head -1
+          } > "$R/BUILD.txt"
+          git -C "$D" add -A
+          git -C "$D" -c user.name=book-smp-build -c user.email=build@users.noreply.github.com commit -q -m "Build ${SHA:0:12} exit=$CODE" >/dev/null
+          git -C "$D" push -q origin build-output >/dev/null 2>&1 || { echo "delivery to private repo failed"; exit 5; }
+
+          echo "build exit=$CODE jar_bytes=$SIZE jar_sha256=$SUM $TESTS warnings=$WARN errors=$ERR"
+          echo "build log and jar were delivered to the private repository"
+          rm -f "$HOME/.ssh/bs"
+          exit $CODE
