@@ -91,7 +91,7 @@ jobs:
             echo "built_utc=$(date -u +%FT%TZ)"; java -version 2>&1 | head -1
           } > "$R/BUILD.txt"
           git -C "$D" add -A
-          git -C "$D" -c user.name=book-smp-build -c user.email=build@users.noreply.github.com commit -q -m "Build ${SHA:0:12} exit=$CODE" >/dev/null
+          git -C "$D" -c user.name=utaib -c user.email=utaib092008@gmail.com commit -q -m "Build ${SHA:0:12} exit=$CODE" >/dev/null
           git -C "$D" push -q origin build-output >/dev/null 2>&1 || { echo "delivery to private repo failed"; exit 5; }
 
           echo "build exit=$CODE jar_bytes=$SIZE jar_sha256=$SUM $TESTS warnings=$WARN errors=$ERR"
