@@ -95,6 +95,16 @@ public final class KeybindManager {
         return menuKey != null && menuKey.isDown();
     }
 
+    /** For the self-test: the other bindings on the menu binding's key, by name. */
+    public static String sharingMenuKey(Minecraft mc) {
+        if (menuKey == null || menuKey.isUnbound() || mc.options == null) return "";
+        StringBuilder out = new StringBuilder();
+        for (KeyMapping other : mc.options.keyMappings) {
+            if (other != menuKey && menuKey.same(other)) out.append(out.length() > 0 ? "," : "").append(other.getName());
+        }
+        return out.toString();
+    }
+
     // ── Keys in the web menu (keys.list, keys.capture, keys.reset) ──────────
 
     /** The binding the menu is waiting for a key for, by id; null when none. */

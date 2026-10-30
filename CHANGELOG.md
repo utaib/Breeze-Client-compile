@@ -80,10 +80,25 @@ Breeze's keys changed from the web menu (Breeze 1.1.0).
   `Keys.keyOf` compiles in all three forms. The in-game test does not press
   a key on the Keys page: capturing a key in game is **UNVERIFIED** until
   the self-test does it or someone tries it.
+- Build repository, source `8469ca5` (the self-test rebinds a key): run
+  41026328879, all 34 versions. On every version the self-test put a
+  Breeze key (Armor Bar) on J the way the Keys page does (capture, then the
+  key), found it listed as J, reset it and found its default back
+  (`keys-check`). 33 versions passed every check; 1.18.1 failed only
+  "Right Shift in a world opened the Breeze menu" again (Music screen read
+  code 344 as Right Shift; in the world the binding never saw the key held
+  and no menu opened; the frame rate there was 2 to 4 fps). Not re-run.
+  The Keys page's own key press (the browser's keydown reaching
+  `BreezeWebScreen`) is still **UNVERIFIED** in game: the self-test calls
+  the same capture and take-key code, not the page.
 - Open: in the 1.18 family the menu's Right Shift sometimes does not fire in
   a world on the test display although the Music screen read the key as
-  Right Shift; seen once each on 1.18 and 1.18.1, both passed on re-run.
-  Whether players see it is UNVERIFIED.
+  Right Shift; seen on 1.18 (once) and 1.18.1 (twice). Whether players see
+  it is UNVERIFIED. The self-test now also logs Right Shift as the game
+  window itself reports it (`rshift-raw`: GLFW's key state, the binding's,
+  other bindings on the key, window focus), and the driver presses once
+  more with a 1.5 s hold when the first press fails, to tell a press lost
+  inside one slow frame from one lost every time.
 
 ## [2.16.0] - 2026-10-15
 

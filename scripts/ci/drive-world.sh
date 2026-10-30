@@ -401,6 +401,7 @@ sleep 1
 b=$(count '"event":"ingame-menu"')
 press_rshift
 if wait_new '"event":"ingame-menu"' 40 "$b"; then
+  say "Right Shift as the window saw it: $(grep '"event":"rshift-raw"' "$LOG" | tail -1)"
   menu_in_world "Right Shift"
 else
   case "$rkey" in
@@ -427,7 +428,18 @@ else
       fi ;;
     *)
       say "menu key seen: $(grep '"event":"menu-key"' "$LOG" | tail -1)"
-      fail "Right Shift in a world opened the Breeze menu" ;;
+      say "Right Shift as the window saw it: $(grep '"event":"rshift-raw"' "$LOG" | tail -1)"
+      fail "Right Shift in a world opened the Breeze menu"
+      # Once more, held for longer than the slowest frame here (2 fps), to
+      # tell a press lost inside one slow frame from one lost every time.
+      # The failure above stands either way.
+      b=$(count '"event":"ingame-menu"')
+      xdotool keydown Shift_R; sleep 1.5; xdotool keyup Shift_R
+      if wait_new '"event":"ingame-menu"' 40 "$b"; then
+        menu_in_world "Right Shift held for 1.5 s"
+      else
+        say "Right Shift held for 1.5 s did not open it either; window: $(grep '"event":"rshift-raw"' "$LOG" | tail -1)"
+      fi ;;
   esac
 fi
 
