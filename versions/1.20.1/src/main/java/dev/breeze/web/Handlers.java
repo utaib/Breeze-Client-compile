@@ -225,6 +225,23 @@ final class Handlers {
             return Router.ok();
         });
         on(r, "integrations.list", p -> dev.breeze.integrations.Integrations.json(mc, true));
+
+        // ── Breeze's keys (the same bindings as Minecraft's Controls) ────────
+        on(r, "keys.list", p -> dev.breeze.keybind.KeybindManager.keysJson(mc));
+        on(r, "keys.capture", p -> {
+            if (!dev.breeze.keybind.KeybindManager.capture(p.str("id", 96))) throw BridgeException.invalid("No such Breeze key.");
+            return Router.ok();
+        });
+        on(r, "keys.cancel", p -> {
+            dev.breeze.keybind.KeybindManager.cancelCapture();
+            return Router.ok();
+        });
+        on(r, "keys.reset", p -> {
+            String to = p.str("to", 8);
+            if (!"default".equals(to) && !"none".equals(to)) throw BridgeException.invalid("to must be default or none.");
+            if (!dev.breeze.keybind.KeybindManager.reset(mc, p.str("id", 96), "none".equals(to))) throw BridgeException.invalid("No such Breeze key.");
+            return dev.breeze.keybind.KeybindManager.keysJson(mc);
+        });
         on(r, "integrations.open", p -> {
             String id = p.str("id", 96);
             String action = p.str("action", 160);

@@ -19,7 +19,7 @@ public final class Events {
 
     /** The event names in contract/bridge.json. Anything else is refused. */
     public static final Set<String> NAMES = Set.of(
-            "key.escape", "settings.changed", "modules.changed", "game.changed", "window.resized");
+            "key.escape", "settings.changed", "modules.changed", "game.changed", "window.resized", "keys.changed");
 
     private static final Gson GSON = new GsonBuilder().create();
 

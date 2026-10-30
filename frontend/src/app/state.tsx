@@ -3,15 +3,18 @@ import { Bridge, BridgeError } from '../bridge/client'
 import type { Action, Hello, ParamsOf, ResultOf, UiSettings } from '../bridge/types'
 
 /** Breeze's modules, what other mods offer here, everything Fabric loaded. */
-export type ModsTab = 'modules' | 'other' | 'installed'
+export type ModsTab = 'modules' | 'keys' | 'other' | 'installed'
 
 export type Route =
   | { name: 'home' }
   | { name: 'hosting' }
   | { name: 'wardrobe' }
   | { name: 'friends' }
-  | { name: 'mods'; tab: ModsTab }
-  | { name: 'module'; module: string }
+  // view: what the module list showed (search, filter), kept on this route
+  // object so Back from a module returns to it. Not part of the key.
+  | { name: 'mods'; tab: ModsTab; view?: { query: string; filter: string } }
+  // focus: a setting to bring into view (from a search); not part of the key.
+  | { name: 'module'; module: string; focus?: string }
   | { name: 'settings' }
 
 export function routeKey(r: Route): string {
@@ -29,7 +32,7 @@ export function parseRoute(key: string | null | undefined): Route {
   switch (head) {
     case 'hosting': case 'wardrobe': case 'friends': case 'settings': case 'home':
       return { name: head }
-    case 'mods': return { name: 'mods', tab: tail === 'installed' || tail === 'other' ? tail : 'modules' }
+    case 'mods': return { name: 'mods', tab: tail === 'installed' || tail === 'other' || tail === 'keys' ? tail : 'modules' }
     case 'module': return tail ? { name: 'module', module: tail } : { name: 'mods', tab: 'modules' }
     default: return { name: 'home' }
   }
@@ -137,7 +140,10 @@ export function AppProvider({ bridge, hello, initialSettings, children }: {
     }
   }, [bridge, toast])
 
-  const navigate = useCallback((to: Route) => {
+  const navigate = useCallback((dest: Route) => {
+    // A copy: a page keeps what it showed on its own route object (Mods'
+    // search), and callers pass shared constants such as the rail's routes.
+    const to = { ...dest } as Route
     setStack((s) => {
       const top = s[s.length - 1]!
       if (routeKey(top) === routeKey(to)) return s

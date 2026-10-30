@@ -107,6 +107,11 @@
 .detail-actions { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
 .detail-none { margin-top: 1rem; }
 .module-detail .rows { max-width: 44rem; }
+/* The setting a search led to, marked for a moment. */
+.module-detail .row { transition: background var(--dur-slow, 0.4s) var(--ease); }
+.module-detail .row.found { background: color-mix(in srgb, var(--accent) 14%, transparent); }
+.module-match { display: flex; align-items: flex-start; gap: 0.3rem; color: var(--text-secondary); }
+.module-match svg { flex: none; width: 0.8rem; height: 0.8rem; margin-top: 0.15rem; color: var(--accent); }
 
 .stepper { display: flex; align-items: center; gap: 0.25rem; }
 .stepper-value { min-width: 6rem; text-align: center; font-weight: 600; font-size: 0.84rem; }
@@ -228,3 +233,21 @@
 @media (max-width: 45rem) {
   .xmod { grid-template-columns: 1fr; }
 }
+
+/* ── Keys ─────────────────────────────────────────────────────────────── */
+
+.keyctl { display: flex; align-items: center; gap: 0.25rem; flex: none; }
+.keycap {
+  min-width: 5.5rem; height: 2rem; padding: 0 0.75rem; border-radius: var(--radius);
+  font-size: 0.8rem; font-weight: 600; color: var(--text-primary);
+  background: var(--surface); border: 1px solid var(--border-hover); box-shadow: inset 0 -2px 0 var(--border);
+  transition: border-color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
+}
+.keycap:hover { background: var(--surface-hover); }
+.keycap.none { color: var(--text-tertiary); font-weight: 500; }
+.keycap.conflict { border-color: color-mix(in srgb, var(--warn) 60%, transparent); color: var(--warn); }
+.keycap.waiting { border-color: var(--border-accent); color: var(--accent); animation: keycap-wait 1.2s ease-in-out infinite; }
+@keyframes keycap-wait { 50% { background: color-mix(in srgb, var(--accent) 12%, transparent); } }
+@media (prefers-reduced-motion: reduce) { .keycap.waiting { animation: none; } }
+.linkish { font: inherit; color: inherit; text-align: left; text-decoration: underline; text-decoration-color: var(--border-hover); text-underline-offset: 0.2em; }
+.linkish:hover { text-decoration-color: currentColor; }

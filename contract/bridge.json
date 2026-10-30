@@ -51,6 +51,10 @@
     "mods.list": { "thread": "any", "params": {}, "summary": "Mods Fabric actually loaded in this game, each marked breeze, game, library or mod." },
     "integrations.list": { "thread": "client", "params": {}, "summary": "What Breeze can open from other mods (Mod Menu's list and each mod's settings screen, mods' own \"breeze\" entrypoints, at the title the buttons mods put on the title screen), each action with the mod it belongs to where Java can tell (the menu shows one row per mod), and integrations that failed." },
     "integrations.open": { "thread": "client", "params": { "id": "string", "action": "string" }, "summary": "Open an integration's screen over the Breeze menu; closing it returns there." },
+    "keys.list": { "thread": "client", "params": {}, "summary": "Breeze's key bindings (the menu, music, every module): each key, its default, and the other bindings on the same key. The same bindings Minecraft's Controls shows." },
+    "keys.capture": { "thread": "client", "params": { "id": "string" }, "summary": "The next key pressed in the Breeze menu becomes this binding (Escape cancels); the page hears keys.changed and never sees that key." },
+    "keys.cancel": { "thread": "client", "params": {}, "summary": "Stop waiting for a key." },
+    "keys.reset": { "thread": "client", "params": { "id": "string", "to": "default | none" }, "summary": "Put a binding back on its default key, or on no key. Returns keys.list." },
 
     "account.get": { "thread": "any", "params": {}, "summary": "The Minecraft profile and the state of the Breeze sign-in the launcher handed over." },
 
@@ -74,6 +78,7 @@
     "settings.changed": "Interface settings changed. Payload: the full settings.",
     "modules.changed": "A module changed outside the page, for example by its keybind. Payload: { name }.",
     "game.changed": "The player joined or left a world. Payload: game.state.",
-    "window.resized": "The game window changed size. Payload: { width, height, scale }."
+    "window.resized": "The game window changed size. Payload: { width, height, scale }.",
+    "keys.changed": "A key the page asked for (keys.capture) was pressed. Payload: { id, cancelled }; the page reads keys.list again."
   }
 }

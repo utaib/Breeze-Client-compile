@@ -1,10 +1,12 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { groupIntegrations, searchGroups, UNOWNED, type GroupAction, type IntegrationGroup } from '../app/integrationGroups'
+import { matchSummary, searchModules } from '../app/moduleSearch'
 import { describeError, useAction, useApp, type ModsTab } from '../app/state'
 import type { ModuleCategory, ModuleInfo } from '../bridge/types'
 import { EmptyState, ErrorState, SearchField, Segmented, Skeleton, Switch } from '../ui/controls'
 import { Icon, type IconName } from '../ui/icons'
 import { ModuleGlyph, useModuleIcons } from '../ui/ModuleGlyph'
+import { KeysTab } from './Keys'
 
 /** Category colours are the five Breeze state colours, used as labels only. */
 export const CATEGORY: Record<ModuleCategory, { icon: IconName; tone: string }> = {
@@ -21,6 +23,7 @@ type Filter = (typeof FILTERS)[number]
 
 const SUB: Record<ModsTab, string> = {
   modules: 'Breeze modules change how the game looks and plays.',
+  keys: 'Every Breeze key in one place. Click one, then press the key you want.',
   other: 'Settings and screens other mods offer here, one entry per mod.',
   installed: 'Everything Fabric loaded, with each mod\'s settings where it has them.',
 }
@@ -37,31 +40,36 @@ export function Mods({ tab }: { tab: ModsTab }) {
         <Segmented
           label="Section"
           value={tab}
-          options={[{ value: 'modules', label: 'Breeze modules' }, { value: 'other', label: 'Other mods' }, { value: 'installed', label: 'Installed mods' }]}
+          options={[
+            { value: 'modules', label: 'Breeze modules' }, { value: 'keys', label: 'Keys' },
+            { value: 'other', label: 'Other mods' }, { value: 'installed', label: 'Installed mods' },
+          ]}
           onChange={(t) => navigate({ name: 'mods', tab: t })}
         />
       </div>
-      {tab === 'modules' ? <Modules /> : tab === 'other' ? <OtherMods /> : <Installed />}
+      {tab === 'modules' ? <Modules /> : tab === 'keys' ? <KeysTab /> : tab === 'other' ? <OtherMods /> : <Installed />}
     </div>
   )
 }
 
 function Modules() {
-  const { call, toast, navigate, hello } = useApp()
+  const { call, toast, navigate, hello, route } = useApp()
   const list = useAction('modules.list')
   const icons = useModuleIcons()
-  const [query, setQuery] = useState('')
-  const [filter, setFilter] = useState<Filter>('All')
+  // Back from a module returns to the same search and filter.
+  const kept = route.name === 'mods' ? route.view : undefined
+  const [query, setQuery] = useState(kept?.query ?? '')
+  const [filter, setFilter] = useState<Filter>(FILTERS.includes(kept?.filter as Filter) ? (kept!.filter as Filter) : 'All')
+  useEffect(() => {
+    if (route.name === 'mods') route.view = { query, filter }
+  }, [route, query, filter])
 
-  const shown = useMemo(() => {
-    const q = query.trim().toLowerCase()
-    return (list.data ?? []).filter((m) => {
-      if (filter === 'On' && !m.enabled) return false
-      if (filter !== 'All' && filter !== 'On' && m.category !== filter) return false
-      if (!q) return true
-      return m.name.toLowerCase().includes(q) || m.description.toLowerCase().includes(q)
-    })
-  }, [list.data, query, filter])
+  // Name, description, or a setting inside the module.
+  const shown = useMemo(() => searchModules(list.data ?? [], query).filter(({ module: m }) => {
+    if (filter === 'On' && !m.enabled) return false
+    if (filter !== 'All' && filter !== 'On' && m.category !== filter) return false
+    return true
+  }), [list.data, query, filter])
 
   const present = useMemo(() => new Set((list.data ?? []).map((m) => m.category)), [list.data])
 
@@ -79,7 +87,7 @@ function Modules() {
   return (
     <>
       <div className="toolbar">
-        <SearchField value={query} onChange={setQuery} placeholder="Search modules" autoFocus />
+        <SearchField value={query} onChange={setQuery} placeholder="Search modules and settings" autoFocus />
         <div className="chips" role="tablist" aria-label="Filter">
           {FILTERS.filter((f) => f === 'All' || f === 'On' || present.has(f as ModuleCategory)).map((f) => (
             <button key={f} role="tab" aria-selected={filter === f} className="chip" onClick={() => setFilter(f)}>{f}</button>
@@ -98,12 +106,12 @@ function Modules() {
       {list.data && shown.length === 0 && (
         <EmptyState
           title={query ? `Nothing matches "${query}"` : 'No modules here'}
-          text={query ? 'Try a shorter search, or pick All.' : 'Turn a module on and it shows up under On.'}
+          text={query ? 'Searches cover module names and every setting inside them. Try a shorter search, or pick All.' : 'Turn a module on and it shows up under On.'}
         />
       )}
 
       <div className="module-grid" role="list">
-        {shown.map((m) => {
+        {shown.map(({ module: m, settings: matched }) => {
           const cat = CATEGORY[m.category] ?? CATEGORY.Utility
           return (
             <div
@@ -112,10 +120,16 @@ function Modules() {
               className={`module ${m.enabled ? 'on' : ''}`}
               data-testid={`module-${m.name}`}
             >
-              <button className="module-open" onClick={() => navigate({ name: 'module', module: m.name })} aria-label={`${m.name} settings`}>
+              <button
+                className="module-open"
+                onClick={() => navigate({ name: 'module', module: m.name, ...(matched[0] ? { focus: matched[0].id } : {}) })}
+                aria-label={`${m.name} settings`}
+              >
                 <ModuleGlyph name={m.name} tone={cat.tone} symbol={cat.icon} icon={icons[m.name]} />
                 <span className="module-name">{m.name}</span>
-                <span className="module-desc">{m.description}</span>
+                {matched.length > 0
+                  ? <span className="module-desc module-match" data-testid="module-match"><Icon.Search />{matchSummary(matched)}</span>
+                  : <span className="module-desc">{m.description}</span>}
                 <span className="module-foot">
                   <span className={`module-cat tone-${cat.tone}`}>{m.category}</span>
                   {m.settings.length > 0 && <span className="module-count">{m.settings.length} settings</span>}

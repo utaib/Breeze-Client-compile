@@ -151,3 +151,35 @@ test('modules show their Minecraft icon, the right square of its texture, pixel 
   await expect(page.getByTestId('module-icon-FPS')).toBeVisible()
   expect((await calls(page, 'modules.icons')).length).toBe(1)
 })
+
+test('search finds settings inside modules, opens the module at the setting, and Back keeps the search', async ({ page }, info) => {
+  const search = page.getByRole('searchbox', { name: 'Search modules and settings' })
+  await search.fill('line width')
+  // Only Block Overlay has a "Line width"; its card says so instead of its description.
+  await expect(page.locator('.module')).toHaveCount(1)
+  await expect(page.getByTestId('module-Block Overlay').getByTestId('module-match')).toHaveText('Line width')
+  await snap(page, info, 'mods-search-settings')
+
+  await page.getByRole('button', { name: 'Block Overlay settings' }).click()
+  await expect(page.getByRole('heading', { level: 1, name: 'Block Overlay' })).toBeVisible()
+  const row = page.locator('.row[data-anchor="width"]')
+  await expect(row).toHaveClass(/found/)
+  await expect(row).toBeInViewport()
+  await expect(page.getByRole('slider', { name: 'Line width' })).toBeFocused()
+  await expect(row).not.toHaveClass(/found/, { timeout: 4000 })
+
+  await page.getByRole('button', { name: 'Back' }).click()
+  await expect(search).toHaveValue('line width')
+  await expect(page.locator('.module')).toHaveCount(1)
+
+  // A word in many modules' settings lists each module once, saying which settings.
+  await search.fill('colour')
+  const fps = page.getByTestId('module-FPS').getByTestId('module-match')
+  await expect(fps).toHaveText('Background colour, Border colour and Text colour')
+  expect(await page.locator('.module').count()).toBeGreaterThan(5)
+
+  // Going to Mods from the rail starts afresh.
+  await rail(page, 'Home').click()
+  await rail(page, 'Mods').click()
+  await expect(page.getByRole('searchbox', { name: 'Search modules and settings' })).toHaveValue('')
+})

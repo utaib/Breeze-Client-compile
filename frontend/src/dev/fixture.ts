@@ -21,7 +21,7 @@
  */
 import type {
   Account, ActionMap, Action, Cape, CosmeticState, FriendsState, GameState, Hello, HostingState,
-  InstalledMod, Integrations, ModuleInfo, ModuleSetting, OwnedCosmetic, UiSettings,
+  InstalledMod, Integrations, KeysState, ModuleInfo, ModuleSetting, OwnedCosmetic, UiSettings,
 } from '../bridge/types'
 import type { Transport } from '../bridge/client'
 import { ERROR_CODES } from '../bridge/client'
@@ -204,6 +204,29 @@ const INTEGRATIONS: Integrations = scenario === 'mods'
 const SAMPLE_CAPE_BLUE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAYAAACinX6EAAAA0klEQVR42u2QIQ9BYRiF7+/wKwRFUARFUATFRnADgc1mNkmRFMEUiXCT4h9Iik2wsdnuJtgEm02wCbZjX7jtC291nGd70jnpCQIRBP01YNF9U+kQFn8qQHf1gUXaAO3oDYu0AZqLFyzSBgjnT1ikDVCfPeCMYnhNdtoA1ckdzuUJXpOdNkBlfINF2gDl0RUWaQOUhhdMt/DqtkTaAMVBjMkGXt2WSBug0DvDIm2AfOcIi7QBcq0DLNIGyDb2sEgbIFPbwSJtACGEEEIIIYQQ4r/4AjFt1zM9+AcGAAAAAElFTkSuQmCC'
 const SAMPLE_CAPE_PINK = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAYAAACinX6EAAAA0UlEQVR42u2QMQuBYRhFv1/ilxgog8FgMBgUg8FgMBjMShmUUiQppUhSyg8wWAwGi+ErFoNiMRgshqt3eLdveFbXPXWme6cTBCII0NjAovsWY0lY/KkAn/oaFmkDvGsrWKQN8KouYJE2wLMyg0XaAI/yFE4s75H6nTbArTSBE/NbpH6nDXAtjGGRNsAlP4RF2gBhrg+MzpG6zUsb4JTtAYMwUrd5aQMcM11YpA1wSHdgkTbAPtWGRdoAu0QLFmkDbONNWKQNIIQQQgghhBBC/BdfCnjpWzuj1TsAAAAASUVORK5CYII='
 
+/** Minecraft's own default bindings, by key, for conflicts (as Minecraft names them in English). */
+const VANILLA_KEYS: Record<string, string> = {
+  W: 'Walk Forwards', A: 'Strafe Left', S: 'Walk Backwards', D: 'Strafe Right', Space: 'Jump',
+  'Left Shift': 'Sneak', 'Left Control': 'Sprint', Q: 'Drop Selected Item', E: 'Open/Close Inventory',
+  F: 'Swap Item With Offhand', T: 'Open Chat', '/': 'Open Command', Tab: 'List Players', L: 'Advancements',
+  F1: 'Toggle HUD', F2: 'Take Screenshot', F5: 'Toggle Perspective', F11: 'Toggle Fullscreen',
+  C: 'Save Hotbar Activator', X: 'Load Hotbar Activator',
+  ...Object.fromEntries(Array.from({ length: 9 }, (_, i) => [String(i + 1), `Hotbar Slot ${i + 1}`])),
+}
+
+interface FixtureKey { id: string; label: string; module?: string; key: string; defaultKey: string }
+
+function makeKeys(modules: ModuleInfo[]): FixtureKey[] {
+  return [
+    { id: 'key.breeze.menu', label: 'Open the Breeze menu', key: 'Right Shift', defaultKey: 'Right Shift' },
+    { id: 'key.breeze.music', label: 'Music player', key: 'M', defaultKey: 'M' },
+    ...[...modules].sort((a, b) => a.name.localeCompare(b.name)).map((m) => ({
+      id: `key.breeze.${m.name.toLowerCase().replace(/ /g, '_')}`, label: m.name, module: m.name,
+      key: m.keybind ?? '', defaultKey: m.keybind ?? '',
+    })),
+  ]
+}
+
 const state = {
   settings: { ...DEFAULT_SETTINGS },
   modules: makeModules(),
@@ -360,6 +383,23 @@ function handle(action: Action, p: Record<string, unknown>): unknown {
       return { ...m, settings: m.settings.map((s) => ({ ...s })) }
     }
     case 'mods.list': return INSTALLED
+    case 'keys.list': return { ...keysState(), ...(stopListening && capturingId ? { capturing: capturingId } : {}) }
+    case 'keys.capture': {
+      const k = keys.find((x) => x.id === p.id)
+      if (!k) throw new FixtureError('INVALID_PARAMS', 'No such Breeze key.')
+      capturingId = k.id
+      listenForKey(k)
+      return {}
+    }
+    case 'keys.cancel':
+      stopListening?.()
+      return {}
+    case 'keys.reset': {
+      const k = keys.find((x) => x.id === p.id)
+      if (!k || (p.to !== 'default' && p.to !== 'none')) throw new FixtureError('INVALID_PARAMS', 'No such Breeze key.')
+      setKey(k, p.to === 'none' ? '' : k.defaultKey)
+      return keysState()
+    }
     case 'integrations.list': return INTEGRATIONS
     case 'integrations.open': {
       // ?preview=manymods: a button its mod took off the title screen after
@@ -412,6 +452,62 @@ function handle(action: Action, p: Record<string, unknown>): unknown {
     case 'hosting.join':
       return state.hosting
   }
+}
+
+const keys: FixtureKey[] = makeKeys(state.modules)
+
+function keysState(): KeysState {
+  return {
+    keys: keys.map((k) => ({
+      id: k.id, label: k.label, ...(k.module ? { module: k.module } : {}), key: k.key,
+      isDefault: k.key === k.defaultKey, defaultKey: k.defaultKey,
+      conflicts: k.key ? [
+        ...(VANILLA_KEYS[k.key] ? [VANILLA_KEYS[k.key]!] : []),
+        ...keys.filter((o) => o !== k && o.key === k.key).map((o) => o.label),
+      ] : [],
+    })),
+  }
+}
+
+function setKey(k: FixtureKey, key: string) {
+  k.key = key
+  const m = state.modules.find((x) => x.name === k.module)
+  if (m) m.keybind = key || null
+}
+
+/** A key's name as Minecraft shows it, from the browser's key event. */
+function keyName(e: KeyboardEvent): string {
+  const named: Record<string, string> = {
+    ShiftLeft: 'Left Shift', ShiftRight: 'Right Shift', ControlLeft: 'Left Control', ControlRight: 'Right Control',
+    AltLeft: 'Left Alt', AltRight: 'Right Alt', Space: 'Space', Tab: 'Tab', Enter: 'Enter', Backspace: 'Backspace',
+    ArrowUp: 'Up Arrow', ArrowDown: 'Down Arrow', ArrowLeft: 'Left Arrow', ArrowRight: 'Right Arrow', Slash: '/',
+  }
+  if (named[e.code]) return named[e.code]!
+  if (/^Key[A-Z]$/.test(e.code)) return e.code.slice(3)
+  if (/^Digit\d$/.test(e.code)) return e.code.slice(5)
+  if (/^F\d{1,2}$/.test(e.code)) return e.code
+  return e.key.length === 1 ? e.key.toUpperCase() : e.key
+}
+
+/** keys.capture: like Java, the next key press is the binding and the page never sees it. */
+let stopListening: (() => void) | null = null
+let capturingId: string | null = null
+function listenForKey(k: FixtureKey) {
+  stopListening?.()
+  const onKey = (e: KeyboardEvent) => {
+    e.preventDefault()
+    e.stopImmediatePropagation()
+    stop()
+    const cancelled = e.key === 'Escape'
+    if (!cancelled) setKey(k, keyName(e))
+    window.__breezeEvent?.({ type: 'keys.changed', payload: { id: k.id, cancelled } })
+  }
+  const stop = () => {
+    window.removeEventListener('keydown', onKey, true)
+    stopListening = null
+  }
+  window.addEventListener('keydown', onKey, true)
+  stopListening = stop
 }
 
 declare global {

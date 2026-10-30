@@ -21,4 +21,9 @@ public final class Keys {
         KeyMapping km = new KeyMapping(name, InputConstants.Type.KEYSYM, defaultKey, CATEGORY);
         return KeyBindingHelper.registerKeyBinding(km);
     }
+
+    /** The key Minecraft means by a key press's key code and scan code (as its Controls screen reads it). */
+    public static InputConstants.Key keyOf(int key, int scanCode) {
+        return InputConstants.getKey(key, scanCode);
+    }
 }

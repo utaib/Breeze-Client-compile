@@ -131,6 +131,27 @@ export interface Integrations {
   problems: IntegrationProblem[]
 }
 
+/** One of Breeze's key bindings (keys.list): the same ones Minecraft's Controls lists. */
+export interface KeyBinding {
+  id: string
+  label: string
+  /** The module it turns on and off, if it is a module's key. */
+  module?: string
+  /** The key's name in the game's language; empty when it has no key. */
+  key: string
+  isDefault: boolean
+  /** Empty when the binding has no key by default. */
+  defaultKey: string
+  /** Other bindings on the same key: Minecraft's own or other mods'. */
+  conflicts: string[]
+}
+
+export interface KeysState {
+  keys: KeyBinding[]
+  /** The binding Java is waiting for a key for, if any. */
+  capturing?: string
+}
+
 export type Role = 'owner' | 'developer' | 'creator' | 'user'
 
 export interface Account {
@@ -243,6 +264,10 @@ export interface ActionMap {
   'mods.list': [Record<string, never>, InstalledMod[]]
   'integrations.list': [Record<string, never>, Integrations]
   'integrations.open': [{ id: string; action: string }, Record<string, never>]
+  'keys.list': [Record<string, never>, KeysState]
+  'keys.capture': [{ id: string }, Record<string, never>]
+  'keys.cancel': [Record<string, never>, Record<string, never>]
+  'keys.reset': [{ id: string; to: 'default' | 'none' }, KeysState]
   'account.get': [Record<string, never>, Account]
   'cosmetics.state': [{ fresh?: boolean }, CosmeticState]
   'cosmetics.equipCape': [{ id: string | null }, CosmeticState]
@@ -268,6 +293,7 @@ export interface EventMap {
   'modules.changed': { name: string }
   'game.changed': GameState
   'window.resized': { width: number; height: number; scale: number }
+  'keys.changed': { id: string | null; cancelled: boolean }
 }
 
 export type EventName = keyof EventMap

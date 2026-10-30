@@ -9,7 +9,27 @@ Each entry says what was verified and how. Anything not verified is marked
 
 ## [2.17.0] - 2026-10-30
 
-Other mods' screens grouped per mod in the web menu (Breeze 1.1.0).
+Other mods' screens grouped per mod, module settings found by search, and
+Breeze's keys changed from the web menu (Breeze 1.1.0).
+
+### Added
+- **Keys in the menu.** Mods / Keys lists every Breeze key (the menu, the
+  Music player, every module) with search and filters (with a key, shared),
+  and each module's page has a Key row. Click a key, then press the new one:
+  Java takes the next key pressed in the menu, exactly as Minecraft read it
+  on that version, and binds it the way Minecraft's Controls does (sets it,
+  rebuilds the key lookup, saves options.txt), so the page never sees that
+  key; Escape cancels. A key shared with another binding (Minecraft's own,
+  another mod's or another Breeze key) is marked, saying which. Back to the
+  default key, or no key, with one click. Bridge actions `keys.list`,
+  `keys.capture`, `keys.cancel`, `keys.reset`, event `keys.changed`.
+- **Search finds settings inside modules.** The Modules search covers every
+  module's settings (label and group) as well as names and descriptions: a
+  module found only by a setting says which ("Background colour, Border
+  colour and Text colour") in place of its description, and opening it
+  scrolls to that setting, marks it for a moment and puts the keyboard on
+  its control. Back returns to the same search and filter; coming to Mods
+  from the rail starts afresh.
 
 ### Changed
 - **One rail entry for other mods, one row per mod.** The rail used to add
@@ -31,15 +51,31 @@ Other mods' screens grouped per mod in the web menu (Breeze 1.1.0).
   row. The in-game self-test logs each title button's owner.
 
 ### Verified
-- Here: `npm run build`; Vitest 29 (10 new for the grouping and search);
-  Playwright 49 on Chromium 153 (6 new or rewritten in
-  `integrations.spec.ts`: no entry without other mods, Mod Menu, a game
-  with 17 mods and a nine-button mod, search, a refused entry, 854x480).
-  Four deliberate breakages (a rail entry per mod, Java's owner ignored,
-  no "Show all", search not filtering) each failed tests.
+- Here: `npm run build`; Vitest 34 (10 for the grouping and its search, 5
+  for the settings search); Playwright 55 on Chromium 153 (6 new or
+  rewritten in `integrations.spec.ts`: no entry without other mods, Mod
+  Menu, a game with 17 mods and a nine-button mod, search, a refused entry,
+  854x480; one in `modules.spec.ts` for the settings search; 5 in
+  `keys.spec.ts`: the list and shared keys, change, reset and remove,
+  Escape, a module's own key, leaving while waiting). Six
+  deliberate breakages (a rail entry per mod, Java's owner ignored, no
+  "Show all", search not filtering, settings not searched, no jump to the
+  setting) each failed tests. The settings test also found a real bug
+  before commit: the rail's routes are shared objects, so the kept search
+  leaked into later visits; `navigate` now stores a copy.
   `scripts/check-java-offline.sh` on `Integrations.java`: 0 errors.
-- **UNVERIFIED** until the 34-version run on the build repository: the Java
-  compiles on every version and the owner is found in a real install.
+- Build repository, source `322344e` (grouping, before the keys):
+  run 40998952815, 1.20.1, 1.21.4 and 1.21.11 with Mod Menu, Flashback and
+  Zoomify, all passed; on 1.21.4 and 1.21.11 Flashback's title button
+  ("Open Replays") was credited to `flashback` and opened Flashback's
+  screen from the menu (1.20.1 has no Flashback build). Run 40998970385,
+  all 34 versions: 33 passed; 1.18 failed one check, "Right Shift in a
+  world opened the Breeze menu" (Minecraft read the key as Right Shift in
+  the Music screen, but the binding did not fire in the world); nothing in
+  this change touches keys there. Its job was re-run once.
+- **UNVERIFIED** until the next 34-version run: the keys code on every
+  version (`Keys.keyOf` has a 1.21.9 form, `InputConstants.getKey(KeyEvent)`,
+  written without that version's API at hand).
 
 ## [2.16.0] - 2026-10-15
 

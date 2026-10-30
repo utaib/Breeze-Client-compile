@@ -53,7 +53,7 @@ export function App() {
   switch (route.name) {
     case 'home': page = <Home />; break
     case 'mods': page = <Mods tab={route.tab} />; break
-    case 'module': page = <ModuleDetail name={route.module} />; break
+    case 'module': page = <ModuleDetail name={route.module} focus={route.focus} />; break
     case 'wardrobe': page = <Wardrobe />; break
     case 'friends': page = <Friends />; break
     case 'hosting': page = <Hosting />; break

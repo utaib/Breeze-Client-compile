@@ -13,7 +13,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import dev.breeze.ui.BreezeUi;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import net.minecraft.client.resources.language.I18n;
+
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public final class KeybindManager {
@@ -87,6 +93,104 @@ public final class KeybindManager {
 
     public static boolean menuKeyDown() {
         return menuKey != null && menuKey.isDown();
+    }
+
+    // ── Keys in the web menu (keys.list, keys.capture, keys.reset) ──────────
+
+    /** The binding the menu is waiting for a key for, by id; null when none. */
+    private static String capturing;
+
+    /** Breeze's own bindings by id (their translation keys): the menu, music, then modules by name. */
+    private static Map<String, KeyMapping> breezeKeys() {
+        Map<String, KeyMapping> out = new LinkedHashMap<>();
+        if (menuKey != null) out.put(menuKey.getName(), menuKey);
+        if (musicKey != null) out.put(musicKey.getName(), musicKey);
+        bindings.entrySet().stream()
+                .sorted(Comparator.comparing((Map.Entry<Module, KeyMapping> e) -> e.getKey().getName(), String.CASE_INSENSITIVE_ORDER))
+                .forEach(e -> out.put(e.getValue().getName(), e.getValue()));
+        return out;
+    }
+
+    private static Module moduleOf(KeyMapping km) {
+        for (Map.Entry<Module, KeyMapping> e : bindings.entrySet()) if (e.getValue() == km) return e.getKey();
+        return null;
+    }
+
+    /**
+     * Every Breeze binding with its key, its default, and the other bindings
+     * (Minecraft's or other mods') on the same key, as Minecraft's Controls
+     * marks them.
+     */
+    public static JsonObject keysJson(Minecraft mc) {
+        JsonArray list = new JsonArray();
+        for (Map.Entry<String, KeyMapping> e : breezeKeys().entrySet()) {
+            KeyMapping km = e.getValue();
+            Module m = moduleOf(km);
+            JsonObject o = new JsonObject();
+            o.addProperty("id", e.getKey());
+            o.addProperty("label", m != null ? m.getName() : km == menuKey ? "Open the Breeze menu" : "Music player");
+            if (m != null) o.addProperty("module", m.getName());
+            o.addProperty("key", km.isUnbound() ? "" : km.getTranslatedKeyMessage().getString());
+            o.addProperty("isDefault", km.isDefault());
+            InputConstants.Key def = km.getDefaultKey();
+            o.addProperty("defaultKey", def == null || def.equals(InputConstants.UNKNOWN) ? "" : def.getDisplayName().getString());
+            JsonArray conflicts = new JsonArray();
+            if (!km.isUnbound() && mc.options != null) {
+                for (KeyMapping other : mc.options.keyMappings) {
+                    if (other != km && km.same(other)) conflicts.add(I18n.get(other.getName()));
+                }
+            }
+            o.add("conflicts", conflicts);
+            list.add(o);
+        }
+        JsonObject out = new JsonObject();
+        out.add("keys", list);
+        if (capturing != null) out.addProperty("capturing", capturing);
+        return out;
+    }
+
+    /** Waits for the next key pressed in the Breeze menu, for this binding. False for an unknown id. */
+    public static boolean capture(String id) {
+        if (!breezeKeys().containsKey(id)) return false;
+        capturing = id;
+        return true;
+    }
+
+    public static void cancelCapture() {
+        capturing = null;
+    }
+
+    public static String capturing() {
+        return capturing;
+    }
+
+    /**
+     * A key pressed in the menu while it waits (key code and scan code as
+     * Minecraft read them): Escape cancels, any other key becomes the
+     * binding, as in Minecraft's Controls. Returns the binding's id.
+     */
+    public static String takeKey(Minecraft mc, int key, int scanCode) {
+        String id = capturing;
+        capturing = null;
+        if (id == null || key == InputConstants.KEY_ESCAPE) return id;
+        KeyMapping km = breezeKeys().get(id);
+        if (km != null) apply(mc, km, Keys.keyOf(key, scanCode));
+        return id;
+    }
+
+    /** Back to the binding's default key, or to no key. False for an unknown id. */
+    public static boolean reset(Minecraft mc, String id, boolean none) {
+        KeyMapping km = breezeKeys().get(id);
+        if (km == null) return false;
+        apply(mc, km, none ? InputConstants.UNKNOWN : km.getDefaultKey());
+        return true;
+    }
+
+    /** What Minecraft's Controls does: set, rebuild the key lookup, save options.txt. */
+    private static void apply(Minecraft mc, KeyMapping km, InputConstants.Key key) {
+        km.setKey(key);
+        KeyMapping.resetMapping();
+        mc.options.save();
     }
 
     private static void notify(String msg) {

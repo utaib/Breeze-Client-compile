@@ -5,11 +5,13 @@ import { ConfirmDialog, EmptyState, ErrorState, Row, Segmented, Skeleton, Slider
 import { Icon } from '../ui/icons'
 import { ModuleGlyph, useModuleIcons } from '../ui/ModuleGlyph'
 import { CATEGORY } from './Mods'
+import { conflictText, KeyControl, useKeys } from './Keys'
 
-export function ModuleDetail({ name }: { name: string }) {
+export function ModuleDetail({ name, focus }: { name: string; focus?: string }) {
   const { call, toast, navigate, hello } = useApp()
   const list = useAction('modules.list')
   const icons = useModuleIcons()
+  const keys = useKeys()
   const [module, setModule] = useState<ModuleInfo | null>(null)
   const [confirmReset, setConfirmReset] = useState(false)
   // Newest answer wins; see setSetting in app/state.tsx for why.
@@ -18,6 +20,21 @@ export function ModuleDetail({ name }: { name: string }) {
   useEffect(() => {
     if (list.data) setModule(list.data.find((m) => m.name === name) ?? null)
   }, [list.data, name])
+
+  // Opened from a search for a setting: bring that setting into view, mark
+  // it for a moment and put the keyboard on its control.
+  const page = useRef<HTMLDivElement>(null)
+  const loaded = module?.name
+  useEffect(() => {
+    if (!focus || !loaded || !page.current) return
+    const row = page.current.querySelector<HTMLElement>(`[data-anchor="${CSS.escape(focus)}"]`)
+    if (!row) return
+    row.scrollIntoView({ block: 'center' })
+    row.classList.add('found')
+    row.querySelector<HTMLElement>('input, button, [tabindex="0"]')?.focus({ preventScroll: true })
+    const t = window.setTimeout(() => row.classList.remove('found'), 2000)
+    return () => window.clearTimeout(t)
+  }, [focus, loaded])
 
   if (list.loading && !list.data) return <div className="page"><Skeleton height="4rem" count={4} /></div>
   if (list.error != null) return <div className="page"><ErrorState error={list.error} what="this module" onRetry={list.reload} /></div>
@@ -34,6 +51,7 @@ export function ModuleDetail({ name }: { name: string }) {
   }
 
   const cat = CATEGORY[module.category] ?? CATEGORY.Utility
+  const binding = keys.list.data?.keys.find((k) => k.module === module.name)
 
   const apply = async (fn: () => Promise<ModuleInfo>, rollback: ModuleInfo, failure: string) => {
     const mine = ++seq.current
@@ -65,7 +83,7 @@ export function ModuleDetail({ name }: { name: string }) {
   }
 
   return (
-    <div className="page page-enter module-detail">
+    <div className="page page-enter module-detail" ref={page}>
       <div className="page-head">
         <div className="detail-id">
           <ModuleGlyph name={module.name} tone={cat.tone} symbol={cat.icon} icon={icons[module.name]} large />
@@ -87,9 +105,14 @@ export function ModuleDetail({ name }: { name: string }) {
       </div>
 
       <div className="rows">
-        <Row label="On" desc={module.keybind ? `Also toggled with ${module.keybind}.` : 'Set a key for it in Minecraft\'s Controls.'}>
+        <Row label="On">
           <Switch checked={module.enabled} label={`${module.name} on`} onChange={setEnabled} />
         </Row>
+        {binding && (
+          <Row label="Key" anchor="key" desc={conflictText(binding) ?? `Turns ${module.name} on and off in a world. Click, then press a key.`}>
+            <KeyControl binding={binding} keys={keys} />
+          </Row>
+        )}
       </div>
 
       {module.settings.length === 0 && (
@@ -101,7 +124,7 @@ export function ModuleDetail({ name }: { name: string }) {
           <h2 className="section-title">{group}</h2>
           <div className="rows">
             {settings.map((s) => (
-              <Row key={s.id} label={s.label}>
+              <Row key={s.id} label={s.label} anchor={s.id}>
                 <SettingControl setting={s} onChange={(v) => setSetting(s, v)} />
               </Row>
             ))}

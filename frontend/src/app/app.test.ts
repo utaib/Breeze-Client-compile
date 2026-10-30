@@ -6,7 +6,7 @@ import { DEFAULT_SETTINGS } from '../dev/fixture'
 describe('routes', () => {
   const all: Route[] = [
     { name: 'home' }, { name: 'hosting' }, { name: 'wardrobe' }, { name: 'friends' }, { name: 'settings' },
-    { name: 'mods', tab: 'modules' }, { name: 'mods', tab: 'other' }, { name: 'mods', tab: 'installed' }, { name: 'module', module: 'Armor Status' },
+    { name: 'mods', tab: 'modules' }, { name: 'mods', tab: 'keys' }, { name: 'mods', tab: 'other' }, { name: 'mods', tab: 'installed' }, { name: 'module', module: 'Armor Status' },
   ]
   it('round-trips every route through its key', () => {
     for (const r of all) expect(parseRoute(routeKey(r))).toEqual(r)

@@ -45,6 +45,10 @@ public final class BridgeActions {
         any("mods.list");
         client("integrations.list");
         client("integrations.open");
+        client("keys.list");
+        client("keys.capture");
+        client("keys.cancel");
+        client("keys.reset");
         any("account.get");
         io("cosmetics.state");
         io("cosmetics.equipCape");

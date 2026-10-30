@@ -123,9 +123,9 @@ export function SearchField({ value, onChange, placeholder, autoFocus }: {
   )
 }
 
-export function Row({ label, desc, children }: { label: ReactNode; desc?: ReactNode; children: ReactNode }) {
+export function Row({ label, desc, anchor, children }: { label: ReactNode; desc?: ReactNode; anchor?: string; children: ReactNode }) {
   return (
-    <div className="row">
+    <div className="row" data-anchor={anchor}>
       <div className="row-text">
         <div className="row-label">{label}</div>
         {desc && <div className="row-desc">{desc}</div>}

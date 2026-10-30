@@ -203,6 +203,18 @@ public final class BreezeWebScreen extends BreezeScreen {
     @Override
     protected boolean onKeyPressed(int key, int scanCode, int modifiers) {
         dev.breeze.devtest.AutoTest.key(key);
+        // The Keys page asked for a key: this press is the new binding (or,
+        // Escape, a change of mind), and the page does not see it.
+        if (dev.breeze.keybind.KeybindManager.capturing() != null) {
+            String id = dev.breeze.keybind.KeybindManager.takeKey(Minecraft.getInstance(), key, scanCode);
+            if (browser != null) {
+                com.google.gson.JsonObject changed = new com.google.gson.JsonObject();
+                changed.addProperty("id", id);
+                changed.addProperty("cancelled", key == InputConstants.KEY_ESCAPE);
+                browser.emit("keys.changed", changed);
+            }
+            return true;
+        }
         if (key == InputConstants.KEY_ESCAPE) {
             if (browser == null) {
                 if (ingame) onClose();
@@ -301,6 +313,7 @@ public final class BreezeWebScreen extends BreezeScreen {
 
     @Override
     public void removed() {
+        dev.breeze.keybind.KeybindManager.cancelCapture();
         if (browser != null) {
             browser.close();
             browser = null;
