@@ -90,6 +90,7 @@ public final class ModuleIcons {
         put("Keybind Search", "block/tripwire_hook");
         put("Nickname Hider", "block/tinted_glass", "block/black_stained_glass");
         put("Perspective", "item/ender_eye");
+        put("Free Look", "block/observer_front");
         put("Reconnect", "item/chain", "item/iron_chain");
         put("Scoreboard", "item/birch_sign");
         put("Screenshots", "item/painting");

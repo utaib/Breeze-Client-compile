@@ -58,6 +58,7 @@ public class BreezeClient implements ClientModInitializer {
         // Once every mod has initialised: which mods Fabric loaded and which
         // integrations answer, for the menus and for the launcher.
         net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents.CLIENT_STARTED.register(mc -> {
+            KeybindManager.yieldSharedDefaults(mc);
             dev.breeze.integrations.Integrations.discover();
             dev.breeze.integrations.Integrations.writeReport();
         });

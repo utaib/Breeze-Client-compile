@@ -75,6 +75,8 @@ public final class KeybindManager {
             BreezeClient.LOGGER.warn("[Breeze] Could not open the music player: {}", t.toString());
         }
         for (Map.Entry<Module, KeyMapping> e : bindings.entrySet()) {
+            // The module reads its own key (Free Look) and is switched in the menu.
+            if (e.getKey().keyIsAction()) continue;
             try {
                 if (e.getValue().consumeClick()) {
                     Module m = e.getKey();
@@ -93,6 +95,43 @@ public final class KeybindManager {
 
     public static boolean menuKeyDown() {
         return menuKey != null && menuKey.isDown();
+    }
+
+    /**
+     * Once every mod has registered its keys: a Breeze key that acts while
+     * held (Free Look, on Left Alt) gives way when another binding already
+     * has its default key, so it never takes a key the player uses for
+     * something else (an older Minecraft lets only one binding have a key).
+     * It is left unbound for this session and not saved, so it comes back if
+     * the other binding goes; the Keys page shows it and sets another key.
+     */
+    public static void yieldSharedDefaults(Minecraft mc) {
+        if (mc.options == null) return;
+        boolean changed = false;
+        for (Map.Entry<Module, KeyMapping> e : bindings.entrySet()) {
+            KeyMapping km = e.getValue();
+            if (!e.getKey().keyIsAction() || !km.isDefault() || km.isUnbound()) continue;
+            for (KeyMapping other : mc.options.keyMappings) {
+                if (other != km && km.same(other)) {
+                    BreezeClient.LOGGER.info("[Breeze] {} leaves {} to {}; set its key on the Keys page",
+                            e.getKey().getName(), km.getTranslatedKeyMessage().getString(), other.getName());
+                    km.setKey(InputConstants.UNKNOWN);
+                    changed = true;
+                    break;
+                }
+            }
+        }
+        if (changed) KeyMapping.resetMapping();
+    }
+
+    /** For the self-test: the other bindings on the menu binding's key, by name. */
+    public static String sharingMenuKey(Minecraft mc) {
+        if (menuKey == null || menuKey.isUnbound() || mc.options == null) return "";
+        StringBuilder out = new StringBuilder();
+        for (KeyMapping other : mc.options.keyMappings) {
+            if (other != menuKey && menuKey.same(other)) out.append(out.length() > 0 ? "," : "").append(other.getName());
+        }
+        return out.toString();
     }
 
     // ── Keys in the web menu (keys.list, keys.capture, keys.reset) ──────────

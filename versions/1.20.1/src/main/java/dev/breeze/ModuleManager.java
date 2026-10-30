@@ -169,6 +169,7 @@ public final class ModuleManager {
         register(new UiScaling());
         register(new NameTagScale());
         register(new Perspective());
+        register(new FreeLook());
         register(new ShulkerTooltips());
         register(new KeybindSearch());
         register(new ItemPhysics());

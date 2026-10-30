@@ -77,6 +77,13 @@ public abstract class Module {
     /** Called after the enabled state was loaded from one of {@link #earlierNames()}. */
     public void migratedFrom(String earlierName) {}
 
+    /**
+     * True when the module's key does something while the module is on (Free
+     * Look's look key) rather than switching the module, which is then
+     * switched in the menu only.
+     */
+    public boolean keyIsAction() { return false; }
+
     public final KeyMapping getKeyMapping() { return keyMapping; }
     public final void setKeyMapping(KeyMapping keyMapping) { this.keyMapping = keyMapping; }
 

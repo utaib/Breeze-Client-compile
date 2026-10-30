@@ -7,6 +7,45 @@ fixes bump PATCH. `scripts/check-version.sh` keeps `gradle.properties`,
 Each entry says what was verified and how. Anything not verified is marked
 **UNVERIFIED**.
 
+## [2.18.0] - 2026-10-30
+
+Free Look (Breeze 1.1.0 directive: "First, implement Free Look").
+
+- **Free Look**, a new module (Utility). While its key is held (or, in
+  Toggle mode, after it is pressed) the mouse turns the camera and not the
+  player, who keeps walking and facing where they were; the camera goes to
+  third person for it if the player was in first person. Settings: Key
+  (Hold or Toggle), Sensitivity (10 to 300 %), Third person while looking.
+  Looking stops and the camera is put back when the key is let go, a screen
+  opens, the world goes away (changing worlds, disconnecting) or the module
+  is switched off; the camera is put back only if the player did not change
+  it meanwhile. The module is switched in the menu: its key looks, it does
+  not switch the module.
+- Its key is Left Alt, as the popular Free Look mods use, and is set on the
+  Keys page like any Breeze key. If another binding already has Left Alt
+  when the game has started, Free Look starts unbound for that session (not
+  saved) and says so in the log, so it never takes a key the player uses
+  for something else.
+- How: `FreeLookTurnMixin` (Entity.turn, cancelled for the local player
+  while looking) and `FreeLookCameraMixin` (ModifyArg on the first
+  `setRotation` in Camera.setup, so another camera mod changing the same
+  call still can). Both are optional injections: a Minecraft where a target
+  differs runs without Free Look instead of crashing, and the self-test
+  says so.
+- Self-test (`freelook-check`, every version): in the world it holds the
+  key, turns the mouse through Entity.turn by 60 and 30 degrees, and checks
+  the player did not turn, the look angles moved by exactly that, the
+  camera took them on rendered frames and was in third person; then it lets
+  go and checks the camera is back in first person, the player still faces
+  where they were and the mouse turns the player again.
+- Icon: the Observer's face (`block/observer_front`).
+- Here: common tests 204 (ModuleIconsTest now counts 84 modules);
+  `scripts/check-java-offline.sh` on every changed file: no errors.
+  In game: see the build repository run below. **UNVERIFIED** until then.
+  Not tested by the self-test: Toggle mode, the sensitivity setting, a real
+  key press (the self-test sets the binding down), multiplayer, and another
+  camera mod installed alongside.
+
 ## [2.17.0] - 2026-10-30
 
 Other mods' screens grouped per mod, module settings found by search, and
@@ -80,10 +119,25 @@ Breeze's keys changed from the web menu (Breeze 1.1.0).
   `Keys.keyOf` compiles in all three forms. The in-game test does not press
   a key on the Keys page: capturing a key in game is **UNVERIFIED** until
   the self-test does it or someone tries it.
+- Build repository, source `8469ca5` (the self-test rebinds a key): run
+  41026328879, all 34 versions. On every version the self-test put a
+  Breeze key (Armor Bar) on J the way the Keys page does (capture, then the
+  key), found it listed as J, reset it and found its default back
+  (`keys-check`). 33 versions passed every check; 1.18.1 failed only
+  "Right Shift in a world opened the Breeze menu" again (Music screen read
+  code 344 as Right Shift; in the world the binding never saw the key held
+  and no menu opened; the frame rate there was 2 to 4 fps). Not re-run.
+  The Keys page's own key press (the browser's keydown reaching
+  `BreezeWebScreen`) is still **UNVERIFIED** in game: the self-test calls
+  the same capture and take-key code, not the page.
 - Open: in the 1.18 family the menu's Right Shift sometimes does not fire in
   a world on the test display although the Music screen read the key as
-  Right Shift; seen once each on 1.18 and 1.18.1, both passed on re-run.
-  Whether players see it is UNVERIFIED.
+  Right Shift; seen on 1.18 (once) and 1.18.1 (twice). Whether players see
+  it is UNVERIFIED. The self-test now also logs Right Shift as the game
+  window itself reports it (`rshift-raw`: GLFW's key state, the binding's,
+  other bindings on the key, window focus), and the driver presses once
+  more with a 1.5 s hold when the first press fails, to tell a press lost
+  inside one slow frame from one lost every time.
 
 ## [2.16.0] - 2026-10-15
 

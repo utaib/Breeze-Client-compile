@@ -27,4 +27,17 @@ public final class Keys {
     public static InputConstants.Key keyOf(int key, int scanCode) {
         return InputConstants.getKey(new net.minecraft.client.input.KeyEvent(key, scanCode, 0));
     }
+
+    /**
+     * For the self-test: whether the game window itself (GLFW, read on the
+     * render thread, whose context is the window's) reports this key held,
+     * and whether the window has focus. Null when there is no window.
+     */
+    public static boolean[] windowKeyState(int key) {
+        long window = org.lwjgl.glfw.GLFW.glfwGetCurrentContext();
+        if (window == 0) return null;
+        return new boolean[] {
+                org.lwjgl.glfw.GLFW.glfwGetKey(window, key) == org.lwjgl.glfw.GLFW.GLFW_PRESS,
+                org.lwjgl.glfw.GLFW.glfwGetWindowAttrib(window, org.lwjgl.glfw.GLFW.GLFW_FOCUSED) != 0 };
+    }
 }

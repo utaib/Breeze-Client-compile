@@ -261,7 +261,7 @@ public final class AutoTest {
 
     // ── In a world (after the menu checks) ─────────────────────────────────
 
-    private enum World { IDLE, OPENED, FPS, IN_WORLD, ARMOR, INVENTORY, PERSONAL_CAPE, LAYOUT, OUTLINE, GHOST, SWEEP, EDITING, WARDROBE, TAGS, REAL, DONE }
+    private enum World { IDLE, OPENED, FPS, IN_WORLD, ARMOR, INVENTORY, PERSONAL_CAPE, LAYOUT, OUTLINE, GHOST, FREE_LOOK, SWEEP, EDITING, WARDROBE, TAGS, REAL, DONE }
 
     /** Taken off again once the Armor HUD has been looked at. */
     private static boolean armourOff;
@@ -353,6 +353,7 @@ public final class AutoTest {
      * screen (the driver presses M) is checked the same way.
      */
     private static boolean menuKeyWasDown;
+    private static boolean rawRightShiftWasDown;
 
     private static void watchMenuInWorld(Minecraft mc) {
         // Whether the Breeze menu binding saw its key held: tells a key that
@@ -362,6 +363,20 @@ public final class AutoTest {
             log("menu-key", "key", dev.breeze.keybind.KeybindManager.menuKeyName(), "state", "down");
         }
         menuKeyWasDown = keyDown;
+        // Right Shift as the window itself reports it (GLFW; not on 26.3,
+        // which reads SDL): a press the window saw but
+        // the binding missed is Minecraft's key path, one it never saw is the
+        // display. The 1.18 family loses the driver's press now and then.
+        boolean[] window = dev.breeze.compat.Keys.windowKeyState(com.mojang.blaze3d.platform.InputConstants.KEY_RSHIFT);
+        boolean raw = window != null && window[0];
+        if (raw && !rawRightShiftWasDown && mc.level != null) {
+            net.minecraft.client.gui.screens.Screen now = dev.breeze.compat.ActiveScreen.get(mc);
+            log("rshift-raw", "screen", now == null ? "none" : kind(now), "binding", String.valueOf(keyDown),
+                    "key", dev.breeze.keybind.KeybindManager.menuKeyName(),
+                    "shared", dev.breeze.keybind.KeybindManager.sharingMenuKey(mc),
+                    "focused", String.valueOf(window[1]));
+        }
+        rawRightShiftWasDown = raw;
         net.minecraft.client.gui.screens.Screen s = dev.breeze.compat.ActiveScreen.get(mc);
         boolean menu = s instanceof BreezeWebScreen || s instanceof BreezeMenuScreen || s instanceof dev.breeze.music.MusicScreen;
         if (mc.level == null || !menu) {
@@ -720,6 +735,7 @@ public final class AutoTest {
             }
             case OUTLINE -> outlineStep(mc, age);
             case GHOST -> ghostStep(mc, age);
+            case FREE_LOOK -> freeLookStep(mc, age);
             case SWEEP -> {
                 if (!sweep.step(mc) && age < 600_000) return;
                 write("module-sweep", sweep.report());
@@ -1046,7 +1062,7 @@ public final class AutoTest {
         Module ghost = module("Ping Ghost");
         if (ghost == null || mc.player == null) {
             log("ghost-check", "pass", "true", "skipped", "Ping Ghost is not offered on this version");
-            startSweep();
+            startFreeLook(mc);
             return;
         }
         float yaw = mc.player.getYRot();
@@ -1067,7 +1083,83 @@ public final class AutoTest {
         dev.breeze.modules.PingGhost.testFigure(null, 0);
         Module ghost = module("Ping Ghost");
         if (ghost != null && ghost.isEnabled()) ghost.setEnabled(false);
-        startSweep();
+        startFreeLook(mc);
+    }
+
+    private static float freeLookYaw0, freeLookPitch0, freeLookCamYaw;
+    private static int freeLookPhase, freeLookApplied0;
+    private static String freeLookWhile = "";
+
+    /**
+     * Free Look in the world: its key held (the binding set down, as a key
+     * press does), the mouse turned through Entity.turn as MouseHandler does,
+     * then the key let go. The player must not turn, the camera must take the
+     * new angles (the camera hook counts each frame it did) and go to third
+     * person, and all of it must be back as it was afterwards.
+     */
+    private static void startFreeLook(Minecraft mc) {
+        Module m = module("Free Look");
+        if (m == null || mc.player == null || m.getKeyMapping() == null) {
+            log("freelook-check", "pass", "true", "skipped", "Free Look is not offered on this version");
+            startSweep();
+            return;
+        }
+        mc.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON);
+        if (!m.isEnabled()) m.setEnabled(true);
+        freeLookYaw0 = mc.player.getYRot();
+        freeLookPitch0 = mc.player.getXRot();
+        freeLookApplied0 = dev.breeze.modules.FreeLook.cameraApplied();
+        m.getKeyMapping().setDown(true);
+        freeLookPhase = 0;
+        world = World.FREE_LOOK;
+        worldAt = System.currentTimeMillis();
+    }
+
+    private static void freeLookStep(Minecraft mc, long age) {
+        Module m = module("Free Look");
+        if (mc.player == null || m == null) {
+            log("freelook-check", "pass", "false", "error", "the player or the module went away");
+            startSweep();
+            return;
+        }
+        if (freeLookPhase == 0 && age >= 800) {
+            boolean on = dev.breeze.modules.FreeLook.active();
+            String camera = mc.options.getCameraType().name();
+            // As the mouse does: 400 and 200 are 60 and 30 degrees.
+            mc.player.turn(400, 200);
+            freeLookCamYaw = dev.breeze.modules.FreeLook.yaw();
+            freeLookWhile = "active=" + on + " camera=" + camera
+                    + " playerTurned=" + (Math.abs(mc.player.getYRot() - freeLookYaw0) > 0.01f || Math.abs(mc.player.getXRot() - freeLookPitch0) > 0.01f)
+                    + " lookYaw=" + Math.round(freeLookCamYaw - freeLookYaw0)
+                    + " lookPitch=" + Math.round(dev.breeze.modules.FreeLook.pitch() - freeLookPitch0);
+            freeLookPhase = 1;
+            return;
+        }
+        if (freeLookPhase == 1 && age >= 2_000) {
+            shot(mc, "autotest-free-look");
+            freeLookWhile += " cameraFrames=" + (dev.breeze.modules.FreeLook.cameraApplied() - freeLookApplied0);
+            m.getKeyMapping().setDown(false);
+            freeLookPhase = 2;
+            return;
+        }
+        if (freeLookPhase == 2 && age >= 2_800) {
+            boolean off = !dev.breeze.modules.FreeLook.active();
+            String camera = mc.options.getCameraType().name();
+            boolean kept = Math.abs(mc.player.getYRot() - freeLookYaw0) < 0.01f && Math.abs(mc.player.getXRot() - freeLookPitch0) < 0.01f;
+            // Let go, the mouse turns the player again.
+            mc.player.turn(10, 0);
+            boolean turnsAgain = Math.abs(mc.player.getYRot() - freeLookYaw0 - 1.5f) < 0.05f;
+            mc.player.turn(-10, 0);
+            int frames = dev.breeze.modules.FreeLook.cameraApplied() - freeLookApplied0;
+            boolean pass = freeLookWhile.contains("active=true") && freeLookWhile.contains("camera=THIRD_PERSON_BACK")
+                    && freeLookWhile.contains("playerTurned=false") && freeLookWhile.contains("lookYaw=60")
+                    && freeLookWhile.contains("lookPitch=30") && frames > 0
+                    && off && camera.equals("FIRST_PERSON") && kept && turnsAgain;
+            log("freelook-check", "while", freeLookWhile, "after", "active=" + !off + " camera=" + camera
+                    + " playerKept=" + kept + " mouseTurnsPlayer=" + turnsAgain, "pass", String.valueOf(pass));
+            if (m.isEnabled()) m.setEnabled(false);
+            startSweep();
+        }
     }
 
     private static void startSweep() {
