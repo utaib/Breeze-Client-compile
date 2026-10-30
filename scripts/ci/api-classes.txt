@@ -1,16 +1,13 @@
-# One-off dump for the scoreboard (private repository, 2026-10-30).
-net.minecraft.world.scores.Scoreboard
-net.minecraft.client.multiplayer.ClientLevel
-net.minecraft.world.scores.Objective
-net.minecraft.world.scores.Score
-net.minecraft.world.scores.PlayerScoreEntry
-net.minecraft.world.scores.ReadOnlyScoreInfo
-net.minecraft.world.scores.ScoreHolder
-net.minecraft.world.scores.DisplaySlot
-net.minecraft.world.scores.PlayerTeam
-net.minecraft.world.scores.Team
-net.minecraft.network.chat.numbers.NumberFormat
-net.minecraft.network.chat.numbers.StyledFormat
-net.minecraft.network.chat.numbers.BlankFormat
-c net.minecraft.client.gui.Gui
-c net.minecraft.client.gui.components.Hud
+# One-off dump for resource packs in the in-game menu (private repository, 2026-10-30).
+net.minecraft.server.packs.repository.PackRepository
+net.minecraft.server.packs.repository.Pack
+net.minecraft.server.packs.repository.PackCompatibility
+net.minecraft.server.packs.repository.PackSource
+net.minecraft.server.packs.PackLocationInfo
+net.minecraft.server.packs.PackResources
+net.minecraft.server.packs.resources.IoSupplier
+p net.minecraft.client.Options
+net.minecraft.client.gui.screens.packs.PackSelectionScreen
+c net.minecraft.client.gui.screens.packs.PackSelectionModel
+c net.minecraft.client.gui.screens.options.OptionsScreen
+c net.minecraft.client.gui.screens.OptionsScreen
