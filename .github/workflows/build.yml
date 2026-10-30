@@ -12,7 +12,7 @@ on:
         default: ''
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   plan:
@@ -50,3 +50,27 @@ jobs:
           echo "BEGIN api ${{ matrix.v.mc }}"
           gzip -9c "$f" | base64 -w 4000
           echo "END api ${{ matrix.v.mc }}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: api-${{ matrix.v.mc }}
+          path: versions/${{ matrix.v.mc }}/build/api.txt
+          retention-days: 1
+
+  collect:
+    name: Dumps to a branch
+    needs: dump
+    if: ${{ always() }}
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dumps
+      - run: |
+          cd dumps
+          for d in api-*; do mv "$d/api.txt" "../${d}.txt"; rmdir "$d"; done
+          cd ..
+          rmdir dumps
+          git init -q -b "ci/api-${GITHUB_RUN_ID}" .
+          git add api-*.txt
+          git -c user.name=utaib -c user.email=utaib092008@gmail.com commit -qm "API dumps from run ${GITHUB_RUN_ID}"
+          git push -q "https://x-access-token:${{ github.token }}@github.com/${GITHUB_REPOSITORY}.git" "ci/api-${GITHUB_RUN_ID}"
