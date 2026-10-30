@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { describeError, useAction, useApp } from '../app/state'
 import type { ModuleInfo, ModuleSetting, SettingValue } from '../bridge/types'
 import { ConfirmDialog, EmptyState, ErrorState, Row, Segmented, Skeleton, Slider, Switch } from '../ui/controls'
@@ -77,6 +77,19 @@ export function ModuleDetail({ name, focus }: { name: string; focus?: string }) 
     apply(() => call('modules.setSetting', { name: module.name, id: s.id, value }), before, `${s.label} was not saved.`)
   }
 
+  // Text is saved when the field is left or Enter is pressed; a refusal comes
+  // back as words under the field, and the typed text stays to be fixed.
+  const saveText = async (s: ModuleSetting, value: string): Promise<string | null> => {
+    const mine = ++seq.current
+    try {
+      const saved = await call('modules.setSetting', { name: module.name, id: s.id, value })
+      if (mine === seq.current) setModule(saved)
+      return null
+    } catch (err) {
+      return describeError(err)
+    }
+  }
+
   const groups = new Map<string, ModuleSetting[]>()
   for (const s of module.settings) {
     const g = s.group || 'General'
@@ -91,6 +104,7 @@ export function ModuleDetail({ name, focus }: { name: string; focus?: string }) 
           <div>
             <h1 className="page-title">{module.name}</h1>
             <p className="page-sub">{module.description}</p>
+            {module.note && <p className="detail-note" role="note"><Icon.Eye />{module.note}</p>}
           </div>
         </div>
         <div className="detail-actions">
@@ -130,7 +144,7 @@ export function ModuleDetail({ name, focus }: { name: string; focus?: string }) 
           <div className="rows">
             {settings.map((s) => (
               <Row key={s.id} label={s.label} anchor={s.id}>
-                <SettingControl setting={s} onChange={(v) => setSetting(s, v)} />
+                <SettingControl setting={s} onChange={(v) => setSetting(s, v)} onSave={(v) => saveText(s, v)} />
               </Row>
             ))}
           </div>
@@ -155,7 +169,11 @@ export function ModuleDetail({ name, focus }: { name: string; focus?: string }) 
   )
 }
 
-function SettingControl({ setting, onChange }: { setting: ModuleSetting; onChange: (v: SettingValue) => void }) {
+function SettingControl({ setting, onChange, onSave }: {
+  setting: ModuleSetting
+  onChange: (v: SettingValue) => void
+  onSave: (v: string) => Promise<string | null>
+}) {
   switch (setting.type) {
     case 'bool':
       return <Switch checked={setting.value} label={setting.label} onChange={onChange} />
@@ -167,7 +185,62 @@ function SettingControl({ setting, onChange }: { setting: ModuleSetting; onChang
         : <ModeStepper setting={setting} onChange={onChange} />
     case 'color':
       return <ColorControl value={setting.value} label={setting.label} onChange={onChange} />
+    case 'text':
+      return <TextControl setting={setting} onSave={onSave} />
   }
+}
+
+function TextControl({ setting, onSave }: {
+  setting: Extract<ModuleSetting, { type: 'text' }>
+  onSave: (v: string) => Promise<string | null>
+}) {
+  const [text, setText] = useState(setting.value)
+  const [error, setError] = useState<string | null>(null)
+  const saving = useRef(false)
+  const errorId = useId()
+  useEffect(() => {
+    setText(setting.value)
+    setError(null)
+  }, [setting.value])
+  const commit = async () => {
+    if (saving.current) return
+    if (text === setting.value) return setError(null)
+    saving.current = true
+    const problem = await onSave(text)
+    saving.current = false
+    setError(problem)
+  }
+  return (
+    <div className="text-control">
+      <input
+        className={`text-field ${error ? 'invalid' : ''}`}
+        value={text}
+        aria-label={setting.label}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error ? errorId : undefined}
+        maxLength={setting.maxLength * 2}
+        spellCheck={false}
+        autoComplete="off"
+        onChange={(e) => {
+          setText(e.target.value)
+          if (error) setError(null)
+        }}
+        onBlur={() => void commit()}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault()
+            void commit()
+          } else if (e.key === 'Escape' && text !== setting.value) {
+            // Undo the typing first; a second Escape goes back as usual.
+            e.stopPropagation()
+            setText(setting.value)
+            setError(null)
+          }
+        }}
+      />
+      {error && <p className="row-error" role="alert" id={errorId}>{error}</p>}
+    </div>
+  )
 }
 
 /** More than four options: step through them rather than overflow the row. */

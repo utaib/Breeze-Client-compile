@@ -66,6 +66,8 @@ public final class ModuleJson {
         o.addProperty("hud", m.isHud());
         // Free Look: its key acts while the module is on, it does not switch it.
         if (m.keyIsAction()) o.addProperty("keyActs", true);
+        // Where its effect reaches, when that is not obvious (Display Name).
+        if (m.scopeNote() != null) o.addProperty("note", m.scopeNote());
         KeyMapping key = m.getKeyMapping();
         if (key != null && !key.isUnbound()) o.addProperty("keybind", key.getTranslatedKeyMessage().getString());
         else o.add("keybind", null);
@@ -96,6 +98,10 @@ public final class ModuleJson {
         } else if (s instanceof Setting.Color c) {
             j.addProperty("type", "color");
             j.addProperty("value", Setting.Color.hex(c.argb));
+        } else if (s instanceof Setting.Text t) {
+            j.addProperty("type", "text");
+            j.addProperty("value", t.value);
+            j.addProperty("maxLength", t.maxLength);
         } else if (s instanceof Setting.Mode m) {
             j.addProperty("type", "mode");
             j.addProperty("value", m.value());
@@ -135,6 +141,16 @@ public final class ModuleJson {
             String hex = value.getAsString().substring(1);
             long v = Long.parseLong(hex.length() == 6 ? "FF" + hex : hex, 16);
             c.argb = (int) v;
+        } else if (s instanceof Setting.Text t) {
+            if (!prim || !value.getAsJsonPrimitive().isString()) throw BridgeException.invalid(s.label + " must be text.");
+            String raw = value.getAsString();
+            // A bound before the rule runs, so a huge string is refused cheaply.
+            if (raw.length() > t.maxLength * 4) throw BridgeException.invalid("Use at most " + t.maxLength + " characters.");
+            try {
+                t.set(raw);
+            } catch (IllegalArgumentException e) {
+                throw BridgeException.invalid(e.getMessage());
+            }
         } else if (s instanceof Setting.Mode mode) {
             if (!prim || !value.getAsJsonPrimitive().isString()) throw BridgeException.invalid(s.label + " must be one of its options.");
             String want = value.getAsString();

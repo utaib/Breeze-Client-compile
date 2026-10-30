@@ -88,7 +88,7 @@ public final class ModuleIcons {
         put("Drop Prevention", "item/slime_ball");
         put("Fullbright", "block/glowstone");
         put("Keybind Search", "block/tripwire_hook");
-        put("Nickname Hider", "block/tinted_glass", "block/black_stained_glass");
+        put("Display Name", "block/tinted_glass", "block/black_stained_glass");
         put("Perspective", "item/ender_eye");
         put("Free Look", "block/observer_front");
         put("Reconnect", "item/chain", "item/iron_chain");

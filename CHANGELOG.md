@@ -7,6 +7,47 @@ fixes bump PATCH. `scripts/check-version.sh` keeps `gradle.properties`,
 Each entry says what was verified and how. Anything not verified is marked
 **UNVERIFIED**.
 
+## [2.19.0] - 2026-10-30
+
+The local display name (Breeze 1.1.0 directive, third item), and Free Look
+on 26.x.
+
+- **Display Name**, which was Nickname Hider (its saved on/off carries
+  over; a key bound to Nickname Hider has to be bound again). You choose the
+  name you see for yourself; it shows on this computer only. Nothing is
+  sent: the account, its uuid, every packet and every command stay as they
+  are, other players and the server see the real name, and other players'
+  names are never changed. The menu page says so under the description.
+  Settings: Name you see (1 to 24 characters; no formatting codes, control
+  or invisible characters, Breeze's icon glyphs or characters outside
+  Minecraft's font; spaces tidied), In chat, In the tab list.
+- Where it changes, decided by identity and never by spelling
+  (`names/OwnName`): in chat, only the pieces of a line whose hover shows
+  your own entity, which is how Minecraft writes every player name (chat,
+  joins, deaths, advancements); in the tab list, your own entry, matched by
+  profile, with the server's colours and prefixes kept. A line a server
+  writes as plain text keeps your real name: it cannot be told apart from
+  someone typing your name. Your own name tag is not drawn by Minecraft
+  (you are the camera), so there is nothing to change there.
+- Settings framework: a text setting (`Setting.Text`, in `common`) that
+  owns its rule; the bridge refuses what the rule refuses with its words,
+  the menu shows them under the field and keeps the typing, and the native
+  menus get a small screen to type in. Modules can say where their effect
+  reaches (`Module.scopeNote`, `note` in the module JSON).
+  `contract/local-name.json` holds examples both the Java and the menu's
+  preview are tested against.
+- **Free Look on 26.x**: 26.1 removed `Camera.setup`; the four
+  `setRotation` calls are now in `Camera.alignWithEntity` (read from the
+  game's bytecode by 2.18.0's self-test, run 41065758284). A 26.1 overlay
+  of the camera hook targets it.
+- Self-test (`displayname-check`, every version): Display Name on with a
+  name, a real chat line sent through the game's own server must come back
+  with the name; a line that only spells the real name must stay as it is;
+  the player's own tab entry, asked of the game's tab list, must show the
+  name. Screenshot `autotest-display-name`.
+- Here: common 216 (5 new), Vitest 40 (2 new), Playwright 64 (4 new).
+  In-game results: see the build run below.
+
 ## [2.18.0] - 2026-10-30
 
 Free Look and the Custom Crosshair (Breeze 1.1.0 directive: "First,

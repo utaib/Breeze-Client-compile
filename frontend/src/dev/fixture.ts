@@ -25,6 +25,7 @@ import type {
 } from '../bridge/types'
 import type { Transport } from '../bridge/client'
 import { ERROR_CODES } from '../bridge/client'
+import { cleanLocalName, LOCAL_NAME_MAX } from './localName'
 // The build's own version, which scripts/check-version.sh keeps equal to the mod's.
 import { version as MOD_VERSION } from '../../package.json'
 
@@ -114,6 +115,17 @@ const CROSSHAIR_CODES: Record<string, Record<string, string | number | boolean>>
   'BZC-AQADAgABAf8A_wD_AAAA_vg': { style: 'Cross', length: 3, thickness: 2, gap: 0, color: '#FF00FF00', dot: true, outline: false, outline_thickness: 1, outline_color: '#FF000000' },
 }
 
+// Mirrors versions/1.20.1/src/main/java/dev/breeze/modules/DisplayName.java.
+const DISPLAY_NAME_NOTE = 'Only on this computer. Other players, the server and its staff still see your real name, and commands still use it. Chat lines a server writes as plain text keep your real name.'
+
+function displayNameSettings(): ModuleSetting[] {
+  return [
+    { type: 'text', id: 'name', label: 'Name you see', group: 'Name', value: 'You', maxLength: LOCAL_NAME_MAX },
+    { type: 'bool', id: 'chat', label: 'In chat', group: 'Where', value: true },
+    { type: 'bool', id: 'tab', label: 'In the tab list', group: 'Where', value: true },
+  ]
+}
+
 function freeLookSettings(): ModuleSetting[] {
   // Mirrors versions/1.20.1/src/main/java/dev/breeze/modules/FreeLook.java.
   return [
@@ -136,6 +148,7 @@ const MODULE_ROWS: [string, ModuleInfo['category'], string][] = [
   ['Low Fire', 'Visual', 'Lowers the fire overlay while you are burning so you can see. At 100% it is hidden.'],
   ['Custom Crosshair', 'Visual', 'Your own crosshair: style, size, gap, colours, outline, and a code to share it.'],
   ['Free Look', 'Utility', 'Look around without turning your player.'],
+  ['Display Name', 'Utility', 'Shows your own name as you choose, on this computer only.'],
   ['Block Overlay', 'Visual', 'Outlines the block you look at, as its real shape or a full square, in your colours.'],
   ['Fullbright', 'Utility', 'Lights everything up fully, without changing your brightness setting.'],
   ['Toggle Sprint', 'Utility', 'Always sprint.'],
@@ -154,6 +167,7 @@ function makeModules(): ModuleInfo[] {
     hud: category === 'HUD',
     keybind: name === 'Zoom' ? 'C' : name === 'Free Look' ? 'Left Alt' : null,
     ...(name === 'Free Look' ? { keyActs: true } : {}),
+    ...(name === 'Display Name' ? { note: DISPLAY_NAME_NOTE } : {}),
     settings: name === 'Armor Status' ? [...armorSettings(), ...hudStyle()] : category === 'HUD' ? hudStyle() : name === 'Zoom'
       ? [{ type: 'int', id: 'fov', label: 'Zoom level', group: 'General', value: 30, min: 5, max: 70, suffix: '°' },
          { type: 'bool', id: 'smooth', label: 'Smooth zoom', group: 'General', value: true }]
@@ -166,6 +180,8 @@ function makeModules(): ModuleInfo[] {
         ? crosshairSettings()
       : name === 'Free Look'
         ? freeLookSettings()
+      : name === 'Display Name'
+        ? displayNameSettings()
         : [],
   }))
 }
@@ -414,7 +430,16 @@ function handle(action: Action, p: Record<string, unknown>): unknown {
       if (action === 'modules.setSetting') {
         const s = m.settings.find((x) => x.id === p.id)
         if (!s) throw new FixtureError('INVALID_PARAMS', `No setting ${String(p.id)}`)
-        ;(s as { value: unknown }).value = p.value
+        if (s.type === 'text') {
+          // As the game: the rule decides, and a refusal keeps the old value.
+          try {
+            s.value = cleanLocalName(String(p.value))
+          } catch (err) {
+            throw new FixtureError('INVALID_PARAMS', (err as Error).message)
+          }
+        } else {
+          ;(s as { value: unknown }).value = p.value
+        }
       }
       if (action === 'modules.reset') {
         const fresh = makeModules().find((x) => x.name === m.name)!

@@ -86,7 +86,7 @@ public class ModuleSettingsScreen extends BreezeScreen {
         for (Row r : rows) {
             int h = r.isHeading() ? Spacing.ROW_H : Spacing.ROW_H + 2;
             r.box = new Rect(content.x, y, content.w, h);
-            int cw = r.setting instanceof Setting.Int ? SLIDER_W : 60;
+            int cw = r.setting instanceof Setting.Int || r.setting instanceof Setting.Text ? SLIDER_W : 60;
             r.control = new Rect(content.right() - cw, y + 3, cw, h - 8);
             y += h + Spacing.XS;
         }
@@ -166,6 +166,10 @@ public class ModuleSettingsScreen extends BreezeScreen {
         } else if (s instanceof Setting.Mode) {
             Glass.surface(g, c, r.box.contains(mouseX, mouseY), false);
             UiRender.textCentered(g, this.font, ((Setting.Mode) s).value(), c, Palette.TEXT_PRIMARY);
+        } else if (s instanceof Setting.Text) {
+            // The value; a click opens a field to type in (TextSettingScreen).
+            Glass.surface(g, c, r.box.contains(mouseX, mouseY), false);
+            UiRender.textClipped(g, this.font, ((Setting.Text) s).value, c.x + 4, c.y + (c.h - 8) / 2, c.w - 8, Palette.TEXT_PRIMARY);
         }
     }
 
@@ -175,6 +179,12 @@ public class ModuleSettingsScreen extends BreezeScreen {
             if (r.isHeading() || !r.box.contains(mx, my)) continue;
             Setting s = r.setting;
 
+            if (s instanceof Setting.Text) {
+                if (this.minecraft != null) {
+                    dev.breeze.compat.ActiveScreen.set(this.minecraft, new TextSettingScreen(this, module, (Setting.Text) s));
+                }
+                return true;
+            }
             if (s instanceof Setting.Bool) {
                 ((Setting.Bool) s).toggle();
             } else if (s instanceof Setting.Int) {

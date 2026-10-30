@@ -257,6 +257,14 @@ case "$crosshair" in
   '') fail "the self-test checked the Custom Crosshair" ;;
   *) fail "the Custom Crosshair did not take, draw or give back a share code" ;;
 esac
+dname=$(grep '"event":"displayname-check"' "$LOG" | tail -1)
+say "display name: $dname"
+case "$dname" in
+  *'"skipped"'*) say "SKIP: $dname" ;;
+  *'"pass":"true"'*) pass "Display Name showed the chosen name for the player's own chat line and tab entry, and left a line that only spelled the real name alone" ;;
+  '') fail "the self-test checked Display Name" ;;
+  *) fail "Display Name did not show the chosen name where the player is identified, or changed text it should not" ;;
+esac
 icons=$(grep '"event":"module-icons"' "$LOG" | tail -1)
 say "module icons: $icons"
 case "$icons" in

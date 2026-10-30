@@ -67,6 +67,7 @@ export type ModuleSetting =
   | { type: 'int'; id: string; label: string; group: string; value: number; min: number; max: number; suffix: string }
   | { type: 'color'; id: string; label: string; group: string; value: string }
   | { type: 'mode'; id: string; label: string; group: string; value: string; options: string[] }
+  | { type: 'text'; id: string; label: string; group: string; value: string; maxLength: number }
 
 export type ModuleCategory = 'HUD' | 'Visual' | 'Utility' | 'Chat' | 'Performance' | 'PvP'
 
@@ -79,6 +80,8 @@ export interface ModuleInfo {
   keybind: string | null
   /** The key acts while the module is on (Free Look) instead of switching it. */
   keyActs?: boolean
+  /** Where the module's effect reaches, when that is not obvious (Display Name: this computer only). */
+  note?: string
   settings: ModuleSetting[]
 }
 

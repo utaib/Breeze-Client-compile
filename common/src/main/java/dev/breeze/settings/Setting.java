@@ -155,6 +155,51 @@ public abstract class Setting {
         }
     }
 
+    /**
+     * A short line of text (the local display name). The setting owns its
+     * rule: every value, typed in a menu or read from a config edited by hand,
+     * goes through {@code rule.clean}, so nothing the rule refuses is ever held.
+     */
+    public static final class Text extends Setting {
+
+        /** Turns typed text into the value to keep, or refuses it with a message the player reads. */
+        public interface Rule {
+            String clean(String raw) throws IllegalArgumentException;
+        }
+
+        public String value;
+        public final int maxLength;
+        private final Rule rule;
+        private final String initial;
+
+        public Text(String id, String label, String group, String value, int maxLength, Rule rule) {
+            super(id, label, group);
+            this.maxLength = maxLength;
+            this.rule = rule;
+            this.value = rule.clean(value);
+            this.initial = this.value;
+        }
+
+        /** Keeps the cleaned value, or throws with the reason and keeps the old one. */
+        public void set(String raw) {
+            value = rule.clean(raw);
+        }
+
+        @Override public void write(JsonObject out) { out.addProperty(id, value); }
+
+        @Override public void read(JsonObject in) {
+            value = initial;
+            if (!in.has(id) || !in.get(id).isJsonPrimitive()) return;
+            try {
+                value = rule.clean(in.get(id).getAsString());
+            } catch (Throwable ignored) {
+                value = initial;
+            }
+        }
+
+        @Override public String display() { return value; }
+    }
+
     /** One of a fixed list of named choices. */
     public static final class Mode extends Setting {
         public final String[] options;

@@ -2,7 +2,7 @@ package dev.breeze.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.breeze.BreezeTag;
-import dev.breeze.modules.NicknameHider;
+import dev.breeze.names.OwnName;
 import net.minecraft.client.Minecraft;
 import dev.breeze.compat.GuiGraphics;
 import net.minecraft.client.gui.components.PlayerTabOverlay;
@@ -36,9 +36,10 @@ public class PlayerTabOverlayMixin {
             if (info == null || info.getProfile() == null) return;
             UUID id = dev.breeze.compat.Profiles.id(info.getProfile());
             Minecraft mc = Minecraft.getInstance();
-            if (NicknameHider.active() && mc.player != null && id != null && id.equals(mc.player.getUUID())) {
-                cir.setReturnValue(Component.literal(NicknameHider.mask()));
-                return;
+            // Your own entry, matched by profile: your local display name,
+            // with the server's formatting kept (names/OwnName).
+            if (mc.player != null && id != null && id.equals(mc.player.getUUID())) {
+                cir.setReturnValue(OwnName.inEntry(cir.getReturnValue()));
             }
             if (!BreezeTag.hasTag(id)) return;
 

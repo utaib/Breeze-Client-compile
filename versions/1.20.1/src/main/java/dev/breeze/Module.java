@@ -78,6 +78,12 @@ public abstract class Module {
     public void migratedFrom(String earlierName) {}
 
     /**
+     * Where this module's effect reaches, said on its menu page when that is
+     * not obvious (Display Name: this computer only). Null for most modules.
+     */
+    public String scopeNote() { return null; }
+
+    /**
      * True when the module's key does something while the module is on (Free
      * Look's look key) rather than switching the module, which is then
      * switched in the menu only.

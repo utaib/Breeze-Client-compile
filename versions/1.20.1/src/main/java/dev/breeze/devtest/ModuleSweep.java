@@ -61,6 +61,7 @@ final class ModuleSweep {
                     else if (s instanceof Setting.Int i) i.set(i.max);
                     else if (s instanceof Setting.Color c) c.argb = 0xFF33CC99;
                     else if (s instanceof Setting.Mode md) md.cycle(1);
+                    else if (s instanceof Setting.Text t) t.set("Breeze Sweep");
                 }
                 step = 2;
             }
@@ -69,6 +70,8 @@ final class ModuleSweep {
                     if (s instanceof Setting.Int i) i.set(i.min);
                     else if (s instanceof Setting.Color c) c.argb = 0x80FF3366;
                     else if (s instanceof Setting.Mode md) md.cycle(1);
+                    // The longest text its rule allows.
+                    else if (s instanceof Setting.Text t) t.set("W".repeat(t.maxLength));
                 }
                 step = 3;
             }
@@ -148,6 +151,7 @@ final class ModuleSweep {
         if (s instanceof Setting.Int i) return i.value;
         if (s instanceof Setting.Color c) return c.argb;
         if (s instanceof Setting.Mode md) return md.index;
+        if (s instanceof Setting.Text t) return t.value;
         return null;
     }
 
@@ -157,5 +161,6 @@ final class ModuleSweep {
         else if (s instanceof Setting.Int i) i.set((Integer) v);
         else if (s instanceof Setting.Color c) c.argb = (Integer) v;
         else if (s instanceof Setting.Mode md) md.index = (Integer) v;
+        else if (s instanceof Setting.Text t) t.set((String) v);
     }
 }

@@ -46,7 +46,7 @@ import dev.breeze.modules.LootBeams;
 import dev.breeze.modules.LightLevelOverlay;
 import dev.breeze.modules.DamageIndicator;
 import dev.breeze.modules.FriendGlow;
-import dev.breeze.modules.NicknameHider;
+import dev.breeze.modules.DisplayName;
 import dev.breeze.modules.TitleTweaker;
 import dev.breeze.modules.DarkMode;
 import dev.breeze.modules.BossBar;
@@ -143,7 +143,7 @@ public final class ModuleManager {
         register(new DamageIndicator());
         register(new ArmorBarHud());
         register(new FriendGlow());
-        register(new NicknameHider());
+        register(new DisplayName());
         register(new TitleTweaker());
         register(new DarkMode());
         register(new BossBar());

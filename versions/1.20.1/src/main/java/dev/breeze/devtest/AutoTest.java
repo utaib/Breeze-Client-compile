@@ -20,6 +20,7 @@ import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import net.minecraft.client.gui.screens.worldselection.SelectWorldScreen;
+import net.minecraft.network.chat.Component;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -261,7 +262,7 @@ public final class AutoTest {
 
     // ── In a world (after the menu checks) ─────────────────────────────────
 
-    private enum World { IDLE, OPENED, FPS, IN_WORLD, ARMOR, INVENTORY, PERSONAL_CAPE, LAYOUT, OUTLINE, GHOST, FREE_LOOK, CROSSHAIR, SWEEP, EDITING, WARDROBE, TAGS, REAL, DONE }
+    private enum World { IDLE, OPENED, FPS, IN_WORLD, ARMOR, INVENTORY, PERSONAL_CAPE, LAYOUT, OUTLINE, GHOST, FREE_LOOK, CROSSHAIR, DISPLAY_NAME, SWEEP, EDITING, WARDROBE, TAGS, REAL, DONE }
 
     /** Taken off again once the Armor HUD has been looked at. */
     private static boolean armourOff;
@@ -737,6 +738,7 @@ public final class AutoTest {
             case GHOST -> ghostStep(mc, age);
             case FREE_LOOK -> freeLookStep(mc, age);
             case CROSSHAIR -> crosshairStep(mc, age);
+            case DISPLAY_NAME -> displayNameStep(mc, age);
             case SWEEP -> {
                 if (!sweep.step(mc) && age < 600_000) return;
                 write("module-sweep", sweep.report());
@@ -1210,7 +1212,7 @@ public final class AutoTest {
         dev.breeze.modules.CustomCrosshair c = dev.breeze.modules.CustomCrosshair.get();
         if (c == null || mc.player == null) {
             log("crosshair-check", "pass", "true", "skipped", "the Custom Crosshair is not offered on this version");
-            startSweep();
+            startDisplayName(mc);
             return;
         }
         mc.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON);
@@ -1236,7 +1238,96 @@ public final class AutoTest {
                 "damagedRefused", String.valueOf(refused), "pass", String.valueOf(pass));
         c.apply(dev.breeze.hud.Crosshair.Config.defaults());
         if (c.isEnabled()) c.setEnabled(false);
+        startDisplayName(mc);
+    }
+
+    private static final String TEST_ALIAS = "Breeze Tester";
+    private static int nameSwaps0;
+    private static String realName = "";
+    private static long nameArrivedAt;
+
+    /**
+     * The Display Name in the world: on, with a name, then a real chat line
+     * sent through the game's own server. It comes back naming the player the
+     * way Minecraft always does (a hover with their uuid) and must be drawn
+     * with the alias and not the real name. A line that only spells the real
+     * name, with nothing saying whose it is, must be left alone. The player's
+     * own tab entry, asked of the game's own tab list, must read the alias.
+     */
+    private static void startDisplayName(Minecraft mc) {
+        Module m = module("Display Name");
+        if (m == null || mc.player == null) {
+            log("displayname-check", "pass", "true", "skipped", "no Display Name module or no player");
+            startSweep();
+            return;
+        }
+        dev.breeze.modules.DisplayName.setAlias(TEST_ALIAS);
+        if (!m.isEnabled()) m.setEnabled(true);
+        realName = mc.player.getName().getString();
+        nameSwaps0 = dev.breeze.names.OwnName.chatSwaps();
+        nameArrivedAt = 0;
+        dev.breeze.compat.Chat.send(mc, "display name check");
+        world = World.DISPLAY_NAME;
+        worldAt = System.currentTimeMillis();
+    }
+
+    private static void displayNameStep(Minecraft mc, long age) {
+        boolean arrived = dev.breeze.names.OwnName.chatSwaps() > nameSwaps0;
+        if (!arrived && age < 8_000) return;
+        // A second for the line to be drawn, for the screenshot.
+        if (arrived) {
+            if (nameArrivedAt == 0) nameArrivedAt = System.currentTimeMillis();
+            if (System.currentTimeMillis() - nameArrivedAt < 1_000) return;
+        }
+        shot(mc, "autotest-display-name");
+        String line = dev.breeze.names.OwnName.lastChat();
+        boolean chatOk = arrived && line != null && line.contains(TEST_ALIAS) && !line.contains("<" + realName + ">");
+        Component plain = Component.literal(realName + " is only spelled here");
+        boolean plainKept = dev.breeze.names.OwnName.inChat(plain) == plain;
+        String tab = tabEntry(mc);
+        boolean tabOk = tab != null && tab.contains(TEST_ALIAS) && !tab.contains(realName);
+        boolean pass = chatOk && plainKept && tabOk;
+        log("displayname-check", "line", String.valueOf(line), "tab", String.valueOf(tab), "real", realName,
+                "plainKept", String.valueOf(plainKept), "pass", String.valueOf(pass));
+        dev.breeze.modules.DisplayName.setAlias("You");
+        Module m = module("Display Name");
+        if (m != null && m.isEnabled()) m.setEnabled(false);
         startSweep();
+    }
+
+    /** The player's own tab list entry as the game's own tab list writes it (through Breeze's hook). */
+    private static String tabEntry(Minecraft mc) {
+        try {
+            if (mc.getConnection() == null || mc.player == null) return null;
+            net.minecraft.client.multiplayer.PlayerInfo info = mc.getConnection().getPlayerInfo(mc.player.getUUID());
+            net.minecraft.client.gui.components.PlayerTabOverlay tab = findTabList(mc.gui, 2);
+            if (info == null || tab == null) return null;
+            return tab.getNameForDisplay(info).getString();
+        } catch (Throwable t) {
+            return "error: " + t;
+        }
+    }
+
+    /**
+     * The tab list, found by type from the game's Gui (on 26.2 and later it
+     * sits one level further in, on the Hud), so the test needs no field name.
+     */
+    private static net.minecraft.client.gui.components.PlayerTabOverlay findTabList(Object o, int depth) {
+        if (o == null) return null;
+        if (o instanceof net.minecraft.client.gui.components.PlayerTabOverlay t) return t;
+        if (depth == 0) return null;
+        for (Class<?> c = o.getClass(); c != null && c != Object.class; c = c.getSuperclass()) {
+            for (java.lang.reflect.Field f : c.getDeclaredFields()) {
+                if (java.lang.reflect.Modifier.isStatic(f.getModifiers()) || f.getType().isPrimitive()) continue;
+                if (!f.getType().getName().startsWith("net.minecraft")) continue;
+                try {
+                    f.setAccessible(true);
+                    net.minecraft.client.gui.components.PlayerTabOverlay t = findTabList(f.get(o), depth - 1);
+                    if (t != null) return t;
+                } catch (Throwable ignored) {}
+            }
+        }
+        return null;
     }
 
     private static void startSweep() {
