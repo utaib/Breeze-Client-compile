@@ -203,6 +203,21 @@ public final class BreezeWebScreen extends BreezeScreen {
     @Override
     protected boolean onKeyPressed(int key, int scanCode, int modifiers) {
         dev.breeze.devtest.AutoTest.key(key);
+        // A command key is waiting for its key: Ctrl, Shift or Alt alone keep
+        // it waiting (they go with the key), the next other key is taken
+        // with the ones held, and the page does not see it.
+        if (dev.breeze.commands.CommandKeyRunner.capturing() != null) {
+            if (dev.breeze.commands.CommandKeyRunner.modifierKey(key)) return true;
+            String[] taken = dev.breeze.commands.CommandKeyRunner.takeKey(Minecraft.getInstance(), key, scanCode);
+            if (browser != null) {
+                com.google.gson.JsonObject changed = new com.google.gson.JsonObject();
+                changed.addProperty("id", taken[0]);
+                changed.addProperty("cancelled", key == InputConstants.KEY_ESCAPE);
+                if (taken[1] != null) changed.addProperty("refused", taken[1]);
+                browser.emit("commandKeys.changed", changed);
+            }
+            return true;
+        }
         // The Keys page asked for a key: this press is the new binding (or,
         // Escape, a change of mind), and the page does not see it.
         if (dev.breeze.keybind.KeybindManager.capturing() != null) {

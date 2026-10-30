@@ -229,11 +229,14 @@ final class Handlers {
         // ── Breeze's keys (the same bindings as Minecraft's Controls) ────────
         on(r, "keys.list", p -> dev.breeze.keybind.KeybindManager.keysJson(mc));
         on(r, "keys.capture", p -> {
+            dev.breeze.commands.CommandKeyRunner.cancelCapture();
             if (!dev.breeze.keybind.KeybindManager.capture(p.str("id", 96))) throw BridgeException.invalid("No such Breeze key.");
             return Router.ok();
         });
         on(r, "keys.cancel", p -> {
+            // Stops waiting for any key: a Breeze key's or a command key's.
             dev.breeze.keybind.KeybindManager.cancelCapture();
+            dev.breeze.commands.CommandKeyRunner.cancelCapture();
             return Router.ok();
         });
         on(r, "keys.reset", p -> {
@@ -241,6 +244,31 @@ final class Handlers {
             if (!"default".equals(to) && !"none".equals(to)) throw BridgeException.invalid("to must be default or none.");
             if (!dev.breeze.keybind.KeybindManager.reset(mc, p.str("id", 96), "none".equals(to))) throw BridgeException.invalid("No such Breeze key.");
             return dev.breeze.keybind.KeybindManager.keysJson(mc);
+        });
+        // ── Command keys (dev.breeze.commands) ───────────────────────────────
+        on(r, "commandKeys.list", p -> dev.breeze.commands.CommandKeyRunner.json(mc));
+        on(r, "commandKeys.save", p -> {
+            String id = p.has("id") ? p.str("id", 24) : null;
+            Boolean enabled = p.has("enabled") ? p.bool("enabled") : null;
+            try {
+                dev.breeze.commands.CommandKeyRunner.save(id, p.str("command", 1024), enabled);
+            } catch (IllegalArgumentException e) {
+                throw BridgeException.invalid(e.getMessage());
+            }
+            return dev.breeze.commands.CommandKeyRunner.json(mc);
+        });
+        on(r, "commandKeys.remove", p -> {
+            if (!dev.breeze.commands.CommandKeyRunner.remove(p.str("id", 24))) throw BridgeException.invalid("No such command key.");
+            return dev.breeze.commands.CommandKeyRunner.json(mc);
+        });
+        on(r, "commandKeys.unbind", p -> {
+            if (!dev.breeze.commands.CommandKeyRunner.unbind(p.str("id", 24))) throw BridgeException.invalid("No such command key.");
+            return dev.breeze.commands.CommandKeyRunner.json(mc);
+        });
+        on(r, "commandKeys.capture", p -> {
+            dev.breeze.keybind.KeybindManager.cancelCapture();
+            if (!dev.breeze.commands.CommandKeyRunner.capture(p.str("id", 24))) throw BridgeException.invalid("No such command key.");
+            return Router.ok();
         });
         // ── Custom Crosshair share codes (dev.breeze.hud.Crosshair) ─────────
         on(r, "crosshair.export", p -> {

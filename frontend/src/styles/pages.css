@@ -136,6 +136,16 @@
 .text-field.invalid { border-color: color-mix(in srgb, var(--err) 50%, transparent); }
 .text-control .row-error { max-width: 16rem; text-align: right; font-size: 0.75rem; }
 
+/* Command keys (Mods / Keys). */
+.command-keys { margin-top: 1.5rem; }
+.command-field { display: flex; flex-direction: column; gap: 0.25rem; }
+.command-field .text-field { width: min(22rem, 100%); font-family: var(--mono); }
+.command-field .row-error { font-size: 0.75rem; }
+.command-add { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-top: 0.75rem; }
+.command-add .text-field { width: min(22rem, 100%); font-family: var(--mono); }
+.command-add .row-error, .command-add .section-note { flex-basis: 100%; margin: 0; }
+.warn-text { color: var(--warn); }
+
 /* Where a module's effect reaches (Display Name: this computer only). */
 .detail-note {
   display: flex; align-items: flex-start; gap: 0.4rem; margin-top: 0.5rem; max-width: 38rem;

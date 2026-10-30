@@ -22,6 +22,7 @@
 import type {
   Account, ActionMap, Action, Cape, CosmeticState, FriendsState, GameState, Hello, HostingState,
   InstalledMod, Integrations, KeysState, ModuleInfo, ModuleSetting, OwnedCosmetic, UiSettings,
+  CommandKeysState,
 } from '../bridge/types'
 import type { Transport } from '../bridge/client'
 import { ERROR_CODES } from '../bridge/client'
@@ -532,7 +533,120 @@ function handle(action: Action, p: Record<string, unknown>): unknown {
       return state.hosting
     case 'hosting.join':
       return state.hosting
+    case 'commandKeys.list': return commandKeysState()
+    case 'commandKeys.save': {
+      let command: string
+      try {
+        command = cleanCommand(String(p.command ?? ''))
+      } catch (err) {
+        throw new FixtureError('INVALID_PARAMS', (err as Error).message)
+      }
+      if (p.id == null || p.id === '') {
+        if (commandKeys.length >= COMMAND_KEYS_MAX) throw new FixtureError('INVALID_PARAMS', `Keep at most ${COMMAND_KEYS_MAX} command keys.`)
+        commandKeys.push({ id: `c${++commandKeySeq}`, command, key: '', ctrl: false, shift: false, alt: false, enabled: true })
+      } else {
+        const k = commandKeys.find((x) => x.id === p.id)
+        if (!k) throw new FixtureError('INVALID_PARAMS', 'No such command key.')
+        k.command = command
+        if (typeof p.enabled === 'boolean') k.enabled = p.enabled
+      }
+      return commandKeysState()
+    }
+    case 'commandKeys.remove': {
+      const i = commandKeys.findIndex((x) => x.id === p.id)
+      if (i < 0) throw new FixtureError('INVALID_PARAMS', 'No such command key.')
+      commandKeys.splice(i, 1)
+      return commandKeysState()
+    }
+    case 'commandKeys.unbind': {
+      const k = commandKeys.find((x) => x.id === p.id)
+      if (!k) throw new FixtureError('INVALID_PARAMS', 'No such command key.')
+      Object.assign(k, { key: '', ctrl: false, shift: false, alt: false })
+      return commandKeysState()
+    }
+    case 'commandKeys.capture': {
+      const k = commandKeys.find((x) => x.id === p.id)
+      if (!k) throw new FixtureError('INVALID_PARAMS', 'No such command key.')
+      capturingCommand = k.id
+      listenForCommandKey(k)
+      return {}
+    }
   }
+}
+
+// Command keys (commandKeys.*), kept as the game keeps them. Preview only:
+// in Minecraft, Java checks commands (common/.../commands/CommandKeys.java)
+// and asks the server's command list whether one is offered.
+interface FixtureCommandKey { id: string; command: string; key: string; ctrl: boolean; shift: boolean; alt: boolean; enabled: boolean }
+const COMMAND_KEYS_MAX = 50
+const commandKeys: FixtureCommandKey[] = scenario === 'empty' ? [] : [
+  { id: 'c1', command: 'spawn', key: 'K', ctrl: true, shift: false, alt: false, enabled: true },
+]
+let commandKeySeq = commandKeys.length
+let capturingCommand: string | null = null
+/** Keys Minecraft needs for playing; a command key takes one only with Ctrl, Shift or Alt. */
+const ESSENTIAL = new Set(['W', 'A', 'S', 'D', 'Space', 'Left Shift', 'Left Control', 'E', 'T', '/'])
+/** Commands the preview's server offers in a world. */
+const SERVER_COMMANDS = new Set(['spawn', 'home', 'msg', 'tp', 'gamemode', 'time', 'weather', 'say', 'help'])
+
+function cleanCommand(raw: string): string {
+  let c = raw.trim().replace(/^\/+/, '').trim()
+  if (!c) throw new Error('Type a command.')
+  if (c.includes('\u00A7')) throw new Error('Formatting codes (\u00A7) are not allowed in a command.')
+  if (/[\r\n]/.test(c)) throw new Error('A command is one line.')
+  // eslint-disable-next-line no-control-regex
+  if (/[\u0000-\u001f\u007f]/.test(c)) throw new Error('A command cannot hold control characters.')
+  if (c.length > 255) throw new Error('Use at most 255 characters.')
+  return c
+}
+
+function chord(k: FixtureCommandKey): string {
+  return k.key ? [k.ctrl && 'Ctrl', k.shift && 'Shift', k.alt && 'Alt', k.key].filter(Boolean).join(' + ') : ''
+}
+
+function commandKeysState(): CommandKeysState {
+  return {
+    max: COMMAND_KEYS_MAX,
+    bindings: commandKeys.map((k) => ({
+      id: k.id, command: k.command, key: chord(k), enabled: k.enabled,
+      conflicts: k.key ? [
+        ...(VANILLA_KEYS[k.key] ? [VANILLA_KEYS[k.key]!] : []),
+        ...keys.filter((o) => o.key === k.key).map((o) => o.label),
+        ...commandKeys.filter((o) => o !== k && chord(o) === chord(k)).map((o) => `/${o.command}`),
+      ] : [],
+      ...(context === 'ingame' ? { available: SERVER_COMMANDS.has(k.command.split(' ')[0]!) } : {}),
+    })),
+    ...(capturingCommand ? { capturing: capturingCommand } : {}),
+  }
+}
+
+/** commandKeys.capture: the next key with the modifiers held; a lone modifier waits for the key. */
+function listenForCommandKey(k: FixtureCommandKey) {
+  stopListening?.()
+  const onKey = (e: KeyboardEvent) => {
+    e.preventDefault()
+    e.stopImmediatePropagation()
+    if (['Shift', 'Control', 'Alt', 'Meta'].includes(e.key)) return
+    stop()
+    capturingCommand = null
+    const cancelled = e.key === 'Escape'
+    let refused: string | undefined
+    if (!cancelled) {
+      const name = keyName(e)
+      if (ESSENTIAL.has(name) && !e.ctrlKey && !e.shiftKey && !e.altKey) {
+        refused = `${name} is ${VANILLA_KEYS[name] ?? 'needed for playing'} in Minecraft. Hold Ctrl, Shift or Alt with it, or choose another key.`
+      } else {
+        Object.assign(k, { key: name, ctrl: e.ctrlKey, shift: e.shiftKey, alt: e.altKey })
+      }
+    }
+    window.__breezeEvent?.({ type: 'commandKeys.changed', payload: { id: k.id, cancelled, ...(refused ? { refused } : {}) } })
+  }
+  const stop = () => {
+    window.removeEventListener('keydown', onKey, true)
+    stopListening = null
+  }
+  window.addEventListener('keydown', onKey, true)
+  stopListening = stop
 }
 
 const keys: FixtureKey[] = makeKeys(state.modules)

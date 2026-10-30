@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { describeError, useAction, useApp } from '../app/state'
-import type { KeyBinding } from '../bridge/types'
-import { EmptyState, ErrorState, Row, SearchField, Segmented, Skeleton } from '../ui/controls'
+import type { CommandKey, CommandKeysState, KeyBinding } from '../bridge/types'
+import { EmptyState, ErrorState, Row, SearchField, Segmented, Skeleton, Switch } from '../ui/controls'
 import { Icon } from '../ui/icons'
 
 /**
@@ -149,7 +149,7 @@ export function KeysTab() {
         />
       )}
       {shown.length > 0 && (
-        <div className="rows" role="list">
+        <div className="rows" role="list" aria-label="Breeze keys">
           {shown.map((b) => (
             <div role="listitem" key={b.id}>
               <Row
@@ -166,6 +166,235 @@ export function KeysTab() {
         </div>
       )}
       <p className="section-note">The same keys as Minecraft's Controls (Options, Controls, Key Binds, Breeze), saved in its options file.</p>
+      <CommandKeysSection />
     </>
+  )
+}
+
+/** Who else has a key, in words. */
+function others(list: string[]): string {
+  return list.length === 1 ? list[0]! : `${list.slice(0, -1).join(', ')} and ${list.at(-1)}`
+}
+
+/**
+ * Command keys: a key, with Ctrl, Shift or Alt if wanted, that runs a
+ * command as if it were typed. Java checks each command and asks for the
+ * key the same way as for Breeze's keys; the server's permissions decide
+ * what runs, as for a typed command.
+ */
+function useCommandKeys() {
+  const { bridge, call, toast, pushEscapeLayer } = useApp()
+  const list = useAction('commandKeys.list')
+  const { reload, setData } = list
+  const [waiting, setWaiting] = useState<string | null>(null)
+  const [refused, setRefused] = useState<{ id: string; text: string } | null>(null)
+  const waitingRef = useRef<string | null>(null)
+  waitingRef.current = waiting
+
+  useEffect(() => bridge.on('commandKeys.changed', (p) => {
+    setWaiting(null)
+    setRefused(p.refused && p.id ? { id: p.id, text: p.refused } : null)
+    reload()
+  }), [bridge, reload])
+
+  useEffect(() => () => {
+    if (waitingRef.current) call('keys.cancel').catch(() => {})
+  }, [call])
+
+  const cancel = () => {
+    setWaiting(null)
+    call('keys.cancel').catch(() => {})
+  }
+
+  useEffect(() => {
+    if (!waiting) return
+    return pushEscapeLayer(() => {
+      cancel()
+      return true
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [waiting, pushEscapeLayer])
+
+  const capture = async (id: string) => {
+    try {
+      await call('commandKeys.capture', { id })
+      setRefused(null)
+      setWaiting(id)
+    } catch (err) {
+      toast(`Could not change that key. ${describeError(err)}`, 'error')
+    }
+  }
+
+  /** Errors come back as words for the caller to show where they belong. */
+  const run = async (fn: () => Promise<CommandKeysState>): Promise<string | null> => {
+    try {
+      setData(await fn())
+      return null
+    } catch (err) {
+      return describeError(err)
+    }
+  }
+
+  return { list, waiting, refused, capture, cancel, call, run }
+}
+
+type CommandKeysApi = ReturnType<typeof useCommandKeys>
+
+function CommandKeysSection() {
+  const ck = useCommandKeys()
+  const [draft, setDraft] = useState('')
+  const [draftError, setDraftError] = useState<string | null>(null)
+  const data = ck.list.data
+  const full = data != null && data.bindings.length >= data.max
+
+  const add = async () => {
+    const before = new Set(data?.bindings.map((b) => b.id))
+    let next: CommandKeysState
+    try {
+      next = await ck.call('commandKeys.save', { command: draft })
+    } catch (err) {
+      setDraftError(describeError(err))
+      return
+    }
+    ck.list.setData(next)
+    setDraft('')
+    setDraftError(null)
+    // Straight on to its key, as the next thing to set.
+    const added = next.bindings.find((b) => !before.has(b.id))
+    if (added) void ck.capture(added.id)
+  }
+
+  return (
+    <section className="section command-keys" aria-labelledby="command-keys-title">
+      <h2 className="section-title" id="command-keys-title">Command keys</h2>
+      <p className="section-note">
+        A key that runs a command as if you typed it. The server decides what you may run, as it does for typed commands.
+      </p>
+      {ck.list.loading && !data && <Skeleton height="3.25rem" count={2} gap="1px" />}
+      {ck.list.error != null && <ErrorState error={ck.list.error} what="command keys" onRetry={ck.list.reload} />}
+      {data && data.bindings.length > 0 && (
+        <div className="rows" role="list" aria-label="Command keys">
+          {data.bindings.map((b) => <CommandKeyRow key={b.id} binding={b} ck={ck} />)}
+        </div>
+      )}
+      {data && (
+        <form
+          className="command-add"
+          onSubmit={(e) => {
+            e.preventDefault()
+            if (!full) void add()
+          }}
+        >
+          <input
+            className={`text-field ${draftError ? 'invalid' : ''}`}
+            value={draft}
+            placeholder="/spawn"
+            aria-label="New command"
+            aria-invalid={draftError ? true : undefined}
+            spellCheck={false}
+            autoComplete="off"
+            maxLength={300}
+            disabled={full}
+            onChange={(e) => {
+              setDraft(e.target.value)
+              if (draftError) setDraftError(null)
+            }}
+          />
+          <button type="submit" className="btn btn-secondary btn-sm" disabled={full || draft.trim() === ''}>Add command key</button>
+          {draftError && <p className="row-error" role="alert">{draftError}</p>}
+          {full && <p className="section-note">That is {data.max} command keys, the most Breeze keeps. Remove one to add another.</p>}
+        </form>
+      )}
+    </section>
+  )
+}
+
+function CommandKeyRow({ binding: b, ck }: { binding: CommandKey; ck: CommandKeysApi }) {
+  const [text, setText] = useState(`/${b.command}`)
+  const [error, setError] = useState<string | null>(null)
+  const saving = useRef(false)
+  useEffect(() => {
+    setText(`/${b.command}`)
+    setError(null)
+  }, [b.command])
+  const waiting = ck.waiting === b.id
+
+  const saveCommand = async () => {
+    if (saving.current || text.trim().replace(/^\/+/, '').trim() === b.command) return
+    saving.current = true
+    setError(await ck.run(() => ck.call('commandKeys.save', { id: b.id, command: text })))
+    saving.current = false
+  }
+
+  const desc = error
+    ? null
+    : ck.refused?.id === b.id
+      ? <span className="warn-text">{ck.refused.text}</span>
+      : b.conflicts.length > 0
+        ? <span className="warn-text">{b.key} is also {others(b.conflicts)}. Pressing it does both.</span>
+        : b.available === false
+          ? <span className="warn-text">This server does not offer /{b.command.split(' ')[0]} to you here. The key will say so.</span>
+          : !b.key ? 'No key yet.' : undefined
+
+  return (
+    <div role="listitem">
+      <Row
+        anchor={`command-${b.id}`}
+        label={
+          <span className="command-field">
+            <input
+              className={`text-field ${error ? 'invalid' : ''}`}
+              value={text}
+              aria-label={`Command for ${b.key || 'a command key'}`}
+              aria-invalid={error ? true : undefined}
+              spellCheck={false}
+              autoComplete="off"
+              maxLength={300}
+              onChange={(e) => {
+                setText(e.target.value)
+                if (error) setError(null)
+              }}
+              onBlur={() => void saveCommand()}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  void saveCommand()
+                } else if (e.key === 'Escape' && text !== `/${b.command}`) {
+                  e.stopPropagation()
+                  setText(`/${b.command}`)
+                  setError(null)
+                }
+              }}
+            />
+            {error && <span className="row-error" role="alert">{error}</span>}
+          </span>
+        }
+        desc={desc}
+      >
+        <div className="keyctl">
+          <button
+            type="button"
+            className={`keycap ${waiting ? 'waiting' : ''} ${b.conflicts.length > 0 ? 'conflict' : ''} ${b.key ? '' : 'none'}`}
+            data-state={waiting ? 'waiting' : 'idle'}
+            aria-label={waiting ? `Press a key for /${b.command}, with Ctrl, Shift or Alt if you like, or Escape to cancel` : `/${b.command}: ${b.key || 'no key'}. Change`}
+            onClick={() => (waiting ? ck.cancel() : ck.capture(b.id))}
+          >
+            {waiting ? 'Press keys' : b.key || 'No key'}
+          </button>
+          {!waiting && b.key && (
+            <button type="button" className="iconbtn" aria-label={`Remove the key of /${b.command}`} title="No key"
+              onClick={() => void ck.run(() => ck.call('commandKeys.unbind', { id: b.id }))}>
+              <Icon.X />
+            </button>
+          )}
+          <Switch checked={b.enabled} label={`/${b.command} on`}
+            onChange={(on) => void ck.run(() => ck.call('commandKeys.save', { id: b.id, command: b.command, enabled: on }))} />
+          <button type="button" className="btn btn-ghost btn-sm" aria-label={`Delete the command key /${b.command}`}
+            onClick={() => void ck.run(() => ck.call('commandKeys.remove', { id: b.id }))}>
+            Delete
+          </button>
+        </div>
+      </Row>
+    </div>
   )
 }

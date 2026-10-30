@@ -157,6 +157,28 @@ export interface KeysState {
   capturing?: string
 }
 
+/** A command key (commandKeys.list): a key that runs a Minecraft command. */
+export interface CommandKey {
+  id: string
+  /** Without its slash. */
+  command: string
+  /** The key with its modifiers in the game's language ("Ctrl + K"); empty when it has none yet. */
+  key: string
+  enabled: boolean
+  /** Other bindings on the same key: Minecraft's own, other mods', other command keys. */
+  conflicts: string[]
+  /** In a world: whether the server offers this command to the player. Absent outside a world. */
+  available?: boolean
+}
+
+export interface CommandKeysState {
+  bindings: CommandKey[]
+  /** The command key Java is waiting for a key for, if any. */
+  capturing?: string
+  /** Most command keys kept. */
+  max: number
+}
+
 export type Role = 'owner' | 'developer' | 'creator' | 'user'
 
 export interface Account {
@@ -273,6 +295,11 @@ export interface ActionMap {
   'keys.capture': [{ id: string }, Record<string, never>]
   'keys.cancel': [Record<string, never>, Record<string, never>]
   'keys.reset': [{ id: string; to: 'default' | 'none' }, KeysState]
+  'commandKeys.list': [Record<string, never>, CommandKeysState]
+  'commandKeys.save': [{ id?: string; command: string; enabled?: boolean }, CommandKeysState]
+  'commandKeys.remove': [{ id: string }, CommandKeysState]
+  'commandKeys.capture': [{ id: string }, Record<string, never>]
+  'commandKeys.unbind': [{ id: string }, CommandKeysState]
   'crosshair.export': [Record<string, never>, { code: string }]
   'crosshair.import': [{ code: string }, ModuleInfo]
   'account.get': [Record<string, never>, Account]
@@ -301,6 +328,7 @@ export interface EventMap {
   'game.changed': GameState
   'window.resized': { width: number; height: number; scale: number }
   'keys.changed': { id: string | null; cancelled: boolean }
+  'commandKeys.changed': { id: string | null; cancelled: boolean; refused?: string }
 }
 
 export type EventName = keyof EventMap

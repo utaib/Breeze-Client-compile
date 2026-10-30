@@ -22,6 +22,11 @@ public final class Keys {
         return KeyBindingHelper.registerKeyBinding(km);
     }
 
+    /** Whether a key is held now, by its key code (command keys). The window handle form, before 1.21.9. */
+    public static boolean isDown(net.minecraft.client.Minecraft mc, int key) {
+        return InputConstants.isKeyDown(mc.getWindow().getWindow(), key);
+    }
+
     /** The key Minecraft means by a key press's key code and scan code (as its Controls screen reads it). */
     public static InputConstants.Key keyOf(int key, int scanCode) {
         return InputConstants.getKey(key, scanCode);

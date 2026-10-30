@@ -257,6 +257,22 @@ case "$crosshair" in
   '') fail "the self-test checked the Custom Crosshair" ;;
   *) fail "the Custom Crosshair did not take, draw or give back a share code" ;;
 esac
+tnt=$(grep '"event":"tnt-check"' "$LOG" | tail -1)
+say "tnt: $tnt"
+case "$tnt" in
+  *'"skipped"'*) say "SKIP: $tnt" ;;
+  *'"pass":"true"'*) pass "TNT Countdown labelled a lit TNT with the seconds its fuse has left" ;;
+  '') fail "the self-test checked TNT Countdown" ;;
+  *) fail "TNT Countdown did not label a lit TNT with its seconds" ;;
+esac
+hbox=$(grep '"event":"hitbox-check"' "$LOG" | tail -1)
+say "hitboxes: $hbox"
+case "$hbox" in
+  *'"skipped"'*) say "SKIP: $hbox" ;;
+  *'"pass":"true"'*) pass "Hitboxes drew the player's own box, as a player's, in third person" ;;
+  '') fail "the self-test checked Hitboxes" ;;
+  *) fail "Hitboxes drew no box for the player in third person" ;;
+esac
 dname=$(grep '"event":"displayname-check"' "$LOG" | tail -1)
 say "display name: $dname"
 case "$dname" in
@@ -501,6 +517,34 @@ fi
 if grep -q '"event":"player-died"' "$LOG"; then
   fail "the test player died in the world ($(grep '"event":"player-died"' "$LOG" | tail -1 | sed -E 's/.*"during":"([A-Z_]+)".*/during \1/'))"
 fi
+
+# ── Command keys: the self-test put /me on Ctrl+J; press the real keys ──
+ckeys=$(grep '"event":"command-keys-check"' "$LOG" | tail -1)
+say "command keys: $ckeys"
+case "$ckeys" in
+  *'"skipped"'*) say "SKIP: $ckeys" ;;
+  *'"pass":"true"'*)
+    pass "command keys asked the server's own command list: a command it does not offer was not sent and the player was told; a formatting code was refused"
+    close_to_game || true
+    sleep 0.8
+    b=$(count '"event":"command-key-ran"')
+    bc=$(count '"event":"chat-line"')
+    xdotool keydown Control_L; sleep 0.15; xdotool key j; sleep 0.15; xdotool keyup Control_L
+    if wait_new '"event":"command-key-ran"' 6 "$b"; then
+      say "ran: $(grep '"event":"command-key-ran"' "$LOG" | tail -1)"
+      if wait_new '"event":"chat-line"' 8 "$bc"; then
+        say "chat: $(grep '"event":"chat-line"' "$LOG" | tail -1)"
+        pass "Ctrl+J, pressed for real, sent the command key's /me, and the game's server answered in chat"
+        shot command-key 0.3
+      else
+        fail "the command key's /me was sent but no answer came back in chat"
+      fi
+    else
+      fail "Ctrl+J, pressed for real, did not run the command key"
+    fi ;;
+  '') fail "the self-test checked command keys" ;;
+  *) fail "command keys did not check commands against the server's list, or kept a refused command" ;;
+esac
 
 # ── Save and quit to the title screen ────────────────────────────────────
 sleep 1

@@ -7,6 +7,74 @@ fixes bump PATCH. `scripts/check-version.sh` keeps `gradle.properties`,
 Each entry says what was verified and how. Anything not verified is marked
 **UNVERIFIED**.
 
+## [2.20.0] - 2026-10-30
+
+Command keys, hitboxes and TNT countdowns (Breeze 1.1.0 directive, seventh
+and fifth items, and the owner's TNT timers).
+
+- **Hitboxes**, rebuilt: Breeze draws the boxes itself instead of switching
+  on Minecraft's F3+B view (which it now switches off once, so nothing is
+  drawn twice; F3+B still works). Show players, hostile mobs, animals and
+  other mobs, items and experience, projectiles, and the rest (boats,
+  minecarts, armour stands) separately, each in its own colour, within 8
+  to 64 blocks; yourself in third person if wanted; line width 1 to 5 px
+  (from 1.19.4; Minecraft's own line before), eye height and look line as
+  in F3+B. Like F3+B, nothing for invisible entities and nothing where the
+  server asks for reduced debug information. The boxes are the game's own
+  bounding boxes, placed between ticks as the game places the entity.
+  Why Breeze's own boxes and not a restyled F3+B: the game's hitbox
+  drawing moved in 1.21.2, 1.21.9 and 26.x, so a hook would need a variant
+  per family and still could not leave kinds of entity out; Breeze's
+  world drawing (WorldRender) already runs on every version for Block
+  Overlay and Ping Ghost. Geometry in common (`HitboxGeometry`, 3 tests).
+- **TNT Countdown**, a new module (Visual): the seconds left above each lit
+  TNT and lit TNT minecart within 8 to 64 blocks, green, yellow under 2 s,
+  red under 1 s (colours adjustable). The TNT Timer HUD now counts lit TNT
+  minecarts too. 26.x moved the TNT minecart's class (`compat/Tnt`).
+- Self-tests: `hitbox-check` (the player's own box in third person, drawn as
+  a player's; screenshot `autotest-hitboxes`) and `tnt-check` (a lit TNT
+  with a ten second fuse put five blocks away by the game's own server must
+  be labelled between 5 and 10 seconds; removed after two).
+
+
+- **Command keys**: a key, with Ctrl, Shift or Alt if wanted (none is
+  required), that runs a Minecraft command as if it were typed. Made,
+  changed, switched off and deleted in Mods / Keys, under the Breeze keys
+  (web menu), or from the Command keys row of the native menu's sidebar.
+  Each shows its command and its key. Kept in
+  `config/breeze-command-keys.json`, read without trusting it (bad entries
+  left out, at most 50).
+- What is checked: a command is one line, at most 255 characters, with no
+  formatting code or control character (a server disconnects a player who
+  sends a formatting code); the reason is shown under the field. A key
+  Minecraft needs for playing (moving, jumping, sneaking, sprinting,
+  attacking, using, the inventory, chat) is refused unless Ctrl, Shift or
+  Alt is held with it; a key shared with another binding is pointed out
+  ("Pressing it does both").
+- Running: on the press only, never while held, in a world with no screen
+  open. Before sending, the command's name is looked up in the command list
+  the server sent this player, which holds only what the player may use
+  (Fabric's client commands included). A command not in it is not sent:
+  the player reads "That command is not available here: /name". In a
+  world the menu says which commands the server does not offer. The
+  server checks every command it receives, as for a typed one; nothing is
+  bypassed or claimed to have run.
+- Sent per era (`compat/Commands`): chat with a slash before 1.19,
+  `LocalPlayer.command` on 1.19, `commandSigned` on 1.19.1 and 1.19.2,
+  `ClientPacketListener.sendCommand` from 1.19.3. Keys read per era
+  (`compat/Keys.isDown`): the window handle before 1.21.9, the Window from
+  1.21.9, SDL's state on 26.3. Signatures read from each version's
+  classes (API dump run 41105554975).
+- Bridge: `commandKeys.list`, `.save`, `.remove`, `.capture`, `.unbind`
+  and the event `commandKeys.changed`; `keys.cancel` stops either kind of
+  key capture. `CommandKeys` (rules, file, chords) is in `common`.
+- Self-test (`command-keys-check`, every version): the server's list
+  offers /me and not a made-up command; a key for the made-up one is not
+  sent and the player is told; a formatting code is refused. Then the
+  driver presses Ctrl+J for real in the world and expects /me to be sent
+  and the server's line to come back in chat.
+- Here: common 224 (8 new), Vitest 40, Playwright 69 (5 new).
+
 ## [2.19.0] - 2026-10-30
 
 The local display name (Breeze 1.1.0 directive, third item), and Free Look

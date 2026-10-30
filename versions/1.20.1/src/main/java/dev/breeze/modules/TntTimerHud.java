@@ -6,12 +6,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.item.PrimedTnt;
 
 public class TntTimerHud extends AbstractHudModule {
 
     public TntTimerHud() {
-        super("TNT Timer", Category.HUD, "Shows nearest TNT fuse.", KEY_NONE, 4, 344);
+        super("TNT Timer", Category.HUD, "Shows the nearest lit TNT's or TNT minecart's fuse.", KEY_NONE, 4, 344);
     }
 
     private int breeze$minFuse = -1;
@@ -24,10 +23,9 @@ public class TntTimerHud extends AbstractHudModule {
         }
         int minFuse = -1;
         for (Entity e : mc.level.entitiesForRendering()) {
-            if (e instanceof PrimedTnt) {
-                int f = ((PrimedTnt) e).getFuse();
-                if (minFuse < 0 || f < minFuse) minFuse = f;
-            }
+            // Lit TNT and lit TNT minecarts.
+            int f = dev.breeze.compat.Tnt.fuse(e);
+            if (f >= 0 && (minFuse < 0 || f < minFuse)) minFuse = f;
         }
         breeze$minFuse = minFuse;
     }

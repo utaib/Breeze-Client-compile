@@ -28,17 +28,17 @@ test('every Breeze key in one list, with keys shared with Minecraft marked', asy
   await expect(cap(page, 'key.breeze.fps')).toHaveText('No key')
 
   await page.getByRole('group', { name: 'Show' }).getByRole('button', { name: 'Shared (1)' }).click()
-  await expect(page.locator('.rows .row')).toHaveCount(1)
+  await expect(page.getByRole('list', { name: 'Breeze keys' }).locator('.row')).toHaveCount(1)
   await page.getByRole('group', { name: 'Show' }).getByRole('button', { name: 'With a key' }).click()
   // The menu, Music, Zoom and Free Look (Left Alt).
-  await expect(page.locator('.rows .row')).toHaveCount(4)
+  await expect(page.getByRole('list', { name: 'Breeze keys' }).locator('.row')).toHaveCount(4)
   await page.getByRole('group', { name: 'Show' }).getByRole('button', { name: 'All' }).click()
 
   // Search by name, or by the key itself.
   await page.getByRole('searchbox', { name: 'Search keys' }).fill('m')
   await expect(row(page, 'key.breeze.music')).toBeVisible()
   await page.getByRole('searchbox', { name: 'Search keys' }).fill('right shift')
-  await expect(page.locator('.rows .row')).toHaveCount(1)
+  await expect(page.getByRole('list', { name: 'Breeze keys' }).locator('.row')).toHaveCount(1)
   await page.getByRole('searchbox', { name: 'Search keys' }).fill('')
   await snap(page, info, 'keys-list')
   assertClean()

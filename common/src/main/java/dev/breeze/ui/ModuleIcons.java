@@ -76,6 +76,7 @@ public final class ModuleIcons {
         put("Stopwatch", "item/clock_00", "item/clock");
         put("System Resources", "item/comparator");
         put("TNT Timer", "block/tnt_side");
+        put("TNT Countdown", "item/tnt_minecart");
         put("TPS", "item/repeater");
         put("Spotify", "item/music_disc_far");
         put("Time", "block/daylight_detector_top");

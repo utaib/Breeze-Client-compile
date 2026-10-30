@@ -55,6 +55,11 @@
     "keys.capture": { "thread": "client", "params": { "id": "string" }, "summary": "The next key pressed in the Breeze menu becomes this binding (Escape cancels); the page hears keys.changed and never sees that key." },
     "keys.cancel": { "thread": "client", "params": {}, "summary": "Stop waiting for a key." },
     "keys.reset": { "thread": "client", "params": { "id": "string", "to": "default | none" }, "summary": "Put a binding back on its default key, or on no key. Returns keys.list." },
+    "commandKeys.list": { "thread": "client", "params": {}, "summary": "The player's command keys: each command, its key (with Ctrl, Shift or Alt if set), whether it is on, the other bindings on the same key, and in a world whether the server offers the command." },
+    "commandKeys.save": { "thread": "client", "params": { "id": "string?", "command": "string", "enabled": "boolean?" }, "summary": "Add a command key (no id) or change one's command or on/off. The command is checked (one line, no formatting codes, at most 255 characters); refused with the reason (INVALID). Returns commandKeys.list." },
+    "commandKeys.remove": { "thread": "client", "params": { "id": "string" }, "summary": "Remove a command key. Returns commandKeys.list." },
+    "commandKeys.capture": { "thread": "client", "params": { "id": "string" }, "summary": "The next key pressed in the Breeze menu, with the Ctrl, Shift or Alt held with it, becomes this command key's (Escape cancels). A key Minecraft needs for moving, jumping, sneaking, sprinting, attacking, using, the inventory or chat is refused unless Ctrl, Shift or Alt is held with it. The page hears commandKeys.changed." },
+    "commandKeys.unbind": { "thread": "client", "params": { "id": "string" }, "summary": "Take a command key's key away; the command stays. Returns commandKeys.list." },
 
     "crosshair.export": { "thread": "client", "params": {}, "summary": "The Custom Crosshair's settings as a share code (contract/crosshair.json): { code }." },
     "crosshair.import": { "thread": "client", "params": { "code": "string" }, "summary": "Take a share code's crosshair settings, and nothing else. Refused with the reason (INVALID) when the code is damaged, foreign or from a newer Breeze. Returns the module." },
@@ -82,6 +87,7 @@
     "modules.changed": "A module changed outside the page, for example by its keybind. Payload: { name }.",
     "game.changed": "The player joined or left a world. Payload: game.state.",
     "window.resized": "The game window changed size. Payload: { width, height, scale }.",
-    "keys.changed": "A key the page asked for (keys.capture) was pressed. Payload: { id, cancelled }; the page reads keys.list again."
+    "keys.changed": "A key the page asked for (keys.capture) was pressed. Payload: { id, cancelled }; the page reads keys.list again.",
+    "commandKeys.changed": "A key the page asked for (commandKeys.capture) was pressed. Payload: { id, cancelled, refused? } (refused: why the key was not taken); the page reads commandKeys.list again."
   }
 }

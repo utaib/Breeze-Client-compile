@@ -112,6 +112,7 @@ public final class ModuleManager {
         register(new TotemCounterHud());
         register(new ItemCounterHud());
         register(new TntTimerHud());
+        register(new dev.breeze.modules.TntCountdown());
         register(new ItemDespawnTimerHud());
         register(new AttackIndicatorHud());
         register(new KeystrokesHud());

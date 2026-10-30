@@ -29,6 +29,7 @@ public class BreezeClient implements ClientModInitializer {
         // "Reset" in the module settings goes back to.
         dev.breeze.web.ModuleJson.captureDefaults();
         BreezeConfig.load();
+        dev.breeze.commands.CommandKeyRunner.load();
         Theme.load();
         dev.breeze.ui.MenuBg.load();
         dev.breeze.ui.HudLayout.load();
@@ -66,6 +67,8 @@ public class BreezeClient implements ClientModInitializer {
         ClientTickEvents.END_CLIENT_TICK.register(mc -> {
             dev.breeze.web.WebInit.tick();
             KeybindManager.handleTicks(mc);
+            dev.breeze.commands.CommandKeyRunner.tick(mc);
+            dev.breeze.render.Frame.ticked();
             BreezeUsers.tick(mc);
             dev.breeze.net.BreezePresence.tick(mc);
             dev.breeze.net.FriendsClient.tick(mc);

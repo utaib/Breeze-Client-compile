@@ -19,6 +19,7 @@ public class ChatComponentMixin {
     private Component breeze$chatTag(Component msg) {
         try {
             if (msg == null) return msg;
+            dev.breeze.devtest.AutoTest.chat(msg);
             // Your own name as your local display name, where the line says
             // it is yours (names/OwnName). The tag is looked up by the real
             // name, which is what the line was sent with.

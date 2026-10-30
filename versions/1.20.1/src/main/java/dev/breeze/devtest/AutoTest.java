@@ -262,7 +262,7 @@ public final class AutoTest {
 
     // ── In a world (after the menu checks) ─────────────────────────────────
 
-    private enum World { IDLE, OPENED, FPS, IN_WORLD, ARMOR, INVENTORY, PERSONAL_CAPE, LAYOUT, OUTLINE, GHOST, FREE_LOOK, CROSSHAIR, DISPLAY_NAME, SWEEP, EDITING, WARDROBE, TAGS, REAL, DONE }
+    private enum World { IDLE, OPENED, FPS, IN_WORLD, ARMOR, INVENTORY, PERSONAL_CAPE, LAYOUT, OUTLINE, GHOST, FREE_LOOK, CROSSHAIR, DISPLAY_NAME, COMMAND_KEYS, HITBOXES, TNT, SWEEP, EDITING, WARDROBE, TAGS, REAL, DONE }
 
     /** Taken off again once the Armor HUD has been looked at. */
     private static boolean armourOff;
@@ -739,6 +739,8 @@ public final class AutoTest {
             case FREE_LOOK -> freeLookStep(mc, age);
             case CROSSHAIR -> crosshairStep(mc, age);
             case DISPLAY_NAME -> displayNameStep(mc, age);
+            case HITBOXES -> hitboxStep(mc, age);
+            case TNT -> tntStep(mc, age);
             case SWEEP -> {
                 if (!sweep.step(mc) && age < 600_000) return;
                 write("module-sweep", sweep.report());
@@ -1258,7 +1260,7 @@ public final class AutoTest {
         Module m = module("Display Name");
         if (m == null || mc.player == null) {
             log("displayname-check", "pass", "true", "skipped", "no Display Name module or no player");
-            startSweep();
+            startCommandKeys(mc);
             return;
         }
         dev.breeze.modules.DisplayName.setAlias(TEST_ALIAS);
@@ -1292,7 +1294,148 @@ public final class AutoTest {
         dev.breeze.modules.DisplayName.setAlias("You");
         Module m = module("Display Name");
         if (m != null && m.isEnabled()) m.setEnabled(false);
+        startCommandKeys(mc);
+    }
+
+    /**
+     * Command keys: the server's own command list says /me is offered and a
+     * made-up command is not; a key for the made-up one is not sent and the
+     * player is told; a command with a formatting code is refused. Then
+     * /me stays on Ctrl+J for the driver, which presses the real keys later,
+     * in the world with no screen open (drive-world.sh), and expects the
+     * command to be sent and the server's line to come back.
+     */
+    private static void startCommandKeys(Minecraft mc) {
+        if (mc.player == null || mc.getConnection() == null) {
+            log("command-keys-check", "pass", "true", "skipped", "no player");
+            startHitboxes(mc);
+            return;
+        }
+        try {
+            dev.breeze.commands.CommandKeys.Binding me = dev.breeze.commands.CommandKeyRunner.save(null, "/me tests a Breeze command key", true);
+            dev.breeze.commands.CommandKeyRunner.setKey(me.id(), "key.keyboard.j", true, false, false);
+            dev.breeze.commands.CommandKeys.Binding none = dev.breeze.commands.CommandKeyRunner.save(null, "/breezenosuchcommand now", true);
+            boolean meOffered = dev.breeze.compat.Commands.offered(mc, "me");
+            boolean noneOffered = dev.breeze.compat.Commands.offered(mc, "breezenosuchcommand");
+            dev.breeze.commands.CommandKeyRunner.run(mc, none);
+            boolean told = "breezenosuchcommand".equals(dev.breeze.commands.CommandKeyRunner.lastRefusal());
+            boolean nothingSent = dev.breeze.commands.CommandKeyRunner.lastRun() == null;
+            dev.breeze.commands.CommandKeyRunner.remove(none.id());
+            boolean formattingRefused;
+            try {
+                dev.breeze.commands.CommandKeyRunner.save(null, "say \u00A7cred", true);
+                formattingRefused = false;
+            } catch (IllegalArgumentException expected) {
+                formattingRefused = true;
+            }
+            int kept = dev.breeze.commands.CommandKeyRunner.all().size();
+            boolean pass = meOffered && !noneOffered && told && nothingSent && formattingRefused && kept == 1;
+            log("command-keys-check", "meOffered", String.valueOf(meOffered), "madeUpOffered", String.valueOf(noneOffered),
+                    "toldNotAvailable", String.valueOf(told), "nothingSent", String.valueOf(nothingSent),
+                    "formattingRefused", String.valueOf(formattingRefused), "kept", String.valueOf(kept),
+                    "pass", String.valueOf(pass));
+        } catch (Throwable t) {
+            log("command-keys-check", "pass", "false", "error", t.toString());
+        }
+        startHitboxes(mc);
+    }
+
+    /**
+     * Hitboxes in the world: on, showing the player's own box in third
+     * person; it must be drawn, as a player's, for a second running. The
+     * screenshot shows it round the player.
+     */
+    private static void startHitboxes(Minecraft mc) {
+        dev.breeze.modules.Hitboxes h = dev.breeze.modules.Hitboxes.get();
+        if (h == null || mc.player == null) {
+            log("hitbox-check", "pass", "true", "skipped", "no Hitboxes module or no player");
+            startTnt(mc);
+            return;
+        }
+        h.showSelf(true);
+        if (!h.isEnabled()) h.setEnabled(true);
+        mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK);
+        world = World.HITBOXES;
+        worldAt = System.currentTimeMillis();
+    }
+
+    private static void hitboxStep(Minecraft mc, long age) {
+        if (age < 1_500) return;
+        shot(mc, "autotest-hitboxes");
+        int drawn = dev.breeze.modules.Hitboxes.lastDrawn();
+        String kinds = dev.breeze.modules.Hitboxes.lastKinds();
+        boolean pass = drawn > 0 && kinds.contains("PLAYER");
+        log("hitbox-check", "drawn", String.valueOf(drawn), "kinds", kinds, "pass", String.valueOf(pass));
+        dev.breeze.modules.Hitboxes h = dev.breeze.modules.Hitboxes.get();
+        h.showSelf(false);
+        if (h.isEnabled()) h.setEnabled(false);
+        mc.options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON);
+        startTnt(mc);
+    }
+
+    private static volatile net.minecraft.world.entity.item.PrimedTnt testTnt;
+
+    /**
+     * TNT Countdown: a lit TNT with a ten second fuse, put by the game's own
+     * server five blocks from the player, must get a label between 5 and
+     * 10 seconds; it is removed after two seconds, long before it would
+     * explode.
+     */
+    private static void startTnt(Minecraft mc) {
+        dev.breeze.modules.TntCountdown t = dev.breeze.modules.TntCountdown.get();
+        net.minecraft.client.server.IntegratedServer server = mc.getSingleplayerServer();
+        if (t == null || server == null || mc.player == null) {
+            log("tnt-check", "pass", "true", "skipped", "no TNT Countdown, server or player");
+            startSweep();
+            return;
+        }
+        if (!t.isEnabled()) t.setEnabled(true);
+        double x = mc.player.getX() + 5, y = mc.player.getY() + 1, z = mc.player.getZ();
+        server.execute(() -> {
+            net.minecraft.server.level.ServerLevel level = server.overworld();
+            net.minecraft.world.entity.item.PrimedTnt tnt = new net.minecraft.world.entity.item.PrimedTnt(level, x, y, z, null);
+            tnt.setFuse(200);
+            level.addFreshEntity(tnt);
+            testTnt = tnt;
+        });
+        world = World.TNT;
+        worldAt = System.currentTimeMillis();
+    }
+
+    private static void tntStep(Minecraft mc, long age) {
+        if (age < 2_000) return;
+        shot(mc, "autotest-tnt");
+        int drawn = dev.breeze.modules.TntCountdown.lastDrawn();
+        String text = dev.breeze.modules.TntCountdown.lastText();
+        double seconds = -1;
+        try { seconds = Double.parseDouble(text.replace(',', '.')); } catch (Throwable ignored) {}
+        boolean pass = drawn >= 1 && seconds > 5 && seconds < 10;
+        log("tnt-check", "drawn", String.valueOf(drawn), "label", text, "pass", String.valueOf(pass));
+        net.minecraft.client.server.IntegratedServer server = mc.getSingleplayerServer();
+        if (server != null) {
+            server.execute(() -> {
+                net.minecraft.world.entity.item.PrimedTnt tnt = testTnt;
+                if (tnt != null) tnt.discard();
+                testTnt = null;
+            });
+        }
+        dev.breeze.modules.TntCountdown t = dev.breeze.modules.TntCountdown.get();
+        if (t != null && t.isEnabled()) t.setEnabled(false);
         startSweep();
+    }
+
+    /** A command key ran or was refused (CommandKeyRunner), for the driver. */
+    public static void commandRan(String command, boolean offered) {
+        if (dir != null) log("command-key-ran", "command", command, "offered", String.valueOf(offered));
+    }
+
+    /** A chat line about the command key test arrived (ChatComponentMixin), for the driver. */
+    public static void chat(Component line) {
+        try {
+            if (dir == null || line == null) return;
+            String text = line.getString();
+            if (text.contains("Breeze command key")) log("chat-line", "text", text);
+        } catch (Throwable ignored) {}
     }
 
     /** The player's own tab list entry as the game's own tab list writes it (through Breeze's hook). */

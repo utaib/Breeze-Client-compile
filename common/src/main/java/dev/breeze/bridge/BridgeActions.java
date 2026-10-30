@@ -49,6 +49,11 @@ public final class BridgeActions {
         client("keys.capture");
         client("keys.cancel");
         client("keys.reset");
+        client("commandKeys.list");
+        client("commandKeys.save");
+        client("commandKeys.remove");
+        client("commandKeys.capture");
+        client("commandKeys.unbind");
         client("crosshair.export");
         client("crosshair.import");
         any("account.get");
