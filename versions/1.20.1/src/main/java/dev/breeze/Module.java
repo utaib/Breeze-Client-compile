@@ -84,6 +84,20 @@ public abstract class Module {
     public String scopeNote() { return null; }
 
     /**
+     * After the config was read: {@code found} is whether it held saved
+     * settings for this module. A module whose settings are new can keep
+     * what an older save meant (the Scoreboard: on used to mean hidden).
+     */
+    public void settingsLoaded(boolean found) {}
+
+    /**
+     * True when the module still does something useful on a version whose
+     * Fabric API cannot draw in the world (1.21.9), so it is offered there
+     * although it draws in the world elsewhere (Hitboxes: the game's own).
+     */
+    public boolean offeredWithoutWorldDrawing() { return false; }
+
+    /**
      * True when the module's key does something while the module is on (Free
      * Look's look key) rather than switching the module, which is then
      * switched in the menu only.

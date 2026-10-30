@@ -80,8 +80,15 @@ public abstract class AbstractHudModule extends Module {
 
     public final HudStyle style() { return style; }
 
+    /**
+     * False when there is nothing to show this frame (the Scoreboard with no
+     * sidebar, or hidden): then not even the background is drawn.
+     */
+    protected boolean hasContent() { return true; }
+
     @Override
     protected final void onHudRender(GuiGraphics g, float partialTick) {
+        if (!hasContent()) return;
         lineText.clear();
         lineColor.clear();
         lineIcon.clear();

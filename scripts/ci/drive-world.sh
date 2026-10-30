@@ -525,7 +525,9 @@ case "$ckeys" in
   *'"skipped"'*) say "SKIP: $ckeys" ;;
   *'"pass":"true"'*)
     pass "command keys asked the server's own command list: a command it does not offer was not sent and the player was told; a formatting code was refused"
-    close_to_game || true
+    # The step before left the game in the world with no screen open; a
+    # stray Escape here would open the pause menu, where command keys rest.
+    [ "$(last_kind)" = none ] || close_to_game || true
     sleep 0.8
     b=$(count '"event":"command-key-ran"')
     bc=$(count '"event":"chat-line"')

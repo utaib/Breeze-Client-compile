@@ -187,7 +187,7 @@ public final class ModuleManager {
     }
 
     public static void register(Module m) {
-        if (!dev.breeze.compat.Hooks.worldDrawing() && breeze$overrides(m, "onWorldRender")) {
+        if (!dev.breeze.compat.Hooks.worldDrawing() && breeze$overrides(m, "onWorldRender") && !m.offeredWithoutWorldDrawing()) {
             BreezeClient.LOGGER.info("[Breeze] '{}' is not offered on this Minecraft version: its Fabric API has no world drawing event", m.getName());
             return;
         }

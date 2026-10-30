@@ -101,10 +101,16 @@ public final class BreezeConfig {
     }
 
     private static void loadSettings(JsonObject root) {
-        if (!root.has("settings") || !root.get("settings").isJsonObject()) return;
+        if (!root.has("settings") || !root.get("settings").isJsonObject()) {
+            for (Module m : ModuleManager.getModules()) {
+                try { m.settingsLoaded(false); } catch (Throwable ignored) {}
+            }
+            return;
+        }
         JsonObject all = root.getAsJsonObject("settings");
         for (Module m : ModuleManager.getModules()) {
             String key = Renames.savedKey(m.getName(), m.earlierNames(), all::has);
+            try { m.settingsLoaded(key != null && all.get(key).isJsonObject()); } catch (Throwable ignored) {}
             if (!m.hasSettings() || key == null) continue;
             JsonObject one = all.getAsJsonObject(key);
             for (Setting s : m.getSettings()) {

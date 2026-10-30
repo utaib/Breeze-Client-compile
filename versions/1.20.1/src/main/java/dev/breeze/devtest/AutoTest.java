@@ -1347,8 +1347,8 @@ public final class AutoTest {
      */
     private static void startHitboxes(Minecraft mc) {
         dev.breeze.modules.Hitboxes h = dev.breeze.modules.Hitboxes.get();
-        if (h == null || mc.player == null) {
-            log("hitbox-check", "pass", "true", "skipped", "no Hitboxes module or no player");
+        if (module("Hitboxes") == null || h == null || mc.player == null || !dev.breeze.modules.Hitboxes.drawsOwn()) {
+            log("hitbox-check", "pass", "true", "skipped", "Breeze's own hitboxes are not offered on this version (the game's are), or no player");
             startTnt(mc);
             return;
         }
@@ -1384,8 +1384,8 @@ public final class AutoTest {
     private static void startTnt(Minecraft mc) {
         dev.breeze.modules.TntCountdown t = dev.breeze.modules.TntCountdown.get();
         net.minecraft.client.server.IntegratedServer server = mc.getSingleplayerServer();
-        if (t == null || server == null || mc.player == null) {
-            log("tnt-check", "pass", "true", "skipped", "no TNT Countdown, server or player");
+        if (module("TNT Countdown") == null || t == null || server == null || mc.player == null) {
+            log("tnt-check", "pass", "true", "skipped", "TNT Countdown is not offered on this version, or no server or player");
             startSweep();
             return;
         }

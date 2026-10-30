@@ -6,7 +6,7 @@ import net.minecraft.world.entity.vehicle.minecart.MinecartTNT;
 
 /**
  * Lit TNT and lit TNT minecarts, for their countdowns (TNT Countdown, TNT
- * Timer); 26.x moved the TNT minecart to vehicle.minecart.
+ * Timer); 1.21.11 moved the TNT minecart to vehicle.minecart.
  */
 public final class Tnt {
 

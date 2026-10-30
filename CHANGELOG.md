@@ -27,14 +27,28 @@ and fifth items, and the owner's TNT timers).
   per family and still could not leave kinds of entity out; Breeze's
   world drawing (WorldRender) already runs on every version for Block
   Overlay and Ping Ghost. Geometry in common (`HitboxGeometry`, 3 tests).
+  On 1.21.9, whose Fabric API cannot draw in the world (Block Overlay and
+  Ping Ghost are not offered there), Hitboxes keeps what it did before:
+  it switches the game's own F3+B boxes, without the new settings
+  (`Module.offeredWithoutWorldDrawing`).
 - **TNT Countdown**, a new module (Visual): the seconds left above each lit
   TNT and lit TNT minecart within 8 to 64 blocks, green, yellow under 2 s,
   red under 1 s (colours adjustable). The TNT Timer HUD now counts lit TNT
-  minecarts too. 26.x moved the TNT minecart's class (`compat/Tnt`).
+  minecarts too. 1.21.11 moved the TNT minecart's class to
+  `vehicle.minecart` (`compat/Tnt`, overlay in `versions/1.21.11`). Not
+  offered on 1.21.9 (no world drawing); the TNT Timer HUD is.
 - Self-tests: `hitbox-check` (the player's own box in third person, drawn as
   a player's; screenshot `autotest-hitboxes`) and `tnt-check` (a lit TNT
   with a ten second fuse put five blocks away by the game's own server must
-  be labelled between 5 and 10 seconds; removed after two).
+  be labelled between 5 and 10 seconds; removed after two). Both skip
+  where the module does not draw its own (1.21.9).
+- First full run (41108847172, ci-220) failed on 28 of 30 jobs: the
+  driver pressed Escape before Ctrl+J with no screen open, which opened
+  the pause menu, where command keys rest (driver fixed); 1.21.11 did not
+  compile (`MinecartTNT` had moved there, not in 26.x as first thought);
+  on 1.21.9 the hitbox and TNT checks found nothing drawn (see above).
+  On 1.20.1 every new check passed: hitboxes 5 drawn (player 1, passive
+  4), TNT label 8.0, command keys and Display Name.
 
 
 - **Command keys**: a key, with Ctrl, Shift or Alt if wanted (none is
@@ -114,7 +128,11 @@ on 26.x.
   the player's own tab entry, asked of the game's tab list, must show the
   name. Screenshot `autotest-display-name`.
 - Here: common 216 (5 new), Vitest 40 (2 new), Playwright 64 (4 new).
-  In-game results: see the build run below.
+- **Run 41105244995 (all 34 versions, real Fabric installs): all passed.**
+  displayname-check passed everywhere (the screenshot on 1.20.1 shows
+  `<Breeze Tester> display name check`); Free Look now passes on 26.1 to
+  26.3 too (the 26.3 screenshot shows the camera turned to the player).
+  Its jars were not kept: 2.20.0 followed within the hour.
 
 ## [2.18.0] - 2026-10-30
 
