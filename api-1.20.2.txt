@@ -1,0 +1,2074 @@
+== api of minecraft 1.20.2
+MISSING net.minecraft.server.packs.PackLocationInfo
+MISSING net.minecraft.client.gui.screens.options.OptionsScreen -> net.minecraft.client.gui.screens.OptionsScreen
+Compiled from "PackRepository.java"
+public class net.minecraft.server.packs.repository.PackRepository {
+  public net.minecraft.server.packs.repository.PackRepository(net.minecraft.server.packs.repository.RepositorySource...);
+  public void reload();
+  public void setSelected(java.util.Collection<java.lang.String>);
+  public boolean addPack(java.lang.String);
+  public boolean removePack(java.lang.String);
+  public java.util.Collection<java.lang.String> getAvailableIds();
+  public java.util.Collection<net.minecraft.server.packs.repository.Pack> getAvailablePacks();
+  public java.util.Collection<java.lang.String> getSelectedIds();
+  public net.minecraft.world.flag.FeatureFlagSet getRequestedFeatureFlags();
+  public java.util.Collection<net.minecraft.server.packs.repository.Pack> getSelectedPacks();
+  public net.minecraft.server.packs.repository.Pack getPack(java.lang.String);
+  public boolean isAvailable(java.lang.String);
+  public java.util.List<net.minecraft.server.packs.PackResources> openAllSelected();
+}
+Compiled from "Pack.java"
+public class net.minecraft.server.packs.repository.Pack {
+  public static net.minecraft.server.packs.repository.Pack readMetaAndCreate(java.lang.String, net.minecraft.network.chat.Component, boolean, net.minecraft.server.packs.repository.Pack$ResourcesSupplier, net.minecraft.server.packs.PackType, net.minecraft.server.packs.repository.Pack$Position, net.minecraft.server.packs.repository.PackSource);
+  public static net.minecraft.server.packs.repository.Pack create(java.lang.String, net.minecraft.network.chat.Component, boolean, net.minecraft.server.packs.repository.Pack$ResourcesSupplier, net.minecraft.server.packs.repository.Pack$Info, net.minecraft.server.packs.repository.Pack$Position, boolean, net.minecraft.server.packs.repository.PackSource);
+  public static net.minecraft.server.packs.repository.Pack$Info readPackInfo(java.lang.String, net.minecraft.server.packs.repository.Pack$ResourcesSupplier, int);
+  public net.minecraft.network.chat.Component getTitle();
+  public net.minecraft.network.chat.Component getDescription();
+  public net.minecraft.network.chat.Component getChatLink(boolean);
+  public net.minecraft.server.packs.repository.PackCompatibility getCompatibility();
+  public net.minecraft.world.flag.FeatureFlagSet getRequestedFeatures();
+  public net.minecraft.server.packs.PackResources open();
+  public java.lang.String getId();
+  public boolean isRequired();
+  public boolean isFixedPosition();
+  public net.minecraft.server.packs.repository.Pack$Position getDefaultPosition();
+  public net.minecraft.server.packs.repository.PackSource getPackSource();
+  public boolean equals(java.lang.Object);
+  public int hashCode();
+}
+Compiled from "PackCompatibility.java"
+public final class net.minecraft.server.packs.repository.PackCompatibility extends java.lang.Enum<net.minecraft.server.packs.repository.PackCompatibility> {
+  public static final net.minecraft.server.packs.repository.PackCompatibility TOO_OLD;
+  public static final net.minecraft.server.packs.repository.PackCompatibility TOO_NEW;
+  public static final net.minecraft.server.packs.repository.PackCompatibility COMPATIBLE;
+  public static net.minecraft.server.packs.repository.PackCompatibility[] values();
+  public static net.minecraft.server.packs.repository.PackCompatibility valueOf(java.lang.String);
+  public boolean isCompatible();
+  public static net.minecraft.server.packs.repository.PackCompatibility forVersion(net.minecraft.util.InclusiveRange<java.lang.Integer>, int);
+  public net.minecraft.network.chat.Component getDescription();
+  public net.minecraft.network.chat.Component getConfirmation();
+}
+Compiled from "PackSource.java"
+public interface net.minecraft.server.packs.repository.PackSource {
+  public static final java.util.function.UnaryOperator<net.minecraft.network.chat.Component> NO_DECORATION;
+  public static final net.minecraft.server.packs.repository.PackSource DEFAULT;
+  public static final net.minecraft.server.packs.repository.PackSource BUILT_IN;
+  public static final net.minecraft.server.packs.repository.PackSource FEATURE;
+  public static final net.minecraft.server.packs.repository.PackSource WORLD;
+  public static final net.minecraft.server.packs.repository.PackSource SERVER;
+  public abstract net.minecraft.network.chat.Component decorate(net.minecraft.network.chat.Component);
+  public abstract boolean shouldAddAutomatically();
+  public static net.minecraft.server.packs.repository.PackSource create(java.util.function.UnaryOperator<net.minecraft.network.chat.Component>, boolean);
+}
+Compiled from "PackResources.java"
+public interface net.minecraft.server.packs.PackResources extends java.lang.AutoCloseable {
+  public static final java.lang.String METADATA_EXTENSION;
+  public static final java.lang.String PACK_META;
+  public abstract net.minecraft.server.packs.resources.IoSupplier<java.io.InputStream> getRootResource(java.lang.String...);
+  public abstract net.minecraft.server.packs.resources.IoSupplier<java.io.InputStream> getResource(net.minecraft.server.packs.PackType, net.minecraft.resources.ResourceLocation);
+  public abstract void listResources(net.minecraft.server.packs.PackType, java.lang.String, java.lang.String, net.minecraft.server.packs.PackResources$ResourceOutput);
+  public abstract java.util.Set<java.lang.String> getNamespaces(net.minecraft.server.packs.PackType);
+  public abstract <T> T getMetadataSection(net.minecraft.server.packs.metadata.MetadataSectionSerializer<T>) throws java.io.IOException;
+  public abstract java.lang.String packId();
+  public default boolean isBuiltin();
+  public abstract void close();
+}
+Compiled from "IoSupplier.java"
+public interface net.minecraft.server.packs.resources.IoSupplier<T> {
+  public static net.minecraft.server.packs.resources.IoSupplier<java.io.InputStream> create(java.nio.file.Path);
+  public static net.minecraft.server.packs.resources.IoSupplier<java.io.InputStream> create(java.util.zip.ZipFile, java.util.zip.ZipEntry);
+  public abstract T get() throws java.io.IOException;
+}
+Compiled from "PackSelectionScreen.java"
+public class net.minecraft.client.gui.screens.packs.PackSelectionScreen extends net.minecraft.client.gui.screens.Screen {
+  public net.minecraft.client.gui.screens.packs.PackSelectionScreen(net.minecraft.server.packs.repository.PackRepository, java.util.function.Consumer<net.minecraft.server.packs.repository.PackRepository>, java.nio.file.Path, net.minecraft.network.chat.Component);
+  public void onClose();
+  public void tick();
+  public void updateFocus(net.minecraft.client.gui.screens.packs.TransferableSelectionList);
+  public void clearSelected();
+  public void render(net.minecraft.client.gui.GuiGraphics, int, int, float);
+  public void renderBackground(net.minecraft.client.gui.GuiGraphics, int, int, float);
+  public void onFilesDrop(java.util.List<java.nio.file.Path>);
+}
+Compiled from "Options.java"
+public class net.minecraft.client.Options {
+  static final org.slf4j.Logger LOGGER;
+  static final com.google.gson.Gson GSON;
+  private static final com.google.gson.reflect.TypeToken<java.util.List<java.lang.String>> LIST_OF_STRINGS_TYPE;
+  public static final int RENDER_DISTANCE_TINY;
+  public static final int RENDER_DISTANCE_SHORT;
+  public static final int RENDER_DISTANCE_NORMAL;
+  public static final int RENDER_DISTANCE_FAR;
+  public static final int RENDER_DISTANCE_REALLY_FAR;
+  public static final int RENDER_DISTANCE_EXTREME;
+  private static final com.google.common.base.Splitter OPTION_SPLITTER;
+  private static final float DEFAULT_VOLUME;
+  public static final java.lang.String DEFAULT_SOUND_DEVICE;
+  private static final net.minecraft.network.chat.Component ACCESSIBILITY_TOOLTIP_DARK_MOJANG_BACKGROUND;
+  private final net.minecraft.client.OptionInstance<java.lang.Boolean> darkMojangStudiosBackground;
+  private static final net.minecraft.network.chat.Component ACCESSIBILITY_TOOLTIP_HIDE_LIGHTNING_FLASHES;
+  private final net.minecraft.client.OptionInstance<java.lang.Boolean> hideLightningFlash;
+  private final net.minecraft.client.OptionInstance<java.lang.Double> sensitivity;
+  private final net.minecraft.client.OptionInstance<java.lang.Integer> renderDistance;
+  private final net.minecraft.client.OptionInstance<java.lang.Integer> simulationDistance;
+  private int serverRenderDistance;
+  private final net.minecraft.client.OptionInstance<java.lang.Double> entityDistanceScaling;
+  public static final int UNLIMITED_FRAMERATE_CUTOFF;
+  private final net.minecraft.client.OptionInstance<java.lang.Integer> framerateLimit;
+  private final net.minecraft.client.OptionInstance<net.minecraft.client.CloudStatus> cloudStatus;
+  private static final net.minecraft.network.chat.Component GRAPHICS_TOOLTIP_FAST;
+  private static final net.minecraft.network.chat.Component GRAPHICS_TOOLTIP_FABULOUS;
+  private static final net.minecraft.network.chat.Component GRAPHICS_TOOLTIP_FANCY;
+  private final net.minecraft.client.OptionInstance<net.minecraft.client.GraphicsStatus> graphicsMode;
+  private final net.minecraft.client.OptionInstance<java.lang.Boolean> ambientOcclusion;
+  private static final net.minecraft.network.chat.Component PRIORITIZE_CHUNK_TOOLTIP_NONE;
+  private static final net.minecraft.network.chat.Component PRIORITIZE_CHUNK_TOOLTIP_PLAYER_AFFECTED;
+  private static final net.minecraft.network.chat.Component PRIORITIZE_CHUNK_TOOLTIP_NEARBY;
+  private final net.minecraft.client.OptionInstance<net.minecraft.client.PrioritizeChunkUpdates> prioritizeChunkUpdates;
+  public java.util.List<java.lang.String> resourcePacks;
+  public java.util.List<java.lang.String> incompatibleResourcePacks;
+  private final net.minecraft.client.OptionInstance<net.minecraft.world.entity.player.ChatVisiblity> chatVisibility;
+  private final net.minecraft.client.OptionInstance<java.lang.Double> chatOpacity;
+  private final net.minecraft.client.OptionInstance<java.lang.Double> chatLineSpacing;
+  private final net.minecraft.client.OptionInstance<java.lang.Double> textBackgroundOpacity;
+  private final net.minecraft.client.OptionInstance<java.lang.Double> panoramaSpeed;
+  private static final net.minecraft.network.chat.Component ACCESSIBILITY_TOOLTIP_CONTRAST_MODE;
+  private final net.minecraft.client.OptionInstance<java.lang.Boolean> highContrast;
+  private final net.minecraft.client.OptionInstance<java.lang.Boolean> narratorHotkey;
+  public java.lang.String fullscreenVideoModeString;
+  public boolean hideServerAddress;
+  public boolean advancedItemTooltips;
+  public boolean pauseOnLostFocus;
+  private final java.util.Set<net.minecraft.world.entity.player.PlayerModelPart> modelParts;
+  private final net.minecraft.client.OptionInstance<net.minecraft.world.entity.HumanoidArm> mainHand;
+  public int overrideWidth;
+  public int overrideHeight;
+  private final net.minecraft.client.OptionInstance<java.lang.Double> chatScale;
+  private final net.minecraft.client.OptionInstance<java.lang.Double> chatWidth;
+  private final net.minecraft.client.OptionInstance<java.lang.Double> chatHeightUnfocused;
+  private final net.minecraft.client.OptionInstance<java.lang.Double> chatHeightFocused;
+  private final net.minecraft.client.OptionInstance<java.lang.Double> chatDelay;
+  private static final net.minecraft.network.chat.Component ACCESSIBILITY_TOOLTIP_NOTIFICATION_DISPLAY_TIME;
+  private final net.minecraft.client.OptionInstance<java.lang.Double> notificationDisplayTime;
+  private final net.minecraft.client.OptionInstance<java.lang.Integer> mipmapLevels;
+  public boolean useNativeTransport;
+  private final net.minecraft.client.OptionInstance<net.minecraft.client.AttackIndicatorStatus> attackIndicator;
+  public net.minecraft.client.tutorial.TutorialSteps tutorialStep;
+  public boolean joinedFirstServer;
+  public boolean hideBundleTutorial;
+  private final net.minecraft.client.OptionInstance<java.lang.Integer> biomeBlendRadius;
+  private final net.minecraft.client.OptionInstance<java.lang.Double> mouseWheelSensitivity;
+  private final net.minecraft.client.OptionInstance<java.lang.Boolean> rawMouseInput;
+  public int glDebugVerbosity;
+  private final net.minecraft.client.OptionInstance<java.lang.Boolean> autoJump;
+  private final net.minecraft.client.OptionInstance<java.lang.Boolean> operatorItemsTab;
+  private final net.minecraft.client.OptionInstance<java.lang.Boolean> autoSuggestions;
+  private final net.minecraft.client.OptionInstance<java.lang.Boolean> chatColors;
+  private final net.minecraft.client.OptionInstance<java.lang.Boolean> chatLinks;
+  private final net.minecraft.client.OptionInstance<java.lang.Boolean> chatLinksPrompt;
+  private final net.minecraft.client.OptionInstance<java.lang.Boolean> enableVsync;
+  private final net.minecraft.client.OptionInstance<java.lang.Boolean> entityShadows;
+  private final net.minecraft.client.OptionInstance<java.lang.Boolean> forceUnicodeFont;
+  private final net.minecraft.client.OptionInstance<java.lang.Boolean> invertYMouse;
+  private final net.minecraft.client.OptionInstance<java.lang.Boolean> discreteMouseScroll;
+  private final net.minecraft.client.OptionInstance<java.lang.Boolean> realmsNotifications;
+  private static final net.minecraft.network.chat.Component ALLOW_SERVER_LISTING_TOOLTIP;
+  private final net.minecraft.client.OptionInstance<java.lang.Boolean> allowServerListing;
+  private final net.minecraft.client.OptionInstance<java.lang.Boolean> reducedDebugInfo;
+  private final java.util.Map<net.minecraft.sounds.SoundSource, net.minecraft.client.OptionInstance<java.lang.Double>> soundSourceVolumes;
+  private final net.minecraft.client.OptionInstance<java.lang.Boolean> showSubtitles;
+  private static final net.minecraft.network.chat.Component DIRECTIONAL_AUDIO_TOOLTIP_ON;
+  private static final net.minecraft.network.chat.Component DIRECTIONAL_AUDIO_TOOLTIP_OFF;
+  private final net.minecraft.client.OptionInstance<java.lang.Boolean> directionalAudio;
+  private final net.minecraft.client.OptionInstance<java.lang.Boolean> backgroundForChatOnly;
+  private final net.minecraft.client.OptionInstance<java.lang.Boolean> touchscreen;
+  private final net.minecraft.client.OptionInstance<java.lang.Boolean> fullscreen;
+  private final net.minecraft.client.OptionInstance<java.lang.Boolean> bobView;
+  private static final net.minecraft.network.chat.Component MOVEMENT_TOGGLE;
+  private static final net.minecraft.network.chat.Component MOVEMENT_HOLD;
+  private final net.minecraft.client.OptionInstance<java.lang.Boolean> toggleCrouch;
+  private final net.minecraft.client.OptionInstance<java.lang.Boolean> toggleSprint;
+  public boolean skipMultiplayerWarning;
+  public boolean skipRealms32bitWarning;
+  private static final net.minecraft.network.chat.Component CHAT_TOOLTIP_HIDE_MATCHED_NAMES;
+  private final net.minecraft.client.OptionInstance<java.lang.Boolean> hideMatchedNames;
+  private final net.minecraft.client.OptionInstance<java.lang.Boolean> showAutosaveIndicator;
+  private static final net.minecraft.network.chat.Component CHAT_TOOLTIP_ONLY_SHOW_SECURE;
+  private final net.minecraft.client.OptionInstance<java.lang.Boolean> onlyShowSecureChat;
+  public final net.minecraft.client.KeyMapping keyUp;
+  public final net.minecraft.client.KeyMapping keyLeft;
+  public final net.minecraft.client.KeyMapping keyDown;
+  public final net.minecraft.client.KeyMapping keyRight;
+  public final net.minecraft.client.KeyMapping keyJump;
+  public final net.minecraft.client.KeyMapping keyShift;
+  public final net.minecraft.client.KeyMapping keySprint;
+  public final net.minecraft.client.KeyMapping keyInventory;
+  public final net.minecraft.client.KeyMapping keySwapOffhand;
+  public final net.minecraft.client.KeyMapping keyDrop;
+  public final net.minecraft.client.KeyMapping keyUse;
+  public final net.minecraft.client.KeyMapping keyAttack;
+  public final net.minecraft.client.KeyMapping keyPickItem;
+  public final net.minecraft.client.KeyMapping keyChat;
+  public final net.minecraft.client.KeyMapping keyPlayerList;
+  public final net.minecraft.client.KeyMapping keyCommand;
+  public final net.minecraft.client.KeyMapping keySocialInteractions;
+  public final net.minecraft.client.KeyMapping keyScreenshot;
+  public final net.minecraft.client.KeyMapping keyTogglePerspective;
+  public final net.minecraft.client.KeyMapping keySmoothCamera;
+  public final net.minecraft.client.KeyMapping keyFullscreen;
+  public final net.minecraft.client.KeyMapping keySpectatorOutlines;
+  public final net.minecraft.client.KeyMapping keyAdvancements;
+  public final net.minecraft.client.KeyMapping[] keyHotbarSlots;
+  public final net.minecraft.client.KeyMapping keySaveHotbarActivator;
+  public final net.minecraft.client.KeyMapping keyLoadHotbarActivator;
+  public final net.minecraft.client.KeyMapping[] keyMappings;
+  protected net.minecraft.client.Minecraft minecraft;
+  private final java.io.File optionsFile;
+  public boolean hideGui;
+  private net.minecraft.client.CameraType cameraType;
+  public java.lang.String lastMpIp;
+  public boolean smoothCamera;
+  private final net.minecraft.client.OptionInstance<java.lang.Integer> fov;
+  private static final net.minecraft.network.chat.Component TELEMETRY_TOOLTIP;
+  private final net.minecraft.client.OptionInstance<java.lang.Boolean> telemetryOptInExtra;
+  private static final net.minecraft.network.chat.Component ACCESSIBILITY_TOOLTIP_SCREEN_EFFECT;
+  private final net.minecraft.client.OptionInstance<java.lang.Double> screenEffectScale;
+  private static final net.minecraft.network.chat.Component ACCESSIBILITY_TOOLTIP_FOV_EFFECT;
+  private final net.minecraft.client.OptionInstance<java.lang.Double> fovEffectScale;
+  private static final net.minecraft.network.chat.Component ACCESSIBILITY_TOOLTIP_DARKNESS_EFFECT;
+  private final net.minecraft.client.OptionInstance<java.lang.Double> darknessEffectScale;
+  private static final net.minecraft.network.chat.Component ACCESSIBILITY_TOOLTIP_GLINT_SPEED;
+  private final net.minecraft.client.OptionInstance<java.lang.Double> glintSpeed;
+  private static final net.minecraft.network.chat.Component ACCESSIBILITY_TOOLTIP_GLINT_STRENGTH;
+  private final net.minecraft.client.OptionInstance<java.lang.Double> glintStrength;
+  private static final net.minecraft.network.chat.Component ACCESSIBILITY_TOOLTIP_DAMAGE_TILT_STRENGTH;
+  private final net.minecraft.client.OptionInstance<java.lang.Double> damageTiltStrength;
+  private final net.minecraft.client.OptionInstance<java.lang.Double> gamma;
+  public static final int AUTO_GUI_SCALE;
+  private static final int MAX_GUI_SCALE_INCLUSIVE;
+  private final net.minecraft.client.OptionInstance<java.lang.Integer> guiScale;
+  private final net.minecraft.client.OptionInstance<net.minecraft.client.ParticleStatus> particles;
+  private final net.minecraft.client.OptionInstance<net.minecraft.client.NarratorStatus> narrator;
+  public java.lang.String languageCode;
+  private final net.minecraft.client.OptionInstance<java.lang.String> soundDevice;
+  public boolean onboardAccessibility;
+  public boolean syncWrites;
+  public net.minecraft.client.OptionInstance<java.lang.Boolean> darkMojangStudiosBackground();
+  public net.minecraft.client.OptionInstance<java.lang.Boolean> hideLightningFlash();
+  public net.minecraft.client.OptionInstance<java.lang.Double> sensitivity();
+  public net.minecraft.client.OptionInstance<java.lang.Integer> renderDistance();
+  public net.minecraft.client.OptionInstance<java.lang.Integer> simulationDistance();
+  public net.minecraft.client.OptionInstance<java.lang.Double> entityDistanceScaling();
+  public net.minecraft.client.OptionInstance<java.lang.Integer> framerateLimit();
+  public net.minecraft.client.OptionInstance<net.minecraft.client.CloudStatus> cloudStatus();
+  public net.minecraft.client.OptionInstance<net.minecraft.client.GraphicsStatus> graphicsMode();
+  public net.minecraft.client.OptionInstance<java.lang.Boolean> ambientOcclusion();
+  public net.minecraft.client.OptionInstance<net.minecraft.client.PrioritizeChunkUpdates> prioritizeChunkUpdates();
+  public void updateResourcePacks(net.minecraft.server.packs.repository.PackRepository);
+  public net.minecraft.client.OptionInstance<net.minecraft.world.entity.player.ChatVisiblity> chatVisibility();
+  public net.minecraft.client.OptionInstance<java.lang.Double> chatOpacity();
+  public net.minecraft.client.OptionInstance<java.lang.Double> chatLineSpacing();
+  public net.minecraft.client.OptionInstance<java.lang.Double> textBackgroundOpacity();
+  public net.minecraft.client.OptionInstance<java.lang.Double> panoramaSpeed();
+  public net.minecraft.client.OptionInstance<java.lang.Boolean> highContrast();
+  public net.minecraft.client.OptionInstance<java.lang.Boolean> narratorHotkey();
+  public net.minecraft.client.OptionInstance<net.minecraft.world.entity.HumanoidArm> mainHand();
+  public net.minecraft.client.OptionInstance<java.lang.Double> chatScale();
+  public net.minecraft.client.OptionInstance<java.lang.Double> chatWidth();
+  public net.minecraft.client.OptionInstance<java.lang.Double> chatHeightUnfocused();
+  public net.minecraft.client.OptionInstance<java.lang.Double> chatHeightFocused();
+  public net.minecraft.client.OptionInstance<java.lang.Double> chatDelay();
+  public net.minecraft.client.OptionInstance<java.lang.Double> notificationDisplayTime();
+  public net.minecraft.client.OptionInstance<java.lang.Integer> mipmapLevels();
+  public net.minecraft.client.OptionInstance<net.minecraft.client.AttackIndicatorStatus> attackIndicator();
+  public net.minecraft.client.OptionInstance<java.lang.Integer> biomeBlendRadius();
+  private static double logMouse(int);
+  private static int unlogMouse(double);
+  public net.minecraft.client.OptionInstance<java.lang.Double> mouseWheelSensitivity();
+  public net.minecraft.client.OptionInstance<java.lang.Boolean> rawMouseInput();
+  public net.minecraft.client.OptionInstance<java.lang.Boolean> autoJump();
+  public net.minecraft.client.OptionInstance<java.lang.Boolean> operatorItemsTab();
+  public net.minecraft.client.OptionInstance<java.lang.Boolean> autoSuggestions();
+  public net.minecraft.client.OptionInstance<java.lang.Boolean> chatColors();
+  public net.minecraft.client.OptionInstance<java.lang.Boolean> chatLinks();
+  public net.minecraft.client.OptionInstance<java.lang.Boolean> chatLinksPrompt();
+  public net.minecraft.client.OptionInstance<java.lang.Boolean> enableVsync();
+  public net.minecraft.client.OptionInstance<java.lang.Boolean> entityShadows();
+  public net.minecraft.client.OptionInstance<java.lang.Boolean> forceUnicodeFont();
+  public net.minecraft.client.OptionInstance<java.lang.Boolean> invertYMouse();
+  public net.minecraft.client.OptionInstance<java.lang.Boolean> discreteMouseScroll();
+  public net.minecraft.client.OptionInstance<java.lang.Boolean> realmsNotifications();
+  public net.minecraft.client.OptionInstance<java.lang.Boolean> allowServerListing();
+  public net.minecraft.client.OptionInstance<java.lang.Boolean> reducedDebugInfo();
+  public final float getSoundSourceVolume(net.minecraft.sounds.SoundSource);
+  public final net.minecraft.client.OptionInstance<java.lang.Double> getSoundSourceOptionInstance(net.minecraft.sounds.SoundSource);
+  private net.minecraft.client.OptionInstance<java.lang.Double> createSoundSliderOptionInstance(java.lang.String, net.minecraft.sounds.SoundSource);
+  public net.minecraft.client.OptionInstance<java.lang.Boolean> showSubtitles();
+  public net.minecraft.client.OptionInstance<java.lang.Boolean> directionalAudio();
+  public net.minecraft.client.OptionInstance<java.lang.Boolean> backgroundForChatOnly();
+  public net.minecraft.client.OptionInstance<java.lang.Boolean> touchscreen();
+  public net.minecraft.client.OptionInstance<java.lang.Boolean> fullscreen();
+  public net.minecraft.client.OptionInstance<java.lang.Boolean> bobView();
+  public net.minecraft.client.OptionInstance<java.lang.Boolean> toggleCrouch();
+  public net.minecraft.client.OptionInstance<java.lang.Boolean> toggleSprint();
+  public net.minecraft.client.OptionInstance<java.lang.Boolean> hideMatchedNames();
+  public net.minecraft.client.OptionInstance<java.lang.Boolean> showAutosaveIndicator();
+  public net.minecraft.client.OptionInstance<java.lang.Boolean> onlyShowSecureChat();
+  public net.minecraft.client.OptionInstance<java.lang.Integer> fov();
+  public net.minecraft.client.OptionInstance<java.lang.Boolean> telemetryOptInExtra();
+  public net.minecraft.client.OptionInstance<java.lang.Double> screenEffectScale();
+  public net.minecraft.client.OptionInstance<java.lang.Double> fovEffectScale();
+  public net.minecraft.client.OptionInstance<java.lang.Double> darknessEffectScale();
+  public net.minecraft.client.OptionInstance<java.lang.Double> glintSpeed();
+  public net.minecraft.client.OptionInstance<java.lang.Double> glintStrength();
+  public net.minecraft.client.OptionInstance<java.lang.Double> damageTiltStrength();
+  public net.minecraft.client.OptionInstance<java.lang.Double> gamma();
+  public net.minecraft.client.OptionInstance<java.lang.Integer> guiScale();
+  public net.minecraft.client.OptionInstance<net.minecraft.client.ParticleStatus> particles();
+  public net.minecraft.client.OptionInstance<net.minecraft.client.NarratorStatus> narrator();
+  public net.minecraft.client.OptionInstance<java.lang.String> soundDevice();
+  public net.minecraft.client.Options(net.minecraft.client.Minecraft, java.io.File);
+  public float getBackgroundOpacity(float);
+  public int getBackgroundColor(float);
+  public int getBackgroundColor(int);
+  public void setKey(net.minecraft.client.KeyMapping, com.mojang.blaze3d.platform.InputConstants$Key);
+  private void processOptions(net.minecraft.client.Options$FieldAccess);
+  public void load();
+  static boolean isTrue(java.lang.String);
+  static boolean isFalse(java.lang.String);
+  private net.minecraft.nbt.CompoundTag dataFix(net.minecraft.nbt.CompoundTag);
+  public void save();
+  public net.minecraft.server.level.ClientInformation buildPlayerInformation();
+  public void broadcastOptions();
+  private void setModelPart(net.minecraft.world.entity.player.PlayerModelPart, boolean);
+  public boolean isModelPartEnabled(net.minecraft.world.entity.player.PlayerModelPart);
+  public void toggleModelPart(net.minecraft.world.entity.player.PlayerModelPart, boolean);
+  public net.minecraft.client.CloudStatus getCloudsType();
+  public boolean useNativeTransport();
+  public void loadSelectedResourcePacks(net.minecraft.server.packs.repository.PackRepository);
+  public net.minecraft.client.CameraType getCameraType();
+  public void setCameraType(net.minecraft.client.CameraType);
+  private static java.util.List<java.lang.String> readListOfStrings(java.lang.String);
+  public java.io.File getFile();
+  public java.lang.String dumpOptionsForReport();
+  public void setServerRenderDistance(int);
+  public int getEffectiveRenderDistance();
+  private static net.minecraft.network.chat.Component pixelValueLabel(net.minecraft.network.chat.Component, int);
+  private static net.minecraft.network.chat.Component percentValueLabel(net.minecraft.network.chat.Component, double);
+  public static net.minecraft.network.chat.Component genericValueLabel(net.minecraft.network.chat.Component, net.minecraft.network.chat.Component);
+  public static net.minecraft.network.chat.Component genericValueLabel(net.minecraft.network.chat.Component, int);
+  private static java.lang.String method_37293(com.mojang.datafixers.util.Pair);
+  private static void method_24230(net.minecraft.nbt.CompoundTag, java.lang.String);
+  private static void method_42468(java.lang.Integer);
+  private static net.minecraft.network.chat.Component method_42493(net.minecraft.network.chat.Component, java.lang.Integer);
+  private static void method_42502(java.lang.Integer);
+  private static net.minecraft.network.chat.Component method_42508(net.minecraft.network.chat.Component, java.lang.Integer);
+  private static void method_42509(java.lang.String);
+  private static java.util.Optional method_42516(java.lang.String);
+  private static java.util.List method_42478();
+  private static net.minecraft.network.chat.Component method_42523(net.minecraft.network.chat.Component, java.lang.String);
+  private void method_42463(net.minecraft.client.NarratorStatus);
+  private net.minecraft.network.chat.Component method_42489(net.minecraft.network.chat.Component, net.minecraft.client.NarratorStatus);
+  private static void method_42465(net.minecraft.client.ParticleStatus);
+  private static void method_42515(java.lang.Integer);
+  private static int method_42479();
+  private static net.minecraft.network.chat.Component method_42522(net.minecraft.network.chat.Component, java.lang.Integer);
+  private static void method_42467(java.lang.Double);
+  private static net.minecraft.network.chat.Component method_42492(net.minecraft.network.chat.Component, java.lang.Double);
+  private static void method_48975(java.lang.Double);
+  private static net.minecraft.network.chat.Component method_48976(net.minecraft.network.chat.Component, java.lang.Double);
+  private static net.minecraft.network.chat.Component method_48583(net.minecraft.network.chat.Component, java.lang.Double);
+  private static void method_48582(java.lang.Double);
+  private static net.minecraft.network.chat.Component method_48584(net.minecraft.network.chat.Component, java.lang.Double);
+  private static void method_42501(java.lang.Double);
+  private static net.minecraft.network.chat.Component method_42726(net.minecraft.network.chat.Component, java.lang.Double);
+  private static void method_42514(java.lang.Double);
+  private static net.minecraft.network.chat.Component method_42727(net.minecraft.network.chat.Component, java.lang.Double);
+  private static void method_42526(java.lang.Double);
+  private static net.minecraft.network.chat.Component method_42728(net.minecraft.network.chat.Component, java.lang.Double);
+  private static void method_47607(java.lang.Boolean);
+  private static net.minecraft.network.chat.Component method_47608(net.minecraft.network.chat.Component, java.lang.Boolean);
+  private static void method_41779(java.lang.Integer);
+  private static java.lang.Double method_42532(java.lang.Integer);
+  private static java.lang.Integer method_42536(java.lang.Double);
+  private static net.minecraft.network.chat.Component method_41789(net.minecraft.network.chat.Component, java.lang.Integer);
+  private static void method_42466(java.lang.Boolean);
+  private static net.minecraft.network.chat.Component method_42491(net.minecraft.network.chat.Component, java.lang.Boolean);
+  private static void method_42520(java.lang.Boolean);
+  private static net.minecraft.network.chat.Component method_42506(net.minecraft.network.chat.Component, java.lang.Boolean);
+  private void method_42513(java.lang.Boolean);
+  private static void method_42500(java.lang.Boolean);
+  private static net.minecraft.network.chat.Component method_42525(net.minecraft.network.chat.Component, java.lang.Boolean);
+  private static void method_42530(java.lang.Boolean);
+  private static net.minecraft.client.gui.components.Tooltip method_47398(java.lang.Boolean);
+  private static void method_45575(net.minecraft.sounds.SoundSource, java.lang.Double);
+  private static net.minecraft.network.chat.Component method_45579(net.minecraft.network.chat.Component, java.lang.Double);
+  private void method_45577(java.util.EnumMap);
+  private void method_42535(java.lang.Boolean);
+  private static void method_42537(java.lang.Boolean);
+  private static void method_42538(java.lang.Boolean);
+  private static void method_41777(java.lang.Boolean);
+  private static void method_41778(java.lang.Double);
+  private static net.minecraft.network.chat.Component method_41788(net.minecraft.network.chat.Component, java.lang.Double);
+  private static void method_41797(java.lang.Integer);
+  private static net.minecraft.network.chat.Component method_41800(net.minecraft.network.chat.Component, java.lang.Integer);
+  private static void method_42458(net.minecraft.client.AttackIndicatorStatus);
+  private static void method_42541(java.lang.Integer);
+  private static net.minecraft.network.chat.Component method_42545(net.minecraft.network.chat.Component, java.lang.Integer);
+  private static void method_48188(java.lang.Double);
+  private static int method_48190(java.lang.Double);
+  private static java.lang.Double method_48187(int);
+  private static net.minecraft.network.chat.Component method_48189(net.minecraft.network.chat.Component, java.lang.Double);
+  private static void method_42540(java.lang.Double);
+  private static int method_42544(java.lang.Double);
+  private static java.lang.Double method_42504(int);
+  private static net.minecraft.network.chat.Component method_42548(net.minecraft.network.chat.Component, java.lang.Double);
+  private static void method_41796(java.lang.Double);
+  private static net.minecraft.network.chat.Component method_41799(net.minecraft.network.chat.Component, java.lang.Double);
+  private static void method_41802(java.lang.Double);
+  private static net.minecraft.network.chat.Component method_41804(net.minecraft.network.chat.Component, java.lang.Double);
+  private static void method_42558(java.lang.Double);
+  private static net.minecraft.network.chat.Component method_42560(net.minecraft.network.chat.Component, java.lang.Double);
+  private static void method_42562(java.lang.Double);
+  private static net.minecraft.network.chat.Component method_42564(net.minecraft.network.chat.Component, java.lang.Double);
+  private void method_42455(net.minecraft.world.entity.HumanoidArm);
+  private void method_49599(java.lang.Boolean);
+  private static void method_45580(java.lang.Double);
+  private static void method_42566(java.lang.Double);
+  private static void method_42568(java.lang.Double);
+  private static void method_42424(java.lang.Double);
+  private static net.minecraft.network.chat.Component method_42432(net.minecraft.network.chat.Component, java.lang.Double);
+  private static void method_42456(net.minecraft.world.entity.player.ChatVisiblity);
+  private static void method_41776(net.minecraft.client.PrioritizeChunkUpdates);
+  private static net.minecraft.client.gui.components.Tooltip method_47396(net.minecraft.client.PrioritizeChunkUpdates);
+  private static void method_47999(java.lang.Boolean);
+  private static void method_42460(net.minecraft.client.GraphicsStatus);
+  private static void method_42464(net.minecraft.client.OptionInstance, net.minecraft.client.GraphicsStatus);
+  private static boolean method_42480();
+  private static boolean method_42486(net.minecraft.client.GraphicsStatus);
+  private static net.minecraft.network.chat.Component method_42497(net.minecraft.network.chat.Component, net.minecraft.client.GraphicsStatus);
+  private static net.minecraft.client.gui.components.Tooltip method_47397(net.minecraft.client.GraphicsStatus);
+  private static void method_42459(net.minecraft.client.CloudStatus);
+  private static net.minecraft.client.CloudStatus method_52704(java.lang.Boolean);
+  private static void method_42555(java.lang.Integer);
+  private static int method_42557(java.lang.Integer);
+  private static java.lang.Integer method_42511(int);
+  private static net.minecraft.network.chat.Component method_42559(net.minecraft.network.chat.Component, java.lang.Integer);
+  private static void method_42428(java.lang.Double);
+  private static int method_42430(java.lang.Double);
+  private static java.lang.Double method_42518(int);
+  private static void method_42434(java.lang.Double);
+  private static net.minecraft.network.chat.Component method_42436(net.minecraft.network.chat.Component, java.lang.Double);
+  static {};
+}
+Compiled from "PackSelectionModel.java"
+public class net.minecraft.client.gui.screens.packs.PackSelectionModel {
+  private final net.minecraft.server.packs.repository.PackRepository repository;
+  final java.util.List<net.minecraft.server.packs.repository.Pack> selected;
+  final java.util.List<net.minecraft.server.packs.repository.Pack> unselected;
+  final java.util.function.Function<net.minecraft.server.packs.repository.Pack, net.minecraft.resources.ResourceLocation> iconGetter;
+  final java.lang.Runnable onListChanged;
+  private final java.util.function.Consumer<net.minecraft.server.packs.repository.PackRepository> output;
+  public net.minecraft.client.gui.screens.packs.PackSelectionModel(java.lang.Runnable, java.util.function.Function<net.minecraft.server.packs.repository.Pack, net.minecraft.resources.ResourceLocation>, net.minecraft.server.packs.repository.PackRepository, java.util.function.Consumer<net.minecraft.server.packs.repository.PackRepository>);
+  public java.util.stream.Stream<net.minecraft.client.gui.screens.packs.PackSelectionModel$Entry> getUnselected();
+  public java.util.stream.Stream<net.minecraft.client.gui.screens.packs.PackSelectionModel$Entry> getSelected();
+  void updateRepoSelectedList();
+  public void commit();
+  public void findNewPacks();
+  private net.minecraft.client.gui.screens.packs.PackSelectionModel$Entry method_29640(net.minecraft.server.packs.repository.Pack);
+  private net.minecraft.client.gui.screens.packs.PackSelectionModel$Entry method_29644(net.minecraft.server.packs.repository.Pack);
+}
+Compiled from "OptionsScreen.java"
+public class net.minecraft.client.gui.screens.OptionsScreen extends net.minecraft.client.gui.screens.Screen {
+  private static final net.minecraft.network.chat.Component SKIN_CUSTOMIZATION;
+  private static final net.minecraft.network.chat.Component SOUNDS;
+  private static final net.minecraft.network.chat.Component VIDEO;
+  private static final net.minecraft.network.chat.Component CONTROLS;
+  private static final net.minecraft.network.chat.Component LANGUAGE;
+  private static final net.minecraft.network.chat.Component CHAT;
+  private static final net.minecraft.network.chat.Component RESOURCEPACK;
+  private static final net.minecraft.network.chat.Component ACCESSIBILITY;
+  private static final net.minecraft.network.chat.Component TELEMETRY;
+  private static final net.minecraft.network.chat.Component CREDITS_AND_ATTRIBUTION;
+  private static final int COLUMNS;
+  private final net.minecraft.client.gui.screens.Screen lastScreen;
+  private final net.minecraft.client.Options options;
+  private net.minecraft.client.gui.components.CycleButton<net.minecraft.world.Difficulty> difficultyButton;
+  private net.minecraft.client.gui.components.LockIconButton lockButton;
+  public net.minecraft.client.gui.screens.OptionsScreen(net.minecraft.client.gui.screens.Screen, net.minecraft.client.Options);
+  protected void init();
+  private void applyPacks(net.minecraft.server.packs.repository.PackRepository);
+  private net.minecraft.client.gui.layouts.LayoutElement createOnlineButton();
+  public static net.minecraft.client.gui.components.CycleButton<net.minecraft.world.Difficulty> createDifficultyButton(int, int, java.lang.String, net.minecraft.client.Minecraft);
+  private void lockCallback(boolean);
+  public void removed();
+  public void render(net.minecraft.client.gui.GuiGraphics, int, int, float);
+  private net.minecraft.client.gui.components.Button openScreenButton(net.minecraft.network.chat.Component, java.util.function.Supplier<net.minecraft.client.gui.screens.Screen>);
+  private void method_47624(java.util.function.Supplier, net.minecraft.client.gui.components.Button);
+  private static void method_39487(net.minecraft.client.Minecraft, net.minecraft.client.gui.components.CycleButton, net.minecraft.world.Difficulty);
+  private void method_47623(net.minecraft.client.gui.components.Button);
+  private void method_47626(net.minecraft.client.gui.components.Button);
+  private void method_47627(net.minecraft.client.gui.components.Button);
+  private net.minecraft.client.gui.screens.Screen method_49740();
+  private net.minecraft.client.gui.screens.Screen method_47629();
+  private net.minecraft.client.gui.screens.Screen method_47630();
+  private net.minecraft.client.gui.screens.Screen method_47631();
+  private net.minecraft.client.gui.screens.Screen method_19825();
+  private net.minecraft.client.gui.screens.Screen method_19826();
+  private net.minecraft.client.gui.screens.Screen method_19827();
+  private net.minecraft.client.gui.screens.Screen method_19828();
+  private net.minecraft.client.gui.screens.Screen method_19829();
+  private net.minecraft.client.gui.screens.Screen method_19830();
+  static {};
+}
+== calls net.minecraft.client.gui.screens.packs.PackSelectionModel
+  public net.minecraft.client.gui.screens.packs.PackSelectionModel(java.lang.Runnable, java.util.function.Function<net.minecraft.server.packs.repository.Pack, net.minecraft.resources.ResourceLocation>, net.minecraft.server.packs.repository.PackRepository, java.util.function.Consumer<net.minecraft.server.packs.repository.PackRepository>);
+    invokespecial #50                 // Method java/lang/Object."<init>":()V
+    invokevirtual #62                 // Method net/minecraft/server/packs/repository/PackRepository.getSelectedPacks:()Ljava/util/Collection;
+    invokestatic  #68                 // Method com/google/common/collect/Lists.newArrayList:(Ljava/lang/Iterable;)Ljava/util/ArrayList;
+    invokestatic  #76                 // Method java/util/Collections.reverse:(Ljava/util/List;)V
+    invokevirtual #79                 // Method net/minecraft/server/packs/repository/PackRepository.getAvailablePacks:()Ljava/util/Collection;
+    invokestatic  #68                 // Method com/google/common/collect/Lists.newArrayList:(Ljava/lang/Iterable;)Ljava/util/ArrayList;
+    invokeinterface #87,  2           // InterfaceMethod java/util/List.removeAll:(Ljava/util/Collection;)Z
+  public java.util.stream.Stream<net.minecraft.client.gui.screens.packs.PackSelectionModel$Entry> getUnselected();
+    invokeinterface #97,  1           // InterfaceMethod java/util/List.stream:()Ljava/util/stream/Stream;
+    invokedynamic #116,  0            // InvokeDynamic #0:apply:(Lnet/minecraft/client/gui/screens/packs/PackSelectionModel;)Ljava/util/function/Function;
+    invokeinterface #122,  2          // InterfaceMethod java/util/stream/Stream.map:(Ljava/util/function/Function;)Ljava/util/stream/Stream;
+  public java.util.stream.Stream<net.minecraft.client.gui.screens.packs.PackSelectionModel$Entry> getSelected();
+    invokeinterface #97,  1           // InterfaceMethod java/util/List.stream:()Ljava/util/stream/Stream;
+    invokedynamic #128,  0            // InvokeDynamic #1:apply:(Lnet/minecraft/client/gui/screens/packs/PackSelectionModel;)Ljava/util/function/Function;
+    invokeinterface #122,  2          // InterfaceMethod java/util/stream/Stream.map:(Ljava/util/function/Function;)Ljava/util/stream/Stream;
+  void updateRepoSelectedList();
+    invokestatic  #132                // Method com/google/common/collect/Lists.reverse:(Ljava/util/List;)Ljava/util/List;
+    invokeinterface #97,  1           // InterfaceMethod java/util/List.stream:()Ljava/util/stream/Stream;
+    invokedynamic #144,  0            // InvokeDynamic #2:apply:()Ljava/util/function/Function;
+    invokeinterface #122,  2          // InterfaceMethod java/util/stream/Stream.map:(Ljava/util/function/Function;)Ljava/util/stream/Stream;
+    invokestatic  #150                // Method com/google/common/collect/ImmutableList.toImmutableList:()Ljava/util/stream/Collector;
+    invokeinterface #154,  2          // InterfaceMethod java/util/stream/Stream.collect:(Ljava/util/stream/Collector;)Ljava/lang/Object;
+    invokevirtual #160                // Method net/minecraft/server/packs/repository/PackRepository.setSelected:(Ljava/util/Collection;)V
+  public void commit();
+    invokevirtual #163                // Method updateRepoSelectedList:()V
+    invokeinterface #169,  2          // InterfaceMethod java/util/function/Consumer.accept:(Ljava/lang/Object;)V
+  public void findNewPacks();
+    invokevirtual #173                // Method net/minecraft/server/packs/repository/PackRepository.reload:()V
+    invokevirtual #79                 // Method net/minecraft/server/packs/repository/PackRepository.getAvailablePacks:()Ljava/util/Collection;
+    invokeinterface #176,  2          // InterfaceMethod java/util/List.retainAll:(Ljava/util/Collection;)Z
+    invokeinterface #179,  1          // InterfaceMethod java/util/List.clear:()V
+    invokevirtual #79                 // Method net/minecraft/server/packs/repository/PackRepository.getAvailablePacks:()Ljava/util/Collection;
+    invokeinterface #182,  2          // InterfaceMethod java/util/List.addAll:(Ljava/util/Collection;)Z
+    invokeinterface #87,  2           // InterfaceMethod java/util/List.removeAll:(Ljava/util/Collection;)Z
+  private net.minecraft.client.gui.screens.packs.PackSelectionModel$Entry method_29640(net.minecraft.server.packs.repository.Pack);
+    invokespecial #186                // Method net/minecraft/client/gui/screens/packs/PackSelectionModel$SelectedPackEntry."<init>":(Lnet/minecraft/client/gui/screens/packs/PackSelectionModel;Lnet/minecraft/server/packs/repository/Pack;)V
+  private net.minecraft.client.gui.screens.packs.PackSelectionModel$Entry method_29644(net.minecraft.server.packs.repository.Pack);
+    invokespecial #188                // Method net/minecraft/client/gui/screens/packs/PackSelectionModel$UnselectedPackEntry."<init>":(Lnet/minecraft/client/gui/screens/packs/PackSelectionModel;Lnet/minecraft/server/packs/repository/Pack;)V
+== calls net.minecraft.client.gui.screens.OptionsScreen
+  public net.minecraft.client.gui.screens.OptionsScreen(net.minecraft.client.gui.screens.Screen, net.minecraft.client.Options);
+    invokestatic  #78                 // InterfaceMethod net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;
+    invokespecial #81                 // Method net/minecraft/client/gui/screens/Screen."<init>":(Lnet/minecraft/network/chat/Component;)V
+  protected void init();
+    invokespecial #91                 // Method net/minecraft/client/gui/layouts/GridLayout."<init>":()V
+    invokevirtual #95                 // Method net/minecraft/client/gui/layouts/GridLayout.defaultCellSetting:()Lnet/minecraft/client/gui/layouts/LayoutSettings;
+    invokeinterface #101,  2          // InterfaceMethod net/minecraft/client/gui/layouts/LayoutSettings.paddingHorizontal:(I)Lnet/minecraft/client/gui/layouts/LayoutSettings;
+    invokeinterface #104,  2          // InterfaceMethod net/minecraft/client/gui/layouts/LayoutSettings.paddingBottom:(I)Lnet/minecraft/client/gui/layouts/LayoutSettings;
+    invokeinterface #107,  1          // InterfaceMethod net/minecraft/client/gui/layouts/LayoutSettings.alignHorizontallyCenter:()Lnet/minecraft/client/gui/layouts/LayoutSettings;
+    invokevirtual #111                // Method net/minecraft/client/gui/layouts/GridLayout.createRowHelper:(I)Lnet/minecraft/client/gui/layouts/GridLayout$RowHelper;
+    invokevirtual #117                // Method net/minecraft/client/Options.fov:()Lnet/minecraft/client/OptionInstance;
+    invokevirtual #130                // Method net/minecraft/client/OptionInstance.createButton:(Lnet/minecraft/client/Options;III)Lnet/minecraft/client/gui/components/AbstractWidget;
+    invokevirtual #134                // Method net/minecraft/client/gui/layouts/GridLayout$RowHelper.addChild:(Lnet/minecraft/client/gui/layouts/LayoutElement;)Lnet/minecraft/client/gui/layouts/LayoutElement;
+    invokevirtual #138                // Method createOnlineButton:()Lnet/minecraft/client/gui/layouts/LayoutElement;
+    invokevirtual #134                // Method net/minecraft/client/gui/layouts/GridLayout$RowHelper.addChild:(Lnet/minecraft/client/gui/layouts/LayoutElement;)Lnet/minecraft/client/gui/layouts/LayoutElement;
+    invokestatic  #144                // Method net/minecraft/client/gui/layouts/SpacerElement.height:(I)Lnet/minecraft/client/gui/layouts/SpacerElement;
+    invokevirtual #147                // Method net/minecraft/client/gui/layouts/GridLayout$RowHelper.addChild:(Lnet/minecraft/client/gui/layouts/LayoutElement;I)Lnet/minecraft/client/gui/layouts/LayoutElement;
+    invokedynamic #168,  0            // InvokeDynamic #0:get:(Lnet/minecraft/client/gui/screens/OptionsScreen;)Ljava/util/function/Supplier;
+    invokevirtual #172                // Method openScreenButton:(Lnet/minecraft/network/chat/Component;Ljava/util/function/Supplier;)Lnet/minecraft/client/gui/components/Button;
+    invokevirtual #134                // Method net/minecraft/client/gui/layouts/GridLayout$RowHelper.addChild:(Lnet/minecraft/client/gui/layouts/LayoutElement;)Lnet/minecraft/client/gui/layouts/LayoutElement;
+    invokedynamic #179,  0            // InvokeDynamic #1:get:(Lnet/minecraft/client/gui/screens/OptionsScreen;)Ljava/util/function/Supplier;
+    invokevirtual #172                // Method openScreenButton:(Lnet/minecraft/network/chat/Component;Ljava/util/function/Supplier;)Lnet/minecraft/client/gui/components/Button;
+    invokevirtual #134                // Method net/minecraft/client/gui/layouts/GridLayout$RowHelper.addChild:(Lnet/minecraft/client/gui/layouts/LayoutElement;)Lnet/minecraft/client/gui/layouts/LayoutElement;
+    invokedynamic #186,  0            // InvokeDynamic #2:get:(Lnet/minecraft/client/gui/screens/OptionsScreen;)Ljava/util/function/Supplier;
+    invokevirtual #172                // Method openScreenButton:(Lnet/minecraft/network/chat/Component;Ljava/util/function/Supplier;)Lnet/minecraft/client/gui/components/Button;
+    invokevirtual #134                // Method net/minecraft/client/gui/layouts/GridLayout$RowHelper.addChild:(Lnet/minecraft/client/gui/layouts/LayoutElement;)Lnet/minecraft/client/gui/layouts/LayoutElement;
+    invokedynamic #193,  0            // InvokeDynamic #3:get:(Lnet/minecraft/client/gui/screens/OptionsScreen;)Ljava/util/function/Supplier;
+    invokevirtual #172                // Method openScreenButton:(Lnet/minecraft/network/chat/Component;Ljava/util/function/Supplier;)Lnet/minecraft/client/gui/components/Button;
+    invokevirtual #134                // Method net/minecraft/client/gui/layouts/GridLayout$RowHelper.addChild:(Lnet/minecraft/client/gui/layouts/LayoutElement;)Lnet/minecraft/client/gui/layouts/LayoutElement;
+    invokedynamic #200,  0            // InvokeDynamic #4:get:(Lnet/minecraft/client/gui/screens/OptionsScreen;)Ljava/util/function/Supplier;
+    invokevirtual #172                // Method openScreenButton:(Lnet/minecraft/network/chat/Component;Ljava/util/function/Supplier;)Lnet/minecraft/client/gui/components/Button;
+    invokevirtual #134                // Method net/minecraft/client/gui/layouts/GridLayout$RowHelper.addChild:(Lnet/minecraft/client/gui/layouts/LayoutElement;)Lnet/minecraft/client/gui/layouts/LayoutElement;
+    invokedynamic #207,  0            // InvokeDynamic #5:get:(Lnet/minecraft/client/gui/screens/OptionsScreen;)Ljava/util/function/Supplier;
+    invokevirtual #172                // Method openScreenButton:(Lnet/minecraft/network/chat/Component;Ljava/util/function/Supplier;)Lnet/minecraft/client/gui/components/Button;
+    invokevirtual #134                // Method net/minecraft/client/gui/layouts/GridLayout$RowHelper.addChild:(Lnet/minecraft/client/gui/layouts/LayoutElement;)Lnet/minecraft/client/gui/layouts/LayoutElement;
+    invokedynamic #214,  0            // InvokeDynamic #6:get:(Lnet/minecraft/client/gui/screens/OptionsScreen;)Ljava/util/function/Supplier;
+    invokevirtual #172                // Method openScreenButton:(Lnet/minecraft/network/chat/Component;Ljava/util/function/Supplier;)Lnet/minecraft/client/gui/components/Button;
+    invokevirtual #134                // Method net/minecraft/client/gui/layouts/GridLayout$RowHelper.addChild:(Lnet/minecraft/client/gui/layouts/LayoutElement;)Lnet/minecraft/client/gui/layouts/LayoutElement;
+    invokedynamic #221,  0            // InvokeDynamic #7:get:(Lnet/minecraft/client/gui/screens/OptionsScreen;)Ljava/util/function/Supplier;
+    invokevirtual #172                // Method openScreenButton:(Lnet/minecraft/network/chat/Component;Ljava/util/function/Supplier;)Lnet/minecraft/client/gui/components/Button;
+    invokevirtual #134                // Method net/minecraft/client/gui/layouts/GridLayout$RowHelper.addChild:(Lnet/minecraft/client/gui/layouts/LayoutElement;)Lnet/minecraft/client/gui/layouts/LayoutElement;
+    invokedynamic #228,  0            // InvokeDynamic #8:get:(Lnet/minecraft/client/gui/screens/OptionsScreen;)Ljava/util/function/Supplier;
+    invokevirtual #172                // Method openScreenButton:(Lnet/minecraft/network/chat/Component;Ljava/util/function/Supplier;)Lnet/minecraft/client/gui/components/Button;
+    invokevirtual #134                // Method net/minecraft/client/gui/layouts/GridLayout$RowHelper.addChild:(Lnet/minecraft/client/gui/layouts/LayoutElement;)Lnet/minecraft/client/gui/layouts/LayoutElement;
+    invokedynamic #235,  0            // InvokeDynamic #9:get:(Lnet/minecraft/client/gui/screens/OptionsScreen;)Ljava/util/function/Supplier;
+    invokevirtual #172                // Method openScreenButton:(Lnet/minecraft/network/chat/Component;Ljava/util/function/Supplier;)Lnet/minecraft/client/gui/components/Button;
+    invokevirtual #134                // Method net/minecraft/client/gui/layouts/GridLayout$RowHelper.addChild:(Lnet/minecraft/client/gui/layouts/LayoutElement;)Lnet/minecraft/client/gui/layouts/LayoutElement;
+    invokedynamic #250,  0            // InvokeDynamic #10:onPress:(Lnet/minecraft/client/gui/screens/OptionsScreen;)Lnet/minecraft/client/gui/components/Button$OnPress;
+    invokestatic  #254                // Method net/minecraft/client/gui/components/Button.builder:(Lnet/minecraft/network/chat/Component;Lnet/minecraft/client/gui/components/Button$OnPress;)Lnet/minecraft/client/gui/components/Button$Builder;
+    invokevirtual #258                // Method net/minecraft/client/gui/components/Button$Builder.width:(I)Lnet/minecraft/client/gui/components/Button$Builder;
+    invokevirtual #262                // Method net/minecraft/client/gui/components/Button$Builder.build:()Lnet/minecraft/client/gui/components/Button;
+    invokevirtual #265                // Method net/minecraft/client/gui/layouts/GridLayout$RowHelper.newCellSettings:()Lnet/minecraft/client/gui/layouts/LayoutSettings;
+    invokeinterface #268,  2          // InterfaceMethod net/minecraft/client/gui/layouts/LayoutSettings.paddingTop:(I)Lnet/minecraft/client/gui/layouts/LayoutSettings;
+    invokevirtual #271                // Method net/minecraft/client/gui/layouts/GridLayout$RowHelper.addChild:(Lnet/minecraft/client/gui/layouts/LayoutElement;ILnet/minecraft/client/gui/layouts/LayoutSettings;)Lnet/minecraft/client/gui/layouts/LayoutElement;
+    invokevirtual #274                // Method net/minecraft/client/gui/layouts/GridLayout.arrangeElements:()V
+    invokestatic  #285                // Method net/minecraft/client/gui/layouts/FrameLayout.alignInRectangle:(Lnet/minecraft/client/gui/layouts/LayoutElement;IIIIFF)V
+    invokedynamic #298,  0            // InvokeDynamic #11:accept:(Lnet/minecraft/client/gui/screens/OptionsScreen;)Ljava/util/function/Consumer;
+    invokevirtual #302                // Method net/minecraft/client/gui/layouts/GridLayout.visitWidgets:(Ljava/util/function/Consumer;)V
+  private void applyPacks(net.minecraft.server.packs.repository.PackRepository);
+    invokevirtual #312                // Method net/minecraft/client/Options.updateResourcePacks:(Lnet/minecraft/server/packs/repository/PackRepository;)V
+    invokevirtual #316                // Method net/minecraft/client/Minecraft.setScreen:(Lnet/minecraft/client/gui/screens/Screen;)V
+  private net.minecraft.client.gui.layouts.LayoutElement createOnlineButton();
+    invokevirtual #325                // Method net/minecraft/client/Minecraft.hasSingleplayerServer:()Z
+    invokestatic  #331                // Method createDifficultyButton:(IILjava/lang/String;Lnet/minecraft/client/Minecraft;)Lnet/minecraft/client/gui/components/CycleButton;
+    invokevirtual #337                // Method net/minecraft/client/multiplayer/ClientLevel.getLevelData:()Lnet/minecraft/client/multiplayer/ClientLevel$ClientLevelData;
+    invokevirtual #340                // Method net/minecraft/client/multiplayer/ClientLevel$ClientLevelData.isHardcore:()Z
+    invokedynamic #347,  0            // InvokeDynamic #12:onPress:(Lnet/minecraft/client/gui/screens/OptionsScreen;)Lnet/minecraft/client/gui/components/Button$OnPress;
+    invokespecial #350                // Method net/minecraft/client/gui/components/LockIconButton."<init>":(IILnet/minecraft/client/gui/components/Button$OnPress;)V
+    invokevirtual #356                // Method net/minecraft/client/gui/components/CycleButton.getWidth:()I
+    invokevirtual #357                // Method net/minecraft/client/gui/components/LockIconButton.getWidth:()I
+    invokevirtual #361                // Method net/minecraft/client/gui/components/CycleButton.setWidth:(I)V
+    invokevirtual #337                // Method net/minecraft/client/multiplayer/ClientLevel.getLevelData:()Lnet/minecraft/client/multiplayer/ClientLevel$ClientLevelData;
+    invokevirtual #364                // Method net/minecraft/client/multiplayer/ClientLevel$ClientLevelData.isDifficultyLocked:()Z
+    invokevirtual #368                // Method net/minecraft/client/gui/components/LockIconButton.setLocked:(Z)V
+    invokevirtual #371                // Method net/minecraft/client/gui/components/LockIconButton.isLocked:()Z
+    invokevirtual #371                // Method net/minecraft/client/gui/components/LockIconButton.isLocked:()Z
+    invokespecial #383                // Method net/minecraft/client/gui/layouts/EqualSpacingLayout."<init>":(IILnet/minecraft/client/gui/layouts/EqualSpacingLayout$Orientation;)V
+    invokevirtual #384                // Method net/minecraft/client/gui/layouts/EqualSpacingLayout.addChild:(Lnet/minecraft/client/gui/layouts/LayoutElement;)Lnet/minecraft/client/gui/layouts/LayoutElement;
+    invokevirtual #384                // Method net/minecraft/client/gui/layouts/EqualSpacingLayout.addChild:(Lnet/minecraft/client/gui/layouts/LayoutElement;)Lnet/minecraft/client/gui/layouts/LayoutElement;
+    invokestatic  #78                 // InterfaceMethod net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;
+    invokedynamic #391,  0            // InvokeDynamic #13:onPress:(Lnet/minecraft/client/gui/screens/OptionsScreen;)Lnet/minecraft/client/gui/components/Button$OnPress;
+    invokestatic  #254                // Method net/minecraft/client/gui/components/Button.builder:(Lnet/minecraft/network/chat/Component;Lnet/minecraft/client/gui/components/Button$OnPress;)Lnet/minecraft/client/gui/components/Button$Builder;
+    invokevirtual #395                // Method net/minecraft/client/gui/components/Button$Builder.bounds:(IIII)Lnet/minecraft/client/gui/components/Button$Builder;
+    invokevirtual #262                // Method net/minecraft/client/gui/components/Button$Builder.build:()Lnet/minecraft/client/gui/components/Button;
+  public static net.minecraft.client.gui.components.CycleButton<net.minecraft.world.Difficulty> createDifficultyButton(int, int, java.lang.String, net.minecraft.client.Minecraft);
+    invokedynamic #416,  0            // InvokeDynamic #14:apply:()Ljava/util/function/Function;
+    invokestatic  #419                // Method net/minecraft/client/gui/components/CycleButton.builder:(Ljava/util/function/Function;)Lnet/minecraft/client/gui/components/CycleButton$Builder;
+    invokestatic  #423                // Method net/minecraft/world/Difficulty.values:()[Lnet/minecraft/world/Difficulty;
+    invokevirtual #427                // Method net/minecraft/client/gui/components/CycleButton$Builder.withValues:([Ljava/lang/Object;)Lnet/minecraft/client/gui/components/CycleButton$Builder;
+    invokevirtual #431                // Method net/minecraft/client/multiplayer/ClientLevel.getDifficulty:()Lnet/minecraft/world/Difficulty;
+    invokevirtual #435                // Method net/minecraft/client/gui/components/CycleButton$Builder.withInitialValue:(Ljava/lang/Object;)Lnet/minecraft/client/gui/components/CycleButton$Builder;
+    invokestatic  #78                 // InterfaceMethod net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;
+    invokedynamic #448,  0            // InvokeDynamic #15:onValueChange:(Lnet/minecraft/client/Minecraft;)Lnet/minecraft/client/gui/components/CycleButton$OnValueChange;
+    invokevirtual #452                // Method net/minecraft/client/gui/components/CycleButton$Builder.create:(IIIILnet/minecraft/network/chat/Component;Lnet/minecraft/client/gui/components/CycleButton$OnValueChange;)Lnet/minecraft/client/gui/components/CycleButton;
+  private void lockCallback(boolean);
+    invokevirtual #316                // Method net/minecraft/client/Minecraft.setScreen:(Lnet/minecraft/client/gui/screens/Screen;)V
+    invokevirtual #459                // Method net/minecraft/client/Minecraft.getConnection:()Lnet/minecraft/client/multiplayer/ClientPacketListener;
+    invokespecial #463                // Method net/minecraft/network/protocol/game/ServerboundLockDifficultyPacket."<init>":(Z)V
+    invokevirtual #469                // Method net/minecraft/client/multiplayer/ClientPacketListener.send:(Lnet/minecraft/network/protocol/Packet;)V
+    invokevirtual #368                // Method net/minecraft/client/gui/components/LockIconButton.setLocked:(Z)V
+  public void removed();
+    invokevirtual #473                // Method net/minecraft/client/Options.save:()V
+  public void render(net.minecraft.client.gui.GuiGraphics, int, int, float);
+    invokespecial #479                // Method net/minecraft/client/gui/screens/Screen.render:(Lnet/minecraft/client/gui/GuiGraphics;IIF)V
+    invokevirtual #493                // Method net/minecraft/client/gui/GuiGraphics.drawCenteredString:(Lnet/minecraft/client/gui/Font;Lnet/minecraft/network/chat/Component;III)V
+  private net.minecraft.client.gui.components.Button openScreenButton(net.minecraft.network.chat.Component, java.util.function.Supplier<net.minecraft.client.gui.screens.Screen>);
+    invokedynamic #506,  0            // InvokeDynamic #16:onPress:(Lnet/minecraft/client/gui/screens/OptionsScreen;Ljava/util/function/Supplier;)Lnet/minecraft/client/gui/components/Button$OnPress;
+    invokestatic  #254                // Method net/minecraft/client/gui/components/Button.builder:(Lnet/minecraft/network/chat/Component;Lnet/minecraft/client/gui/components/Button$OnPress;)Lnet/minecraft/client/gui/components/Button$Builder;
+    invokevirtual #262                // Method net/minecraft/client/gui/components/Button$Builder.build:()Lnet/minecraft/client/gui/components/Button;
+  private void method_47624(java.util.function.Supplier, net.minecraft.client.gui.components.Button);
+    invokeinterface #513,  1          // InterfaceMethod java/util/function/Supplier.get:()Ljava/lang/Object;
+    invokevirtual #316                // Method net/minecraft/client/Minecraft.setScreen:(Lnet/minecraft/client/gui/screens/Screen;)V
+  private static void method_39487(net.minecraft.client.Minecraft, net.minecraft.client.gui.components.CycleButton, net.minecraft.world.Difficulty);
+    invokevirtual #459                // Method net/minecraft/client/Minecraft.getConnection:()Lnet/minecraft/client/multiplayer/ClientPacketListener;
+    invokespecial #521                // Method net/minecraft/network/protocol/game/ServerboundChangeDifficultyPacket."<init>":(Lnet/minecraft/world/Difficulty;)V
+    invokevirtual #469                // Method net/minecraft/client/multiplayer/ClientPacketListener.send:(Lnet/minecraft/network/protocol/Packet;)V
+  private void method_47623(net.minecraft.client.gui.components.Button);
+    invokestatic  #528                // Method net/minecraft/client/gui/screens/OnlineOptionsScreen.createOnlineOptionsScreen:(Lnet/minecraft/client/Minecraft;Lnet/minecraft/client/gui/screens/Screen;Lnet/minecraft/client/Options;)Lnet/minecraft/client/gui/screens/OnlineOptionsScreen;
+    invokevirtual #316                // Method net/minecraft/client/Minecraft.setScreen:(Lnet/minecraft/client/gui/screens/Screen;)V
+  private void method_47626(net.minecraft.client.gui.components.Button);
+    invokedynamic #537,  0            // InvokeDynamic #17:accept:(Lnet/minecraft/client/gui/screens/OptionsScreen;)Lit/unimi/dsi/fastutil/booleans/BooleanConsumer;
+    invokestatic  #78                 // InterfaceMethod net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;
+    invokevirtual #337                // Method net/minecraft/client/multiplayer/ClientLevel.getLevelData:()Lnet/minecraft/client/multiplayer/ClientLevel$ClientLevelData;
+    invokevirtual #544                // Method net/minecraft/client/multiplayer/ClientLevel$ClientLevelData.getDifficulty:()Lnet/minecraft/world/Difficulty;
+    invokevirtual #409                // Method net/minecraft/world/Difficulty.getDisplayName:()Lnet/minecraft/network/chat/Component;
+    invokestatic  #547                // InterfaceMethod net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;[Ljava/lang/Object;)Lnet/minecraft/network/chat/MutableComponent;
+    invokespecial #550                // Method net/minecraft/client/gui/screens/ConfirmScreen."<init>":(Lit/unimi/dsi/fastutil/booleans/BooleanConsumer;Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/Component;)V
+    invokevirtual #316                // Method net/minecraft/client/Minecraft.setScreen:(Lnet/minecraft/client/gui/screens/Screen;)V
+  private void method_47627(net.minecraft.client.gui.components.Button);
+    invokevirtual #316                // Method net/minecraft/client/Minecraft.setScreen:(Lnet/minecraft/client/gui/screens/Screen;)V
+  private net.minecraft.client.gui.screens.Screen method_49740();
+    invokespecial #554                // Method net/minecraft/client/gui/screens/CreditsAndAttributionScreen."<init>":(Lnet/minecraft/client/gui/screens/Screen;)V
+  private net.minecraft.client.gui.screens.Screen method_47629();
+    invokespecial #558                // Method net/minecraft/client/gui/screens/telemetry/TelemetryInfoScreen."<init>":(Lnet/minecraft/client/gui/screens/Screen;Lnet/minecraft/client/Options;)V
+  private net.minecraft.client.gui.screens.Screen method_47630();
+    invokespecial #561                // Method net/minecraft/client/gui/screens/AccessibilityOptionsScreen."<init>":(Lnet/minecraft/client/gui/screens/Screen;Lnet/minecraft/client/Options;)V
+  private net.minecraft.client.gui.screens.Screen method_47631();
+    invokevirtual #567                // Method net/minecraft/client/Minecraft.getResourcePackRepository:()Lnet/minecraft/server/packs/repository/PackRepository;
+    invokedynamic #572,  0            // InvokeDynamic #18:accept:(Lnet/minecraft/client/gui/screens/OptionsScreen;)Ljava/util/function/Consumer;
+    invokevirtual #576                // Method net/minecraft/client/Minecraft.getResourcePackDirectory:()Ljava/nio/file/Path;
+    invokestatic  #78                 // InterfaceMethod net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;
+    invokespecial #581                // Method net/minecraft/client/gui/screens/packs/PackSelectionScreen."<init>":(Lnet/minecraft/server/packs/repository/PackRepository;Ljava/util/function/Consumer;Ljava/nio/file/Path;Lnet/minecraft/network/chat/Component;)V
+  private net.minecraft.client.gui.screens.Screen method_19825();
+    invokespecial #584                // Method net/minecraft/client/gui/screens/ChatOptionsScreen."<init>":(Lnet/minecraft/client/gui/screens/Screen;Lnet/minecraft/client/Options;)V
+  private net.minecraft.client.gui.screens.Screen method_19826();
+    invokevirtual #590                // Method net/minecraft/client/Minecraft.getLanguageManager:()Lnet/minecraft/client/resources/language/LanguageManager;
+    invokespecial #593                // Method net/minecraft/client/gui/screens/LanguageSelectScreen."<init>":(Lnet/minecraft/client/gui/screens/Screen;Lnet/minecraft/client/Options;Lnet/minecraft/client/resources/language/LanguageManager;)V
+  private net.minecraft.client.gui.screens.Screen method_19827();
+    invokespecial #596                // Method net/minecraft/client/gui/screens/controls/ControlsScreen."<init>":(Lnet/minecraft/client/gui/screens/Screen;Lnet/minecraft/client/Options;)V
+  private net.minecraft.client.gui.screens.Screen method_19828();
+    invokespecial #599                // Method net/minecraft/client/gui/screens/VideoSettingsScreen."<init>":(Lnet/minecraft/client/gui/screens/Screen;Lnet/minecraft/client/Options;)V
+  private net.minecraft.client.gui.screens.Screen method_19829();
+    invokespecial #602                // Method net/minecraft/client/gui/screens/SoundOptionsScreen."<init>":(Lnet/minecraft/client/gui/screens/Screen;Lnet/minecraft/client/Options;)V
+  private net.minecraft.client.gui.screens.Screen method_19830();
+    invokespecial #605                // Method net/minecraft/client/gui/screens/SkinCustomizationScreen."<init>":(Lnet/minecraft/client/gui/screens/Screen;Lnet/minecraft/client/Options;)V
+    invokestatic  #78                 // InterfaceMethod net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;
+    invokestatic  #78                 // InterfaceMethod net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;
+    invokestatic  #78                 // InterfaceMethod net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;
+    invokestatic  #78                 // InterfaceMethod net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;
+    invokestatic  #78                 // InterfaceMethod net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;
+    invokestatic  #78                 // InterfaceMethod net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;
+    invokestatic  #78                 // InterfaceMethod net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;
+    invokestatic  #78                 // InterfaceMethod net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;
+    invokestatic  #78                 // InterfaceMethod net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;
+    invokestatic  #78                 // InterfaceMethod net/minecraft/network/chat/Component.translatable:(Ljava/lang/String;)Lnet/minecraft/network/chat/MutableComponent;
+== classes
+com.mojang.blaze3d.Blaze3D
+com.mojang.blaze3d.DontObfuscate
+com.mojang.blaze3d.FieldsAreNonnullByDefault
+com.mojang.blaze3d.MethodsReturnNonnullByDefault
+com.mojang.blaze3d.audio.Channel
+com.mojang.blaze3d.audio.Library
+com.mojang.blaze3d.audio.Listener
+com.mojang.blaze3d.audio.OggAudioStream
+com.mojang.blaze3d.audio.OpenAlUtil
+com.mojang.blaze3d.audio.SoundBuffer
+com.mojang.blaze3d.audio.package-info
+com.mojang.blaze3d.font.GlyphInfo
+com.mojang.blaze3d.font.GlyphProvider
+com.mojang.blaze3d.font.SheetGlyphInfo
+com.mojang.blaze3d.font.SpaceProvider
+com.mojang.blaze3d.font.TrueTypeGlyphProvider
+com.mojang.blaze3d.font.package-info
+com.mojang.blaze3d.package-info
+com.mojang.blaze3d.pipeline.MainTarget
+com.mojang.blaze3d.pipeline.RenderCall
+com.mojang.blaze3d.pipeline.RenderPipeline
+com.mojang.blaze3d.pipeline.RenderTarget
+com.mojang.blaze3d.pipeline.TextureTarget
+com.mojang.blaze3d.pipeline.package-info
+com.mojang.blaze3d.platform.ClipboardManager
+com.mojang.blaze3d.platform.DebugMemoryUntracker
+com.mojang.blaze3d.platform.DisplayData
+com.mojang.blaze3d.platform.GLX
+com.mojang.blaze3d.platform.GlConst
+com.mojang.blaze3d.platform.GlDebug
+com.mojang.blaze3d.platform.GlStateManager
+com.mojang.blaze3d.platform.GlUtil
+com.mojang.blaze3d.platform.IconSet
+com.mojang.blaze3d.platform.InputConstants
+com.mojang.blaze3d.platform.Lighting
+com.mojang.blaze3d.platform.MacosUtil
+com.mojang.blaze3d.platform.MemoryTracker
+com.mojang.blaze3d.platform.Monitor
+com.mojang.blaze3d.platform.MonitorCreator
+com.mojang.blaze3d.platform.NativeImage
+com.mojang.blaze3d.platform.ScreenManager
+com.mojang.blaze3d.platform.TextureUtil
+com.mojang.blaze3d.platform.VideoMode
+com.mojang.blaze3d.platform.Window
+com.mojang.blaze3d.platform.WindowEventHandler
+com.mojang.blaze3d.platform.package-info
+com.mojang.blaze3d.preprocessor.GlslPreprocessor
+com.mojang.blaze3d.preprocessor.package-info
+com.mojang.blaze3d.shaders.AbstractUniform
+com.mojang.blaze3d.shaders.BlendMode
+com.mojang.blaze3d.shaders.Effect
+com.mojang.blaze3d.shaders.EffectProgram
+com.mojang.blaze3d.shaders.FogShape
+com.mojang.blaze3d.shaders.Program
+com.mojang.blaze3d.shaders.ProgramManager
+com.mojang.blaze3d.shaders.Shader
+com.mojang.blaze3d.shaders.Uniform
+com.mojang.blaze3d.shaders.package-info
+com.mojang.blaze3d.systems.RenderSystem
+com.mojang.blaze3d.systems.TimerQuery
+com.mojang.blaze3d.systems.package-info
+com.mojang.blaze3d.vertex.BufferBuilder
+com.mojang.blaze3d.vertex.BufferUploader
+com.mojang.blaze3d.vertex.BufferVertexConsumer
+com.mojang.blaze3d.vertex.DefaultVertexFormat
+com.mojang.blaze3d.vertex.DefaultedVertexConsumer
+com.mojang.blaze3d.vertex.PoseStack
+com.mojang.blaze3d.vertex.SheetedDecalTextureGenerator
+com.mojang.blaze3d.vertex.Tesselator
+com.mojang.blaze3d.vertex.VertexBuffer
+com.mojang.blaze3d.vertex.VertexConsumer
+com.mojang.blaze3d.vertex.VertexFormat
+com.mojang.blaze3d.vertex.VertexFormatElement
+com.mojang.blaze3d.vertex.VertexMultiConsumer
+com.mojang.blaze3d.vertex.VertexSorting
+com.mojang.blaze3d.vertex.package-info
+net.fabricmc.fabric.api.client.command.v2.ClientCommandManager
+net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback
+net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource
+net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientBlockEntityEvents
+net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientChunkEvents
+net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents
+net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents
+net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
+net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback
+net.fabricmc.fabric.api.client.keybinding.FabricKeyBinding
+net.fabricmc.fabric.api.client.keybinding.KeyBindingRegistry
+net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper
+net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents
+net.fabricmc.fabric.api.client.message.v1.ClientSendMessageEvents
+net.fabricmc.fabric.api.client.model.BakedModelManagerHelper
+net.fabricmc.fabric.api.client.model.ExtraModelProvider
+net.fabricmc.fabric.api.client.model.ModelAppender
+net.fabricmc.fabric.api.client.model.ModelLoadingRegistry
+net.fabricmc.fabric.api.client.model.ModelProviderContext
+net.fabricmc.fabric.api.client.model.ModelProviderException
+net.fabricmc.fabric.api.client.model.ModelResourceProvider
+net.fabricmc.fabric.api.client.model.ModelVariantProvider
+net.fabricmc.fabric.api.client.model.loading.v1.BlockStateResolver
+net.fabricmc.fabric.api.client.model.loading.v1.DelegatingUnbakedModel
+net.fabricmc.fabric.api.client.model.loading.v1.FabricBakedModelManager
+net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin
+net.fabricmc.fabric.api.client.model.loading.v1.ModelModifier
+net.fabricmc.fabric.api.client.model.loading.v1.ModelResolver
+net.fabricmc.fabric.api.client.model.loading.v1.PreparableModelLoadingPlugin
+net.fabricmc.fabric.api.client.networking.v1.C2SConfigurationChannelEvents
+net.fabricmc.fabric.api.client.networking.v1.C2SPlayChannelEvents
+net.fabricmc.fabric.api.client.networking.v1.ClientConfigurationConnectionEvents
+net.fabricmc.fabric.api.client.networking.v1.ClientConfigurationNetworking
+net.fabricmc.fabric.api.client.networking.v1.ClientLoginConnectionEvents
+net.fabricmc.fabric.api.client.networking.v1.ClientLoginNetworking
+net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents
+net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking
+net.fabricmc.fabric.api.client.particle.v1.FabricSpriteProvider
+net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry
+net.fabricmc.fabric.api.client.particle.v1.ParticleRenderEvents
+net.fabricmc.fabric.api.client.render.ColorProviderRegistry
+net.fabricmc.fabric.api.client.render.InvalidateRenderStateCallback
+net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandler
+net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry
+net.fabricmc.fabric.api.client.render.fluid.v1.SimpleFluidRenderHandler
+net.fabricmc.fabric.api.client.rendereregistry.v1.BlockEntityRendererRegistry
+net.fabricmc.fabric.api.client.rendereregistry.v1.EntityModelLayerRegistry
+net.fabricmc.fabric.api.client.rendereregistry.v1.EntityRendererRegistry
+net.fabricmc.fabric.api.client.rendereregistry.v1.LivingEntityFeatureRendererRegistrationCallback
+net.fabricmc.fabric.api.client.rendering.v1.ArmorRenderer
+net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry
+net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRenderer
+net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry
+net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry
+net.fabricmc.fabric.api.client.rendering.v1.CoreShaderRegistrationCallback
+net.fabricmc.fabric.api.client.rendering.v1.DimensionRenderingRegistry
+net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry
+net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry
+net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback
+net.fabricmc.fabric.api.client.rendering.v1.InvalidateRenderStateCallback
+net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRenderEvents
+net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback
+net.fabricmc.fabric.api.client.rendering.v1.TooltipComponentCallback
+net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext
+net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents
+net.fabricmc.fabric.api.client.screen.ContainerScreenFactory
+net.fabricmc.fabric.api.client.screen.ScreenProviderRegistry
+net.fabricmc.fabric.api.client.screen.v1.ScreenEvents
+net.fabricmc.fabric.api.client.screen.v1.ScreenKeyboardEvents
+net.fabricmc.fabric.api.client.screen.v1.ScreenMouseEvents
+net.fabricmc.fabric.api.client.screen.v1.Screens
+net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry
+net.fabricmc.fabric.api.client.sound.v1.FabricSoundInstance
+net.minecraft.client.AttackIndicatorStatus
+net.minecraft.client.Camera
+net.minecraft.client.CameraType
+net.minecraft.client.ClientBrandRetriever
+net.minecraft.client.ClientRecipeBook
+net.minecraft.client.CloudStatus
+net.minecraft.client.CommandHistory
+net.minecraft.client.ComponentCollector
+net.minecraft.client.DebugQueryHandler
+net.minecraft.client.GameNarrator
+net.minecraft.client.GraphicsStatus
+net.minecraft.client.GuiMessage
+net.minecraft.client.GuiMessageTag
+net.minecraft.client.HotbarManager
+net.minecraft.client.InputType
+net.minecraft.client.KeyMapping
+net.minecraft.client.KeyboardHandler
+net.minecraft.client.Minecraft
+net.minecraft.client.MouseHandler
+net.minecraft.client.NarratorStatus
+net.minecraft.client.OptionInstance
+net.minecraft.client.Options
+net.minecraft.client.ParticleStatus
+net.minecraft.client.PeriodicNotificationManager
+net.minecraft.client.PrioritizeChunkUpdates
+net.minecraft.client.Realms32BitWarningStatus
+net.minecraft.client.RecipeBookCategories
+net.minecraft.client.ResourceLoadStateTracker
+net.minecraft.client.Screenshot
+net.minecraft.client.StringSplitter
+net.minecraft.client.Timer
+net.minecraft.client.ToggleKeyMapping
+net.minecraft.client.User
+net.minecraft.client.animation.AnimationChannel
+net.minecraft.client.animation.AnimationDefinition
+net.minecraft.client.animation.Keyframe
+net.minecraft.client.animation.KeyframeAnimations
+net.minecraft.client.animation.definitions.CamelAnimation
+net.minecraft.client.animation.definitions.FrogAnimation
+net.minecraft.client.animation.definitions.SnifferAnimation
+net.minecraft.client.animation.definitions.WardenAnimation
+net.minecraft.client.animation.definitions.package-info
+net.minecraft.client.animation.package-info
+net.minecraft.client.color.block.BlockColor
+net.minecraft.client.color.block.BlockColors
+net.minecraft.client.color.block.BlockTintCache
+net.minecraft.client.color.block.package-info
+net.minecraft.client.color.item.ItemColor
+net.minecraft.client.color.item.ItemColors
+net.minecraft.client.color.item.package-info
+net.minecraft.client.gui.ComponentPath
+net.minecraft.client.gui.Font
+net.minecraft.client.gui.Gui
+net.minecraft.client.gui.GuiGraphics
+net.minecraft.client.gui.GuiSpriteManager
+net.minecraft.client.gui.MapRenderer
+net.minecraft.client.gui.components.AbstractButton
+net.minecraft.client.gui.components.AbstractOptionSliderButton
+net.minecraft.client.gui.components.AbstractScrollWidget
+net.minecraft.client.gui.components.AbstractSelectionList
+net.minecraft.client.gui.components.AbstractSliderButton
+net.minecraft.client.gui.components.AbstractStringWidget
+net.minecraft.client.gui.components.AbstractWidget
+net.minecraft.client.gui.components.BossHealthOverlay
+net.minecraft.client.gui.components.Button
+net.minecraft.client.gui.components.ChatComponent
+net.minecraft.client.gui.components.Checkbox
+net.minecraft.client.gui.components.CommandSuggestions
+net.minecraft.client.gui.components.CommonButtons
+net.minecraft.client.gui.components.ComponentRenderUtils
+net.minecraft.client.gui.components.ContainerObjectSelectionList
+net.minecraft.client.gui.components.CycleButton
+net.minecraft.client.gui.components.DebugScreenOverlay
+net.minecraft.client.gui.components.EditBox
+net.minecraft.client.gui.components.FittingMultiLineTextWidget
+net.minecraft.client.gui.components.FocusableTextWidget
+net.minecraft.client.gui.components.ImageButton
+net.minecraft.client.gui.components.ImageWidget
+net.minecraft.client.gui.components.LerpingBossEvent
+net.minecraft.client.gui.components.LoadingDotsWidget
+net.minecraft.client.gui.components.LockIconButton
+net.minecraft.client.gui.components.LogoRenderer
+net.minecraft.client.gui.components.MultiLineEditBox
+net.minecraft.client.gui.components.MultiLineLabel
+net.minecraft.client.gui.components.MultiLineTextWidget
+net.minecraft.client.gui.components.MultilineTextField
+net.minecraft.client.gui.components.ObjectSelectionList
+net.minecraft.client.gui.components.OptionsList
+net.minecraft.client.gui.components.PlainTextButton
+net.minecraft.client.gui.components.PlayerFaceRenderer
+net.minecraft.client.gui.components.PlayerSkinWidget
+net.minecraft.client.gui.components.PlayerTabOverlay
+net.minecraft.client.gui.components.Renderable
+net.minecraft.client.gui.components.SplashRenderer
+net.minecraft.client.gui.components.SpriteIconButton
+net.minecraft.client.gui.components.StateSwitchingButton
+net.minecraft.client.gui.components.StringWidget
+net.minecraft.client.gui.components.SubtitleOverlay
+net.minecraft.client.gui.components.TabButton
+net.minecraft.client.gui.components.TabOrderedElement
+net.minecraft.client.gui.components.Tooltip
+net.minecraft.client.gui.components.Whence
+net.minecraft.client.gui.components.WidgetSprites
+net.minecraft.client.gui.components.debugchart.AbstractDebugChart
+net.minecraft.client.gui.components.debugchart.BandwidthDebugChart
+net.minecraft.client.gui.components.debugchart.FpsDebugChart
+net.minecraft.client.gui.components.debugchart.PingDebugChart
+net.minecraft.client.gui.components.debugchart.TpsDebugChart
+net.minecraft.client.gui.components.events.AbstractContainerEventHandler
+net.minecraft.client.gui.components.events.ContainerEventHandler
+net.minecraft.client.gui.components.events.GuiEventListener
+net.minecraft.client.gui.components.events.package-info
+net.minecraft.client.gui.components.package-info
+net.minecraft.client.gui.components.spectator.SpectatorGui
+net.minecraft.client.gui.components.spectator.package-info
+net.minecraft.client.gui.components.tabs.GridLayoutTab
+net.minecraft.client.gui.components.tabs.Tab
+net.minecraft.client.gui.components.tabs.TabManager
+net.minecraft.client.gui.components.tabs.TabNavigationBar
+net.minecraft.client.gui.components.tabs.package-info
+net.minecraft.client.gui.components.toasts.AdvancementToast
+net.minecraft.client.gui.components.toasts.RecipeToast
+net.minecraft.client.gui.components.toasts.SystemToast
+net.minecraft.client.gui.components.toasts.Toast
+net.minecraft.client.gui.components.toasts.ToastComponent
+net.minecraft.client.gui.components.toasts.TutorialToast
+net.minecraft.client.gui.components.toasts.package-info
+net.minecraft.client.gui.font.AllMissingGlyphProvider
+net.minecraft.client.gui.font.CodepointMap
+net.minecraft.client.gui.font.FontManager
+net.minecraft.client.gui.font.FontSet
+net.minecraft.client.gui.font.FontTexture
+net.minecraft.client.gui.font.GlyphRenderTypes
+net.minecraft.client.gui.font.TextFieldHelper
+net.minecraft.client.gui.font.glyphs.BakedGlyph
+net.minecraft.client.gui.font.glyphs.EmptyGlyph
+net.minecraft.client.gui.font.glyphs.SpecialGlyphs
+net.minecraft.client.gui.font.glyphs.package-info
+net.minecraft.client.gui.font.package-info
+net.minecraft.client.gui.font.providers.BitmapProvider
+net.minecraft.client.gui.font.providers.GlyphProviderDefinition
+net.minecraft.client.gui.font.providers.GlyphProviderType
+net.minecraft.client.gui.font.providers.ProviderReferenceDefinition
+net.minecraft.client.gui.font.providers.TrueTypeGlyphProviderDefinition
+net.minecraft.client.gui.font.providers.UnihexProvider
+net.minecraft.client.gui.font.providers.package-info
+net.minecraft.client.gui.layouts.AbstractLayout
+net.minecraft.client.gui.layouts.CommonLayouts
+net.minecraft.client.gui.layouts.EqualSpacingLayout
+net.minecraft.client.gui.layouts.FrameLayout
+net.minecraft.client.gui.layouts.GridLayout
+net.minecraft.client.gui.layouts.HeaderAndFooterLayout
+net.minecraft.client.gui.layouts.Layout
+net.minecraft.client.gui.layouts.LayoutElement
+net.minecraft.client.gui.layouts.LayoutSettings
+net.minecraft.client.gui.layouts.LinearLayout
+net.minecraft.client.gui.layouts.SpacerElement
+net.minecraft.client.gui.layouts.package-info
+net.minecraft.client.gui.narration.NarratableEntry
+net.minecraft.client.gui.narration.NarratedElementType
+net.minecraft.client.gui.narration.NarrationElementOutput
+net.minecraft.client.gui.narration.NarrationSupplier
+net.minecraft.client.gui.narration.NarrationThunk
+net.minecraft.client.gui.narration.ScreenNarrationCollector
+net.minecraft.client.gui.narration.package-info
+net.minecraft.client.gui.navigation.CommonInputs
+net.minecraft.client.gui.navigation.FocusNavigationEvent
+net.minecraft.client.gui.navigation.ScreenAxis
+net.minecraft.client.gui.navigation.ScreenDirection
+net.minecraft.client.gui.navigation.ScreenPosition
+net.minecraft.client.gui.navigation.ScreenRectangle
+net.minecraft.client.gui.navigation.package-info
+net.minecraft.client.gui.package-info
+net.minecraft.client.gui.screens.AccessibilityOnboardingScreen
+net.minecraft.client.gui.screens.AccessibilityOptionsScreen
+net.minecraft.client.gui.screens.AlertScreen
+net.minecraft.client.gui.screens.BackupConfirmScreen
+net.minecraft.client.gui.screens.BanNoticeScreens
+net.minecraft.client.gui.screens.ChatOptionsScreen
+net.minecraft.client.gui.screens.ChatScreen
+net.minecraft.client.gui.screens.ConfirmLinkScreen
+net.minecraft.client.gui.screens.ConfirmScreen
+net.minecraft.client.gui.screens.ConnectScreen
+net.minecraft.client.gui.screens.CreateBuffetWorldScreen
+net.minecraft.client.gui.screens.CreateFlatWorldScreen
+net.minecraft.client.gui.screens.CreditsAndAttributionScreen
+net.minecraft.client.gui.screens.DatapackLoadFailureScreen
+net.minecraft.client.gui.screens.DeathScreen
+net.minecraft.client.gui.screens.DemoIntroScreen
+net.minecraft.client.gui.screens.DirectJoinServerScreen
+net.minecraft.client.gui.screens.DisconnectedScreen
+net.minecraft.client.gui.screens.EditServerScreen
+net.minecraft.client.gui.screens.ErrorScreen
+net.minecraft.client.gui.screens.FaviconTexture
+net.minecraft.client.gui.screens.GenericDirtMessageScreen
+net.minecraft.client.gui.screens.GenericWaitingScreen
+net.minecraft.client.gui.screens.InBedChatScreen
+net.minecraft.client.gui.screens.LanguageSelectScreen
+net.minecraft.client.gui.screens.LevelLoadingScreen
+net.minecraft.client.gui.screens.LoadingDotsText
+net.minecraft.client.gui.screens.LoadingOverlay
+net.minecraft.client.gui.screens.MenuScreens
+net.minecraft.client.gui.screens.MouseSettingsScreen
+net.minecraft.client.gui.screens.NoticeWithLinkScreen
+net.minecraft.client.gui.screens.OnlineOptionsScreen
+net.minecraft.client.gui.screens.OptionsScreen
+net.minecraft.client.gui.screens.OptionsSubScreen
+net.minecraft.client.gui.screens.OutOfMemoryScreen
+net.minecraft.client.gui.screens.Overlay
+net.minecraft.client.gui.screens.PauseScreen
+net.minecraft.client.gui.screens.PopupScreen
+net.minecraft.client.gui.screens.PresetFlatWorldScreen
+net.minecraft.client.gui.screens.ProgressScreen
+net.minecraft.client.gui.screens.ReceivingLevelScreen
+net.minecraft.client.gui.screens.Screen
+net.minecraft.client.gui.screens.ShareToLanScreen
+net.minecraft.client.gui.screens.SimpleOptionsSubScreen
+net.minecraft.client.gui.screens.SkinCustomizationScreen
+net.minecraft.client.gui.screens.SoundOptionsScreen
+net.minecraft.client.gui.screens.TitleScreen
+net.minecraft.client.gui.screens.VideoSettingsScreen
+net.minecraft.client.gui.screens.WinScreen
+net.minecraft.client.gui.screens.achievement.StatsScreen
+net.minecraft.client.gui.screens.achievement.StatsUpdateListener
+net.minecraft.client.gui.screens.achievement.package-info
+net.minecraft.client.gui.screens.advancements.AdvancementTab
+net.minecraft.client.gui.screens.advancements.AdvancementTabType
+net.minecraft.client.gui.screens.advancements.AdvancementWidget
+net.minecraft.client.gui.screens.advancements.AdvancementWidgetType
+net.minecraft.client.gui.screens.advancements.AdvancementsScreen
+net.minecraft.client.gui.screens.advancements.package-info
+net.minecraft.client.gui.screens.controls.ControlsScreen
+net.minecraft.client.gui.screens.controls.KeyBindsList
+net.minecraft.client.gui.screens.controls.KeyBindsScreen
+net.minecraft.client.gui.screens.controls.package-info
+net.minecraft.client.gui.screens.debug.GameModeSwitcherScreen
+net.minecraft.client.gui.screens.debug.package-info
+net.minecraft.client.gui.screens.inventory.AbstractCommandBlockEditScreen
+net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
+net.minecraft.client.gui.screens.inventory.AbstractFurnaceScreen
+net.minecraft.client.gui.screens.inventory.AbstractSignEditScreen
+net.minecraft.client.gui.screens.inventory.AnvilScreen
+net.minecraft.client.gui.screens.inventory.BeaconScreen
+net.minecraft.client.gui.screens.inventory.BlastFurnaceScreen
+net.minecraft.client.gui.screens.inventory.BookEditScreen
+net.minecraft.client.gui.screens.inventory.BookViewScreen
+net.minecraft.client.gui.screens.inventory.BrewingStandScreen
+net.minecraft.client.gui.screens.inventory.CartographyTableScreen
+net.minecraft.client.gui.screens.inventory.CommandBlockEditScreen
+net.minecraft.client.gui.screens.inventory.ContainerScreen
+net.minecraft.client.gui.screens.inventory.CraftingScreen
+net.minecraft.client.gui.screens.inventory.CreativeInventoryListener
+net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen
+net.minecraft.client.gui.screens.inventory.CyclingSlotBackground
+net.minecraft.client.gui.screens.inventory.DispenserScreen
+net.minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreen
+net.minecraft.client.gui.screens.inventory.EnchantmentNames
+net.minecraft.client.gui.screens.inventory.EnchantmentScreen
+net.minecraft.client.gui.screens.inventory.FurnaceScreen
+net.minecraft.client.gui.screens.inventory.GrindstoneScreen
+net.minecraft.client.gui.screens.inventory.HangingSignEditScreen
+net.minecraft.client.gui.screens.inventory.HopperScreen
+net.minecraft.client.gui.screens.inventory.HorseInventoryScreen
+net.minecraft.client.gui.screens.inventory.InventoryScreen
+net.minecraft.client.gui.screens.inventory.ItemCombinerScreen
+net.minecraft.client.gui.screens.inventory.JigsawBlockEditScreen
+net.minecraft.client.gui.screens.inventory.LecternScreen
+net.minecraft.client.gui.screens.inventory.LoomScreen
+net.minecraft.client.gui.screens.inventory.MenuAccess
+net.minecraft.client.gui.screens.inventory.MerchantScreen
+net.minecraft.client.gui.screens.inventory.MinecartCommandBlockEditScreen
+net.minecraft.client.gui.screens.inventory.PageButton
+net.minecraft.client.gui.screens.inventory.ShulkerBoxScreen
+net.minecraft.client.gui.screens.inventory.SignEditScreen
+net.minecraft.client.gui.screens.inventory.SmithingScreen
+net.minecraft.client.gui.screens.inventory.SmokerScreen
+net.minecraft.client.gui.screens.inventory.StonecutterScreen
+net.minecraft.client.gui.screens.inventory.StructureBlockEditScreen
+net.minecraft.client.gui.screens.inventory.package-info
+net.minecraft.client.gui.screens.inventory.tooltip.BelowOrAboveWidgetTooltipPositioner
+net.minecraft.client.gui.screens.inventory.tooltip.ClientBundleTooltip
+net.minecraft.client.gui.screens.inventory.tooltip.ClientTextTooltip
+net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent
+net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner
+net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner
+net.minecraft.client.gui.screens.inventory.tooltip.MenuTooltipPositioner
+net.minecraft.client.gui.screens.inventory.tooltip.TooltipRenderUtil
+net.minecraft.client.gui.screens.inventory.tooltip.package-info
+net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen
+net.minecraft.client.gui.screens.multiplayer.Realms32bitWarningScreen
+net.minecraft.client.gui.screens.multiplayer.SafetyScreen
+net.minecraft.client.gui.screens.multiplayer.ServerReconfigScreen
+net.minecraft.client.gui.screens.multiplayer.ServerSelectionList
+net.minecraft.client.gui.screens.multiplayer.WarningScreen
+net.minecraft.client.gui.screens.multiplayer.package-info
+net.minecraft.client.gui.screens.package-info
+net.minecraft.client.gui.screens.packs.PackSelectionModel
+net.minecraft.client.gui.screens.packs.PackSelectionScreen
+net.minecraft.client.gui.screens.packs.TransferableSelectionList
+net.minecraft.client.gui.screens.packs.package-info
+net.minecraft.client.gui.screens.recipebook.AbstractFurnaceRecipeBookComponent
+net.minecraft.client.gui.screens.recipebook.BlastingRecipeBookComponent
+net.minecraft.client.gui.screens.recipebook.GhostRecipe
+net.minecraft.client.gui.screens.recipebook.OverlayRecipeComponent
+net.minecraft.client.gui.screens.recipebook.RecipeBookComponent
+net.minecraft.client.gui.screens.recipebook.RecipeBookPage
+net.minecraft.client.gui.screens.recipebook.RecipeBookTabButton
+net.minecraft.client.gui.screens.recipebook.RecipeButton
+net.minecraft.client.gui.screens.recipebook.RecipeCollection
+net.minecraft.client.gui.screens.recipebook.RecipeShownListener
+net.minecraft.client.gui.screens.recipebook.RecipeUpdateListener
+net.minecraft.client.gui.screens.recipebook.SmeltingRecipeBookComponent
+net.minecraft.client.gui.screens.recipebook.SmokingRecipeBookComponent
+net.minecraft.client.gui.screens.recipebook.package-info
+net.minecraft.client.gui.screens.reporting.AbstractReportScreen
+net.minecraft.client.gui.screens.reporting.ChatReportScreen
+net.minecraft.client.gui.screens.reporting.ChatSelectionLogFiller
+net.minecraft.client.gui.screens.reporting.ChatSelectionScreen
+net.minecraft.client.gui.screens.reporting.NameReportScreen
+net.minecraft.client.gui.screens.reporting.ReportPlayerScreen
+net.minecraft.client.gui.screens.reporting.ReportReasonSelectionScreen
+net.minecraft.client.gui.screens.reporting.SkinReportScreen
+net.minecraft.client.gui.screens.reporting.package-info
+net.minecraft.client.gui.screens.social.PlayerEntry
+net.minecraft.client.gui.screens.social.PlayerSocialManager
+net.minecraft.client.gui.screens.social.SocialInteractionsPlayerList
+net.minecraft.client.gui.screens.social.SocialInteractionsScreen
+net.minecraft.client.gui.screens.social.package-info
+net.minecraft.client.gui.screens.telemetry.TelemetryEventWidget
+net.minecraft.client.gui.screens.telemetry.TelemetryInfoScreen
+net.minecraft.client.gui.screens.telemetry.package-info
+net.minecraft.client.gui.screens.worldselection.ConfirmExperimentalFeaturesScreen
+net.minecraft.client.gui.screens.worldselection.CreateWorldScreen
+net.minecraft.client.gui.screens.worldselection.EditGameRulesScreen
+net.minecraft.client.gui.screens.worldselection.EditWorldScreen
+net.minecraft.client.gui.screens.worldselection.ExperimentsScreen
+net.minecraft.client.gui.screens.worldselection.OptimizeWorldScreen
+net.minecraft.client.gui.screens.worldselection.PresetEditor
+net.minecraft.client.gui.screens.worldselection.SelectWorldScreen
+net.minecraft.client.gui.screens.worldselection.SwitchGrid
+net.minecraft.client.gui.screens.worldselection.WorldCreationContext
+net.minecraft.client.gui.screens.worldselection.WorldCreationUiState
+net.minecraft.client.gui.screens.worldselection.WorldOpenFlows
+net.minecraft.client.gui.screens.worldselection.WorldSelectionList
+net.minecraft.client.gui.screens.worldselection.package-info
+net.minecraft.client.gui.spectator.PlayerMenuItem
+net.minecraft.client.gui.spectator.RootSpectatorMenuCategory
+net.minecraft.client.gui.spectator.SpectatorMenu
+net.minecraft.client.gui.spectator.SpectatorMenuCategory
+net.minecraft.client.gui.spectator.SpectatorMenuItem
+net.minecraft.client.gui.spectator.SpectatorMenuListener
+net.minecraft.client.gui.spectator.categories.SpectatorPage
+net.minecraft.client.gui.spectator.categories.TeleportToPlayerMenuCategory
+net.minecraft.client.gui.spectator.categories.TeleportToTeamMenuCategory
+net.minecraft.client.gui.spectator.categories.package-info
+net.minecraft.client.gui.spectator.package-info
+net.minecraft.client.main.GameConfig
+net.minecraft.client.main.Main
+net.minecraft.client.main.SilentInitException
+net.minecraft.client.main.package-info
+net.minecraft.client.model.AbstractZombieModel
+net.minecraft.client.model.AgeableHierarchicalModel
+net.minecraft.client.model.AgeableListModel
+net.minecraft.client.model.AllayModel
+net.minecraft.client.model.AnimationUtils
+net.minecraft.client.model.ArmedModel
+net.minecraft.client.model.ArmorStandArmorModel
+net.minecraft.client.model.ArmorStandModel
+net.minecraft.client.model.AxolotlModel
+net.minecraft.client.model.BatModel
+net.minecraft.client.model.BeeModel
+net.minecraft.client.model.BlazeModel
+net.minecraft.client.model.BoatModel
+net.minecraft.client.model.BookModel
+net.minecraft.client.model.CamelModel
+net.minecraft.client.model.CatModel
+net.minecraft.client.model.ChestBoatModel
+net.minecraft.client.model.ChestRaftModel
+net.minecraft.client.model.ChestedHorseModel
+net.minecraft.client.model.ChickenModel
+net.minecraft.client.model.CodModel
+net.minecraft.client.model.ColorableAgeableListModel
+net.minecraft.client.model.ColorableHierarchicalModel
+net.minecraft.client.model.CowModel
+net.minecraft.client.model.CreeperModel
+net.minecraft.client.model.DolphinModel
+net.minecraft.client.model.DrownedModel
+net.minecraft.client.model.ElytraModel
+net.minecraft.client.model.EndermanModel
+net.minecraft.client.model.EndermiteModel
+net.minecraft.client.model.EntityModel
+net.minecraft.client.model.EvokerFangsModel
+net.minecraft.client.model.FoxModel
+net.minecraft.client.model.FrogModel
+net.minecraft.client.model.GhastModel
+net.minecraft.client.model.GiantZombieModel
+net.minecraft.client.model.GoatModel
+net.minecraft.client.model.GuardianModel
+net.minecraft.client.model.HeadedModel
+net.minecraft.client.model.HierarchicalModel
+net.minecraft.client.model.HoglinModel
+net.minecraft.client.model.HorseModel
+net.minecraft.client.model.HumanoidArmorModel
+net.minecraft.client.model.HumanoidModel
+net.minecraft.client.model.IllagerModel
+net.minecraft.client.model.IronGolemModel
+net.minecraft.client.model.LavaSlimeModel
+net.minecraft.client.model.LeashKnotModel
+net.minecraft.client.model.ListModel
+net.minecraft.client.model.LlamaModel
+net.minecraft.client.model.LlamaSpitModel
+net.minecraft.client.model.MinecartModel
+net.minecraft.client.model.Model
+net.minecraft.client.model.ModelUtils
+net.minecraft.client.model.OcelotModel
+net.minecraft.client.model.PandaModel
+net.minecraft.client.model.ParrotModel
+net.minecraft.client.model.PhantomModel
+net.minecraft.client.model.PigModel
+net.minecraft.client.model.PiglinHeadModel
+net.minecraft.client.model.PiglinModel
+net.minecraft.client.model.PlayerModel
+net.minecraft.client.model.PolarBearModel
+net.minecraft.client.model.PufferfishBigModel
+net.minecraft.client.model.PufferfishMidModel
+net.minecraft.client.model.PufferfishSmallModel
+net.minecraft.client.model.QuadrupedModel
+net.minecraft.client.model.RabbitModel
+net.minecraft.client.model.RaftModel
+net.minecraft.client.model.RavagerModel
+net.minecraft.client.model.SalmonModel
+net.minecraft.client.model.SheepFurModel
+net.minecraft.client.model.SheepModel
+net.minecraft.client.model.ShieldModel
+net.minecraft.client.model.ShulkerBulletModel
+net.minecraft.client.model.ShulkerModel
+net.minecraft.client.model.SilverfishModel
+net.minecraft.client.model.SkeletonModel
+net.minecraft.client.model.SkullModel
+net.minecraft.client.model.SkullModelBase
+net.minecraft.client.model.SlimeModel
+net.minecraft.client.model.SnifferModel
+net.minecraft.client.model.SnowGolemModel
+net.minecraft.client.model.SpiderModel
+net.minecraft.client.model.SquidModel
+net.minecraft.client.model.StriderModel
+net.minecraft.client.model.TadpoleModel
+net.minecraft.client.model.TridentModel
+net.minecraft.client.model.TropicalFishModelA
+net.minecraft.client.model.TropicalFishModelB
+net.minecraft.client.model.TurtleModel
+net.minecraft.client.model.VexModel
+net.minecraft.client.model.VillagerHeadModel
+net.minecraft.client.model.VillagerModel
+net.minecraft.client.model.WardenModel
+net.minecraft.client.model.WaterPatchModel
+net.minecraft.client.model.WitchModel
+net.minecraft.client.model.WitherBossModel
+net.minecraft.client.model.WolfModel
+net.minecraft.client.model.ZombieModel
+net.minecraft.client.model.ZombieVillagerModel
+net.minecraft.client.model.dragon.DragonHeadModel
+net.minecraft.client.model.dragon.package-info
+net.minecraft.client.model.geom.EntityModelSet
+net.minecraft.client.model.geom.LayerDefinitions
+net.minecraft.client.model.geom.ModelLayerLocation
+net.minecraft.client.model.geom.ModelLayers
+net.minecraft.client.model.geom.ModelPart
+net.minecraft.client.model.geom.PartNames
+net.minecraft.client.model.geom.PartPose
+net.minecraft.client.model.geom.builders.CubeDefinition
+net.minecraft.client.model.geom.builders.CubeDeformation
+net.minecraft.client.model.geom.builders.CubeListBuilder
+net.minecraft.client.model.geom.builders.LayerDefinition
+net.minecraft.client.model.geom.builders.MaterialDefinition
+net.minecraft.client.model.geom.builders.MeshDefinition
+net.minecraft.client.model.geom.builders.PartDefinition
+net.minecraft.client.model.geom.builders.UVPair
+net.minecraft.client.model.geom.builders.package-info
+net.minecraft.client.model.geom.package-info
+net.minecraft.client.model.package-info
+net.minecraft.client.multiplayer.AccountProfileKeyPairManager
+net.minecraft.client.multiplayer.ChunkBatchSizeCalculator
+net.minecraft.client.multiplayer.ClientAdvancements
+net.minecraft.client.multiplayer.ClientChunkCache
+net.minecraft.client.multiplayer.ClientCommonPacketListenerImpl
+net.minecraft.client.multiplayer.ClientConfigurationPacketListenerImpl
+net.minecraft.client.multiplayer.ClientHandshakePacketListenerImpl
+net.minecraft.client.multiplayer.ClientLevel
+net.minecraft.client.multiplayer.ClientPacketListener
+net.minecraft.client.multiplayer.ClientRegistryLayer
+net.minecraft.client.multiplayer.ClientSuggestionProvider
+net.minecraft.client.multiplayer.CommonListenerCookie
+net.minecraft.client.multiplayer.LegacyServerPinger
+net.minecraft.client.multiplayer.MultiPlayerGameMode
+net.minecraft.client.multiplayer.PingDebugMonitor
+net.minecraft.client.multiplayer.PlayerInfo
+net.minecraft.client.multiplayer.ProfileKeyPairManager
+net.minecraft.client.multiplayer.ServerData
+net.minecraft.client.multiplayer.ServerList
+net.minecraft.client.multiplayer.ServerStatusPinger
+net.minecraft.client.multiplayer.chat.ChatListener
+net.minecraft.client.multiplayer.chat.ChatLog
+net.minecraft.client.multiplayer.chat.ChatTrustLevel
+net.minecraft.client.multiplayer.chat.LoggedChatEvent
+net.minecraft.client.multiplayer.chat.LoggedChatMessage
+net.minecraft.client.multiplayer.chat.package-info
+net.minecraft.client.multiplayer.chat.report.AbuseReportSender
+net.minecraft.client.multiplayer.chat.report.BanReason
+net.minecraft.client.multiplayer.chat.report.ChatReport
+net.minecraft.client.multiplayer.chat.report.ChatReportContextBuilder
+net.minecraft.client.multiplayer.chat.report.NameReport
+net.minecraft.client.multiplayer.chat.report.Report
+net.minecraft.client.multiplayer.chat.report.ReportEnvironment
+net.minecraft.client.multiplayer.chat.report.ReportReason
+net.minecraft.client.multiplayer.chat.report.ReportType
+net.minecraft.client.multiplayer.chat.report.ReportingContext
+net.minecraft.client.multiplayer.chat.report.SkinReport
+net.minecraft.client.multiplayer.chat.report.package-info
+net.minecraft.client.multiplayer.package-info
+net.minecraft.client.multiplayer.prediction.BlockStatePredictionHandler
+net.minecraft.client.multiplayer.prediction.PredictiveAction
+net.minecraft.client.multiplayer.prediction.package-info
+net.minecraft.client.multiplayer.resolver.AddressCheck
+net.minecraft.client.multiplayer.resolver.ResolvedServerAddress
+net.minecraft.client.multiplayer.resolver.ServerAddress
+net.minecraft.client.multiplayer.resolver.ServerAddressResolver
+net.minecraft.client.multiplayer.resolver.ServerNameResolver
+net.minecraft.client.multiplayer.resolver.ServerRedirectHandler
+net.minecraft.client.multiplayer.resolver.package-info
+net.minecraft.client.package-info
+net.minecraft.client.particle.AshParticle
+net.minecraft.client.particle.AttackSweepParticle
+net.minecraft.client.particle.BaseAshSmokeParticle
+net.minecraft.client.particle.BlockMarker
+net.minecraft.client.particle.BreakingItemParticle
+net.minecraft.client.particle.BubbleColumnUpParticle
+net.minecraft.client.particle.BubbleParticle
+net.minecraft.client.particle.BubblePopParticle
+net.minecraft.client.particle.CampfireSmokeParticle
+net.minecraft.client.particle.CherryParticle
+net.minecraft.client.particle.CritParticle
+net.minecraft.client.particle.DragonBreathParticle
+net.minecraft.client.particle.DripParticle
+net.minecraft.client.particle.DustColorTransitionParticle
+net.minecraft.client.particle.DustParticle
+net.minecraft.client.particle.DustParticleBase
+net.minecraft.client.particle.EnchantmentTableParticle
+net.minecraft.client.particle.EndRodParticle
+net.minecraft.client.particle.ExplodeParticle
+net.minecraft.client.particle.FallingDustParticle
+net.minecraft.client.particle.FireworkParticles
+net.minecraft.client.particle.FlameParticle
+net.minecraft.client.particle.GlowParticle
+net.minecraft.client.particle.HeartParticle
+net.minecraft.client.particle.HugeExplosionParticle
+net.minecraft.client.particle.HugeExplosionSeedParticle
+net.minecraft.client.particle.ItemPickupParticle
+net.minecraft.client.particle.LargeSmokeParticle
+net.minecraft.client.particle.LavaParticle
+net.minecraft.client.particle.MobAppearanceParticle
+net.minecraft.client.particle.NoRenderParticle
+net.minecraft.client.particle.NoteParticle
+net.minecraft.client.particle.Particle
+net.minecraft.client.particle.ParticleDescription
+net.minecraft.client.particle.ParticleEngine
+net.minecraft.client.particle.ParticleProvider
+net.minecraft.client.particle.ParticleRenderType
+net.minecraft.client.particle.PlayerCloudParticle
+net.minecraft.client.particle.PortalParticle
+net.minecraft.client.particle.ReversePortalParticle
+net.minecraft.client.particle.RisingParticle
+net.minecraft.client.particle.SculkChargeParticle
+net.minecraft.client.particle.SculkChargePopParticle
+net.minecraft.client.particle.ShriekParticle
+net.minecraft.client.particle.SimpleAnimatedParticle
+net.minecraft.client.particle.SingleQuadParticle
+net.minecraft.client.particle.SmokeParticle
+net.minecraft.client.particle.SnowflakeParticle
+net.minecraft.client.particle.SonicBoomParticle
+net.minecraft.client.particle.SoulParticle
+net.minecraft.client.particle.SpellParticle
+net.minecraft.client.particle.SpitParticle
+net.minecraft.client.particle.SplashParticle
+net.minecraft.client.particle.SpriteSet
+net.minecraft.client.particle.SquidInkParticle
+net.minecraft.client.particle.SuspendedParticle
+net.minecraft.client.particle.SuspendedTownParticle
+net.minecraft.client.particle.TerrainParticle
+net.minecraft.client.particle.TextureSheetParticle
+net.minecraft.client.particle.TotemParticle
+net.minecraft.client.particle.TrackingEmitter
+net.minecraft.client.particle.VibrationSignalParticle
+net.minecraft.client.particle.WakeParticle
+net.minecraft.client.particle.WaterCurrentDownParticle
+net.minecraft.client.particle.WaterDropParticle
+net.minecraft.client.particle.WhiteAshParticle
+net.minecraft.client.particle.package-info
+net.minecraft.client.player.AbstractClientPlayer
+net.minecraft.client.player.Input
+net.minecraft.client.player.KeyboardInput
+net.minecraft.client.player.LocalPlayer
+net.minecraft.client.player.RemotePlayer
+net.minecraft.client.player.inventory.Hotbar
+net.minecraft.client.player.inventory.package-info
+net.minecraft.client.player.package-info
+net.minecraft.client.profiling.ClientMetricsSamplersProvider
+net.minecraft.client.profiling.package-info
+net.minecraft.client.quickplay.QuickPlay
+net.minecraft.client.quickplay.QuickPlayLog
+net.minecraft.client.quickplay.package-info
+net.minecraft.client.renderer.BiomeColors
+net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer
+net.minecraft.client.renderer.CubeMap
+net.minecraft.client.renderer.DimensionSpecialEffects
+net.minecraft.client.renderer.EffectInstance
+net.minecraft.client.renderer.FaceInfo
+net.minecraft.client.renderer.FogRenderer
+net.minecraft.client.renderer.GameRenderer
+net.minecraft.client.renderer.GpuWarnlistManager
+net.minecraft.client.renderer.ItemBlockRenderTypes
+net.minecraft.client.renderer.ItemInHandRenderer
+net.minecraft.client.renderer.ItemModelShaper
+net.minecraft.client.renderer.LevelRenderer
+net.minecraft.client.renderer.LightTexture
+net.minecraft.client.renderer.MultiBufferSource
+net.minecraft.client.renderer.OutlineBufferSource
+net.minecraft.client.renderer.PanoramaRenderer
+net.minecraft.client.renderer.PostChain
+net.minecraft.client.renderer.PostPass
+net.minecraft.client.renderer.Rect2i
+net.minecraft.client.renderer.RenderBuffers
+net.minecraft.client.renderer.RenderStateShard
+net.minecraft.client.renderer.RenderType
+net.minecraft.client.renderer.RunningTrimmedMean
+net.minecraft.client.renderer.ScreenEffectRenderer
+net.minecraft.client.renderer.SectionBufferBuilderPack
+net.minecraft.client.renderer.SectionOcclusionGraph
+net.minecraft.client.renderer.ShaderInstance
+net.minecraft.client.renderer.Sheets
+net.minecraft.client.renderer.SpriteCoordinateExpander
+net.minecraft.client.renderer.ViewArea
+net.minecraft.client.renderer.VirtualScreen
+net.minecraft.client.renderer.block.BlockModelShaper
+net.minecraft.client.renderer.block.BlockRenderDispatcher
+net.minecraft.client.renderer.block.LiquidBlockRenderer
+net.minecraft.client.renderer.block.ModelBlockRenderer
+net.minecraft.client.renderer.block.model.BakedQuad
+net.minecraft.client.renderer.block.model.BlockElement
+net.minecraft.client.renderer.block.model.BlockElementFace
+net.minecraft.client.renderer.block.model.BlockElementRotation
+net.minecraft.client.renderer.block.model.BlockFaceUV
+net.minecraft.client.renderer.block.model.BlockModel
+net.minecraft.client.renderer.block.model.BlockModelDefinition
+net.minecraft.client.renderer.block.model.FaceBakery
+net.minecraft.client.renderer.block.model.ItemModelGenerator
+net.minecraft.client.renderer.block.model.ItemOverride
+net.minecraft.client.renderer.block.model.ItemOverrides
+net.minecraft.client.renderer.block.model.ItemTransform
+net.minecraft.client.renderer.block.model.ItemTransforms
+net.minecraft.client.renderer.block.model.MultiVariant
+net.minecraft.client.renderer.block.model.Variant
+net.minecraft.client.renderer.block.model.multipart.AndCondition
+net.minecraft.client.renderer.block.model.multipart.Condition
+net.minecraft.client.renderer.block.model.multipart.KeyValueCondition
+net.minecraft.client.renderer.block.model.multipart.MultiPart
+net.minecraft.client.renderer.block.model.multipart.OrCondition
+net.minecraft.client.renderer.block.model.multipart.Selector
+net.minecraft.client.renderer.block.model.multipart.package-info
+net.minecraft.client.renderer.block.model.package-info
+net.minecraft.client.renderer.block.package-info
+net.minecraft.client.renderer.blockentity.BannerRenderer
+net.minecraft.client.renderer.blockentity.BeaconRenderer
+net.minecraft.client.renderer.blockentity.BedRenderer
+net.minecraft.client.renderer.blockentity.BellRenderer
+net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher
+net.minecraft.client.renderer.blockentity.BlockEntityRenderer
+net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider
+net.minecraft.client.renderer.blockentity.BlockEntityRenderers
+net.minecraft.client.renderer.blockentity.BrightnessCombiner
+net.minecraft.client.renderer.blockentity.BrushableBlockRenderer
+net.minecraft.client.renderer.blockentity.CampfireRenderer
+net.minecraft.client.renderer.blockentity.ChestRenderer
+net.minecraft.client.renderer.blockentity.ConduitRenderer
+net.minecraft.client.renderer.blockentity.DecoratedPotRenderer
+net.minecraft.client.renderer.blockentity.EnchantTableRenderer
+net.minecraft.client.renderer.blockentity.HangingSignRenderer
+net.minecraft.client.renderer.blockentity.LecternRenderer
+net.minecraft.client.renderer.blockentity.PistonHeadRenderer
+net.minecraft.client.renderer.blockentity.ShulkerBoxRenderer
+net.minecraft.client.renderer.blockentity.SignRenderer
+net.minecraft.client.renderer.blockentity.SkullBlockRenderer
+net.minecraft.client.renderer.blockentity.SpawnerRenderer
+net.minecraft.client.renderer.blockentity.StructureBlockRenderer
+net.minecraft.client.renderer.blockentity.TheEndGatewayRenderer
+net.minecraft.client.renderer.blockentity.TheEndPortalRenderer
+net.minecraft.client.renderer.blockentity.package-info
+net.minecraft.client.renderer.chunk.RenderChunk
+net.minecraft.client.renderer.chunk.RenderChunkRegion
+net.minecraft.client.renderer.chunk.RenderRegionCache
+net.minecraft.client.renderer.chunk.SectionRenderDispatcher
+net.minecraft.client.renderer.chunk.VisGraph
+net.minecraft.client.renderer.chunk.VisibilitySet
+net.minecraft.client.renderer.chunk.package-info
+net.minecraft.client.renderer.culling.Frustum
+net.minecraft.client.renderer.culling.package-info
+net.minecraft.client.renderer.debug.BeeDebugRenderer
+net.minecraft.client.renderer.debug.BrainDebugRenderer
+net.minecraft.client.renderer.debug.ChunkBorderRenderer
+net.minecraft.client.renderer.debug.ChunkDebugRenderer
+net.minecraft.client.renderer.debug.CollisionBoxRenderer
+net.minecraft.client.renderer.debug.DebugRenderer
+net.minecraft.client.renderer.debug.GameEventListenerRenderer
+net.minecraft.client.renderer.debug.GameTestDebugRenderer
+net.minecraft.client.renderer.debug.GoalSelectorDebugRenderer
+net.minecraft.client.renderer.debug.HeightMapRenderer
+net.minecraft.client.renderer.debug.LightDebugRenderer
+net.minecraft.client.renderer.debug.LightSectionDebugRenderer
+net.minecraft.client.renderer.debug.NeighborsUpdateRenderer
+net.minecraft.client.renderer.debug.PathfindingRenderer
+net.minecraft.client.renderer.debug.RaidDebugRenderer
+net.minecraft.client.renderer.debug.SolidFaceRenderer
+net.minecraft.client.renderer.debug.StructureRenderer
+net.minecraft.client.renderer.debug.SupportBlockRenderer
+net.minecraft.client.renderer.debug.VillageSectionsDebugRenderer
+net.minecraft.client.renderer.debug.WaterDebugRenderer
+net.minecraft.client.renderer.debug.WorldGenAttemptRenderer
+net.minecraft.client.renderer.debug.package-info
+net.minecraft.client.renderer.entity.AbstractHorseRenderer
+net.minecraft.client.renderer.entity.AbstractZombieRenderer
+net.minecraft.client.renderer.entity.AllayRenderer
+net.minecraft.client.renderer.entity.ArmorStandRenderer
+net.minecraft.client.renderer.entity.ArrowRenderer
+net.minecraft.client.renderer.entity.AxolotlRenderer
+net.minecraft.client.renderer.entity.BatRenderer
+net.minecraft.client.renderer.entity.BeeRenderer
+net.minecraft.client.renderer.entity.BlazeRenderer
+net.minecraft.client.renderer.entity.BoatRenderer
+net.minecraft.client.renderer.entity.CamelRenderer
+net.minecraft.client.renderer.entity.CatRenderer
+net.minecraft.client.renderer.entity.CaveSpiderRenderer
+net.minecraft.client.renderer.entity.ChestedHorseRenderer
+net.minecraft.client.renderer.entity.ChickenRenderer
+net.minecraft.client.renderer.entity.CodRenderer
+net.minecraft.client.renderer.entity.CowRenderer
+net.minecraft.client.renderer.entity.CreeperRenderer
+net.minecraft.client.renderer.entity.DisplayRenderer
+net.minecraft.client.renderer.entity.DolphinRenderer
+net.minecraft.client.renderer.entity.DragonFireballRenderer
+net.minecraft.client.renderer.entity.DrownedRenderer
+net.minecraft.client.renderer.entity.ElderGuardianRenderer
+net.minecraft.client.renderer.entity.EndCrystalRenderer
+net.minecraft.client.renderer.entity.EnderDragonRenderer
+net.minecraft.client.renderer.entity.EndermanRenderer
+net.minecraft.client.renderer.entity.EndermiteRenderer
+net.minecraft.client.renderer.entity.EntityRenderDispatcher
+net.minecraft.client.renderer.entity.EntityRenderer
+net.minecraft.client.renderer.entity.EntityRendererProvider
+net.minecraft.client.renderer.entity.EntityRenderers
+net.minecraft.client.renderer.entity.EvokerFangsRenderer
+net.minecraft.client.renderer.entity.EvokerRenderer
+net.minecraft.client.renderer.entity.ExperienceOrbRenderer
+net.minecraft.client.renderer.entity.FallingBlockRenderer
+net.minecraft.client.renderer.entity.FireworkEntityRenderer
+net.minecraft.client.renderer.entity.FishingHookRenderer
+net.minecraft.client.renderer.entity.FoxRenderer
+net.minecraft.client.renderer.entity.FrogRenderer
+net.minecraft.client.renderer.entity.GhastRenderer
+net.minecraft.client.renderer.entity.GiantMobRenderer
+net.minecraft.client.renderer.entity.GlowSquidRenderer
+net.minecraft.client.renderer.entity.GoatRenderer
+net.minecraft.client.renderer.entity.GuardianRenderer
+net.minecraft.client.renderer.entity.HoglinRenderer
+net.minecraft.client.renderer.entity.HorseRenderer
+net.minecraft.client.renderer.entity.HumanoidMobRenderer
+net.minecraft.client.renderer.entity.HuskRenderer
+net.minecraft.client.renderer.entity.IllagerRenderer
+net.minecraft.client.renderer.entity.IllusionerRenderer
+net.minecraft.client.renderer.entity.IronGolemRenderer
+net.minecraft.client.renderer.entity.ItemEntityRenderer
+net.minecraft.client.renderer.entity.ItemFrameRenderer
+net.minecraft.client.renderer.entity.ItemRenderer
+net.minecraft.client.renderer.entity.LeashKnotRenderer
+net.minecraft.client.renderer.entity.LightningBoltRenderer
+net.minecraft.client.renderer.entity.LivingEntityRenderer
+net.minecraft.client.renderer.entity.LlamaRenderer
+net.minecraft.client.renderer.entity.LlamaSpitRenderer
+net.minecraft.client.renderer.entity.MagmaCubeRenderer
+net.minecraft.client.renderer.entity.MinecartRenderer
+net.minecraft.client.renderer.entity.MobRenderer
+net.minecraft.client.renderer.entity.MushroomCowRenderer
+net.minecraft.client.renderer.entity.NoopRenderer
+net.minecraft.client.renderer.entity.OcelotRenderer
+net.minecraft.client.renderer.entity.PaintingRenderer
+net.minecraft.client.renderer.entity.PandaRenderer
+net.minecraft.client.renderer.entity.ParrotRenderer
+net.minecraft.client.renderer.entity.PhantomRenderer
+net.minecraft.client.renderer.entity.PigRenderer
+net.minecraft.client.renderer.entity.PiglinRenderer
+net.minecraft.client.renderer.entity.PillagerRenderer
+net.minecraft.client.renderer.entity.PolarBearRenderer
+net.minecraft.client.renderer.entity.PufferfishRenderer
+net.minecraft.client.renderer.entity.RabbitRenderer
+net.minecraft.client.renderer.entity.RavagerRenderer
+net.minecraft.client.renderer.entity.RenderLayerParent
+net.minecraft.client.renderer.entity.SalmonRenderer
+net.minecraft.client.renderer.entity.SheepRenderer
+net.minecraft.client.renderer.entity.ShulkerBulletRenderer
+net.minecraft.client.renderer.entity.ShulkerRenderer
+net.minecraft.client.renderer.entity.SilverfishRenderer
+net.minecraft.client.renderer.entity.SkeletonRenderer
+net.minecraft.client.renderer.entity.SlimeRenderer
+net.minecraft.client.renderer.entity.SnifferRenderer
+net.minecraft.client.renderer.entity.SnowGolemRenderer
+net.minecraft.client.renderer.entity.SpectralArrowRenderer
+net.minecraft.client.renderer.entity.SpiderRenderer
+net.minecraft.client.renderer.entity.SquidRenderer
+net.minecraft.client.renderer.entity.StrayRenderer
+net.minecraft.client.renderer.entity.StriderRenderer
+net.minecraft.client.renderer.entity.TadpoleRenderer
+net.minecraft.client.renderer.entity.ThrownItemRenderer
+net.minecraft.client.renderer.entity.ThrownTridentRenderer
+net.minecraft.client.renderer.entity.TippableArrowRenderer
+net.minecraft.client.renderer.entity.TntMinecartRenderer
+net.minecraft.client.renderer.entity.TntRenderer
+net.minecraft.client.renderer.entity.TropicalFishRenderer
+net.minecraft.client.renderer.entity.TurtleRenderer
+net.minecraft.client.renderer.entity.UndeadHorseRenderer
+net.minecraft.client.renderer.entity.VexRenderer
+net.minecraft.client.renderer.entity.VillagerRenderer
+net.minecraft.client.renderer.entity.VindicatorRenderer
+net.minecraft.client.renderer.entity.WanderingTraderRenderer
+net.minecraft.client.renderer.entity.WardenRenderer
+net.minecraft.client.renderer.entity.WitchRenderer
+net.minecraft.client.renderer.entity.WitherBossRenderer
+net.minecraft.client.renderer.entity.WitherSkeletonRenderer
+net.minecraft.client.renderer.entity.WitherSkullRenderer
+net.minecraft.client.renderer.entity.WolfRenderer
+net.minecraft.client.renderer.entity.ZoglinRenderer
+net.minecraft.client.renderer.entity.ZombieRenderer
+net.minecraft.client.renderer.entity.ZombieVillagerRenderer
+net.minecraft.client.renderer.entity.layers.ArrowLayer
+net.minecraft.client.renderer.entity.layers.BeeStingerLayer
+net.minecraft.client.renderer.entity.layers.CapeLayer
+net.minecraft.client.renderer.entity.layers.CarriedBlockLayer
+net.minecraft.client.renderer.entity.layers.CatCollarLayer
+net.minecraft.client.renderer.entity.layers.CreeperPowerLayer
+net.minecraft.client.renderer.entity.layers.CrossedArmsItemLayer
+net.minecraft.client.renderer.entity.layers.CustomHeadLayer
+net.minecraft.client.renderer.entity.layers.Deadmau5EarsLayer
+net.minecraft.client.renderer.entity.layers.DolphinCarryingItemLayer
+net.minecraft.client.renderer.entity.layers.DrownedOuterLayer
+net.minecraft.client.renderer.entity.layers.ElytraLayer
+net.minecraft.client.renderer.entity.layers.EnderEyesLayer
+net.minecraft.client.renderer.entity.layers.EnergySwirlLayer
+net.minecraft.client.renderer.entity.layers.EyesLayer
+net.minecraft.client.renderer.entity.layers.FoxHeldItemLayer
+net.minecraft.client.renderer.entity.layers.HorseArmorLayer
+net.minecraft.client.renderer.entity.layers.HorseMarkingLayer
+net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer
+net.minecraft.client.renderer.entity.layers.IronGolemCrackinessLayer
+net.minecraft.client.renderer.entity.layers.IronGolemFlowerLayer
+net.minecraft.client.renderer.entity.layers.ItemInHandLayer
+net.minecraft.client.renderer.entity.layers.LlamaDecorLayer
+net.minecraft.client.renderer.entity.layers.MushroomCowMushroomLayer
+net.minecraft.client.renderer.entity.layers.PandaHoldsItemLayer
+net.minecraft.client.renderer.entity.layers.ParrotOnShoulderLayer
+net.minecraft.client.renderer.entity.layers.PhantomEyesLayer
+net.minecraft.client.renderer.entity.layers.PlayerItemInHandLayer
+net.minecraft.client.renderer.entity.layers.RenderLayer
+net.minecraft.client.renderer.entity.layers.SaddleLayer
+net.minecraft.client.renderer.entity.layers.SheepFurLayer
+net.minecraft.client.renderer.entity.layers.ShulkerHeadLayer
+net.minecraft.client.renderer.entity.layers.SlimeOuterLayer
+net.minecraft.client.renderer.entity.layers.SnowGolemHeadLayer
+net.minecraft.client.renderer.entity.layers.SpiderEyesLayer
+net.minecraft.client.renderer.entity.layers.SpinAttackEffectLayer
+net.minecraft.client.renderer.entity.layers.StrayClothingLayer
+net.minecraft.client.renderer.entity.layers.StuckInBodyLayer
+net.minecraft.client.renderer.entity.layers.TropicalFishPatternLayer
+net.minecraft.client.renderer.entity.layers.VillagerProfessionLayer
+net.minecraft.client.renderer.entity.layers.WardenEmissiveLayer
+net.minecraft.client.renderer.entity.layers.WitchItemLayer
+net.minecraft.client.renderer.entity.layers.WitherArmorLayer
+net.minecraft.client.renderer.entity.layers.WolfCollarLayer
+net.minecraft.client.renderer.entity.layers.package-info
+net.minecraft.client.renderer.entity.package-info
+net.minecraft.client.renderer.entity.player.PlayerRenderer
+net.minecraft.client.renderer.entity.player.package-info
+net.minecraft.client.renderer.item.ClampedItemPropertyFunction
+net.minecraft.client.renderer.item.CompassItemPropertyFunction
+net.minecraft.client.renderer.item.ItemProperties
+net.minecraft.client.renderer.item.ItemPropertyFunction
+net.minecraft.client.renderer.item.package-info
+net.minecraft.client.renderer.package-info
+net.minecraft.client.renderer.texture.AbstractTexture
+net.minecraft.client.renderer.texture.Dumpable
+net.minecraft.client.renderer.texture.DynamicTexture
+net.minecraft.client.renderer.texture.HttpTexture
+net.minecraft.client.renderer.texture.MipmapGenerator
+net.minecraft.client.renderer.texture.MissingTextureAtlasSprite
+net.minecraft.client.renderer.texture.OverlayTexture
+net.minecraft.client.renderer.texture.PreloadedTexture
+net.minecraft.client.renderer.texture.SimpleTexture
+net.minecraft.client.renderer.texture.SpriteContents
+net.minecraft.client.renderer.texture.SpriteLoader
+net.minecraft.client.renderer.texture.SpriteTicker
+net.minecraft.client.renderer.texture.Stitcher
+net.minecraft.client.renderer.texture.StitcherException
+net.minecraft.client.renderer.texture.TextureAtlas
+net.minecraft.client.renderer.texture.TextureAtlasSprite
+net.minecraft.client.renderer.texture.TextureManager
+net.minecraft.client.renderer.texture.Tickable
+net.minecraft.client.renderer.texture.atlas.SpriteResourceLoader
+net.minecraft.client.renderer.texture.atlas.SpriteSource
+net.minecraft.client.renderer.texture.atlas.SpriteSourceList
+net.minecraft.client.renderer.texture.atlas.SpriteSourceType
+net.minecraft.client.renderer.texture.atlas.SpriteSources
+net.minecraft.client.renderer.texture.atlas.package-info
+net.minecraft.client.renderer.texture.atlas.sources.DirectoryLister
+net.minecraft.client.renderer.texture.atlas.sources.LazyLoadedImage
+net.minecraft.client.renderer.texture.atlas.sources.PalettedPermutations
+net.minecraft.client.renderer.texture.atlas.sources.SingleFile
+net.minecraft.client.renderer.texture.atlas.sources.SourceFilter
+net.minecraft.client.renderer.texture.atlas.sources.Unstitcher
+net.minecraft.client.renderer.texture.atlas.sources.package-info
+net.minecraft.client.renderer.texture.package-info
+net.minecraft.client.resources.ClientPackSource
+net.minecraft.client.resources.DefaultPlayerSkin
+net.minecraft.client.resources.DownloadedPackSource
+net.minecraft.client.resources.FoliageColorReloadListener
+net.minecraft.client.resources.GrassColorReloadListener
+net.minecraft.client.resources.IndexedAssetSource
+net.minecraft.client.resources.LegacyStuffWrapper
+net.minecraft.client.resources.MobEffectTextureManager
+net.minecraft.client.resources.PaintingTextureManager
+net.minecraft.client.resources.PlayerSkin
+net.minecraft.client.resources.SkinManager
+net.minecraft.client.resources.SplashManager
+net.minecraft.client.resources.TextureAtlasHolder
+net.minecraft.client.resources.language.ClientLanguage
+net.minecraft.client.resources.language.FormattedBidiReorder
+net.minecraft.client.resources.language.I18n
+net.minecraft.client.resources.language.LanguageInfo
+net.minecraft.client.resources.language.LanguageManager
+net.minecraft.client.resources.language.package-info
+net.minecraft.client.resources.metadata.animation.AnimationFrame
+net.minecraft.client.resources.metadata.animation.AnimationMetadataSection
+net.minecraft.client.resources.metadata.animation.AnimationMetadataSectionSerializer
+net.minecraft.client.resources.metadata.animation.FrameSize
+net.minecraft.client.resources.metadata.animation.VillagerMetaDataSection
+net.minecraft.client.resources.metadata.animation.VillagerMetadataSectionSerializer
+net.minecraft.client.resources.metadata.animation.package-info
+net.minecraft.client.resources.metadata.gui.GuiMetadataSection
+net.minecraft.client.resources.metadata.gui.GuiSpriteScaling
+net.minecraft.client.resources.metadata.gui.package-info
+net.minecraft.client.resources.metadata.language.LanguageMetadataSection
+net.minecraft.client.resources.metadata.language.package-info
+net.minecraft.client.resources.metadata.package-info
+net.minecraft.client.resources.metadata.texture.TextureMetadataSection
+net.minecraft.client.resources.metadata.texture.TextureMetadataSectionSerializer
+net.minecraft.client.resources.metadata.texture.package-info
+net.minecraft.client.resources.model.AtlasSet
+net.minecraft.client.resources.model.BakedModel
+net.minecraft.client.resources.model.BlockModelRotation
+net.minecraft.client.resources.model.BuiltInModel
+net.minecraft.client.resources.model.Material
+net.minecraft.client.resources.model.ModelBaker
+net.minecraft.client.resources.model.ModelBakery
+net.minecraft.client.resources.model.ModelManager
+net.minecraft.client.resources.model.ModelResourceLocation
+net.minecraft.client.resources.model.ModelState
+net.minecraft.client.resources.model.MultiPartBakedModel
+net.minecraft.client.resources.model.SimpleBakedModel
+net.minecraft.client.resources.model.UnbakedModel
+net.minecraft.client.resources.model.WeightedBakedModel
+net.minecraft.client.resources.model.package-info
+net.minecraft.client.resources.package-info
+net.minecraft.client.resources.sounds.AbstractSoundInstance
+net.minecraft.client.resources.sounds.AbstractTickableSoundInstance
+net.minecraft.client.resources.sounds.AmbientSoundHandler
+net.minecraft.client.resources.sounds.BeeAggressiveSoundInstance
+net.minecraft.client.resources.sounds.BeeFlyingSoundInstance
+net.minecraft.client.resources.sounds.BeeSoundInstance
+net.minecraft.client.resources.sounds.BiomeAmbientSoundsHandler
+net.minecraft.client.resources.sounds.BubbleColumnAmbientSoundHandler
+net.minecraft.client.resources.sounds.ElytraOnPlayerSoundInstance
+net.minecraft.client.resources.sounds.EntityBoundSoundInstance
+net.minecraft.client.resources.sounds.GuardianAttackSoundInstance
+net.minecraft.client.resources.sounds.MinecartSoundInstance
+net.minecraft.client.resources.sounds.RidingMinecartSoundInstance
+net.minecraft.client.resources.sounds.SimpleSoundInstance
+net.minecraft.client.resources.sounds.SnifferSoundInstance
+net.minecraft.client.resources.sounds.Sound
+net.minecraft.client.resources.sounds.SoundEventRegistration
+net.minecraft.client.resources.sounds.SoundEventRegistrationSerializer
+net.minecraft.client.resources.sounds.SoundInstance
+net.minecraft.client.resources.sounds.TickableSoundInstance
+net.minecraft.client.resources.sounds.UnderwaterAmbientSoundHandler
+net.minecraft.client.resources.sounds.UnderwaterAmbientSoundInstances
+net.minecraft.client.resources.sounds.package-info
+net.minecraft.client.searchtree.FullTextSearchTree
+net.minecraft.client.searchtree.IdSearchTree
+net.minecraft.client.searchtree.IntersectionIterator
+net.minecraft.client.searchtree.MergingUniqueIterator
+net.minecraft.client.searchtree.PlainTextSearchTree
+net.minecraft.client.searchtree.RefreshableSearchTree
+net.minecraft.client.searchtree.ResourceLocationSearchTree
+net.minecraft.client.searchtree.SearchRegistry
+net.minecraft.client.searchtree.SearchTree
+net.minecraft.client.searchtree.SuffixArray
+net.minecraft.client.searchtree.package-info
+net.minecraft.client.server.IntegratedPlayerList
+net.minecraft.client.server.IntegratedServer
+net.minecraft.client.server.LanServer
+net.minecraft.client.server.LanServerDetection
+net.minecraft.client.server.LanServerPinger
+net.minecraft.client.server.package-info
+net.minecraft.client.sounds.AudioStream
+net.minecraft.client.sounds.ChannelAccess
+net.minecraft.client.sounds.LoopingAudioStream
+net.minecraft.client.sounds.MusicManager
+net.minecraft.client.sounds.SoundBufferLibrary
+net.minecraft.client.sounds.SoundEngine
+net.minecraft.client.sounds.SoundEngineExecutor
+net.minecraft.client.sounds.SoundEventListener
+net.minecraft.client.sounds.SoundManager
+net.minecraft.client.sounds.WeighedSoundEvents
+net.minecraft.client.sounds.Weighted
+net.minecraft.client.sounds.package-info
+net.minecraft.client.telemetry.ClientTelemetryManager
+net.minecraft.client.telemetry.TelemetryEventInstance
+net.minecraft.client.telemetry.TelemetryEventLog
+net.minecraft.client.telemetry.TelemetryEventLogger
+net.minecraft.client.telemetry.TelemetryEventSender
+net.minecraft.client.telemetry.TelemetryEventType
+net.minecraft.client.telemetry.TelemetryLogManager
+net.minecraft.client.telemetry.TelemetryProperty
+net.minecraft.client.telemetry.TelemetryPropertyMap
+net.minecraft.client.telemetry.WorldSessionTelemetryManager
+net.minecraft.client.telemetry.events.AggregatedTelemetryEvent
+net.minecraft.client.telemetry.events.GameLoadTimesEvent
+net.minecraft.client.telemetry.events.PerformanceMetricsEvent
+net.minecraft.client.telemetry.events.WorldLoadEvent
+net.minecraft.client.telemetry.events.WorldLoadTimesEvent
+net.minecraft.client.telemetry.events.WorldUnloadEvent
+net.minecraft.client.telemetry.events.package-info
+net.minecraft.client.telemetry.package-info
+net.minecraft.client.tutorial.BundleTutorial
+net.minecraft.client.tutorial.CompletedTutorialStepInstance
+net.minecraft.client.tutorial.CraftPlanksTutorialStep
+net.minecraft.client.tutorial.FindTreeTutorialStepInstance
+net.minecraft.client.tutorial.MovementTutorialStepInstance
+net.minecraft.client.tutorial.OpenInventoryTutorialStep
+net.minecraft.client.tutorial.PunchTreeTutorialStepInstance
+net.minecraft.client.tutorial.Tutorial
+net.minecraft.client.tutorial.TutorialStepInstance
+net.minecraft.client.tutorial.TutorialSteps
+net.minecraft.client.tutorial.package-info
+net.minecraft.core.AxisCycle
+net.minecraft.core.BlockMath
+net.minecraft.core.BlockPos
+net.minecraft.core.Cursor3D
+net.minecraft.core.DefaultedMappedRegistry
+net.minecraft.core.DefaultedRegistry
+net.minecraft.core.Direction
+net.minecraft.core.Direction8
+net.minecraft.core.FrontAndTop
+net.minecraft.core.GlobalPos
+net.minecraft.core.Holder
+net.minecraft.core.HolderGetter
+net.minecraft.core.HolderLookup
+net.minecraft.core.HolderOwner
+net.minecraft.core.HolderSet
+net.minecraft.core.IdMap
+net.minecraft.core.IdMapper
+net.minecraft.core.LayeredRegistryAccess
+net.minecraft.core.MappedRegistry
+net.minecraft.core.NonNullList
+net.minecraft.core.Position
+net.minecraft.core.QuartPos
+net.minecraft.core.Registry
+net.minecraft.core.RegistryAccess
+net.minecraft.core.RegistryCodecs
+net.minecraft.core.RegistrySetBuilder
+net.minecraft.core.RegistrySynchronization
+net.minecraft.core.Rotations
+net.minecraft.core.SectionPos
+net.minecraft.core.UUIDUtil
+net.minecraft.core.Vec3i
+net.minecraft.core.WritableRegistry
+net.minecraft.core.cauldron.CauldronInteraction
+net.minecraft.core.cauldron.package-info
+net.minecraft.core.dispenser.AbstractProjectileDispenseBehavior
+net.minecraft.core.dispenser.BlockSource
+net.minecraft.core.dispenser.BoatDispenseItemBehavior
+net.minecraft.core.dispenser.DefaultDispenseItemBehavior
+net.minecraft.core.dispenser.DispenseItemBehavior
+net.minecraft.core.dispenser.OptionalDispenseItemBehavior
+net.minecraft.core.dispenser.ShearsDispenseItemBehavior
+net.minecraft.core.dispenser.ShulkerBoxDispenseBehavior
+net.minecraft.core.dispenser.package-info
+net.minecraft.core.package-info
+net.minecraft.core.particles.BlockParticleOption
+net.minecraft.core.particles.DustColorTransitionOptions
+net.minecraft.core.particles.DustParticleOptions
+net.minecraft.core.particles.DustParticleOptionsBase
+net.minecraft.core.particles.ItemParticleOption
+net.minecraft.core.particles.ParticleGroup
+net.minecraft.core.particles.ParticleOptions
+net.minecraft.core.particles.ParticleType
+net.minecraft.core.particles.ParticleTypes
+net.minecraft.core.particles.SculkChargeParticleOptions
+net.minecraft.core.particles.ShriekParticleOption
+net.minecraft.core.particles.SimpleParticleType
+net.minecraft.core.particles.VibrationParticleOption
+net.minecraft.core.particles.package-info
+net.minecraft.core.registries.BuiltInRegistries
+net.minecraft.core.registries.Registries
+net.minecraft.core.registries.package-info
+net.minecraft.resources.DelegatingOps
+net.minecraft.resources.FileToIdConverter
+net.minecraft.resources.HolderSetCodec
+net.minecraft.resources.RegistryDataLoader
+net.minecraft.resources.RegistryFileCodec
+net.minecraft.resources.RegistryFixedCodec
+net.minecraft.resources.RegistryOps
+net.minecraft.resources.ResourceKey
+net.minecraft.resources.ResourceLocation
+net.minecraft.resources.package-info
+org.lwjgl.glfw.Callbacks
+org.lwjgl.glfw.EventLoop
+org.lwjgl.glfw.GLFW
+org.lwjgl.glfw.GLFWAllocateCallback
+org.lwjgl.glfw.GLFWAllocateCallbackI
+org.lwjgl.glfw.GLFWAllocator
+org.lwjgl.glfw.GLFWCharCallback
+org.lwjgl.glfw.GLFWCharCallbackI
+org.lwjgl.glfw.GLFWCharModsCallback
+org.lwjgl.glfw.GLFWCharModsCallbackI
+org.lwjgl.glfw.GLFWCursorEnterCallback
+org.lwjgl.glfw.GLFWCursorEnterCallbackI
+org.lwjgl.glfw.GLFWCursorPosCallback
+org.lwjgl.glfw.GLFWCursorPosCallbackI
+org.lwjgl.glfw.GLFWDeallocateCallback
+org.lwjgl.glfw.GLFWDeallocateCallbackI
+org.lwjgl.glfw.GLFWDropCallback
+org.lwjgl.glfw.GLFWDropCallbackI
+org.lwjgl.glfw.GLFWErrorCallback
+org.lwjgl.glfw.GLFWErrorCallbackI
+org.lwjgl.glfw.GLFWFramebufferSizeCallback
+org.lwjgl.glfw.GLFWFramebufferSizeCallbackI
+org.lwjgl.glfw.GLFWGamepadState
+org.lwjgl.glfw.GLFWGammaRamp
+org.lwjgl.glfw.GLFWImage
+org.lwjgl.glfw.GLFWJoystickCallback
+org.lwjgl.glfw.GLFWJoystickCallbackI
+org.lwjgl.glfw.GLFWKeyCallback
+org.lwjgl.glfw.GLFWKeyCallbackI
+org.lwjgl.glfw.GLFWMonitorCallback
+org.lwjgl.glfw.GLFWMonitorCallbackI
+org.lwjgl.glfw.GLFWMouseButtonCallback
+org.lwjgl.glfw.GLFWMouseButtonCallbackI
+org.lwjgl.glfw.GLFWNativeCocoa
+org.lwjgl.glfw.GLFWNativeEGL
+org.lwjgl.glfw.GLFWNativeGLX
+org.lwjgl.glfw.GLFWNativeNSGL
+org.lwjgl.glfw.GLFWNativeOSMesa
+org.lwjgl.glfw.GLFWNativeWGL
+org.lwjgl.glfw.GLFWNativeWayland
+org.lwjgl.glfw.GLFWNativeWin32
+org.lwjgl.glfw.GLFWNativeX11
+org.lwjgl.glfw.GLFWReallocateCallback
+org.lwjgl.glfw.GLFWReallocateCallbackI
+org.lwjgl.glfw.GLFWScrollCallback
+org.lwjgl.glfw.GLFWScrollCallbackI
+org.lwjgl.glfw.GLFWVidMode
+org.lwjgl.glfw.GLFWVulkan
+org.lwjgl.glfw.GLFWWindowCloseCallback
+org.lwjgl.glfw.GLFWWindowCloseCallbackI
+org.lwjgl.glfw.GLFWWindowContentScaleCallback
+org.lwjgl.glfw.GLFWWindowContentScaleCallbackI
+org.lwjgl.glfw.GLFWWindowFocusCallback
+org.lwjgl.glfw.GLFWWindowFocusCallbackI
+org.lwjgl.glfw.GLFWWindowIconifyCallback
+org.lwjgl.glfw.GLFWWindowIconifyCallbackI
+org.lwjgl.glfw.GLFWWindowMaximizeCallback
+org.lwjgl.glfw.GLFWWindowMaximizeCallbackI
+org.lwjgl.glfw.GLFWWindowPosCallback
+org.lwjgl.glfw.GLFWWindowPosCallbackI
+org.lwjgl.glfw.GLFWWindowRefreshCallback
+org.lwjgl.glfw.GLFWWindowRefreshCallbackI
+org.lwjgl.glfw.GLFWWindowSizeCallback
+org.lwjgl.glfw.GLFWWindowSizeCallbackI
+org.lwjgl.glfw.package-info
