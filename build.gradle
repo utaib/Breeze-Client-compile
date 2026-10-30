@@ -1,0 +1,25 @@
+// Breeze: common/ (plain Java, shared by every version) and one project per
+// Minecraft version in versions/. Each version's build.gradle applies Loom and
+// gradle/version.gradle, which reads that version's gradle.properties.
+//
+// Loom is applied per version, not here, so building common/ alone never needs
+// Fabric's Maven.
+
+// The React frontend builds once into frontend/dist; every version packages it
+// from there.
+def web = file('frontend')
+
+tasks.register('buildWebUi', Exec) {
+    description = 'Builds the in-game React interface (frontend/dist).'
+    workingDir web
+    def npm = System.getProperty('os.name').toLowerCase().contains('windows') ? 'npm.cmd' : 'npm'
+    commandLine npm, 'run', 'build'
+    inputs.dir(new File(web, 'src'))
+    inputs.files(new File(web, 'index.html'), new File(web, 'package.json'), new File(web, 'package-lock.json'), new File(web, 'vite.config.ts'))
+    outputs.dir(new File(web, 'dist'))
+    doFirst {
+        if (!new File(web, 'node_modules').exists()) {
+            throw new GradleException("frontend/node_modules is missing. Run 'npm ci' in Breeze-Mod-New/frontend once.")
+        }
+    }
+}
