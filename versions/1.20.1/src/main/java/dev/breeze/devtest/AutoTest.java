@@ -262,7 +262,7 @@ public final class AutoTest {
 
     // ── In a world (after the menu checks) ─────────────────────────────────
 
-    private enum World { IDLE, OPENED, FPS, IN_WORLD, ARMOR, INVENTORY, PERSONAL_CAPE, LAYOUT, OUTLINE, GHOST, FREE_LOOK, CROSSHAIR, DISPLAY_NAME, COMMAND_KEYS, HITBOXES, TNT, SWEEP, EDITING, WARDROBE, TAGS, REAL, DONE }
+    private enum World { IDLE, OPENED, FPS, IN_WORLD, ARMOR, INVENTORY, PERSONAL_CAPE, LAYOUT, OUTLINE, GHOST, FREE_LOOK, CROSSHAIR, DISPLAY_NAME, COMMAND_KEYS, HITBOXES, TNT, SCOREBOARD, SWEEP, EDITING, WARDROBE, TAGS, REAL, DONE }
 
     /** Taken off again once the Armor HUD has been looked at. */
     private static boolean armourOff;
@@ -456,6 +456,16 @@ public final class AutoTest {
                     net.minecraft.client.server.IntegratedServer server = mc.getSingleplayerServer();
                     if (server != null) {
                         server.execute(() -> server.setDifficulty(net.minecraft.world.Difficulty.PEACEFUL, true));
+                    }
+                    if (server != null) {
+                        server.execute(() -> {
+                            try {
+                                dev.breeze.compat.Sidebar.putTestBoard(server);
+                                testBoardPut = true;
+                            } catch (Throwable t) {
+                                log("scoreboard-setup", "error", t.toString());
+                            }
+                        });
                     }
                     fpsReadings.clear();
                     lastFpsReadingAt = 0;
@@ -741,6 +751,7 @@ public final class AutoTest {
             case DISPLAY_NAME -> displayNameStep(mc, age);
             case HITBOXES -> hitboxStep(mc, age);
             case TNT -> tntStep(mc, age);
+            case SCOREBOARD -> scoreboardStep(mc, age);
             case SWEEP -> {
                 if (!sweep.step(mc) && age < 600_000) return;
                 write("module-sweep", sweep.report());
@@ -1374,6 +1385,7 @@ public final class AutoTest {
     }
 
     private static volatile net.minecraft.world.entity.item.PrimedTnt testTnt;
+    private static volatile boolean testBoardPut;
 
     /**
      * TNT Countdown: a lit TNT with a ten second fuse, put by the game's own
@@ -1386,7 +1398,7 @@ public final class AutoTest {
         net.minecraft.client.server.IntegratedServer server = mc.getSingleplayerServer();
         if (module("TNT Countdown") == null || t == null || server == null || mc.player == null) {
             log("tnt-check", "pass", "true", "skipped", "TNT Countdown is not offered on this version, or no server or player");
-            startSweep();
+            startScoreboard(mc);
             return;
         }
         if (!t.isEnabled()) t.setEnabled(true);
@@ -1421,7 +1433,89 @@ public final class AutoTest {
         }
         dev.breeze.modules.TntCountdown t = dev.breeze.modules.TntCountdown.get();
         if (t != null && t.isEnabled()) t.setEnabled(false);
-        startSweep();
+        startScoreboard(mc);
+    }
+
+    private static int scoreStep;
+    private static long vanillaBefore;
+    private static boolean scoreWasOn;
+    private static final StringBuilder scoreNotes = new StringBuilder();
+    private static boolean scorePass;
+
+    /**
+     * Scoreboard: the sidebar the game's own server made when the world
+     * opened (Sidebar.putTestBoard: three names, two of them tied, a hidden
+     * '#' row and a row written by a team's prefix and suffix). Breeze must
+     * draw the rows Minecraft would, in its order, with the server's numbers;
+     * then without numbers; then hidden; then, switched off, Minecraft draws
+     * its own again.
+     */
+    private static void startScoreboard(Minecraft mc) {
+        dev.breeze.modules.ScoreboardModule m = dev.breeze.modules.ScoreboardModule.get();
+        if (module("Scoreboard") == null || m == null || mc.player == null || !testBoardPut) {
+            log("scoreboard-check", "pass", "true", "skipped", "no Scoreboard module, player or test board");
+            startSweep();
+            return;
+        }
+        scoreWasOn = m.isEnabled();
+        m.setHidden(false);
+        m.setNumbersShown(true);
+        if (!m.isEnabled()) m.setEnabled(true);
+        scoreStep = 0;
+        scoreNotes.setLength(0);
+        scorePass = true;
+        world = World.SCOREBOARD;
+        worldAt = System.currentTimeMillis();
+    }
+
+    private static void scoreNote(String what, boolean ok) {
+        if (scoreNotes.length() > 0) scoreNotes.append("; ");
+        scoreNotes.append(what).append(ok ? "" : " (FAILED)");
+        scorePass &= ok;
+    }
+
+    private static void scoreboardStep(Minecraft mc, long age) {
+        dev.breeze.modules.ScoreboardModule m = dev.breeze.modules.ScoreboardModule.get();
+        long wait = scoreStep == 0 ? 1_500 : 800;
+        if (age < wait) return;
+        worldAt = System.currentTimeMillis();
+        switch (scoreStep) {
+            case 0 -> {
+                shot(mc, "autotest-scoreboard");
+                java.util.List<String> names = dev.breeze.modules.ScoreboardModule.lastNames();
+                String title = dev.breeze.modules.ScoreboardModule.lastTitle();
+                boolean order = names.size() == 4 && names.get(0).equals("carl") && names.get(1).equals("Alice")
+                        && names.get(2).equals("bob") && names.get(3).startsWith("Coins: ") && names.get(3).endsWith("1,250");
+                scoreNote("title " + title, title.equals("Breeze Test"));
+                scoreNote("rows " + String.join("|", names), order);
+                String nums = dev.breeze.modules.ScoreboardModule.lastNumbers();
+                scoreNote("numbers " + nums, nums.equals("7,3,3,1"));
+                m.setNumbersShown(false);
+            }
+            case 1 -> {
+                String nums = dev.breeze.modules.ScoreboardModule.lastNumbers();
+                scoreNote("numbers hidden '" + nums + "'", nums.equals(",,,"));
+                m.setHidden(true);
+            }
+            case 2 -> {
+                int rows = dev.breeze.modules.ScoreboardModule.lastRows();
+                vanillaBefore = dev.breeze.modules.ScoreboardModule.vanillaDraws();
+                scoreNote("hidden rows " + rows, rows == -1);
+                m.setHidden(false);
+                m.setNumbersShown(true);
+                m.setEnabled(false);
+            }
+            default -> {
+                long drawn = dev.breeze.modules.ScoreboardModule.vanillaDraws() - vanillaBefore;
+                scoreNote("off: Minecraft drew its own " + drawn + " times", drawn > 0);
+                shot(mc, "autotest-scoreboard-vanilla");
+                log("scoreboard-check", "notes", scoreNotes.toString(), "pass", String.valueOf(scorePass));
+                if (scoreWasOn) m.setEnabled(true);
+                startSweep();
+                return;
+            }
+        }
+        scoreStep++;
     }
 
     /** A command key ran or was refused (CommandKeyRunner), for the driver. */

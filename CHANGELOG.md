@@ -7,6 +7,44 @@ fixes bump PATCH. `scripts/check-version.sh` keeps `gradle.properties`,
 Each entry says what was verified and how. Anything not verified is marked
 **UNVERIFIED**.
 
+## [2.21.0] - 2026-10-30
+
+Scoreboard customization (Breeze 1.1.0 directive, sixth item). The
+existing Scoreboard module only hid the sidebar; it now draws it.
+
+- **Scoreboard** (HUD): the sidebar the server sent, drawn by Breeze in
+  Breeze's panel, where the player puts it in the HUD editor (Minecraft's
+  place by default: the right edge, half way down). While the module is
+  on, Minecraft's own sidebar is not drawn; off, Minecraft draws its own
+  as always.
+- What is shown is the server's: the objective Minecraft would show (a
+  player in a coloured team sees that colour's sidebar first, as in
+  vanilla), the rows Minecraft would pick and in its order ('#' names
+  hidden, highest score on top, ties by name, at most 15), each name with
+  its team prefix, suffix and colours, and each number as the server
+  formats it (red by default; from 1.20.3 styled, fixed text or blank, for
+  the board or one row). Boards built from team prefixes, as most networks
+  build theirs, read the same, since their text is the names' formatting.
+  A board that changes is read again every frame.
+- Settings: hide the sidebar entirely; numbers as the server sends them or
+  hidden; title centred, left or right; space between rows (0 to 6 px);
+  and the shared HUD style (panel, colours, scale, text shadow).
+- Saved state kept: before 2.21.0 the module had no settings and "on"
+  meant hidden; a save like that stays hidden (`Module.settingsLoaded`).
+- Read per era (`compat/Sidebar`, signatures from API dump run
+  41108999855): numbered display slots and plain scores up to 1.20.1,
+  the `DisplaySlot` enum from 1.20.2, `PlayerScoreEntry` and number formats
+  from 1.20.3 (unchanged to 26.3). Row choice and layout in common
+  (`SidebarLayout`, 3 tests).
+- Self-test (`scoreboard-check`): the game's own server makes a sidebar
+  when the test world opens (three names, two tied, a hidden '#' row and a
+  row written by a team's prefix and suffix around an invisible owner), so
+  it reaches the game as packets. Breeze must draw the title, the rows in
+  Minecraft's order and the numbers 7, 3, 3, 1; then no numbers; then
+  nothing when hidden; and, switched off, Minecraft must draw its own
+  again. Screenshots `autotest-scoreboard`, `autotest-scoreboard-vanilla`.
+  Not covered: a real network's board, a player in a coloured team.
+
 ## [2.20.0] - 2026-10-30
 
 Command keys, hitboxes and TNT countdowns (Breeze 1.1.0 directive, seventh

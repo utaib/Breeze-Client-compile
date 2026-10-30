@@ -36,5 +36,6 @@ public class GuiMixin {
     @Inject(method = "displayScoreboardSidebar", at = @At("HEAD"), cancellable = true)
     private void breeze$scoreboard(CallbackInfo ci) {
         if (ScoreboardModule.active()) ci.cancel();
+        else ScoreboardModule.vanillaDrawn();
     }
 }

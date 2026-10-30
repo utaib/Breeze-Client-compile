@@ -273,6 +273,14 @@ case "$hbox" in
   '') fail "the self-test checked Hitboxes" ;;
   *) fail "Hitboxes drew no box for the player in third person" ;;
 esac
+sboard=$(grep '"event":"scoreboard-check"' "$LOG" | tail -1)
+say "scoreboard: $sboard"
+case "$sboard" in
+  *'"skipped"'*) say "SKIP: $sboard" ;;
+  *'"pass":"true"'*) pass "the Scoreboard drew the server's sidebar in Minecraft's order, with and without numbers, hid it, and gave it back to Minecraft when off" ;;
+  '') fail "the self-test checked the Scoreboard" ;;
+  *) fail "the Scoreboard did not draw the server's sidebar as Minecraft would, or did not hide or give it back" ;;
+esac
 dname=$(grep '"event":"displayname-check"' "$LOG" | tail -1)
 say "display name: $dname"
 case "$dname" in
