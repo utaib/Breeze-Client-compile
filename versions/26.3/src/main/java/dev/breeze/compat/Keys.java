@@ -34,4 +34,9 @@ public final class Keys {
     public static InputConstants.Key keyOf(int key, int scanCode) {
         return InputConstants.getKey(new net.minecraft.client.input.KeyEvent(key, scanCode, 0));
     }
+
+    /** For the self-test: the window's own key state. 26.3 reads the keyboard from SDL, which this does not ask: null. */
+    public static boolean[] windowKeyState(int key) {
+        return null;
+    }
 }

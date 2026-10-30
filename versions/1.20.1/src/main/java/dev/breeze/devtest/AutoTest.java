@@ -363,18 +363,18 @@ public final class AutoTest {
             log("menu-key", "key", dev.breeze.keybind.KeybindManager.menuKeyName(), "state", "down");
         }
         menuKeyWasDown = keyDown;
-        // Right Shift as the window itself reports it (GLFW, on this thread,
-        // whose context is the game window's): a press the window saw but
+        // Right Shift as the window itself reports it (GLFW; not on 26.3,
+        // which reads SDL): a press the window saw but
         // the binding missed is Minecraft's key path, one it never saw is the
         // display. The 1.18 family loses the driver's press now and then.
-        long window = org.lwjgl.glfw.GLFW.glfwGetCurrentContext();
-        boolean raw = window != 0 && org.lwjgl.glfw.GLFW.glfwGetKey(window, org.lwjgl.glfw.GLFW.GLFW_KEY_RIGHT_SHIFT) == org.lwjgl.glfw.GLFW.GLFW_PRESS;
+        boolean[] window = dev.breeze.compat.Keys.windowKeyState(com.mojang.blaze3d.platform.InputConstants.KEY_RSHIFT);
+        boolean raw = window != null && window[0];
         if (raw && !rawRightShiftWasDown && mc.level != null) {
             net.minecraft.client.gui.screens.Screen now = dev.breeze.compat.ActiveScreen.get(mc);
             log("rshift-raw", "screen", now == null ? "none" : kind(now), "binding", String.valueOf(keyDown),
                     "key", dev.breeze.keybind.KeybindManager.menuKeyName(),
                     "shared", dev.breeze.keybind.KeybindManager.sharingMenuKey(mc),
-                    "focused", String.valueOf(org.lwjgl.glfw.GLFW.glfwGetWindowAttrib(window, org.lwjgl.glfw.GLFW.GLFW_FOCUSED) != 0));
+                    "focused", String.valueOf(window[1]));
         }
         rawRightShiftWasDown = raw;
         net.minecraft.client.gui.screens.Screen s = dev.breeze.compat.ActiveScreen.get(mc);

@@ -397,13 +397,38 @@ menu_in_world() { # how it was opened
   shot 08-menu-in-world 0.2
   close_to_game || fail "Escape closed the Breeze menu back to the world"
 }
+# The menu in the world from the pause screen's Breeze button, when the key
+# itself cannot be tested here.
+menu_from_pause() {
+  local b xy t
+  b=$(count '"event":"ingame-menu"')
+  xdotool key Escape
+  t=$(fresh_targets pause)
+  xy=$(where "$t" '^Breeze$')
+  if [ -z "$xy" ]; then
+    fail "the pause screen offers the Breeze button"
+  else
+    # shellcheck disable=SC2086
+    click_at $xy
+    if wait_new '"event":"ingame-menu"' 40 "$b"; then
+      menu_in_world "the pause screen's Breeze button"
+    else
+      fail "the pause screen's Breeze button opened the Breeze menu in a world"
+    fi
+  fi
+}
 sleep 1
 b=$(count '"event":"ingame-menu"')
+# rshift-raw: the self-test saw the game window itself report Right Shift
+# held (GLFW; 26.3 reads SDL and reports nothing). The Music screen press
+# above is the first one, which shows the window state can be read here.
+r0=$(count '"event":"rshift-raw"')
 press_rshift
 if wait_new '"event":"ingame-menu"' 40 "$b"; then
   say "Right Shift as the window saw it: $(grep '"event":"rshift-raw"' "$LOG" | tail -1)"
   menu_in_world "Right Shift"
 else
+  say "menu key seen: $(grep '"event":"menu-key"' "$LOG" | tail -1)"
   case "$rkey" in
     *'"rshift":"false"'*)
       # Minecraft received a key, but not as Right Shift: the display's key
@@ -411,34 +436,34 @@ else
       # display's keyboard, not Breeze. The menu is opened from the pause
       # screen's Breeze button instead, so the in-world check still runs.
       say "SKIP Right Shift: this Minecraft reads the test display's Right Shift as another key, so the key cannot be tested here (UNVERIFIED on this version)"
-      b=$(count '"event":"ingame-menu"')
-      xdotool key Escape
-      t=$(fresh_targets pause)
-      xy=$(where "$t" '^Breeze$')
-      if [ -z "$xy" ]; then
-        fail "the pause screen offers the Breeze button"
-      else
-        # shellcheck disable=SC2086
-        click_at $xy
-        if wait_new '"event":"ingame-menu"' 40 "$b"; then
-          menu_in_world "the pause screen's Breeze button"
-        else
-          fail "the pause screen's Breeze button opened the Breeze menu in a world"
-        fi
-      fi ;;
+      menu_from_pause ;;
     *)
-      say "menu key seen: $(grep '"event":"menu-key"' "$LOG" | tail -1)"
-      say "Right Shift as the window saw it: $(grep '"event":"rshift-raw"' "$LOG" | tail -1)"
-      fail "Right Shift in a world opened the Breeze menu"
-      # Once more, held for longer than the slowest frame here (2 fps), to
-      # tell a press lost inside one slow frame from one lost every time.
-      # The failure above stands either way.
-      b=$(count '"event":"ingame-menu"')
-      xdotool keydown Shift_R; sleep 1.5; xdotool keyup Shift_R
-      if wait_new '"event":"ingame-menu"' 40 "$b"; then
-        menu_in_world "Right Shift held for 1.5 s"
+      if [ "$(count '"event":"rshift-raw"')" -gt "$r0" ]; then
+        say "Right Shift as the window saw it: $(grep '"event":"rshift-raw"' "$LOG" | tail -1)"
+        fail "Right Shift in a world opened the Breeze menu (the game window had the key)"
       else
-        say "Right Shift held for 1.5 s did not open it either; window: $(grep '"event":"rshift-raw"' "$LOG" | tail -1)"
+        # Held for longer than the slowest frame here (2 fps), so the
+        # window's state cannot miss it between two ticks.
+        r1=$(count '"event":"rshift-raw"')
+        b=$(count '"event":"ingame-menu"')
+        xdotool keydown Shift_R; sleep 1.5; xdotool keyup Shift_R
+        if wait_new '"event":"ingame-menu"' 40 "$b"; then
+          say "a 0.3 s press did not open it, a 1.5 s hold did; window: $(grep '"event":"rshift-raw"' "$LOG" | tail -1)"
+          fail "a short Right Shift press in a world opened the Breeze menu"
+          menu_in_world "Right Shift held for 1.5 s"
+        elif [ "$(count '"event":"rshift-raw"')" -gt "$r1" ]; then
+          say "Right Shift as the window saw it: $(grep '"event":"rshift-raw"' "$LOG" | tail -1)"
+          fail "Right Shift held for 1.5 s in a world opened the Breeze menu (the game window had the key)"
+        elif [ "$r0" -eq 0 ]; then
+          fail "Right Shift in a world opened the Breeze menu (this version does not report the window's own key state, so the display cannot be ruled out)"
+        else
+          # The window reported Right Shift in the Music screen moments ago and
+          # takes Escape afterwards, but never had this key held, even for
+          # 1.5 s: the test display did not deliver it (seen in the 1.18
+          # family, run 41029353398). Minecraft and Breeze never got it.
+          say "SKIP Right Shift: the test display did not deliver Right Shift to the game window (its own key state never showed it held in the world, even for 1.5 s, though it did in the Music screen); UNVERIFIED on this version in this run"
+          menu_from_pause
+        fi
       fi ;;
   esac
 fi
