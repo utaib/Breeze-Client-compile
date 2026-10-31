@@ -1,0 +1,300 @@
+[13:20:36] [main/INFO]: Loading Minecraft 1.18 with Fabric Loader 0.16.14
+[13:20:36] [main/INFO]: Fabric is preparing JARs on first launch, this may take a few seconds...
+[13:20:36] [main/INFO]: Loading 50 mods:
+	- breeze 2.23.1
+	- fabric 0.44.0+1.18
+	   |-- fabric-api-base 0.4.1+b4f4f6cdc8
+	   |-- fabric-api-lookup-api-v1 1.4.0+16d92c47c8
+	   |-- fabric-biome-api-v1 6.0.1+ded849a9c8
+	   |-- fabric-blockrenderlayer-v1 1.1.9+3ac43d95c8
+	   |-- fabric-command-api-v1 1.1.6+3ac43d95c8
+	   |-- fabric-commands-v0 0.2.5+b4f4f6cdc8
+	   |-- fabric-containers-v0 0.1.18+d154e2c6c8
+	   |-- fabric-content-registries-v0 0.4.5+6f53a73dc8
+	   |-- fabric-crash-report-info-v1 0.1.8+3ac43d95c8
+	   |-- fabric-dimensions-v1 2.1.7+43d29571c8
+	   |-- fabric-entity-events-v1 1.4.5+6b21378ac8
+	   |-- fabric-events-interaction-v0 0.4.16+bfa23f17c8
+	   |-- fabric-events-lifecycle-v0 0.2.6+b4f4f6cdc8
+	   |-- fabric-game-rule-api-v1 1.0.10+3ac43d95c8
+	   |-- fabric-item-api-v1 1.3.0+691a79b5c8
+	   |-- fabric-item-groups-v0 0.3.3+3ac43d95c8
+	   |-- fabric-key-binding-api-v1 1.0.8+c8aba2f3c8
+	   |-- fabric-keybindings-v0 0.2.6+b4f4f6cdc8
+	   |-- fabric-lifecycle-events-v1 1.4.10+c15ca335c8
+	   |-- fabric-loot-tables-v1 1.0.8+3ac43d95c8
+	   |-- fabric-mining-level-api-v1 1.0.3+3ac43d95c8
+	   |-- fabric-mining-levels-v0 0.1.7+b4f4f6cdc8
+	   |-- fabric-models-v0 0.3.3+3ac43d95c8
+	   |-- fabric-networking-api-v1 1.0.18+3ac43d95c8
+	   |-- fabric-networking-v0 0.3.5+b4f4f6cdc8
+	   |-- fabric-object-builder-api-v1 1.11.0+3b82842ec8
+	   |-- fabric-object-builders-v0 0.7.8+3ac43d95c8
+	   |-- fabric-particles-v1 0.2.9+526dc1acc8
+	   |-- fabric-registry-sync-v0 0.8.5+3ac43d95c8
+	   |-- fabric-renderer-api-v1 0.4.9+3ac43d95c8
+	   |-- fabric-renderer-indigo 0.4.12+3ac43d95c8
+	   |-- fabric-renderer-registries-v1 3.2.7+b4f4f6cdc8
+	   |-- fabric-rendering-data-attachment-v1 0.3.4+7242e9d7c8
+	   |-- fabric-rendering-fluids-v1 0.1.18+3ac43d95c8
+	   |-- fabric-rendering-v0 1.1.9+b4f4f6cdc8
+	   |-- fabric-rendering-v1 1.10.3+6b21378ac8
+	   |-- fabric-resource-loader-v0 0.4.11+3ac43d95c8
+	   |-- fabric-screen-api-v1 1.0.7+3ac43d95c8
+	   |-- fabric-screen-handler-api-v1 1.1.11+3ac43d95c8
+	   |-- fabric-structure-api-v1 2.0.8+295197a7c8
+	   |-- fabric-tag-extensions-v0 1.2.5+3ac43d95c8
+	   |-- fabric-textures-v0 1.0.9+3ac43d95c8
+	   |-- fabric-tool-attribute-api-v1 1.3.4+7de09f55c8
+	   \-- fabric-transfer-api-v1 1.5.5+b4f4f6cdc8
+	- fabricloader 0.16.14
+	   \-- mixinextras 0.4.1
+	- java 17
+	- minecraft 1.18
+[13:20:36] [main/INFO]: SpongePowered MIXIN Subsystem Version=0.8.7 Source=file:/home/runner/.minecraft/libraries/net/fabricmc/sponge-mixin/0.15.5+mixin.0.8.7/sponge-mixin-0.15.5+mixin.0.8.7.jar Service=Knot/Fabric Env=CLIENT
+[13:20:36] [main/INFO]: Compatibility level set to JAVA_17
+[13:20:37] [main/INFO]: Initializing MixinExtras via com.llamalad7.mixinextras.service.MixinExtrasServiceImpl(version=0.4.1).
+[13:20:41] [main/WARN]: @Inject(@At("INVOKE")) Shift.BY=3 on fabric-lifecycle-events-v1.mixins.json:client.WorldChunkMixin from mod fabric-lifecycle-events-v1::handler$zfe000$fabric-lifecycle-events-v1$onLoadBlockEntity exceeds the maximum allowed value: 0. Increase the value of maxShiftBy to suppress this warning.
+[13:20:42] [main/WARN]: Unrecognized user type: 
+[13:20:43] [Render thread/INFO]: Environment: authHost='https://authserver.mojang.com', accountsHost='https://api.mojang.com', sessionHost='https://sessionserver.mojang.com', servicesHost='https://api.minecraftservices.com', name='PROD'
+[13:20:44] [Render thread/ERROR]: Failed to verify authentication
+com.mojang.authlib.exceptions.InvalidCredentialsException: Status: 401
+	at com.mojang.authlib.exceptions.MinecraftClientHttpException.toAuthenticationException(MinecraftClientHttpException.java:56) ~[authlib-3.2.38.jar:?]
+	at com.mojang.authlib.yggdrasil.YggdrasilUserApiService.fetchProperties(YggdrasilUserApiService.java:132) ~[authlib-3.2.38.jar:?]
+	at com.mojang.authlib.yggdrasil.YggdrasilUserApiService.<init>(YggdrasilUserApiService.java:44) ~[authlib-3.2.38.jar:?]
+	at com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService.createUserApiService(YggdrasilAuthenticationService.java:153) ~[authlib-3.2.38.jar:?]
+	at net.minecraft.class_310.method_31382(class_310.java:670) [client-intermediary.jar:?]
+	at net.minecraft.class_310.<init>(class_310.java:424) [client-intermediary.jar:?]
+	at net.minecraft.client.main.Main.main(Main.java:197) [client-intermediary.jar:?]
+	at net.fabricmc.loader.impl.game.minecraft.MinecraftGameProvider.launch(MinecraftGameProvider.java:480) [fabric-loader-0.16.14.jar:?]
+	at net.fabricmc.loader.impl.launch.knot.Knot.launch(Knot.java:74) [fabric-loader-0.16.14.jar:?]
+	at net.fabricmc.loader.impl.launch.knot.KnotClient.main(KnotClient.java:23) [fabric-loader-0.16.14.jar:?]
+Caused by: com.mojang.authlib.exceptions.MinecraftClientHttpException: Status: 401
+	at com.mojang.authlib.minecraft.client.MinecraftClient.readInputStream(MinecraftClient.java:78) ~[authlib-3.2.38.jar:?]
+	at com.mojang.authlib.minecraft.client.MinecraftClient.get(MinecraftClient.java:48) ~[authlib-3.2.38.jar:?]
+	at com.mojang.authlib.yggdrasil.YggdrasilUserApiService.fetchProperties(YggdrasilUserApiService.java:113) ~[authlib-3.2.38.jar:?]
+	... 8 more
+[13:20:44] [Render thread/INFO]: Setting user: BreezeDev
+[13:20:44] [Render thread/INFO]: [Breeze] Initializing on Minecraft 1.18
+[13:20:44] [Render thread/INFO]: [Breeze] Registered 86 modules
+[13:20:44] [Render thread/INFO]: [Breeze] No embedded browser exists for this Minecraft version; native screens are the interface
+[13:20:44] [Render thread/INFO]: [Breeze autotest] {"dir":"/home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test","event":"start","t":1793452844710}
+[13:20:44] [Render thread/INFO]: [Indigo] Registering Indigo renderer!
+[13:20:45] [Render thread/INFO]: Backend library: LWJGL version 3.2.2 build 10
+[13:20:47] [Render thread/INFO]: Narrator library successfully loaded
+[13:20:47] [Render thread/INFO]: Reloading ResourceManager: Default, Fabric Mods (Breeze, Fabric API, Fabric API Base, Fabric API Lookup API (v1), Fabric Biome API (v1), Fabric BlockRenderLayer Registration (v1), Fabric Command API (v1), Fabric Commands (v0), Fabric Containers (v0), Fabric Content Registries (v0), Fabric Crash Report Info (v1), Fabric Dimensions API (v1), Fabric Entity Events (v1), Fabric Events Interaction (v0), Fabric Events Lifecycle (v0), Fabric Game Rule API (v1), Fabric Item API (v1), Fabric Item Groups (v0), Fabric Key Binding API (v1), Fabric Key Bindings (v0), Fabric Lifecycle Events (v1), Fabric Loot Tables (v1), Fabric Mining Level API (v1), Fabric Mining Levels (v0), Fabric Models (v0), Fabric Networking API (v1), Fabric Networking (v0), Fabric Object Builder API (v1), Fabric Object Builders (v0), Fabric Particles (v1), Fabric Registry Sync (v0), Fabric Renderer API (v1), Fabric Renderer - Indigo, Fabric Renderer Registries (v1), Fabric Rendering Data Attachment (v1), Fabric Rendering Fluids (v1), Fabric Rendering (v0), Fabric Rendering (v1), Fabric Resource Loader (v0), Fabric Screen API (v1), Fabric Screen Handler API (v1), Fabric Structure API (v1), Fabric Tag Extensions (v0), Fabric Textures (v0), Fabric Tool Attribute API (v1), Fabric Transfer API (v1), Fabric Loader)
+[13:20:48] [Render thread/INFO]: [Breeze] Integrations: Mod Menu absent, 0 settings screens, 0 Breeze entries, 0 problems
+[13:20:48] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_442","kind":"title","liveBrowsers":"0","event":"screen","t":1793452848102}
+[13:20:48] [Realms Notification Availability checker #1/INFO]: Could not authorize you against Realms server: javax.ws.rs.BadRequestException: Invalid session
+[13:20:48] [Render thread/INFO]: [Breeze autotest] {"kind":"title","scale":3.0,"items":[{"name":"Singleplayer","type":"widget","x":639,"y":354,"active":true},{"name":"Multiplayer","type":"widget","x":639,"y":426,"active":true},{"name":"Minecraft Realms","type":"widget","x":639,"y":498,"active":true},{"name":"Language","type":"widget","x":297,"y":606,"active":true},{"name":"Options...","type":"widget","x":486,"y":606,"active":true},{"name":"Quit Game","type":"widget","x":792,"y":606,"active":true},{"name":"Accessibility","type":"widget","x":981,"y":606,"active":true}],"event":"targets","t":1793452848294}
+[13:20:48] [ForkJoinPool.commonPool-worker-2/WARN]: [Breeze] friends refresh failed: HTTP 404
+[13:20:52] [Render thread/ERROR]: Error starting SoundSystem. Turning off sounds & music
+java.lang.IllegalStateException: Failed to open OpenAL device
+	at net.minecraft.class_4225.method_38501(class_4225.java:264) ~[client-intermediary.jar:?]
+	at net.minecraft.class_4225.method_19661(class_4225.java:151) ~[client-intermediary.jar:?]
+	at net.minecraft.class_1140.method_4846(class_1140.java:112) ~[client-intermediary.jar:?]
+	at net.minecraft.class_1140.method_4837(class_1140.java:103) ~[client-intermediary.jar:?]
+	at net.minecraft.class_1144.method_18182(class_1144.java:116) ~[client-intermediary.jar:?]
+	at net.minecraft.class_1144.method_18788(class_1144.java:39) ~[client-intermediary.jar:?]
+	at net.minecraft.class_4080.method_18790(class_4080.java:13) ~[client-intermediary.jar:?]
+	at java.util.concurrent.CompletableFuture$UniAccept.tryFire(CompletableFuture.java:718) ~[?:?]
+	at java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:482) ~[?:?]
+	at net.minecraft.class_4014.method_18365(class_4014.java:71) ~[client-intermediary.jar:?]
+	at net.minecraft.class_1255.execute(class_1255.java:101) ~[client-intermediary.jar:?]
+	at net.minecraft.class_4014.method_18367(class_4014.java:70) ~[client-intermediary.jar:?]
+	at java.util.concurrent.CompletableFuture$UniCompletion.claim(CompletableFuture.java:572) ~[?:?]
+	at java.util.concurrent.CompletableFuture$UniAccept.tryFire(CompletableFuture.java:714) ~[?:?]
+	at java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:510) ~[?:?]
+	at java.util.concurrent.CompletableFuture.postFire(CompletableFuture.java:614) ~[?:?]
+	at java.util.concurrent.CompletableFuture$UniAccept.tryFire(CompletableFuture.java:726) ~[?:?]
+	at java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:482) ~[?:?]
+	at com.mojang.blaze3d.systems.RenderSystem.replayQueue(RenderSystem.java:207) [client-intermediary.jar:?]
+	at com.mojang.blaze3d.systems.RenderSystem.flipFrame(RenderSystem.java:194) [client-intermediary.jar:?]
+	at net.minecraft.class_1041.method_15998(class_1041.java:310) [client-intermediary.jar:?]
+	at net.minecraft.class_310.method_1523(class_310.java:1142) [client-intermediary.jar:?]
+	at net.minecraft.class_310.method_1514(class_310.java:733) [client-intermediary.jar:?]
+	at net.minecraft.client.main.Main.main(Main.java:236) [client-intermediary.jar:?]
+	at net.fabricmc.loader.impl.game.minecraft.MinecraftGameProvider.launch(MinecraftGameProvider.java:480) [fabric-loader-0.16.14.jar:?]
+	at net.fabricmc.loader.impl.launch.knot.Knot.launch(Knot.java:74) [fabric-loader-0.16.14.jar:?]
+	at net.fabricmc.loader.impl.launch.knot.KnotClient.main(KnotClient.java:23) [fabric-loader-0.16.14.jar:?]
+[13:20:52] [Render thread/INFO]: Created: 1024x1024x4 minecraft:textures/atlas/blocks.png-atlas
+[13:20:52] [Render thread/INFO]: Created: 256x128x4 minecraft:textures/atlas/signs.png-atlas
+[13:20:52] [Render thread/INFO]: Created: 1024x512x4 minecraft:textures/atlas/banner_patterns.png-atlas
+[13:20:52] [Render thread/INFO]: Created: 1024x512x4 minecraft:textures/atlas/shield_patterns.png-atlas
+[13:20:52] [Render thread/INFO]: Created: 256x256x4 minecraft:textures/atlas/chest.png-atlas
+[13:20:52] [Render thread/INFO]: Created: 512x256x4 minecraft:textures/atlas/beds.png-atlas
+[13:20:52] [Render thread/INFO]: Created: 512x256x4 minecraft:textures/atlas/shulker_boxes.png-atlas
+[13:20:54] [Render thread/INFO]: Created: 256x256x0 minecraft:textures/atlas/particles.png-atlas
+[13:20:54] [Render thread/INFO]: Created: 256x256x0 minecraft:textures/atlas/paintings.png-atlas
+[13:20:54] [Render thread/INFO]: Created: 256x128x0 minecraft:textures/atlas/mob_effects.png-atlas
+[13:20:54] [ForkJoinPool.commonPool-worker-3/WARN]: [Breeze] friends refresh failed: HTTP 404
+[13:20:56] [Render thread/INFO]: [Breeze autotest] {"ok":"true","targets":"31","ms":"30","event":"mixin-audit","t":1793452856610}
+[13:20:56] [Render thread/INFO]: [Breeze autotest] {"event":"menu-open","t":1793452856610}
+[13:20:57] [Render thread/INFO]: [Breeze autotest] {"file":"screenshots/autotest-title-menu.png","event":"screenshot","t":1793452857682}
+[13:20:57] [Render thread/INFO]: [Breeze autotest] {"modules":"86","found":"86","missing":"","fallbacks":{"Saturation":"textures/gui/icons.png","Hearts":"textures/gui/icons.png","Custom Shield":"textures/item/oak_sign.png"},"pass":"true","event":"module-icons","t":1793452857712}
+[13:20:57] [Render thread/INFO]: [Breeze autotest] {"integrations":[],"problems":[],"event":"integrations","t":1793452857718}
+[13:20:57] [Render thread/INFO]: [Breeze autotest] {"id":"key.breeze.armor_bar","count":"88","bound":"j","afterReset":"","pass":"true","event":"keys-check","t":1793452857746}
+[13:20:57] [Render thread/INFO]: [Breeze autotest] {"kind":"title","scale":3.0,"items":[{"name":"Singleplayer","type":"widget","x":639,"y":354,"active":true},{"name":"Multiplayer","type":"widget","x":639,"y":426,"active":true},{"name":"Minecraft Realms","type":"widget","x":639,"y":498,"active":true},{"name":"Language","type":"widget","x":297,"y":606,"active":true},{"name":"Options...","type":"widget","x":486,"y":606,"active":true},{"name":"Quit Game","type":"widget","x":792,"y":606,"active":true},{"name":"Accessibility","type":"widget","x":981,"y":606,"active":true},{"name":"breeze-button","type":"target","x":135,"y":324,"active":true}],"event":"targets","t":1793452857749}
+[13:20:57] [Render thread/INFO]: [Breeze autotest] {"mode":"native","event":"READY_FOR_INPUT","t":1793452857750}
+[13:20:59] [ForkJoinPool.commonPool-worker-3/WARN]: [Breeze] friends refresh failed: HTTP 404
+[13:21:02] [Render thread/INFO]: [Breeze autotest] {"kind":"title","scale":3.0,"items":[{"name":"Singleplayer","type":"widget","x":639,"y":354,"active":true},{"name":"Multiplayer","type":"widget","x":639,"y":426,"active":true},{"name":"Minecraft Realms","type":"widget","x":639,"y":498,"active":true},{"name":"Language","type":"widget","x":297,"y":606,"active":true},{"name":"Options...","type":"widget","x":486,"y":606,"active":true},{"name":"Quit Game","type":"widget","x":792,"y":606,"active":true},{"name":"Accessibility","type":"widget","x":981,"y":606,"active":true},{"name":"breeze-button","type":"target","x":135,"y":324,"active":true}],"event":"targets","t":1793452862626}
+[13:21:02] [Render thread/INFO]: [Breeze autotest] {"kind":"title","scale":3.0,"items":[{"name":"Singleplayer","type":"widget","x":639,"y":354,"active":true},{"name":"Multiplayer","type":"widget","x":639,"y":426,"active":true},{"name":"Minecraft Realms","type":"widget","x":639,"y":498,"active":true},{"name":"Language","type":"widget","x":297,"y":606,"active":true},{"name":"Options...","type":"widget","x":486,"y":606,"active":true},{"name":"Quit Game","type":"widget","x":792,"y":606,"active":true},{"name":"Accessibility","type":"widget","x":981,"y":606,"active":true},{"name":"breeze-button","type":"target","x":135,"y":324,"active":true}],"event":"targets","t":1793452862680}
+[13:21:03] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.menu.BreezeMenuScreen","kind":"breeze-native","liveBrowsers":"0","event":"screen","t":1793452863496}
+[13:21:03] [Render thread/INFO]: [Breeze autotest] {"kind":"breeze-native","scale":3.0,"items":[{"name":"Search","type":"widget","x":978,"y":81,"active":true,"value":""},{"name":"music","type":"target","x":114,"y":528,"active":true},{"name":"command-keys","type":"target","x":114,"y":570,"active":true},{"name":"settings-icon","type":"target","x":258,"y":654,"active":true},{"name":"module-card-0","type":"target","x":534,"y":201,"active":true}],"event":"targets","t":1793452863966}
+[13:21:04] [ForkJoinPool.commonPool-worker-3/WARN]: [Breeze] friends refresh failed: HTTP 404
+[13:21:05] [Render thread/INFO]: [Breeze autotest] {"kind":"breeze-native","scale":3.0,"items":[{"name":"Search","type":"widget","x":978,"y":81,"active":true,"value":""},{"name":"music","type":"target","x":114,"y":528,"active":true},{"name":"command-keys","type":"target","x":114,"y":570,"active":true},{"name":"settings-icon","type":"target","x":258,"y":654,"active":true},{"name":"module-card-0","type":"target","x":534,"y":201,"active":true}],"event":"targets","t":1793452865008}
+[13:21:07] [Render thread/INFO]: [Breeze autotest] {"kind":"breeze-native","scale":3.0,"items":[{"name":"Search","type":"widget","x":978,"y":81,"active":true,"value":"fps"},{"name":"music","type":"target","x":114,"y":528,"active":true},{"name":"command-keys","type":"target","x":114,"y":570,"active":true},{"name":"settings-icon","type":"target","x":258,"y":654,"active":true},{"name":"module-card-0","type":"target","x":534,"y":201,"active":true}],"event":"targets","t":1793452867140}
+[13:21:09] [Render thread/INFO]: [Breeze autotest] {"kind":"breeze-native","scale":3.0,"items":[{"name":"Search","type":"widget","x":978,"y":81,"active":true,"value":"fps"},{"name":"music","type":"target","x":114,"y":528,"active":true},{"name":"command-keys","type":"target","x":114,"y":570,"active":true},{"name":"settings-icon","type":"target","x":258,"y":654,"active":true},{"name":"module-card-0","type":"target","x":534,"y":201,"active":true}],"event":"targets","t":1793452869071}
+[13:21:09] [ForkJoinPool.commonPool-worker-3/WARN]: [Breeze] friends refresh failed: HTTP 404
+[13:21:09] [Render thread/INFO]: [Breeze autotest] {"name":"FPS","enabled":"true","event":"module","t":1793452869907}
+[13:21:11] [Render thread/INFO]: [Breeze autotest] {"kind":"breeze-native","scale":3.0,"items":[{"name":"Search","type":"widget","x":978,"y":81,"active":true,"value":"fps"},{"name":"music","type":"target","x":114,"y":528,"active":true},{"name":"command-keys","type":"target","x":114,"y":570,"active":true},{"name":"settings-icon","type":"target","x":258,"y":654,"active":true},{"name":"module-card-0","type":"target","x":534,"y":201,"active":true}],"event":"targets","t":1793452871435}
+[13:21:12] [Render thread/INFO]: [Breeze autotest] {"name":"FPS","enabled":"false","event":"module","t":1793452872232}
+[13:21:12] [Render thread/INFO]: [Breeze autotest] {"kind":"breeze-native","scale":3.0,"items":[{"name":"Search","type":"widget","x":978,"y":81,"active":true,"value":"fps"},{"name":"music","type":"target","x":114,"y":528,"active":true},{"name":"command-keys","type":"target","x":114,"y":570,"active":true},{"name":"settings-icon","type":"target","x":258,"y":654,"active":true},{"name":"module-card-0","type":"target","x":534,"y":201,"active":true}],"event":"targets","t":1793452872356}
+[13:21:12] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.menu.ModuleSettingsScreen","kind":"module-settings","liveBrowsers":"0","event":"screen","t":1793452872719}
+[13:21:13] [Render thread/INFO]: [Breeze autotest] {"kind":"module-settings","scale":3.0,"items":[],"event":"targets","t":1793452873112}
+[13:21:14] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.menu.BreezeMenuScreen","kind":"breeze-native","liveBrowsers":"0","event":"screen","t":1793452874179}
+[13:21:14] [ForkJoinPool.commonPool-worker-3/WARN]: [Breeze] friends refresh failed: HTTP 404
+[13:21:14] [Render thread/INFO]: [Breeze autotest] {"kind":"breeze-native","scale":3.0,"items":[{"name":"Search","type":"widget","x":978,"y":81,"active":true,"value":"fps"},{"name":"music","type":"target","x":114,"y":528,"active":true},{"name":"command-keys","type":"target","x":114,"y":570,"active":true},{"name":"settings-icon","type":"target","x":258,"y":654,"active":true},{"name":"module-card-0","type":"target","x":534,"y":201,"active":true}],"event":"targets","t":1793452874617}
+[13:21:15] [Render thread/INFO]: [Breeze autotest] {"kind":"breeze-native","scale":3.0,"items":[{"name":"Search","type":"widget","x":978,"y":81,"active":true,"value":"fps"},{"name":"music","type":"target","x":114,"y":528,"active":true},{"name":"command-keys","type":"target","x":114,"y":570,"active":true},{"name":"settings-icon","type":"target","x":258,"y":654,"active":true},{"name":"module-card-0","type":"target","x":534,"y":201,"active":true}],"event":"targets","t":1793452875243}
+[13:21:16] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.menu.ThemeSettingsScreen","kind":"breeze-settings","liveBrowsers":"0","event":"screen","t":1793452876035}
+[13:21:16] [Render thread/INFO]: [Breeze autotest] {"kind":"breeze-settings","scale":3.0,"items":[{"name":"Minecraft settings","type":"widget","x":963,"y":72,"active":true},{"name":"Done","type":"widget","x":639,"y":651,"active":true}],"event":"targets","t":1793452876464}
+[13:21:17] [Render thread/INFO]: [Breeze autotest] {"kind":"breeze-settings","scale":3.0,"items":[{"name":"Minecraft settings","type":"widget","x":963,"y":72,"active":true},{"name":"Done","type":"widget","x":639,"y":651,"active":true}],"event":"targets","t":1793452877543}
+[13:21:18] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_429","kind":"options","liveBrowsers":"0","event":"screen","t":1793452878354}
+[13:21:18] [Render thread/INFO]: [Breeze autotest] {"kind":"options","scale":3.0,"items":[{"name":"FOV: Normal","type":"widget","x":399,"y":114,"active":true},{"name":"Online...","type":"widget","x":879,"y":114,"active":true},{"name":"Skin Customization...","type":"widget","x":399,"y":276,"active":true},{"name":"Music & Sounds...","type":"widget","x":879,"y":276,"active":true},{"name":"Video Settings...","type":"widget","x":399,"y":348,"active":true},{"name":"Controls...","type":"widget","x":879,"y":348,"active":true},{"name":"Language...","type":"widget","x":399,"y":420,"active":true},{"name":"Chat Settings...","type":"widget","x":879,"y":420,"active":true},{"name":"Resource Packs...","type":"widget","x":399,"y":492,"active":true},{"name":"Accessibility Settings...","type":"widget","x":879,"y":492,"active":true},{"name":"Done","type":"widget","x":639,"y":654,"active":true}],"event":"targets","t":1793452878788}
+[13:21:19] [Render thread/WARN]: [Breeze] friends refresh failed: HTTP 404
+[13:21:19] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.menu.ThemeSettingsScreen","kind":"breeze-settings","liveBrowsers":"0","event":"screen","t":1793452879913}
+[13:21:20] [Render thread/INFO]: [Breeze autotest] {"kind":"breeze-settings","scale":3.0,"items":[{"name":"Minecraft settings","type":"widget","x":963,"y":72,"active":true},{"name":"Done","type":"widget","x":639,"y":651,"active":true}],"event":"targets","t":1793452880351}
+[13:21:20] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.menu.BreezeMenuScreen","kind":"breeze-native","liveBrowsers":"0","event":"screen","t":1793452880952}
+[13:21:21] [Render thread/INFO]: [Breeze autotest] {"kind":"breeze-native","scale":3.0,"items":[{"name":"Search","type":"widget","x":978,"y":81,"active":true,"value":"fps"},{"name":"music","type":"target","x":114,"y":528,"active":true},{"name":"command-keys","type":"target","x":114,"y":570,"active":true},{"name":"settings-icon","type":"target","x":258,"y":654,"active":true},{"name":"module-card-0","type":"target","x":534,"y":201,"active":true}],"event":"targets","t":1793452881386}
+[13:21:21] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_442","kind":"title","liveBrowsers":"0","event":"screen","t":1793452881986}
+[13:21:22] [Render thread/INFO]: [Breeze autotest] {"kind":"title","scale":3.0,"items":[{"name":"Singleplayer","type":"widget","x":639,"y":354,"active":true},{"name":"Multiplayer","type":"widget","x":639,"y":426,"active":true},{"name":"Minecraft Realms","type":"widget","x":639,"y":498,"active":true},{"name":"Language","type":"widget","x":297,"y":606,"active":true},{"name":"Options...","type":"widget","x":486,"y":606,"active":true},{"name":"Quit Game","type":"widget","x":792,"y":606,"active":true},{"name":"Accessibility","type":"widget","x":981,"y":606,"active":true},{"name":"breeze-button","type":"target","x":135,"y":324,"active":true}],"event":"targets","t":1793452882413}
+[13:21:23] [Render thread/INFO]: [Breeze autotest] {"kind":"title","scale":3.0,"items":[{"name":"Singleplayer","type":"widget","x":639,"y":354,"active":true},{"name":"Multiplayer","type":"widget","x":639,"y":426,"active":true},{"name":"Minecraft Realms","type":"widget","x":639,"y":498,"active":true},{"name":"Language","type":"widget","x":297,"y":606,"active":true},{"name":"Options...","type":"widget","x":486,"y":606,"active":true},{"name":"Quit Game","type":"widget","x":792,"y":606,"active":true},{"name":"Accessibility","type":"widget","x":981,"y":606,"active":true},{"name":"breeze-button","type":"target","x":135,"y":324,"active":true}],"event":"targets","t":1793452883026}
+[13:21:24] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_525","kind":"create-world","liveBrowsers":"0","event":"screen","t":1793452884904}
+[13:21:24] [ForkJoinPool.commonPool-worker-3/WARN]: [Breeze] friends refresh failed: HTTP 404
+[13:21:24] [Render thread/INFO]: [Breeze autotest] {"kind":"create-world","scale":3.0,"items":[{"name":"World Name","type":"widget","x":639,"y":210,"active":true,"value":"New World"},{"name":"Game Mode: Survival","type":"widget","x":399,"y":330,"active":true},{"name":"Difficulty: Normal","type":"widget","x":879,"y":330,"active":true},{"name":"Allow Cheats: OFF","type":"widget","x":399,"y":483,"active":true},{"name":"Data Packs","type":"widget","x":879,"y":483,"active":true},{"name":"Game Rules","type":"widget","x":399,"y":585,"active":true},{"name":"More World Options...","type":"widget","x":879,"y":585,"active":true},{"name":"Create New World","type":"widget","x":399,"y":666,"active":true},{"name":"Cancel","type":"widget","x":879,"y":666,"active":true}],"event":"targets","t":1793452884922}
+[13:21:26] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_442","kind":"title","liveBrowsers":"0","event":"screen","t":1793452886364}
+[13:21:26] [Render thread/INFO]: [Breeze autotest] {"event":"stress-start","t":1793452886423}
+[13:21:26] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.menu.BreezeMenuScreen","kind":"breeze-native","liveBrowsers":"0","event":"screen","t":1793452886534}
+[13:21:26] [Render thread/INFO]: [Breeze autotest] {"cycle":"0","painted":"true","ms":"74","liveBrowsers":"0","event":"cycle-open","t":1793452886536}
+[13:21:26] [Render thread/INFO]: [Breeze autotest] {"integrations":[],"problems":[],"event":"integrations","t":1793452886538}
+[13:21:26] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_429","kind":"options","liveBrowsers":"0","event":"screen","t":1793452886565}
+[13:21:26] [Render thread/INFO]: [Breeze autotest] {"cycle":"0","liveBrowsers":"0","heapMb":"937","event":"cycle-close","t":1793452886567}
+[13:21:26] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.menu.BreezeMenuScreen","kind":"breeze-native","liveBrowsers":"0","event":"screen","t":1793452886693}
+[13:21:26] [Render thread/INFO]: [Breeze autotest] {"cycle":"1","painted":"true","ms":"79","liveBrowsers":"0","event":"cycle-open","t":1793452886695}
+[13:21:26] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_429","kind":"options","liveBrowsers":"0","event":"screen","t":1793452886716}
+[13:21:26] [Render thread/INFO]: [Breeze autotest] {"cycle":"1","liveBrowsers":"0","heapMb":"525","event":"cycle-close","t":1793452886717}
+[13:21:26] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.menu.BreezeMenuScreen","kind":"breeze-native","liveBrowsers":"0","event":"screen","t":1793452886842}
+[13:21:26] [Render thread/INFO]: [Breeze autotest] {"cycle":"2","painted":"true","ms":"79","liveBrowsers":"0","event":"cycle-open","t":1793452886843}
+[13:21:26] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_429","kind":"options","liveBrowsers":"0","event":"screen","t":1793452886869}
+[13:21:26] [Render thread/INFO]: [Breeze autotest] {"cycle":"2","liveBrowsers":"0","heapMb":"944","event":"cycle-close","t":1793452886870}
+[13:21:26] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.menu.BreezeMenuScreen","kind":"breeze-native","liveBrowsers":"0","event":"screen","t":1793452886988}
+[13:21:26] [Render thread/INFO]: [Breeze autotest] {"cycle":"3","painted":"true","ms":"67","liveBrowsers":"0","event":"cycle-open","t":1793452886989}
+[13:21:27] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_429","kind":"options","liveBrowsers":"0","event":"screen","t":1793452887014}
+[13:21:27] [Render thread/INFO]: [Breeze autotest] {"cycle":"3","liveBrowsers":"0","heapMb":"406","event":"cycle-close","t":1793452887015}
+[13:21:27] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.menu.BreezeMenuScreen","kind":"breeze-native","liveBrowsers":"0","event":"screen","t":1793452887148}
+[13:21:27] [Render thread/INFO]: [Breeze autotest] {"cycle":"4","painted":"true","ms":"79","liveBrowsers":"0","event":"cycle-open","t":1793452887150}
+[13:21:27] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_429","kind":"options","liveBrowsers":"0","event":"screen","t":1793452887177}
+[13:21:27] [Render thread/INFO]: [Breeze autotest] {"cycle":"4","liveBrowsers":"0","heapMb":"646","event":"cycle-close","t":1793452887178}
+[13:21:27] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.menu.BreezeMenuScreen","kind":"breeze-native","liveBrowsers":"0","event":"screen","t":1793452887308}
+[13:21:27] [Render thread/INFO]: [Breeze autotest] {"cycle":"5","painted":"true","ms":"73","liveBrowsers":"0","event":"cycle-open","t":1793452887309}
+[13:21:27] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_429","kind":"options","liveBrowsers":"0","event":"screen","t":1793452887344}
+[13:21:27] [Render thread/INFO]: [Breeze autotest] {"cycle":"5","liveBrowsers":"0","heapMb":"357","event":"cycle-close","t":1793452887345}
+[13:21:27] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.menu.BreezeMenuScreen","kind":"breeze-native","liveBrowsers":"0","event":"screen","t":1793452887463}
+[13:21:27] [Render thread/INFO]: [Breeze autotest] {"cycle":"6","painted":"true","ms":"92","liveBrowsers":"0","event":"cycle-open","t":1793452887464}
+[13:21:27] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_429","kind":"options","liveBrowsers":"0","event":"screen","t":1793452887466}
+[13:21:27] [Render thread/INFO]: [Breeze autotest] {"cycle":"6","liveBrowsers":"0","heapMb":"585","event":"cycle-close","t":1793452887466}
+[13:21:27] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.menu.BreezeMenuScreen","kind":"breeze-native","liveBrowsers":"0","event":"screen","t":1793452887601}
+[13:21:27] [Render thread/INFO]: [Breeze autotest] {"cycle":"7","painted":"true","ms":"62","liveBrowsers":"0","event":"cycle-open","t":1793452887601}
+[13:21:27] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_429","kind":"options","liveBrowsers":"0","event":"screen","t":1793452887621}
+[13:21:27] [Render thread/INFO]: [Breeze autotest] {"cycle":"7","liveBrowsers":"0","heapMb":"683","event":"cycle-close","t":1793452887622}
+[13:21:27] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.menu.BreezeMenuScreen","kind":"breeze-native","liveBrowsers":"0","event":"screen","t":1793452887741}
+[13:21:27] [Render thread/INFO]: [Breeze autotest] {"cycle":"8","painted":"true","ms":"72","liveBrowsers":"0","event":"cycle-open","t":1793452887742}
+[13:21:27] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_429","kind":"options","liveBrowsers":"0","event":"screen","t":1793452887774}
+[13:21:27] [Render thread/INFO]: [Breeze autotest] {"cycle":"8","liveBrowsers":"0","heapMb":"970","event":"cycle-close","t":1793452887774}
+[13:21:27] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.menu.BreezeMenuScreen","kind":"breeze-native","liveBrowsers":"0","event":"screen","t":1793452887884}
+[13:21:27] [Render thread/INFO]: [Breeze autotest] {"cycle":"9","painted":"true","ms":"70","liveBrowsers":"0","event":"cycle-open","t":1793452887885}
+[13:21:27] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_429","kind":"options","liveBrowsers":"0","event":"screen","t":1793452887923}
+[13:21:27] [Render thread/INFO]: [Breeze autotest] {"cycle":"9","liveBrowsers":"0","heapMb":"338","event":"cycle-close","t":1793452887923}
+[13:21:28] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.menu.BreezeMenuScreen","kind":"breeze-native","liveBrowsers":"0","event":"screen","t":1793452888036}
+[13:21:28] [Render thread/INFO]: [Breeze autotest] {"cycle":"10","painted":"true","ms":"74","liveBrowsers":"0","event":"cycle-open","t":1793452888037}
+[13:21:28] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_429","kind":"options","liveBrowsers":"0","event":"screen","t":1793452888069}
+[13:21:28] [Render thread/INFO]: [Breeze autotest] {"cycle":"10","liveBrowsers":"0","heapMb":"729","event":"cycle-close","t":1793452888070}
+[13:21:28] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.menu.BreezeMenuScreen","kind":"breeze-native","liveBrowsers":"0","event":"screen","t":1793452888192}
+[13:21:28] [Render thread/INFO]: [Breeze autotest] {"cycle":"11","painted":"true","ms":"75","liveBrowsers":"0","event":"cycle-open","t":1793452888193}
+[13:21:28] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_429","kind":"options","liveBrowsers":"0","event":"screen","t":1793452888226}
+[13:21:28] [Render thread/INFO]: [Breeze autotest] {"cycle":"11","liveBrowsers":"0","heapMb":"337","event":"cycle-close","t":1793452888228}
+[13:21:28] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.menu.BreezeMenuScreen","kind":"breeze-native","liveBrowsers":"0","event":"screen","t":1793452888344}
+[13:21:28] [Render thread/INFO]: [Breeze autotest] {"cycle":"12","painted":"true","ms":"64","liveBrowsers":"0","event":"cycle-open","t":1793452888345}
+[13:21:28] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_429","kind":"options","liveBrowsers":"0","event":"screen","t":1793452888364}
+[13:21:28] [Render thread/INFO]: [Breeze autotest] {"cycle":"12","liveBrowsers":"0","heapMb":"663","event":"cycle-close","t":1793452888365}
+[13:21:28] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.menu.BreezeMenuScreen","kind":"breeze-native","liveBrowsers":"0","event":"screen","t":1793452888479}
+[13:21:28] [Render thread/INFO]: [Breeze autotest] {"cycle":"13","painted":"true","ms":"64","liveBrowsers":"0","event":"cycle-open","t":1793452888480}
+[13:21:28] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_429","kind":"options","liveBrowsers":"0","event":"screen","t":1793452888545}
+[13:21:28] [Render thread/INFO]: [Breeze autotest] {"cycle":"13","liveBrowsers":"0","heapMb":"987","event":"cycle-close","t":1793452888546}
+[13:21:28] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.menu.BreezeMenuScreen","kind":"breeze-native","liveBrowsers":"0","event":"screen","t":1793452888629}
+[13:21:28] [Render thread/INFO]: [Breeze autotest] {"cycle":"14","painted":"true","ms":"63","liveBrowsers":"0","event":"cycle-open","t":1793452888630}
+[13:21:28] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_429","kind":"options","liveBrowsers":"0","event":"screen","t":1793452888673}
+[13:21:28] [Render thread/INFO]: [Breeze autotest] {"cycle":"14","liveBrowsers":"0","heapMb":"446","event":"cycle-close","t":1793452888674}
+[13:21:28] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.menu.BreezeMenuScreen","kind":"breeze-native","liveBrowsers":"0","event":"screen","t":1793452888804}
+[13:21:28] [Render thread/INFO]: [Breeze autotest] {"cycle":"15","painted":"true","ms":"90","liveBrowsers":"0","event":"cycle-open","t":1793452888805}
+[13:21:28] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_429","kind":"options","liveBrowsers":"0","event":"screen","t":1793452888825}
+[13:21:28] [Render thread/INFO]: [Breeze autotest] {"cycle":"15","liveBrowsers":"0","heapMb":"862","event":"cycle-close","t":1793452888826}
+[13:21:28] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.menu.BreezeMenuScreen","kind":"breeze-native","liveBrowsers":"0","event":"screen","t":1793452888953}
+[13:21:28] [Render thread/INFO]: [Breeze autotest] {"cycle":"16","painted":"true","ms":"83","liveBrowsers":"0","event":"cycle-open","t":1793452888954}
+[13:21:28] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_429","kind":"options","liveBrowsers":"0","event":"screen","t":1793452888974}
+[13:21:28] [Render thread/INFO]: [Breeze autotest] {"cycle":"16","liveBrowsers":"0","heapMb":"423","event":"cycle-close","t":1793452888975}
+[13:21:29] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.menu.BreezeMenuScreen","kind":"breeze-native","liveBrowsers":"0","event":"screen","t":1793452889093}
+[13:21:29] [Render thread/INFO]: [Breeze autotest] {"cycle":"17","painted":"true","ms":"74","liveBrowsers":"0","event":"cycle-open","t":1793452889093}
+[13:21:29] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_429","kind":"options","liveBrowsers":"0","event":"screen","t":1793452889120}
+[13:21:29] [Render thread/INFO]: [Breeze autotest] {"cycle":"17","liveBrowsers":"0","heapMb":"727","event":"cycle-close","t":1793452889120}
+[13:21:29] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.menu.BreezeMenuScreen","kind":"breeze-native","liveBrowsers":"0","event":"screen","t":1793452889237}
+[13:21:29] [Render thread/INFO]: [Breeze autotest] {"cycle":"18","painted":"true","ms":"72","liveBrowsers":"0","event":"cycle-open","t":1793452889238}
+[13:21:29] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_429","kind":"options","liveBrowsers":"0","event":"screen","t":1793452889262}
+[13:21:29] [Render thread/INFO]: [Breeze autotest] {"cycle":"18","liveBrowsers":"0","heapMb":"1033","event":"cycle-close","t":1793452889263}
+[13:21:29] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.menu.BreezeMenuScreen","kind":"breeze-native","liveBrowsers":"0","event":"screen","t":1793452889387}
+[13:21:29] [Render thread/INFO]: [Breeze autotest] {"cycle":"19","painted":"true","ms":"67","liveBrowsers":"0","event":"cycle-open","t":1793452889388}
+[13:21:29] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_429","kind":"options","liveBrowsers":"0","event":"screen","t":1793452889412}
+[13:21:29] [Render thread/INFO]: [Breeze autotest] {"cycle":"19","liveBrowsers":"0","heapMb":"473","event":"cycle-close","t":1793452889412}
+[13:21:29] [Render thread/INFO]: [Breeze autotest] {"cycles":"20","maxLiveAfterClose":"0","heapMb":"296","pass":"true","event":"stress-result","t":1793452889637}
+[13:21:29] [Render thread/INFO]: [Breeze autotest] {"event":"AUTOTEST_DONE","t":1793452889640}
+[13:21:29] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_442","kind":"title","liveBrowsers":"0","event":"screen","t":1793452889681}
+[13:21:29] [Render thread/INFO]: [Breeze autotest] {"kind":"title","scale":3.0,"items":[{"name":"Singleplayer","type":"widget","x":639,"y":354,"active":true},{"name":"Multiplayer","type":"widget","x":639,"y":426,"active":true},{"name":"Minecraft Realms","type":"widget","x":639,"y":498,"active":true},{"name":"Language","type":"widget","x":297,"y":606,"active":true},{"name":"Options...","type":"widget","x":486,"y":606,"active":true},{"name":"Quit Game","type":"widget","x":792,"y":606,"active":true},{"name":"Accessibility","type":"widget","x":981,"y":606,"active":true},{"name":"breeze-button","type":"target","x":135,"y":324,"active":true}],"event":"targets","t":1793452889939}
+[13:21:29] [ForkJoinPool.commonPool-worker-1/WARN]: [Breeze] friends refresh failed: HTTP 404
+[13:21:34] [ForkJoinPool.commonPool-worker-3/WARN]: [Breeze] friends refresh failed: HTTP 404
+[13:21:35] [Render thread/INFO]: [Breeze autotest] {"event":"world-open","t":1793452895686}
+[13:21:35] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_525","kind":"create-world","liveBrowsers":"0","event":"screen","t":1793452895723}
+[13:21:35] [Render thread/INFO]: [Breeze autotest] {"kind":"create-world","scale":3.0,"items":[{"name":"World Name","type":"widget","x":639,"y":210,"active":true,"value":"New World"},{"name":"Game Mode: Survival","type":"widget","x":399,"y":330,"active":true},{"name":"Difficulty: Normal","type":"widget","x":879,"y":330,"active":true},{"name":"Allow Cheats: OFF","type":"widget","x":399,"y":483,"active":true},{"name":"Data Packs","type":"widget","x":879,"y":483,"active":true},{"name":"Game Rules","type":"widget","x":399,"y":585,"active":true},{"name":"More World Options...","type":"widget","x":879,"y":585,"active":true},{"name":"Create New World","type":"widget","x":399,"y":666,"active":true},{"name":"Cancel","type":"widget","x":879,"y":666,"active":true}],"event":"targets","t":1793452895863}
+[13:21:38] [Render thread/INFO]: [Breeze autotest] {"kind":"create-world","scale":3.0,"items":[{"name":"World Name","type":"widget","x":639,"y":210,"active":true,"value":"New World"},{"name":"Game Mode: Survival","type":"widget","x":399,"y":330,"active":true},{"name":"Difficulty: Normal","type":"widget","x":879,"y":330,"active":true},{"name":"Allow Cheats: OFF","type":"widget","x":399,"y":483,"active":true},{"name":"Data Packs","type":"widget","x":879,"y":483,"active":true},{"name":"Game Rules","type":"widget","x":399,"y":585,"active":true},{"name":"More World Options...","type":"widget","x":879,"y":585,"active":true},{"name":"Create New World","type":"widget","x":399,"y":666,"active":true},{"name":"Cancel","type":"widget","x":879,"y":666,"active":true}],"event":"targets","t":1793452898437}
+[13:21:39] [Render thread/WARN]: Ambiguity between arguments [teleport, location] and [teleport, destination] with inputs: [0.1 -0.5 .9, 0 0 0]
+[13:21:39] [Render thread/WARN]: Ambiguity between arguments [teleport, location] and [teleport, targets] with inputs: [0.1 -0.5 .9, 0 0 0]
+[13:21:39] [Render thread/WARN]: Ambiguity between arguments [teleport, destination] and [teleport, targets] with inputs: [Player, 0123, @e, dd12be42-52a9-4a91-a8a1-11c01849e498]
+[13:21:39] [Render thread/WARN]: Ambiguity between arguments [teleport, targets] and [teleport, destination] with inputs: [Player, 0123, dd12be42-52a9-4a91-a8a1-11c01849e498]
+[13:21:39] [Render thread/WARN]: Ambiguity between arguments [teleport, targets, location] and [teleport, targets, destination] with inputs: [0.1 -0.5 .9, 0 0 0]
+[13:21:39] [Render thread/INFO]: Reloading ResourceManager: Default, Fabric Mods (Fabric Tool Attribute API (v1))
+[13:21:40] [Render thread/INFO]: Loaded 7 recipes
+[13:21:40] [Render thread/INFO]: Loaded 1141 advancements
+[13:21:40] [Render thread/INFO]: Applied 0 biome modifications to 0 of 61 new biomes in 1.497 ms
+[13:21:42] [Render thread/INFO]: Environment: authHost='https://authserver.mojang.com', accountsHost='https://api.mojang.com', sessionHost='https://sessionserver.mojang.com', servicesHost='https://api.minecraftservices.com', name='PROD'
+[13:21:42] [Server thread/INFO]: Starting integrated minecraft server version 1.18
+[13:21:42] [Server thread/INFO]: Generating keypair
+[13:21:50] [Server thread/INFO]: Preparing start region for dimension minecraft:overworld
+[13:21:51] [Render thread/INFO]: Preparing spawn area: 0%
+[13:21:51] [Render thread/INFO]: Preparing spawn area: 0%
+[13:21:51] [Render thread/INFO]: Preparing spawn area: 0%
+[13:21:52] [Render thread/INFO]: Preparing spawn area: 0%
+[13:21:52] [Render thread/INFO]: Preparing spawn area: 0%
+[13:21:53] [Render thread/INFO]: Preparing spawn area: 0%
+[13:21:53] [Render thread/INFO]: Preparing spawn area: 1%
+[13:21:54] [Render thread/INFO]: Preparing spawn area: 1%
+[13:21:54] [Render thread/INFO]: Preparing spawn area: 2%
+[13:21:55] [Render thread/INFO]: Preparing spawn area: 3%
+[13:21:55] [Render thread/INFO]: Preparing spawn area: 3%
+[13:21:56] [Render thread/INFO]: Preparing spawn area: 5%
+[13:21:56] [Render thread/INFO]: Preparing spawn area: 6%
+[13:21:57] [Render thread/INFO]: Preparing spawn area: 6%
+[13:21:57] [Render thread/INFO]: Preparing spawn area: 7%
+[13:21:58] [Render thread/INFO]: Preparing spawn area: 9%
+[13:21:58] [Render thread/INFO]: Preparing spawn area: 10%
+[13:21:59] [Render thread/INFO]: Preparing spawn area: 12%
+[13:21:59] [Render thread/INFO]: Preparing spawn area: 14%
+[13:22:00] [Render thread/INFO]: Preparing spawn area: 15%
