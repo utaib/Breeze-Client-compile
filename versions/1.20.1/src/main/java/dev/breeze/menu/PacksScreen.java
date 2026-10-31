@@ -30,7 +30,7 @@ public class PacksScreen extends BreezeScreen {
     private static final int ARROW = 14;
 
     private record Row(String id, String title, String description, boolean compatible, String compatibility,
-                       boolean required, boolean fixed) {}
+                       boolean locked) {}
 
     private final Screen parent;
     private Rect panel = new Rect(0, 0, 0, 0);
@@ -75,7 +75,7 @@ public class PacksScreen extends BreezeScreen {
                 JsonObject p = el.getAsJsonObject();
                 all.add(new Row(p.get("id").getAsString(), p.get("title").getAsString(), p.get("description").getAsString(),
                         p.get("compatible").getAsBoolean(), p.get("compatibility").getAsString(),
-                        p.get("required").getAsBoolean(), p.get("fixed").getAsBoolean()));
+                        p.get("locked").getAsBoolean()));
             }
             for (JsonElement el : o.getAsJsonArray("selected")) on.add(el.getAsString());
             applied = new ArrayList<>(on);
@@ -97,14 +97,24 @@ public class PacksScreen extends BreezeScreen {
         }
     }
 
-    /** On packs first, top first, then the rest in Minecraft's order. */
+    /**
+     * On packs first, top first, then the rest in Minecraft's order. The
+     * game's own and each mod's resources (locked) are not rows: they stay
+     * as they are, and the screen says how many.
+     */
     private List<Row> shown() {
         List<Row> out = new ArrayList<>();
         for (String id : on) {
-            for (Row r : all) if (r.id().equals(id)) out.add(r);
+            for (Row r : all) if (r.id().equals(id) && !r.locked()) out.add(r);
         }
-        for (Row r : all) if (!on.contains(r.id())) out.add(r);
+        for (Row r : all) if (!on.contains(r.id()) && !r.locked()) out.add(r);
         return out;
+    }
+
+    private int lockedOn() {
+        int n = 0;
+        for (Row r : all) if (r.locked() && on.contains(r.id())) n++;
+        return n;
     }
 
     private Rect rowBox(int i) {
@@ -136,7 +146,9 @@ public class PacksScreen extends BreezeScreen {
         Glass.scrim(g, this.width, this.height);
         Glass.panel(g, panel);
         g.drawString(this.font, "Resource packs", panel.x + Spacing.MD, panel.y + 12, Palette.TEXT_PRIMARY, true);
-        UiRender.textClipped(g, this.font, "Packs on are listed first; the top one wins where packs overlap.",
+        int locked = lockedOn();
+        UiRender.textClipped(g, this.font, "Packs on are listed first; the top one wins where packs overlap."
+                        + (locked > 0 ? " Always on: " + locked + " from the game and your mods." : ""),
                 panel.x + Spacing.MD, panel.y + 28, panel.w - Spacing.MD * 2, Palette.TEXT_FAINT);
 
         g.enableScissor(content.x, content.y, content.right(), content.bottom());
@@ -150,15 +162,14 @@ public class PacksScreen extends BreezeScreen {
                 Glass.fillRounded(g, row.x - 2, row.y, row.right() + 2, row.bottom(), Glass.RADIUS_SM, Palette.SURFACE_HOVER);
             }
             Rect t = toggleCell(row);
-            if (!r.required()) Glass.toggle(g, t.x, t.y, t.w, t.h, isOn);
+            Glass.toggle(g, t.x, t.y, t.w, t.h, isOn);
             int textX = t.right() + Spacing.SM;
             int textW = upCell(row).x - textX - Spacing.SM;
             UiRender.textClipped(g, this.font, r.title(), textX, row.y + 4, textW, isOn ? Palette.TEXT_PRIMARY : Palette.TEXT_SECONDARY);
             String note = compatibilityNote(r);
-            String second = r.required() ? "Always on" : note != null ? note : r.description().replace('\n', ' ');
-            UiRender.textClipped(g, this.font, second, textX, row.y + 16, textW,
-                    note != null && !r.required() ? 0xFFF5C542 : Palette.TEXT_FAINT);
-            if (isOn && !r.fixed()) {
+            String second = note != null ? note : r.description().replace('\n', ' ');
+            UiRender.textClipped(g, this.font, second, textX, row.y + 16, textW, note != null ? 0xFFF5C542 : Palette.TEXT_FAINT);
+            if (isOn) {
                 Rect up = upCell(row), down = downCell(row);
                 UiRender.textCentered(g, this.font, "▲", up, up.contains(mouseX, mouseY) ? Palette.TEXT_PRIMARY : Palette.TEXT_FAINT);
                 UiRender.textCentered(g, this.font, "▼", down, down.contains(mouseX, mouseY) ? Palette.TEXT_PRIMARY : Palette.TEXT_FAINT);
@@ -174,12 +185,12 @@ public class PacksScreen extends BreezeScreen {
         super.render(g, mouseX, mouseY, partialTick);
     }
 
-    /** Moves an on pack among the movable on packs; fixed ones stay where Minecraft keeps them. */
+    /** Moves an on pack among the movable on packs; locked ones stay where Minecraft keeps them. */
     private void move(String id, int by) {
         int i = on.indexOf(id);
         int j = i + by;
         if (i < 0 || j < 0 || j >= on.size()) return;
-        for (Row r : all) if (r.id().equals(on.get(j)) && r.fixed()) return;
+        for (Row r : all) if (r.id().equals(on.get(j)) && r.locked()) return;
         on.set(i, on.get(j));
         on.set(j, id);
     }
@@ -194,9 +205,9 @@ public class PacksScreen extends BreezeScreen {
                 if (!row.contains(mx, my)) continue;
                 notice = null;
                 boolean isOn = on.contains(r.id());
-                if (isOn && !r.fixed() && upCell(row).contains(mx, my)) move(r.id(), -1);
-                else if (isOn && !r.fixed() && downCell(row).contains(mx, my)) move(r.id(), 1);
-                else if (!r.required() && toggleCell(row).contains(mx, my)) {
+                if (isOn && upCell(row).contains(mx, my)) move(r.id(), -1);
+                else if (isOn && downCell(row).contains(mx, my)) move(r.id(), 1);
+                else if (toggleCell(row).contains(mx, my)) {
                     if (isOn) on.remove(r.id());
                     else on.add(0, r.id());
                 }

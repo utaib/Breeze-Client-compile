@@ -170,6 +170,8 @@ export interface PackInfo {
   required: boolean
   /** Keeps its place in the list (at the bottom or the top). */
   fixed: boolean
+  /** Required or fixed: the game's own and each mod's resources, never changed from the menu. */
+  locked: boolean
   top: boolean
   /** A pack from the resourcepacks folder, not one built in. */
   folder: boolean

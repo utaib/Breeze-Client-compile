@@ -25,7 +25,10 @@ export function PacksTab() {
   const packs = useMemo(() => data?.packs ?? [], [data])
   const byId = useMemo(() => new Map(packs.map((p) => [p.id, p])), [packs])
   const dirty = data != null && !sameOrder(order, data.selected)
-  const on = order.map((id) => byId.get(id)).filter((p): p is PackInfo => p != null)
+  const onAll = order.map((id) => byId.get(id)).filter((p): p is PackInfo => p != null)
+  // The game's own and every mod's resources stay as they are: folded into one line.
+  const on = onAll.filter((p) => !p.locked)
+  const locked = onAll.filter((p) => p.locked)
   const off = offPacks(packs, order, query)
 
   const apply = async () => {
@@ -73,27 +76,37 @@ export function PacksTab() {
       <section className="section" aria-labelledby="packs-on-title">
         <h2 className="section-title" id="packs-on-title">On</h2>
         <p className="section-note">The top pack wins where packs change the same thing.</p>
-        <div className="rows" role="list" aria-label="Resource packs on">
-          {on.map((p, i) => (
-            <PackRow key={p.id} pack={p} on>
-              {!p.fixed && (
+        {on.length > 0 && (
+          <div className="rows" role="list" aria-label="Resource packs on">
+            {on.map((p, i) => (
+              <PackRow key={p.id} pack={p} on>
                 <span className="pack-move">
                   <button type="button" className="btn btn-ghost btn-sm" aria-label={`Move ${p.title} up`}
-                    disabled={i === 0 || on[i - 1]?.fixed} onClick={() => setOrder((o) => move(o, p.id, -1, packs))}>
+                    disabled={i === 0} onClick={() => setOrder((o) => move(o, p.id, -1, packs))}>
                     <Icon.Chevron className="up" />
                   </button>
                   <button type="button" className="btn btn-ghost btn-sm" aria-label={`Move ${p.title} down`}
-                    disabled={i === on.length - 1 || on[i + 1]?.fixed} onClick={() => setOrder((o) => move(o, p.id, 1, packs))}>
+                    disabled={i === on.length - 1} onClick={() => setOrder((o) => move(o, p.id, 1, packs))}>
                     <Icon.Chevron className="down" />
                   </button>
                 </span>
-              )}
-              {p.required
-                ? <span className="pack-tag">Always on</span>
-                : <Switch checked label={`${p.title} on`} onChange={() => setOrder((o) => turnOff(o, p.id, packs))} />}
-            </PackRow>
-          ))}
-        </div>
+                <Switch checked label={`${p.title} on`} onChange={() => setOrder((o) => turnOff(o, p.id, packs))} />
+              </PackRow>
+            ))}
+          </div>
+        )}
+        {on.length === 0 && <p className="section-note">Only Minecraft's own look. Turn a pack on below.</p>}
+        {locked.length > 0 && (
+          <details className="packs-locked">
+            <summary>
+              Always on: {locked.length === 1 ? locked[0]!.title : `${locked[0]!.title} and ${locked.length - 1} more from the game and your mods`}
+            </summary>
+            <p className="section-note">These keep the game's and your mods' own resources. They stay as they are.</p>
+            <ul aria-label="Resource packs always on">
+              {locked.map((p) => <li key={p.id}>{p.title}</li>)}
+            </ul>
+          </details>
+        )}
       </section>
 
       <section className="section" aria-labelledby="packs-off-title">

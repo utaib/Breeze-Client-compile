@@ -18,13 +18,13 @@ export function turnOn(order: string[], id: string, packs: PackInfo[]): string[]
 }
 
 export function turnOff(order: string[], id: string, packs: PackInfo[]): string[] {
-  if (packs.find((p) => p.id === id)?.required) return order
+  if (packs.find((p) => p.id === id)?.locked) return order
   return order.filter((o) => o !== id)
 }
 
 /** Moves an on pack up (-1) or down (1) past the next movable one; fixed packs stay put. */
 export function move(order: string[], id: string, by: -1 | 1, packs: PackInfo[]): string[] {
-  const fixed = (o: string) => packs.find((p) => p.id === o)?.fixed ?? false
+  const fixed = (o: string) => packs.find((p) => p.id === o)?.locked ?? false
   const i = order.indexOf(id)
   const other = order[i + by]
   if (i < 0 || fixed(id) || other === undefined || fixed(other)) return order
@@ -38,9 +38,9 @@ export function sameOrder(a: string[], b: string[]): boolean {
   return a.length === b.length && a.every((v, i) => v === b[i])
 }
 
-/** Packs not on, in Minecraft's order, matching a search on title, description or file name. */
+/** Packs not on that the player may turn on, in Minecraft's order, matching a search on title, description or file name. */
 export function offPacks(packs: PackInfo[], order: string[], query: string): PackInfo[] {
   const q = query.trim().toLowerCase()
-  return packs.filter((p) => !order.includes(p.id)
+  return packs.filter((p) => !order.includes(p.id) && !p.locked
     && (q === '' || p.title.toLowerCase().includes(q) || p.description.toLowerCase().includes(q) || p.id.toLowerCase().includes(q)))
 }

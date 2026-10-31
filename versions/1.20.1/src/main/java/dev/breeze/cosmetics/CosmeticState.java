@@ -78,6 +78,8 @@ public final class CosmeticState {
         public volatile int customTagColor = 0xFFA6ADBA;
         /** Whether this role is entitled to a custom tag at all. */
         public volatile boolean canCustomTag;
+        /** The player's custom shield picture (Custom Shield), or null. */
+        public volatile ShieldInfo shield;
         public final List<CapeInfo> ownedCapes = Collections.synchronizedList(new ArrayList<>());
         public final List<TagInfo> availableTags = Collections.synchronizedList(new ArrayList<>());
 
@@ -108,6 +110,9 @@ public final class CosmeticState {
             this.frames = frames;
         }
     }
+
+    /** Where a player's shield picture is, and its hash: a new hash means a new picture. */
+    public record ShieldInfo(String url, String hash) {}
 
     /** An official role badge. Fewer fields than a tag: it is not selectable. */
     public static final class BadgeInfo {
@@ -235,6 +240,7 @@ public final class CosmeticState {
         e.cape = parseCape(root.get("cape"));
         e.tag = parseTag(root.get("tag"));
         e.badge = parseBadge(root.get("badge"));
+        e.shield = parseShield(root.get("shield"));
         e.customTag = customText(root.get("customTag"));
         e.customTagColor = customColor(root.get("customTag"));
         e.canCustomTag = root.has("canCustomTag") && !root.get("canCustomTag").isJsonNull()
@@ -287,6 +293,14 @@ public final class CosmeticState {
                 animated && frames.size() > 1,
                 o.has("fps") && !o.get("fps").isJsonNull() ? o.get("fps").getAsInt() : 12,
                 frames);
+    }
+
+    private static ShieldInfo parseShield(JsonElement el) {
+        if (el == null || !el.isJsonObject()) return null;
+        JsonObject o = el.getAsJsonObject();
+        String url = str(o, "url"), hash = str(o, "hash");
+        if (url == null || hash == null || !hash.matches("[0-9a-f]{8,64}")) return null;
+        return new ShieldInfo(url, hash);
     }
 
     private static BadgeInfo parseBadge(JsonElement el) {

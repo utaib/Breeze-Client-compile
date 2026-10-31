@@ -45,8 +45,26 @@ Resource packs in the in-game menu (Breeze 1.1.0 directive, eleventh item).
   the menu's own call must reach Minecraft's pack list and options once
   resources have reloaded (screenshot `autotest-packs`), and putting the
   list back must take it off again.
-- Here: common 231, Vitest 44, Playwright 71 (2 new: turn on, move,
-  apply; undo, an outdated pack, the folder).
+- Here: common 241, Vitest 44, Playwright 71 (2 new: turn on, move,
+  apply, the folded line; undo, an outdated pack, the folder).
+- First full run (41160119084): every version from 1.17 to 1.21.11
+  passed, `packs-check` included (1.19.3: 4 packs, no pictures; 1.21.11:
+  51 packs, all with pictures). It showed that Fabric gives every loaded
+  mod a resource pack of its own, fixed in place and on (47 of the 51 on
+  1.21.11), which Minecraft's options do not even save. Turning one off
+  would take a mod's textures away. So packs that are required or fixed
+  are now locked: the menu folds them into one line ("Always on: Default
+  and 47 more from the game and your mods", which opens to the list),
+  never offers to switch or move them, and Java keeps each as it is
+  whatever the page sends (`PackOrder`, tested). Their pictures are not
+  sent. The 26.x jobs failed on the crash below.
+- **Fix: taking a screenshot with the Screenshots module could crash 26.1
+  and 26.3** ("Rendersystem called from wrong thread", run 41160119084):
+  Minecraft reports the saved file from its screenshot thread there, and
+  the module put its chat line in from that thread; when chat needed a
+  glyph not yet drawn, the font upload ran off the render thread. The line
+  now goes through the render thread, as Minecraft's own screenshot key
+  does. Every version runs the same code; only 26.x calls back off-thread.
 - Self-test: the test TNT is put five blocks in front of the camera
   (it was five blocks east, out of the 2.21.0 screenshots' view; the
   check itself passed).

@@ -72,10 +72,14 @@ public final class PackMenu {
         e.addProperty("compatibility", p.getCompatibility().name().toLowerCase(Locale.ROOT));
         e.addProperty("required", p.isRequired());
         e.addProperty("fixed", p.isFixedPosition());
+        // The game's own and every mod's resources (Fabric gives each loaded
+        // mod a fixed pack): the menu shows them folded, and never changes them.
+        boolean locked = p.isRequired() || p.isFixedPosition();
+        e.addProperty("locked", locked);
         e.addProperty("top", p.getDefaultPosition() == Pack.Position.TOP);
         e.addProperty("folder", p.getId().startsWith("file/"));
         e.addProperty("on", on);
-        String icon = pictures ? icon(p) : "";
+        String icon = pictures && !locked ? icon(p) : "";
         if (icon.isEmpty()) e.add("picture", null);
         else e.addProperty("picture", icon);
         return e;
@@ -102,10 +106,11 @@ public final class PackMenu {
      */
     public static JsonObject apply(Minecraft mc, List<String> topFirst) {
         PackRepository repo = mc.getResourcePackRepository();
+        Set<String> onNow = new HashSet<>(repo.getSelectedIds());
         List<PackOrder.Entry> entries = new ArrayList<>();
         for (Pack p : repo.getAvailablePacks()) {
             entries.add(new PackOrder.Entry(p.getId(), p.isRequired(), p.isFixedPosition(),
-                    p.getDefaultPosition() == Pack.Position.TOP));
+                    p.getDefaultPosition() == Pack.Position.TOP, onNow.contains(p.getId())));
         }
         List<String> wanted = PackOrder.selection(entries, topFirst);
         List<String> before = new ArrayList<>(repo.getSelectedIds());

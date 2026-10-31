@@ -14,9 +14,10 @@ import java.util.Set;
  * where packs overlap), as Minecraft's own Resource Packs screen shows them.
  * This turns that into the list Minecraft's pack repository takes, bottom
  * first, keeping the rules that screen keeps: a required pack (the game's
- * own resources) stays on, a pack with a fixed place stays in it (at the
- * bottom or the top, as the pack says), names the game does not know are
- * left out. The game side applies the result through Minecraft's own
+ * own resources) stays on, a pack with a fixed place keeps its place and
+ * stays as it is (Fabric gives every mod's resources such a pack; turning
+ * one off would take a mod's textures away), names the game does not know
+ * are left out. The game side applies the result through Minecraft's own
  * options, which save it and reload resources only when the list changed.
  */
 public final class PackOrder {
@@ -28,10 +29,17 @@ public final class PackOrder {
 
     /**
      * A pack as the repository knows it: {@code required} cannot be turned
-     * off, {@code fixed} cannot be moved, {@code top} is where a fixed or
-     * required pack goes (top or bottom).
+     * off, {@code fixed} cannot be moved or switched from the menu, {@code
+     * top} is where a fixed or required pack goes (top or bottom), {@code on}
+     * whether it is on now.
      */
-    public record Entry(String id, boolean required, boolean fixed, boolean top) {}
+    public record Entry(String id, boolean required, boolean fixed, boolean top, boolean on) {
+
+        /** What the menu may not change: always on, or kept where and as it is. */
+        public boolean locked() {
+            return required || fixed;
+        }
+    }
 
     /**
      * @param available every pack the game knows, in the repository's order
@@ -43,10 +51,11 @@ public final class PackOrder {
         for (Entry e : available) known.putIfAbsent(e.id(), e);
         Set<String> wanted = new LinkedHashSet<>();
         for (String id : wantedTopFirst) {
-            if (id != null && known.containsKey(id) && wanted.size() < MAX_PACKS) wanted.add(id);
+            if (id != null && known.containsKey(id) && !known.get(id).fixed() && wanted.size() < MAX_PACKS) wanted.add(id);
         }
         for (Entry e : known.values()) {
-            if (e.required()) wanted.add(e.id());
+            // Required packs are on; fixed ones stay exactly as they are.
+            if (e.required() || (e.fixed() && e.on())) wanted.add(e.id());
         }
         List<String> bottom = new ArrayList<>();
         List<String> top = new ArrayList<>();

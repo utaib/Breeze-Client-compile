@@ -4,12 +4,13 @@ import { move, offPacks, sameOrder, turnOff, turnOn } from './packs'
 
 const pack = (id: string, over: Partial<PackInfo> = {}): PackInfo => ({
   id, title: id, description: '', compatible: true, compatibility: 'compatible',
-  required: false, fixed: false, top: true, folder: id.startsWith('file/'), on: false, picture: null, ...over,
+  required: false, fixed: false, locked: false, top: true, folder: id.startsWith('file/'), on: false, picture: null, ...over,
 })
 
 const PACKS = [
-  pack('vanilla', { required: true, fixed: true, top: false }),
-  pack('server', { fixed: true, top: true }),
+  pack('vanilla', { required: true, fixed: true, locked: true, top: false }),
+  pack('server', { fixed: true, locked: true, top: true }),
+  pack('fabric-api', { fixed: true, locked: true, top: false }),
   pack('file/A.zip', { description: 'Faithful 32x' }),
   pack('file/B.zip'),
   pack('programmer_art', { title: 'Programmer Art' }),
@@ -22,8 +23,9 @@ describe('resource pack list', () => {
     expect(turnOn(['file/A.zip'], 'file/A.zip', PACKS)).toEqual(['file/A.zip'])
   })
 
-  it('never turns a required pack off', () => {
+  it('never turns a locked pack off', () => {
     expect(turnOff(['file/A.zip', 'vanilla'], 'vanilla', PACKS)).toEqual(['file/A.zip', 'vanilla'])
+    expect(turnOff(['fabric-api', 'vanilla'], 'fabric-api', PACKS)).toEqual(['fabric-api', 'vanilla'])
     expect(turnOff(['file/A.zip', 'vanilla'], 'file/A.zip', PACKS)).toEqual(['vanilla'])
   })
 
