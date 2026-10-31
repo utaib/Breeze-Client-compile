@@ -1759,6 +1759,8 @@ public final class AutoTest {
                 shieldNote("own texture " + texture + (texture ? "" : " (" + dev.breeze.cosmetics.ShieldTextures.ownProblem() + ")"), texture);
                 shieldNote("first person drawn " + first, first > 0);
                 mc.options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_FRONT);
+                // Raised (blocking), the shield's front faces the camera for the screenshot.
+                mc.options.keyUse.setDown(true);
                 shieldThirdBefore = shieldDraws("THIRD_PERSON");
                 shieldStep = 1;
                 worldAt = System.currentTimeMillis();
@@ -1766,8 +1768,9 @@ public final class AutoTest {
             case 1 -> {
                 if (age < 4_000) return;
                 int third = shieldDraws("THIRD_PERSON") - shieldThirdBefore;
-                shieldNote("third person drawn " + third, third > 0);
+                shieldNote("third person drawn " + third + (mc.player != null && mc.player.isUsingItem() ? ", raised" : ""), third > 0);
                 shot(mc, "autotest-shield");
+                mc.options.keyUse.setDown(false);
                 shieldStep = STUB ? 2 : 4;
                 if (!STUB) shieldNote("sharing not checked (no stand-in API)", true);
                 worldAt = System.currentTimeMillis();

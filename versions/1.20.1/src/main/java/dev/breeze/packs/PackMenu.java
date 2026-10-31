@@ -46,8 +46,19 @@ public final class PackMenu {
 
     /** As {@link #json(Minecraft)}; the native menu leaves the pictures out. */
     public static JsonObject json(Minecraft mc, boolean pictures) {
+        return json(mc, pictures, true);
+    }
+
+    /**
+     * Looking in the folder again (PackRepository.reload) is skipped while
+     * Minecraft is loading resources: up to 1.19.2 it closes the packs that
+     * load is reading (Programmer Art is a zip there), the load fails with
+     * "zip file closed", and Minecraft puts every pack back to its default
+     * (run 41179389010 on 1.17.1, 1.18, 1.19.1 and 1.19.2).
+     */
+    private static JsonObject json(Minecraft mc, boolean pictures, boolean rescan) {
         PackRepository repo = mc.getResourcePackRepository();
-        repo.reload();
+        if (rescan && dev.breeze.compat.ActiveScreen.overlay(mc) == null) repo.reload();
         List<Pack> selected = new ArrayList<>(repo.getSelectedPacks());
         Set<String> on = new HashSet<>();
         for (Pack p : selected) on.add(p.getId());
@@ -118,7 +129,8 @@ public final class PackMenu {
         PackOptions.apply(mc, repo);
         boolean changed = !before.equals(new ArrayList<>(repo.getSelectedIds()));
         lastApplied = String.join(",", repo.getSelectedIds());
-        JsonObject o = json(mc);
+        // Minecraft is reloading resources now: the list as it stands, not looked for again.
+        JsonObject o = json(mc, true, false);
         o.addProperty("changed", changed);
         return o;
     }

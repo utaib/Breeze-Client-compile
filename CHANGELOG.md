@@ -64,6 +64,25 @@ Custom shield (Breeze 1.1.0 directive, twelfth item).
   another player's would, and turning the module off must remove it.
   Not covered: a second real player seeing it (no second client), the
   real API (not uploaded), blocking with the shield.
+- **Fix: turning a resource pack on from the menu could reset every pack on
+  1.17 to 1.19.2** (2.22.0's jars carry it). After Apply, the menu looked
+  in the resourcepacks folder again (`PackRepository.reload`) while
+  Minecraft was already loading the new packs; up to 1.19.2 that closes the
+  packs being read (Programmer Art is a zip there), the load failed with
+  "zip file closed", and Minecraft put every pack back to its default. The
+  test found it once it really turned Programmer Art on there (run
+  41179389010: failed on 1.17.1, 1.18, 1.19.1 and 1.19.2, passed on 1.17,
+  1.18.1, 1.18.2 and 1.19, depending on timing). Now the list after Apply
+  is the one Minecraft holds, and the folder is never read again while
+  resources load (the web page, the native screen and the self-test all go
+  through `PackMenu`). 1.19.3 and later read packs differently and never
+  failed.
+- Run 41179389010 (`319d721`, all 34): Custom Shield passed on every
+  version (first and third person drawn, shared through the stand-in API,
+  downloaded as another player's, removed when off); every other check
+  passed except the pack step above on four versions. The self-test now
+  raises the shield (holds the use key) for its screenshot, so the
+  picture faces the camera.
 - **Fix: Pack Display** showed the last pack id in Minecraft's list, which
   with Fabric is a mod's own pack ("rinku",
   "fabric-item-group-api-v1_programmer_art"), seen in run 41162072405's
