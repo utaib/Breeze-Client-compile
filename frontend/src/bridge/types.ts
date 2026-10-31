@@ -157,6 +157,36 @@ export interface KeysState {
   capturing?: string
 }
 
+/** A resource pack as Minecraft's own pack list knows it (packs.list). */
+export interface PackInfo {
+  id: string
+  title: string
+  description: string
+  /** Made for this version of Minecraft. */
+  compatible: boolean
+  /** 'compatible', 'too_old' or 'too_new'. */
+  compatibility: string
+  /** Always on (the game's own resources). */
+  required: boolean
+  /** Keeps its place in the list (at the bottom or the top). */
+  fixed: boolean
+  top: boolean
+  /** A pack from the resourcepacks folder, not one built in. */
+  folder: boolean
+  on: boolean
+  /** The pack's picture as a data: URI, or null. */
+  picture: string | null
+}
+
+export interface PacksState {
+  packs: PackInfo[]
+  /** The ids of the packs on, top first. */
+  selected: string[]
+  inWorld: boolean
+  /** After packs.apply: whether the list changed (resources reload). */
+  changed?: boolean
+}
+
 /** A command key (commandKeys.list): a key that runs a Minecraft command. */
 export interface CommandKey {
   id: string
@@ -295,6 +325,9 @@ export interface ActionMap {
   'keys.capture': [{ id: string }, Record<string, never>]
   'keys.cancel': [Record<string, never>, Record<string, never>]
   'keys.reset': [{ id: string; to: 'default' | 'none' }, KeysState]
+  'packs.list': [Record<string, never>, PacksState]
+  'packs.apply': [{ selected: string[] }, PacksState]
+  'packs.openFolder': [Record<string, never>, Record<string, never>]
   'commandKeys.list': [Record<string, never>, CommandKeysState]
   'commandKeys.save': [{ id?: string; command: string; enabled?: boolean }, CommandKeysState]
   'commandKeys.remove': [{ id: string }, CommandKeysState]

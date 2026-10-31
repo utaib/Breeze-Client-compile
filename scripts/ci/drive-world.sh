@@ -281,6 +281,14 @@ case "$sboard" in
   '') fail "the self-test checked the Scoreboard" ;;
   *) fail "the Scoreboard did not draw the server's sidebar as Minecraft would, or did not hide or give it back" ;;
 esac
+packs=$(grep '"event":"packs-check"' "$LOG" | tail -1)
+say "resource packs: $packs"
+case "$packs" in
+  *'"skipped"'*) say "SKIP: $packs" ;;
+  *'"pass":"true"'*) pass "Resource packs from the menu reached Minecraft's own pack list and options, reloaded, and came off again" ;;
+  '') fail "the self-test checked resource packs" ;;
+  *) fail "Resource packs from the menu did not reach Minecraft's pack list and options, or did not come off again" ;;
+esac
 dname=$(grep '"event":"displayname-check"' "$LOG" | tail -1)
 say "display name: $dname"
 case "$dname" in

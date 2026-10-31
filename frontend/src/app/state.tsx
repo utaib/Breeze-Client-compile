@@ -3,7 +3,7 @@ import { Bridge, BridgeError } from '../bridge/client'
 import type { Action, Hello, ParamsOf, ResultOf, UiSettings } from '../bridge/types'
 
 /** Breeze's modules, what other mods offer here, everything Fabric loaded. */
-export type ModsTab = 'modules' | 'keys' | 'other' | 'installed'
+export type ModsTab = 'modules' | 'keys' | 'packs' | 'other' | 'installed'
 
 export type Route =
   | { name: 'home' }
@@ -32,7 +32,7 @@ export function parseRoute(key: string | null | undefined): Route {
   switch (head) {
     case 'hosting': case 'wardrobe': case 'friends': case 'settings': case 'home':
       return { name: head }
-    case 'mods': return { name: 'mods', tab: tail === 'installed' || tail === 'other' || tail === 'keys' ? tail : 'modules' }
+    case 'mods': return { name: 'mods', tab: tail === 'installed' || tail === 'other' || tail === 'keys' || tail === 'packs' ? tail : 'modules' }
     case 'module': return tail ? { name: 'module', module: tail } : { name: 'mods', tab: 'modules' }
     default: return { name: 'home' }
   }

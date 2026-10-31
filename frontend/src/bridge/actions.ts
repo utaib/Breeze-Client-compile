@@ -15,6 +15,7 @@ const ALL: Record<Action, true> = {
   'modules.list': true, 'modules.icons': true, 'modules.setEnabled': true, 'modules.setSetting': true, 'modules.reset': true,
   'hud.openEditor': true, 'music.open': true, 'mods.list': true, 'integrations.list': true, 'integrations.open': true, 'account.get': true,
   'keys.list': true, 'keys.capture': true, 'keys.cancel': true, 'keys.reset': true,
+  'packs.list': true, 'packs.apply': true, 'packs.openFolder': true,
   'commandKeys.list': true, 'commandKeys.save': true, 'commandKeys.remove': true, 'commandKeys.capture': true, 'commandKeys.unbind': true,
   'crosshair.export': true, 'crosshair.import': true,
   'cosmetics.state': true, 'cosmetics.equipCape': true, 'cosmetics.equipModel': true, 'cosmetics.unequipModel': true,

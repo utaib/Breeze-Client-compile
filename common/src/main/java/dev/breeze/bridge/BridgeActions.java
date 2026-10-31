@@ -54,6 +54,9 @@ public final class BridgeActions {
         client("commandKeys.remove");
         client("commandKeys.capture");
         client("commandKeys.unbind");
+        client("packs.list");
+        client("packs.apply");
+        client("packs.openFolder");
         client("crosshair.export");
         client("crosshair.import");
         any("account.get");

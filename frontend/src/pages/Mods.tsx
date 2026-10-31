@@ -7,6 +7,7 @@ import { EmptyState, ErrorState, SearchField, Segmented, Skeleton, Switch } from
 import { Icon, type IconName } from '../ui/icons'
 import { ModuleGlyph, useModuleIcons } from '../ui/ModuleGlyph'
 import { KeysTab } from './Keys'
+import { PacksTab } from './Packs'
 
 /** Category colours are the five Breeze state colours, used as labels only. */
 export const CATEGORY: Record<ModuleCategory, { icon: IconName; tone: string }> = {
@@ -24,6 +25,7 @@ type Filter = (typeof FILTERS)[number]
 const SUB: Record<ModsTab, string> = {
   modules: 'Breeze modules change how the game looks and plays.',
   keys: 'Every Breeze key in one place. Click one, then press the key you want.',
+  packs: 'Minecraft\'s resource packs: turn them on or off and choose which wins.',
   other: 'Settings and screens other mods offer here, one entry per mod.',
   installed: 'Everything Fabric loaded, with each mod\'s settings where it has them.',
 }
@@ -41,13 +43,14 @@ export function Mods({ tab }: { tab: ModsTab }) {
           label="Section"
           value={tab}
           options={[
-            { value: 'modules', label: 'Breeze modules' }, { value: 'keys', label: 'Keys' },
+            { value: 'modules', label: 'Breeze modules' }, { value: 'keys', label: 'Keys' }, { value: 'packs', label: 'Resource packs' },
             { value: 'other', label: 'Other mods' }, { value: 'installed', label: 'Installed mods' },
           ]}
           onChange={(t) => navigate({ name: 'mods', tab: t })}
         />
       </div>
-      {tab === 'modules' ? <Modules /> : tab === 'keys' ? <KeysTab /> : tab === 'other' ? <OtherMods /> : <Installed />}
+      {tab === 'modules' ? <Modules /> : tab === 'keys' ? <KeysTab /> : tab === 'packs' ? <PacksTab />
+        : tab === 'other' ? <OtherMods /> : <Installed />}
     </div>
   )
 }

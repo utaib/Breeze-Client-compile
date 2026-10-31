@@ -22,7 +22,7 @@
 import type {
   Account, ActionMap, Action, Cape, CosmeticState, FriendsState, GameState, Hello, HostingState,
   InstalledMod, Integrations, KeysState, ModuleInfo, ModuleSetting, OwnedCosmetic, UiSettings,
-  CommandKeysState,
+  CommandKeysState, PackInfo, PacksState,
 } from '../bridge/types'
 import type { Transport } from '../bridge/client'
 import { ERROR_CODES } from '../bridge/client'
@@ -533,6 +533,18 @@ function handle(action: Action, p: Record<string, unknown>): unknown {
       return state.hosting
     case 'hosting.join':
       return state.hosting
+    case 'packs.list': return packsState()
+    case 'packs.apply': {
+      const ids = Array.isArray(p.selected) ? (p.selected as unknown[]).filter((x): x is string => typeof x === 'string') : null
+      if (!ids) throw new FixtureError('INVALID_PARAMS', 'selected must be a list.')
+      const before = packOrder.join(',')
+      const known = ids.filter((id, i) => PACKS.some((k) => k.id === id) && ids.indexOf(id) === i)
+      for (const k of PACKS) if (k.required && !known.includes(k.id)) known.push(k.id)
+      const fixedBottom = known.filter((id) => PACKS.find((k) => k.id === id)!.fixed)
+      packOrder = [...known.filter((id) => !fixedBottom.includes(id)), ...fixedBottom]
+      return { ...packsState(), changed: before !== packOrder.join(',') }
+    }
+    case 'packs.openFolder': return {}
     case 'commandKeys.list': return commandKeysState()
     case 'commandKeys.save': {
       let command: string
@@ -571,6 +583,27 @@ function handle(action: Action, p: Record<string, unknown>): unknown {
       listenForCommandKey(k)
       return {}
     }
+  }
+}
+
+// Resource packs (packs.*). Preview only: in Minecraft the list is the
+// game's own pack repository and Apply goes through its options (PackMenu).
+const PACK_PICTURE = 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2 2" shape-rendering="crispEdges"><rect width="2" height="2" fill="#5b8c3a"/><rect width="1" height="1" fill="#7cb342"/><rect x="1" y="1" width="1" height="1" fill="#7cb342"/></svg>')
+const PACKS: Omit<PackInfo, 'on'>[] = [
+  { id: 'file/Faithful 32x.zip', title: 'Faithful 32x', description: 'The look you know, at twice the detail.\nfaithfulpack.net', compatible: true, compatibility: 'compatible', required: false, fixed: false, top: true, folder: true, picture: PACK_PICTURE },
+  { id: 'file/Dark UI', title: 'Dark UI', description: 'Dark menus and inventories.', compatible: false, compatibility: 'too_old', required: false, fixed: false, top: true, folder: true, picture: null },
+  { id: 'file/Low Fire.zip', title: 'Low Fire', description: 'A lower fire overlay.', compatible: true, compatibility: 'compatible', required: false, fixed: false, top: true, folder: true, picture: null },
+  { id: 'programmer_art', title: 'Programmer Art', description: 'The look of Minecraft before 1.14.', compatible: true, compatibility: 'compatible', required: false, fixed: false, top: true, folder: false, picture: null },
+  { id: 'high_contrast', title: 'High Contrast', description: 'Higher contrast menus and text.', compatible: true, compatibility: 'compatible', required: false, fixed: false, top: true, folder: false, picture: null },
+  { id: 'vanilla', title: 'Default', description: 'The default look and feel of Minecraft.', compatible: true, compatibility: 'compatible', required: true, fixed: true, top: false, folder: false, picture: null },
+]
+let packOrder: string[] = scenario === 'empty' ? ['vanilla'] : ['file/Faithful 32x.zip', 'vanilla']
+
+function packsState(): PacksState {
+  return {
+    packs: PACKS.map((k) => ({ ...k, on: packOrder.includes(k.id) })),
+    selected: [...packOrder],
+    inWorld: context === 'ingame',
   }
 }
 

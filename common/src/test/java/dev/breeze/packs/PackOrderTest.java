@@ -1,6 +1,5 @@
 package dev.breeze.packs;
 
-import com.google.gson.JsonParser;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -36,14 +35,6 @@ class PackOrderTest {
     void aFixedTopPackStaysOnTop() {
         List<String> got = PackOrder.selection(AVAILABLE, List.of("file/Faithful.zip", "server"));
         assertEquals(List.of("vanilla", "fabric", "file/Faithful.zip", "server"), got);
-    }
-
-    @Test
-    void readsOnlyTextIdsFromARequest() {
-        assertEquals(List.of("a", "file/b.zip"), PackOrder.requested(JsonParser.parseString(
-                "{\"selected\":[\"a\", 3, null, \"\", {\"x\":1}, \"file/b.zip\"]}").getAsJsonObject()));
-        assertEquals(List.of(), PackOrder.requested(JsonParser.parseString("{\"selected\":\"a\"}").getAsJsonObject()));
-        assertEquals(List.of(), PackOrder.requested(null));
     }
 
     @Test

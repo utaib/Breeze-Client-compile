@@ -245,6 +245,18 @@ final class Handlers {
             if (!dev.breeze.keybind.KeybindManager.reset(mc, p.str("id", 96), "none".equals(to))) throw BridgeException.invalid("No such Breeze key.");
             return dev.breeze.keybind.KeybindManager.keysJson(mc);
         });
+        // ── Resource packs (Minecraft's own list and options) ─────────────────
+        on(r, "packs.list", p -> dev.breeze.packs.PackMenu.json(mc));
+        on(r, "packs.apply", p -> dev.breeze.packs.PackMenu.apply(mc,
+                p.strList("selected", dev.breeze.packs.PackOrder.MAX_PACKS, 512)));
+        on(r, "packs.openFolder", p -> {
+            try {
+                dev.breeze.packs.PackMenu.openFolder(mc);
+            } catch (Throwable t) {
+                throw BridgeException.unavailable("The resource packs folder could not be opened.");
+            }
+            return Router.ok();
+        });
         // ── Command keys (dev.breeze.commands) ───────────────────────────────
         on(r, "commandKeys.list", p -> dev.breeze.commands.CommandKeyRunner.json(mc));
         on(r, "commandKeys.save", p -> {

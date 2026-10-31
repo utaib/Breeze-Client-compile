@@ -109,9 +109,9 @@ public class BreezeMenuScreen extends BreezeScreen {
         extras = dev.breeze.integrations.Integrations.integrations();
     }
 
-    /** Rows in the sidebar: the module tabs, Music, then other mods' entries. */
+    /** Rows in the sidebar: the module tabs, Music, Command keys, Resource packs, then other mods' entries. */
     private int rows() {
-        return TABS.length + 2 + extras.size();
+        return TABS.length + 3 + extras.size();
     }
 
     /** The sidebar row of the Music player, between the tabs and other mods' entries. */
@@ -124,11 +124,17 @@ public class BreezeMenuScreen extends BreezeScreen {
         return TABS.length + 1;
     }
 
+    /** Resource packs (PacksScreen), under Command keys; other mods' entries follow. */
+    private static int packsRow() {
+        return TABS.length + 2;
+    }
+
     private String rowLabel(int i) {
         if (i < TABS.length) return TABS[i];
         if (i == musicRow()) return "Music";
         if (i == commandsRow()) return "Command keys";
-        return extras.get(i - commandsRow() - 1).actions().get(0).label();
+        if (i == packsRow()) return "Resource packs";
+        return extras.get(i - packsRow() - 1).actions().get(0).label();
     }
 
     private void openExtra(dev.breeze.integrations.Integration in) {
@@ -244,7 +250,8 @@ public class BreezeMenuScreen extends BreezeScreen {
             UiRender.textClipped(g, this.font, rowLabel(i), sidebarX + 14, ty, SIDEBAR_W - 20, col);
             if (i == musicRow()) dev.breeze.devtest.Targets.put("music", sidebarX + 30, ty + 4);
             else if (i == commandsRow()) dev.breeze.devtest.Targets.put("command-keys", sidebarX + 30, ty + 4);
-            else if (i > commandsRow()) dev.breeze.devtest.Targets.put("integration-" + extras.get(i - commandsRow() - 1).id(), sidebarX + 30, ty + 4);
+            else if (i == packsRow()) dev.breeze.devtest.Targets.put("resource-packs", sidebarX + 30, ty + 4);
+            else if (i > packsRow()) dev.breeze.devtest.Targets.put("integration-" + extras.get(i - packsRow() - 1).id(), sidebarX + 30, ty + 4);
         }
 
         boolean wardHover = inside(mouseX, mouseY, iconX(0), iconY(), Spacing.HIT, Spacing.HIT);
@@ -396,8 +403,12 @@ public class BreezeMenuScreen extends BreezeScreen {
                         dev.breeze.compat.ActiveScreen.set(this.minecraft, new CommandKeysScreen(this));
                         return true;
                     }
-                    if (i > commandsRow()) {
-                        openExtra(extras.get(i - commandsRow() - 1));
+                    if (i == packsRow()) {
+                        dev.breeze.compat.ActiveScreen.set(this.minecraft, new PacksScreen(this));
+                        return true;
+                    }
+                    if (i > packsRow()) {
+                        openExtra(extras.get(i - packsRow() - 1));
                         return true;
                     }
                     activeTab = TABS[i];

@@ -7,6 +7,50 @@ fixes bump PATCH. `scripts/check-version.sh` keeps `gradle.properties`,
 Each entry says what was verified and how. Anything not verified is marked
 **UNVERIFIED**.
 
+## [2.22.0] - 2026-10-31
+
+Resource packs in the in-game menu (Breeze 1.1.0 directive, eleventh item).
+
+- **Mods / Resource packs** (web menu) and **Resource packs** in the native
+  menu's sidebar (under Command keys): Minecraft's own resource packs, the
+  ones on first (top first; the top one wins where packs change the same
+  thing), then the rest, with each pack's picture, name and description.
+  Switch packs on or off and move them up or down; nothing changes until
+  Apply (or Done in the native menu), so resources reload once. Undo puts
+  the list back. Open the folder opens Minecraft's resourcepacks folder.
+  A pack made for an older or newer Minecraft says so; the game's own
+  pack is marked Always on; built-in packs are marked Built in. More than
+  six packs off: a search field.
+- No pack loading of Breeze's own: the list is Minecraft's pack repository
+  (read again from the folder each time the page opens), and Apply goes
+  through Minecraft's own options as its Resource Packs screen leaves
+  them (`Options.updateResourcePacks` from 1.19.4; before that the same
+  steps its options screen takes): saved to options.txt, resources
+  reloaded only when the list changed. So Minecraft's own screen and the
+  launcher's resourcepacks folder keep agreeing with the menu. Required
+  packs stay on and fixed packs keep their place (`PackOrder` in common,
+  4 tests; the page keeps the same rules, Vitest 4).
+- Pictures: a pack's pack.png, read through the pack as Minecraft does,
+  sent only when it is a real PNG of at most 128 KB and 1024 px a side.
+  Not shown on 1.19.3 and 26.3, whose way of reading a pack's root file
+  was not checked against their classes (26.3 moved it to
+  `PackMetadataResources`); those show the pack without its picture.
+- Bridge: `packs.list`, `packs.apply` (`selected`, top first; ids the game
+  does not know are left out), `packs.openFolder`.
+- Signatures from API dump run 41115649990 (pack repository, packs,
+  options, 12 versions): the same from 1.17 to 26.3 except the options
+  call (1.19.4) and pack pictures (1.19.3, 26.3).
+- Self-test (`packs-check`, every version): the list holds the game's own
+  pack as required and Programmer Art; turning Programmer Art on through
+  the menu's own call must reach Minecraft's pack list and options once
+  resources have reloaded (screenshot `autotest-packs`), and putting the
+  list back must take it off again.
+- Here: common 231, Vitest 44, Playwright 71 (2 new: turn on, move,
+  apply; undo, an outdated pack, the folder).
+- Self-test: the test TNT is put five blocks in front of the camera
+  (it was five blocks east, out of the 2.21.0 screenshots' view; the
+  check itself passed).
+
 ## [2.21.0] - 2026-10-30
 
 Scoreboard customization (Breeze 1.1.0 directive, sixth item). The
@@ -64,6 +108,14 @@ existing Scoreboard module only hid the sidebar; it now draws it.
   let go while a screen had it counts as up once the tick sees it up.
 - 2.20.0 gets no jar set of its own: its full run found the command key
   problem, and 2.21.0 carries all of it.
+- **Run 41157513566 (all 34, source `18cd405`): every job passed.** The
+  real Ctrl+J ran the command key on every version (also 1.17 and the
+  others that had failed at 4 to 9 fps); `scoreboard-check`,
+  `hitbox-check` and `tnt-check` passed (hitboxes and TNT skipped on
+  1.21.9 as intended). Jars in `Breeze Jars/2.21.0/` (SHA-256 checked
+  against the run's own SHA256SUMS). Screenshots looked at: Breeze's
+  sidebar on 1.20.1 and 26.3, the player's box on 1.20.1, the /me line
+  on 26.3.
 
 ## [2.20.0] - 2026-10-30
 

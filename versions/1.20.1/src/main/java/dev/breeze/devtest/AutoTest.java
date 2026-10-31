@@ -262,7 +262,7 @@ public final class AutoTest {
 
     // ── In a world (after the menu checks) ─────────────────────────────────
 
-    private enum World { IDLE, OPENED, FPS, IN_WORLD, ARMOR, INVENTORY, PERSONAL_CAPE, LAYOUT, OUTLINE, GHOST, FREE_LOOK, CROSSHAIR, DISPLAY_NAME, COMMAND_KEYS, HITBOXES, TNT, SCOREBOARD, SWEEP, EDITING, WARDROBE, TAGS, REAL, DONE }
+    private enum World { IDLE, OPENED, FPS, IN_WORLD, ARMOR, INVENTORY, PERSONAL_CAPE, LAYOUT, OUTLINE, GHOST, FREE_LOOK, CROSSHAIR, DISPLAY_NAME, COMMAND_KEYS, HITBOXES, TNT, SCOREBOARD, PACKS, SWEEP, EDITING, WARDROBE, TAGS, REAL, DONE }
 
     /** Taken off again once the Armor HUD has been looked at. */
     private static boolean armourOff;
@@ -752,6 +752,7 @@ public final class AutoTest {
             case HITBOXES -> hitboxStep(mc, age);
             case TNT -> tntStep(mc, age);
             case SCOREBOARD -> scoreboardStep(mc, age);
+            case PACKS -> packsStep(mc, age);
             case SWEEP -> {
                 if (!sweep.step(mc) && age < 600_000) return;
                 write("module-sweep", sweep.report());
@@ -1389,7 +1390,7 @@ public final class AutoTest {
 
     /**
      * TNT Countdown: a lit TNT with a ten second fuse, put by the game's own
-     * server five blocks from the player, must get a label between 5 and
+     * server five blocks in front of the player, must get a label between 5 and
      * 10 seconds; it is removed after two seconds, long before it would
      * explode.
      */
@@ -1402,7 +1403,10 @@ public final class AutoTest {
             return;
         }
         if (!t.isEnabled()) t.setEnabled(true);
-        double x = mc.player.getX() + 5, y = mc.player.getY() + 1, z = mc.player.getZ();
+        // Five blocks ahead, where the camera looks, so the screenshot shows the label.
+        net.minecraft.world.phys.Vec3 ahead = mc.player.getViewVector(1f);
+        double len = Math.max(0.01, Math.hypot(ahead.x, ahead.z));
+        double x = mc.player.getX() + ahead.x / len * 5, y = mc.player.getY() + 1, z = mc.player.getZ() + ahead.z / len * 5;
         server.execute(() -> {
             net.minecraft.server.level.ServerLevel level = server.overworld();
             net.minecraft.world.entity.item.PrimedTnt tnt = new net.minecraft.world.entity.item.PrimedTnt(level, x, y, z, null);
@@ -1454,7 +1458,7 @@ public final class AutoTest {
         dev.breeze.modules.ScoreboardModule m = dev.breeze.modules.ScoreboardModule.get();
         if (module("Scoreboard") == null || m == null || mc.player == null || !testBoardPut) {
             log("scoreboard-check", "pass", "true", "skipped", "no Scoreboard module, player or test board");
-            startSweep();
+            startPacks(mc);
             return;
         }
         scoreWasOn = m.isEnabled();
@@ -1511,7 +1515,7 @@ public final class AutoTest {
                 shot(mc, "autotest-scoreboard-vanilla");
                 log("scoreboard-check", "notes", scoreNotes.toString(), "pass", String.valueOf(scorePass));
                 if (scoreWasOn) m.setEnabled(true);
-                startSweep();
+                startPacks(mc);
                 return;
             }
         }
@@ -1565,6 +1569,89 @@ public final class AutoTest {
             }
         }
         return null;
+    }
+
+    private static int packStep;
+    private static java.util.List<String> packsBefore = java.util.List.of();
+    private static final StringBuilder packNotes = new StringBuilder();
+    private static boolean packPass;
+
+    private static void packNote(String what, boolean ok) {
+        if (packNotes.length() > 0) packNotes.append("; ");
+        packNotes.append(what).append(ok ? "" : " (FAILED)");
+        packPass &= ok;
+    }
+
+    /**
+     * Resource packs, as the menu changes them (PackMenu, the same calls as
+     * packs.list and packs.apply): the list must hold the game's own pack as
+     * required and Programmer Art; turning Programmer Art on must reach
+     * Minecraft's options and its pack list once resources have reloaded;
+     * putting the list back must take it off again.
+     */
+    private static void startPacks(Minecraft mc) {
+        packNotes.setLength(0);
+        packPass = true;
+        try {
+            com.google.gson.JsonObject list = dev.breeze.packs.PackMenu.json(mc);
+            boolean vanillaRequired = false, programmerArt = false;
+            int pictures = 0;
+            for (com.google.gson.JsonElement el : list.getAsJsonArray("packs")) {
+                com.google.gson.JsonObject p = el.getAsJsonObject();
+                String id = p.get("id").getAsString();
+                if (id.equals("vanilla") && p.get("required").getAsBoolean()) vanillaRequired = true;
+                if (id.equals("programmer_art")) programmerArt = true;
+                if (p.has("picture") && !p.get("picture").isJsonNull()) pictures++;
+            }
+            java.util.List<String> before = new java.util.ArrayList<>();
+            for (com.google.gson.JsonElement el : list.getAsJsonArray("selected")) before.add(el.getAsString());
+            packsBefore = before;
+            packNote("listed " + list.getAsJsonArray("packs").size() + ", pictures " + pictures + ", on " + String.join("|", before), true);
+            packNote("game's own pack required", vanillaRequired);
+            if (!programmerArt) {
+                log("packs-check", "notes", packNotes + "; no Programmer Art pack", "pass", "true", "skipped", "no Programmer Art pack to turn on");
+                startSweep();
+                return;
+            }
+            java.util.List<String> want = new java.util.ArrayList<>();
+            want.add("programmer_art");
+            want.addAll(before);
+            com.google.gson.JsonObject r = dev.breeze.packs.PackMenu.apply(mc, want);
+            packNote("on: changed " + r.get("changed").getAsBoolean(), r.get("changed").getAsBoolean());
+        } catch (Throwable t) {
+            log("packs-check", "notes", packNotes.toString(), "error", t.toString(), "pass", "false");
+            startSweep();
+            return;
+        }
+        packStep = 0;
+        world = World.PACKS;
+        worldAt = System.currentTimeMillis();
+    }
+
+    private static void packsStep(Minecraft mc, long age) {
+        if (age < 2_000) return;
+        // Minecraft shows its loading overlay while resources reload.
+        if (dev.breeze.compat.ActiveScreen.overlay(mc) != null) {
+            if (age < 240_000) return;
+            packNote("resources still reloading after 4 minutes", false);
+        }
+        java.util.Collection<String> ids = mc.getResourcePackRepository().getSelectedIds();
+        boolean inList = ids.contains("programmer_art"), inOptions = mc.options.resourcePacks.contains("programmer_art");
+        if (packStep == 0) {
+            shot(mc, "autotest-packs");
+            packNote("on: pack list " + inList + ", options " + inOptions + " (" + String.join(",", mc.options.resourcePacks) + ")", inList && inOptions);
+            try {
+                dev.breeze.packs.PackMenu.apply(mc, packsBefore);
+            } catch (Throwable t) {
+                packNote("put back: " + t, false);
+            }
+            packStep = 1;
+            worldAt = System.currentTimeMillis();
+            return;
+        }
+        packNote("off again: pack list " + !inList + ", options " + !inOptions, !inList && !inOptions);
+        log("packs-check", "notes", packNotes.toString(), "pass", String.valueOf(packPass));
+        startSweep();
     }
 
     private static void startSweep() {

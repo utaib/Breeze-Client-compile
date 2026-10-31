@@ -1,9 +1,5 @@
 package dev.breeze.packs;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -66,22 +62,6 @@ public final class PackOrder {
         for (int i = movable.size() - 1; i >= 0; i--) out.add(movable.get(i));
         // Fixed top packs in the repository's order, the first of them on top.
         for (int i = top.size() - 1; i >= 0; i--) out.add(top.get(i));
-        return out;
-    }
-
-    /** The ids in a request ({@code {"selected": ["id", ...]}}, top first); bad entries left out. */
-    public static List<String> requested(JsonObject params) {
-        List<String> out = new ArrayList<>();
-        JsonElement el = params == null ? null : params.get("selected");
-        if (el == null || !el.isJsonArray()) return out;
-        JsonArray arr = el.getAsJsonArray();
-        for (JsonElement e : arr) {
-            if (out.size() >= MAX_PACKS) break;
-            if (e != null && e.isJsonPrimitive() && e.getAsJsonPrimitive().isString()) {
-                String id = e.getAsString();
-                if (!id.isEmpty() && id.length() <= 512) out.add(id);
-            }
-        }
         return out;
     }
 
