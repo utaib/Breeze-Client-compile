@@ -1,0 +1,13 @@
+# What Minecraft 1.19.3 renamed or moved, undone for 1.19.2 and older
+# (gradle/version.gradle, "Sources").
+net.minecraft.core.registries.BuiltInRegistries net.minecraft.core.Registry
+BuiltInRegistries Registry
+# True while a singleplayer server runs.
+.isSingleplayer .hasSingleplayerServer
+# Before 1.19.3 Minecraft's maths is its own (com.mojang.math), not JOML, and
+# the unit axes are Vector3f constants.
+org.joml.Matrix4f com.mojang.math.Matrix4f
+com.mojang.math.Axis com.mojang.math.Vector3f
+Axis.XP Vector3f.XP
+Axis.YP Vector3f.YP
+Axis.ZP Vector3f.ZP
