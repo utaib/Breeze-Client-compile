@@ -1,0 +1,153 @@
+61:com.mojang.authlib.exceptions.InvalidCredentialsException: Status: 401
+62:	at com.mojang.authlib.exceptions.MinecraftClientHttpException.toAuthenticationException(MinecraftClientHttpException.java:56) ~[authlib-2.3.31.jar:?]
+63-	at com.mojang.authlib.yggdrasil.YggdrasilSocialInteractionsService.checkPrivileges(YggdrasilSocialInteractionsService.java:112) ~[authlib-2.3.31.jar:?]
+64-	at com.mojang.authlib.yggdrasil.YggdrasilSocialInteractionsService.<init>(YggdrasilSocialInteractionsService.java:42) ~[authlib-2.3.31.jar:?]
+65-	at com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService.createSocialInteractionsService(YggdrasilAuthenticationService.java:151) ~[authlib-2.3.31.jar:?]
+66-	at net.minecraft.class_310.method_31382(class_310.java:670) [client-intermediary.jar:?]
+67-	at net.minecraft.class_310.<init>(class_310.java:429) [client-intermediary.jar:?]
+68-	at net.minecraft.client.main.Main.main(Main.java:179) [client-intermediary.jar:?]
+69-	at net.fabricmc.loader.impl.game.minecraft.MinecraftGameProvider.launch(MinecraftGameProvider.java:480) [fabric-loader-0.16.14.jar:?]
+70-	at net.fabricmc.loader.impl.launch.knot.Knot.launch(Knot.java:74) [fabric-loader-0.16.14.jar:?]
+71-	at net.fabricmc.loader.impl.launch.knot.KnotClient.main(KnotClient.java:23) [fabric-loader-0.16.14.jar:?]
+72:Caused by: com.mojang.authlib.exceptions.MinecraftClientHttpException: Status: 401
+73-	at com.mojang.authlib.minecraft.client.MinecraftClient.readInputStream(MinecraftClient.java:77) ~[authlib-2.3.31.jar:?]
+74-	at com.mojang.authlib.minecraft.client.MinecraftClient.get(MinecraftClient.java:47) ~[authlib-2.3.31.jar:?]
+75-	at com.mojang.authlib.yggdrasil.YggdrasilSocialInteractionsService.checkPrivileges(YggdrasilSocialInteractionsService.java:104) ~[authlib-2.3.31.jar:?]
+76-	... 8 more
+77-[07:10:54] [Render thread/INFO]: Setting user: BreezeDev
+78-[07:10:54] [Render thread/WARN]: @Inject(@At("INVOKE")) Shift.BY=3 on fabric-lifecycle-events-v1.mixins.json:client.WorldChunkMixin from mod fabric-lifecycle-events-v1::handler$zfj000$fabric-lifecycle-events-v1$onLoadBlockEntity exceeds the maximum allowed value: 0. Increase the value of maxShiftBy to suppress this warning.
+79-[07:10:54] [Render thread/INFO]: [Breeze] Initializing on Minecraft 1.17.1
+80-[07:10:54] [Render thread/INFO]: [Breeze] Registered 86 modules
+81-[07:10:54] [Render thread/INFO]: [Breeze] No embedded browser exists for this Minecraft version; native screens are the interface
+82-[07:10:54] [Render thread/INFO]: [Breeze autotest] {"dir":"/home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test","event":"start","t":1793430654853}
+83-[07:10:55] [Render thread/INFO]: [Indigo] Registering Indigo renderer!
+84-[07:10:55] [Render thread/INFO]: Backend library: LWJGL version 3.2.2 build 10
+--
+89:[07:10:58] [Realms Notification Availability checker #1/INFO]: Could not authorize you against Realms server: javax.ws.rs.BadRequestException: Invalid session
+90-[07:10:58] [Render thread/INFO]: [Breeze autotest] {"kind":"title","scale":3.0,"items":[{"name":"Singleplayer","type":"widget","x":639,"y":354,"active":true},{"name":"Multiplayer","type":"widget","x":639,"y":426,"active":true},{"name":"Minecraft Realms","type":"widget","x":639,"y":498,"active":true},{"name":"Language","type":"widget","x":297,"y":606,"active":true},{"name":"Options...","type":"widget","x":486,"y":606,"active":true},{"name":"Quit Game","type":"widget","x":792,"y":606,"active":true},{"name":"Accessibility","type":"widget","x":981,"y":606,"active":true}],"event":"targets","t":1793430658373}
+91-[07:10:58] [ForkJoinPool.commonPool-worker-3/WARN]: [Breeze] friends refresh failed: HTTP 404
+92-[07:11:02] [Render thread/ERROR]: Error starting SoundSystem. Turning off sounds & music
+93:java.lang.IllegalStateException: Failed to open OpenAL device
+94-	at net.minecraft.class_4225.method_20050(class_4225.java:211) ~[client-intermediary.jar:?]
+95-	at net.minecraft.class_4225.method_19661(class_4225.java:136) ~[client-intermediary.jar:?]
+96-	at net.minecraft.class_1140.method_4846(class_1140.java:99) ~[client-intermediary.jar:?]
+97-	at net.minecraft.class_1140.method_4837(class_1140.java:90) ~[client-intermediary.jar:?]
+98-	at net.minecraft.class_1144.method_18182(class_1144.java:116) ~[client-intermediary.jar:?]
+99-	at net.minecraft.class_1144.method_18788(class_1144.java:39) ~[client-intermediary.jar:?]
+100-	at net.minecraft.class_4080.method_18790(class_4080.java:13) ~[client-intermediary.jar:?]
+101-	at java.util.concurrent.CompletableFuture$UniAccept.tryFire(CompletableFuture.java:714) ~[?:?]
+102-	at java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:478) ~[?:?]
+103-	at net.minecraft.class_4014.method_18365(class_4014.java:71) ~[client-intermediary.jar:?]
+104-	at net.minecraft.class_1255.execute(class_1255.java:101) ~[client-intermediary.jar:?]
+105-	at net.minecraft.class_4014.method_18367(class_4014.java:70) ~[client-intermediary.jar:?]
+--
+538:java.util.concurrent.CompletionException: java.io.UncheckedIOException: java.io.IOException: Stream closed
+539-	at java.util.concurrent.CompletableFuture.encodeThrowable(CompletableFuture.java:314) ~[?:?]
+540-	at java.util.concurrent.CompletableFuture.completeThrowable(CompletableFuture.java:319) ~[?:?]
+541-	at java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1766) ~[?:?]
+542-	at java.util.concurrent.CompletableFuture$AsyncSupply.exec(CompletableFuture.java:1756) ~[?:?]
+543-	at java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:295) ~[?:?]
+544-	at java.util.concurrent.ForkJoinPool$WorkQueue.topLevelExec(ForkJoinPool.java:1016) ~[?:?]
+545-	at java.util.concurrent.ForkJoinPool.scan(ForkJoinPool.java:1665) ~[?:?]
+546-	at java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1598) ~[?:?]
+547-	at java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:183) ~[?:?]
+548:Caused by: java.io.UncheckedIOException: java.io.IOException: Stream closed
+549-	at java.io.BufferedReader$1.hasNext(BufferedReader.java:581) ~[?:?]
+550-	at java.util.Iterator.forEachRemaining(Iterator.java:132) ~[?:?]
+551-	at java.util.Spliterators$IteratorSpliterator.forEachRemaining(Spliterators.java:1801) ~[?:?]
+552-	at java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:484) ~[?:?]
+553-	at java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:474) ~[?:?]
+554-	at java.util.stream.ReduceOps$ReduceOp.evaluateSequential(ReduceOps.java:913) ~[?:?]
+555-	at java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234) ~[?:?]
+556-	at java.util.stream.ReferencePipeline.collect(ReferencePipeline.java:682) ~[?:?]
+557-	at net.minecraft.class_4008.method_18176(class_4008.java:42) ~[client-intermediary.jar:?]
+558-	at net.minecraft.class_4008.method_18789(class_4008.java:25) ~[client-intermediary.jar:?]
+559-	at net.minecraft.class_4080.method_18791(class_4080.java:11) ~[client-intermediary.jar:?]
+560-	at java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1764) ~[?:?]
+--
+562:Caused by: java.io.IOException: Stream closed
+563-	at java.util.zip.InflaterInputStream.ensureOpen(InflaterInputStream.java:67) ~[?:?]
+564-	at java.util.zip.InflaterInputStream.read(InflaterInputStream.java:142) ~[?:?]
+565-	at sun.nio.cs.StreamDecoder.readBytes(StreamDecoder.java:297) ~[?:?]
+566-	at sun.nio.cs.StreamDecoder.implRead(StreamDecoder.java:339) ~[?:?]
+567-	at sun.nio.cs.StreamDecoder.read(StreamDecoder.java:188) ~[?:?]
+568-	at java.io.InputStreamReader.read(InputStreamReader.java:178) ~[?:?]
+569-	at java.io.BufferedReader.fill(BufferedReader.java:161) ~[?:?]
+570-	at java.io.BufferedReader.readLine(BufferedReader.java:329) ~[?:?]
+571-	at java.io.BufferedReader.readLine(BufferedReader.java:396) ~[?:?]
+572-	at java.io.BufferedReader$1.hasNext(BufferedReader.java:578) ~[?:?]
+573-	at java.util.Iterator.forEachRemaining(Iterator.java:132) ~[?:?]
+574-	at java.util.Spliterators$IteratorSpliterator.forEachRemaining(Spliterators.java:1801) ~[?:?]
+--
+588:java.lang.IllegalStateException: Failed to open OpenAL device
+589-	at net.minecraft.class_4225.method_20050(class_4225.java:211) ~[client-intermediary.jar:?]
+590-	at net.minecraft.class_4225.method_19661(class_4225.java:136) ~[client-intermediary.jar:?]
+591-	at net.minecraft.class_1140.method_4846(class_1140.java:99) ~[client-intermediary.jar:?]
+592-	at net.minecraft.class_1140.method_4837(class_1140.java:90) ~[client-intermediary.jar:?]
+593-	at net.minecraft.class_1144.method_18182(class_1144.java:116) ~[client-intermediary.jar:?]
+594-	at net.minecraft.class_1144.method_18788(class_1144.java:39) ~[client-intermediary.jar:?]
+595-	at net.minecraft.class_4080.method_18790(class_4080.java:13) ~[client-intermediary.jar:?]
+596-	at java.util.concurrent.CompletableFuture$UniAccept.tryFire(CompletableFuture.java:714) ~[?:?]
+597-	at java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:478) ~[?:?]
+598-	at net.minecraft.class_4014.method_18365(class_4014.java:71) ~[client-intermediary.jar:?]
+599-	at net.minecraft.class_1255.execute(class_1255.java:101) ~[client-intermediary.jar:?]
+600-	at net.minecraft.class_4014.method_18367(class_4014.java:70) ~[client-intermediary.jar:?]
+--
+633:java.util.concurrent.CompletionException: java.io.UncheckedIOException: java.io.IOException: Stream closed
+634-	at java.util.concurrent.CompletableFuture.encodeThrowable(CompletableFuture.java:314) ~[?:?]
+635-	at java.util.concurrent.CompletableFuture.completeThrowable(CompletableFuture.java:319) ~[?:?]
+636-	at java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1766) ~[?:?]
+637-	at java.util.concurrent.CompletableFuture$AsyncSupply.exec(CompletableFuture.java:1756) ~[?:?]
+638-	at java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:295) ~[?:?]
+639-	at java.util.concurrent.ForkJoinPool$WorkQueue.topLevelExec(ForkJoinPool.java:1016) ~[?:?]
+640-	at java.util.concurrent.ForkJoinPool.scan(ForkJoinPool.java:1665) ~[?:?]
+641-	at java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1598) ~[?:?]
+642-	at java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:183) ~[?:?]
+643:Caused by: java.io.UncheckedIOException: java.io.IOException: Stream closed
+644-	at java.io.BufferedReader$1.hasNext(BufferedReader.java:581) ~[?:?]
+645-	at java.util.Iterator.forEachRemaining(Iterator.java:132) ~[?:?]
+646-	at java.util.Spliterators$IteratorSpliterator.forEachRemaining(Spliterators.java:1801) ~[?:?]
+647-	at java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:484) ~[?:?]
+648-	at java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:474) ~[?:?]
+649-	at java.util.stream.ReduceOps$ReduceOp.evaluateSequential(ReduceOps.java:913) ~[?:?]
+650-	at java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234) ~[?:?]
+651-	at java.util.stream.ReferencePipeline.collect(ReferencePipeline.java:682) ~[?:?]
+652-	at net.minecraft.class_4008.method_18176(class_4008.java:42) ~[client-intermediary.jar:?]
+653-	at net.minecraft.class_4008.method_18789(class_4008.java:25) ~[client-intermediary.jar:?]
+654-	at net.minecraft.class_4080.method_18791(class_4080.java:11) ~[client-intermediary.jar:?]
+655-	at java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1764) ~[?:?]
+--
+657:Caused by: java.io.IOException: Stream closed
+658-	at java.util.zip.InflaterInputStream.ensureOpen(InflaterInputStream.java:67) ~[?:?]
+659-	at java.util.zip.InflaterInputStream.read(InflaterInputStream.java:142) ~[?:?]
+660-	at sun.nio.cs.StreamDecoder.readBytes(StreamDecoder.java:297) ~[?:?]
+661-	at sun.nio.cs.StreamDecoder.implRead(StreamDecoder.java:339) ~[?:?]
+662-	at sun.nio.cs.StreamDecoder.read(StreamDecoder.java:188) ~[?:?]
+663-	at java.io.InputStreamReader.read(InputStreamReader.java:178) ~[?:?]
+664-	at java.io.BufferedReader.fill(BufferedReader.java:161) ~[?:?]
+665-	at java.io.BufferedReader.readLine(BufferedReader.java:329) ~[?:?]
+666-	at java.io.BufferedReader.readLine(BufferedReader.java:396) ~[?:?]
+667-	at java.io.BufferedReader$1.hasNext(BufferedReader.java:578) ~[?:?]
+668-	at java.util.Iterator.forEachRemaining(Iterator.java:132) ~[?:?]
+669-	at java.util.Spliterators$IteratorSpliterator.forEachRemaining(Spliterators.java:1801) ~[?:?]
+--
+680:[07:13:34] [Worker-Main-7/ERROR]: Using missing texture, unable to load minecraft:textures/item/bow_pulling_2.png : java.io.IOException: Could not read info from the PNG file net.minecraft.class_3306@b85388a3 Image not of any known type, or corrupt
+681:[07:13:34] [Worker-Main-8/ERROR]: Using missing texture, unable to load minecraft:textures/block/pink_terracotta.png : java.io.IOException: Could not read info from the PNG file net.minecraft.class_3306@50fd8562 Image not of any known type, or corrupt
+682-[07:13:34] [Render thread/INFO]: Reloading ResourceManager: Default, Fabric Mods (Breeze, Fabric API, Fabric API Base, Fabric API Lookup API (v1), Fabric Biome API (v1), Fabric BlockRenderLayer Registration (v1), Fabric Command API (v1), Fabric Commands (v0), Fabric Containers (v0), Fabric Content Registries (v0), Fabric Crash Report Info (v1), Fabric Dimensions API (v1), Fabric Entity Events (v1), Fabric Events Interaction (v0), Fabric Events Lifecycle (v0), Fabric Game Rule API (v1), Fabric Item API (v1), Fabric Item Groups (v0), Fabric Key Binding API (v1), Fabric Key Bindings (v0), Fabric Lifecycle Events (v1), Fabric Loot Tables (v1), Fabric Mining Level API (v1), Fabric Mining Levels (v0), Fabric Models (v0), Fabric Networking API (v1), Fabric Networking Block Entity (v0), Fabric Networking (v0), Fabric Object Builder API (v1), Fabric Object Builders (v0), Fabric Particles (v1), Fabric Registry Sync (v0), Fabric Renderer API (v1), Fabric Renderer - Indigo, Fabric Renderer Registries (v1), Fabric Rendering Data Attachment (v1), Fabric Rendering Fluids (v1), Fabric Rendering (v0), Fabric Rendering (v1), Fabric Resource Conditions API (v1), Fabric Resource Loader (v0), Fabric Screen API (v1), Fabric Screen Handler API (v1), Fabric Structure API (v1), Fabric Tag Extensions (v0), Fabric Textures (v0), Fabric Tool Attribute API (v1), Fabric Transfer API (v1), Fabric Loader)
+683:[07:13:34] [Worker-Main-7/ERROR]: Using missing texture, unable to load minecraft:textures/block/stripped_dark_oak_log_top.png : java.io.IOException: Could not read info from the PNG file net.minecraft.class_3306@f52c1b47 Image not of any known type, or corrupt
+684:[07:13:34] [Worker-Main-8/ERROR]: Using missing texture, unable to load minecraft:textures/item/bundle.png : java.io.IOException: Could not read info from the PNG file net.minecraft.class_3306@4b2823d4 Image not of any known type, or corrupt
+685-[07:13:35] [ForkJoinPool.commonPool-worker-7/WARN]: [Breeze] friends refresh failed: HTTP 404
+686-[07:13:36] [Render thread/ERROR]: Error starting SoundSystem. Turning off sounds & music
+687:java.lang.IllegalStateException: Failed to open OpenAL device
+688-	at net.minecraft.class_4225.method_20050(class_4225.java:211) ~[client-intermediary.jar:?]
+689-	at net.minecraft.class_4225.method_19661(class_4225.java:136) ~[client-intermediary.jar:?]
+690-	at net.minecraft.class_1140.method_4846(class_1140.java:99) ~[client-intermediary.jar:?]
+691-	at net.minecraft.class_1140.method_4837(class_1140.java:90) ~[client-intermediary.jar:?]
+692-	at net.minecraft.class_1144.method_18182(class_1144.java:116) ~[client-intermediary.jar:?]
+693-	at net.minecraft.class_1144.method_18788(class_1144.java:39) ~[client-intermediary.jar:?]
+694-	at net.minecraft.class_4080.method_18790(class_4080.java:13) ~[client-intermediary.jar:?]
+695-	at java.util.concurrent.CompletableFuture$UniAccept.tryFire(CompletableFuture.java:714) ~[?:?]
+696-	at java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:478) ~[?:?]
+697-	at net.minecraft.class_4014.method_18365(class_4014.java:71) ~[client-intermediary.jar:?]
+698-	at net.minecraft.class_1255.execute(class_1255.java:101) ~[client-intermediary.jar:?]
+699-	at net.minecraft.class_4014.method_18367(class_4014.java:70) ~[client-intermediary.jar:?]
