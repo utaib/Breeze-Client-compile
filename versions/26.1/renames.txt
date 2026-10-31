@@ -1,0 +1,18 @@
+# What Minecraft 26.1 and its Fabric API renamed without changing what Breeze
+# uses of it (gradle/version.gradle, "Sources"). GUI drawing became state
+# extraction: the class and a few of its methods took new names, the calls
+# kept their arguments.
+GuiGraphics GuiGraphicsExtractor
+.drawString .text
+.drawCenteredString .centeredText
+.renderItem .item
+.renderItemDecorations .itemDecorations
+net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper
+KeyBindingHelper KeyMappingHelper
+.registerKeyBinding .registerKeyMapping
+# Moved or renamed in 26.1 (the calls keep their arguments).
+net.minecraft.client.renderer.state.CameraRenderState net.minecraft.client.renderer.state.level.CameraRenderState
+.renderEntityInInventoryFollowsMouse .extractEntityInInventoryFollowsMouse
+.resizeDisplay .resizeGui
+# Day time is the dimension's default world clock (compat/Game sets it).
+.getDayTime .getDefaultClockTime
