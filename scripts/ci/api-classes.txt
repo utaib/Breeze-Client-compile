@@ -1,16 +1,15 @@
-# One-off dump for the scoreboard (private repository, 2026-10-30).
-net.minecraft.world.scores.Scoreboard
-net.minecraft.client.multiplayer.ClientLevel
-net.minecraft.world.scores.Objective
-net.minecraft.world.scores.Score
-net.minecraft.world.scores.PlayerScoreEntry
-net.minecraft.world.scores.ReadOnlyScoreInfo
-net.minecraft.world.scores.ScoreHolder
-net.minecraft.world.scores.DisplaySlot
-net.minecraft.world.scores.PlayerTeam
-net.minecraft.world.scores.Team
-net.minecraft.network.chat.numbers.NumberFormat
-net.minecraft.network.chat.numbers.StyledFormat
-net.minecraft.network.chat.numbers.BlankFormat
-c net.minecraft.client.gui.Gui
-c net.minecraft.client.gui.components.Hud
+# One-off dump for the custom shield (private repository, 2026-10-31).
+c net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer
+net.minecraft.client.model.ShieldModel
+c net.minecraft.client.renderer.special.ShieldSpecialRenderer
+net.minecraft.client.renderer.special.SpecialModelRenderer
+net.minecraft.client.renderer.Sheets
+c net.minecraft.client.renderer.entity.layers.ItemInHandLayer
+c net.minecraft.client.renderer.ItemInHandRenderer
+c net.minecraft.client.renderer.item.ItemModelResolver
+net.minecraft.client.renderer.item.ItemStackRenderState
+c net.minecraft.client.renderer.item.ItemStackRenderState$LayerRenderState
+net.minecraft.client.renderer.entity.state.ArmedEntityRenderState
+net.minecraft.client.renderer.entity.state.LivingEntityRenderState
+net.minecraft.client.resources.model.Material
+net.minecraft.client.renderer.RenderType
