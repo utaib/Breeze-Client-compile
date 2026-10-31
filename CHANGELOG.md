@@ -43,7 +43,27 @@ existing Scoreboard module only hid the sidebar; it now draws it.
   Minecraft's order and the numbers 7, 3, 3, 1; then no numbers; then
   nothing when hidden; and, switched off, Minecraft must draw its own
   again. Screenshots `autotest-scoreboard`, `autotest-scoreboard-vanilla`.
-  Not covered: a real network's board, a player in a coloured team.
+  Not covered: a real network's board, a player in a coloured team. 26.2
+  made a team's colour an `Optional<TeamColor>` and dropped
+  `DisplaySlot.teamColorToSlot`; there the team sidebar is found by the
+  slot's name (`TEAM_<colour>`), UNVERIFIED until a coloured-team test.
+- Run 41115253203 (1.17, 1.20.1, 1.20.2, 1.20.4, 1.21.11, 26.3):
+  `scoreboard-check` passed on the five that built (rows
+  carl|Alice|bob|Coins: 1,250, numbers 7,3,3,1, hidden, Minecraft's own
+  back when off); 26.3 did not compile (`teamColorToSlot`, fixed above).
+- **Command keys now hear the key press itself.** They read each key's
+  state once a tick, so a press that began and ended between two frames
+  was never seen: the driver's real Ctrl+J failed on 25 of 34 versions in
+  run 41114301654 and on every version in run 41115253203, whatever the
+  frame rate (1.21.10 passed at 5.3 fps, 1.17 failed at 9.4). A player on
+  a slow computer would have lost presses the same way. Now
+  `CommandKeyMappingMixin` takes each key Minecraft's own key handler
+  sees go down or up in the world (`KeyMapping.set`, the same from 1.17
+  to 26.3, from API dump run 41105554975), with Ctrl, Shift and Alt as
+  held at that moment; a held key's repeats do not run anything; a key
+  let go while a screen had it counts as up once the tick sees it up.
+- 2.20.0 gets no jar set of its own: its full run found the command key
+  problem, and 2.21.0 carries all of it.
 
 ## [2.20.0] - 2026-10-30
 

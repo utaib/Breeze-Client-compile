@@ -17,9 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Command keys in the game: the saved list (config/breeze-command-keys.json),
@@ -38,7 +36,13 @@ public final class CommandKeyRunner {
     private CommandKeyRunner() {}
 
     private static List<Binding> bindings = new ArrayList<>();
-    private static final Map<String, Boolean> wasDown = new HashMap<>();
+    /** Keys Minecraft saw go down and not yet up, so a held key's repeats do not run anything. */
+    private static final java.util.Set<String> held = java.util.concurrent.ConcurrentHashMap.newKeySet();
+
+    /** A key that went down in the world, with the modifiers held at that moment. */
+    private record Press(String key, boolean ctrl, boolean shift, boolean alt) {}
+
+    private static final java.util.Queue<Press> presses = new java.util.concurrent.ConcurrentLinkedQueue<>();
     private static String capturing;
     private static volatile String lastRun;
     private static volatile String lastRefusal;
@@ -218,20 +222,46 @@ public final class CommandKeyRunner {
         }
     }
 
-    /** Each client tick: run the commands whose keys just went down, in a world with no screen open. */
+    /**
+     * From Minecraft's own key handler (CommandKeyMappingMixin on
+     * KeyMapping.set): a key went down or up while no screen took it. A
+     * press is kept with the modifiers held at that moment and run on the
+     * next tick; the repeats a held key sends are not presses.
+     */
+    public static void keyEvent(InputConstants.Key key, boolean down) {
+        if (key == null) return;
+        String name = key.getName();
+        if (!down) {
+            held.remove(name);
+            return;
+        }
+        if (!held.add(name)) return;
+        if (bindings.isEmpty()) return;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.player == null || dev.breeze.compat.ActiveScreen.get(mc) != null) return;
+        presses.add(new Press(name, ctrl(mc), shift(mc), alt(mc)));
+    }
+
+    /** Each client tick: run the commands whose keys went down since the last one, in a world with no screen open. */
     public static void tick(Minecraft mc) {
+        // A key let go while a screen had it never told KeyMapping; once it
+        // is up it can go down again.
+        if (!held.isEmpty()) held.removeIf(k -> !down(mc, code(k)));
         List<Binding> list;
         synchronized (CommandKeyRunner.class) {
-            if (bindings.isEmpty()) return;
+            if (bindings.isEmpty()) {
+                presses.clear();
+                return;
+            }
             list = new ArrayList<>(bindings);
         }
         boolean live = mc.player != null && mc.getConnection() != null && dev.breeze.compat.ActiveScreen.get(mc) == null;
-        boolean ctrl = live && ctrl(mc), shift = live && shift(mc), alt = live && alt(mc);
-        for (Binding b : list) {
-            boolean now = live && b.bound() && down(mc, code(b.key()));
-            boolean before = wasDown.getOrDefault(b.id(), false);
-            wasDown.put(b.id(), now);
-            if (CommandKeys.fires(b, now, before, ctrl, shift, alt)) run(mc, b);
+        Press p;
+        while ((p = presses.poll()) != null) {
+            if (!live) continue;
+            for (Binding b : list) {
+                if (b.bound() && b.key().equals(p.key()) && CommandKeys.fires(b, true, false, p.ctrl(), p.shift(), p.alt())) run(mc, b);
+            }
         }
     }
 
