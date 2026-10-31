@@ -1,0 +1,82 @@
+68:com.mojang.authlib.exceptions.InvalidCredentialsException: Status: 401
+69:	at com.mojang.authlib.exceptions.MinecraftClientHttpException.toAuthenticationException(MinecraftClientHttpException.java:59) ~[authlib-5.0.47.jar:?]
+70-	at com.mojang.authlib.yggdrasil.YggdrasilUserApiService.fetchProperties(YggdrasilUserApiService.java:159) ~[authlib-5.0.47.jar:?]
+71-	at com.mojang.authlib.yggdrasil.YggdrasilUserApiService.<init>(YggdrasilUserApiService.java:53) ~[authlib-5.0.47.jar:?]
+72-	at com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService.createUserApiService(YggdrasilAuthenticationService.java:55) ~[authlib-5.0.47.jar:?]
+73-	at net.minecraft.class_310.method_31382(class_310.java:787) ~[client-intermediary.jar:?]
+74-	at net.minecraft.class_310.<init>(class_310.java:451) ~[client-intermediary.jar:?]
+75-	at net.minecraft.client.main.Main.main(Main.java:214) ~[fabric-1.20.2-0.19.5.jar:?]
+76-	at net.fabricmc.loader.impl.game.minecraft.MinecraftGameProvider.launch(MinecraftGameProvider.java:517) ~[fabric-loader-0.19.5.jar:?]
+77-	at net.fabricmc.loader.impl.launch.knot.Knot.launch(Knot.java:72) ~[fabric-loader-0.19.5.jar:?]
+78-	at net.fabricmc.loader.impl.launch.knot.KnotClient.main(KnotClient.java:23) ~[fabric-loader-0.19.5.jar:?]
+79:Caused by: com.mojang.authlib.exceptions.MinecraftClientHttpException: Status: 401
+80-	at com.mojang.authlib.minecraft.client.MinecraftClient.readInputStream(MinecraftClient.java:100) ~[authlib-5.0.47.jar:?]
+81-	at com.mojang.authlib.minecraft.client.MinecraftClient.get(MinecraftClient.java:57) ~[authlib-5.0.47.jar:?]
+82-	at com.mojang.authlib.yggdrasil.YggdrasilUserApiService.fetchProperties(YggdrasilUserApiService.java:130) ~[authlib-5.0.47.jar:?]
+83-	... 8 more
+84-[07:44:47] [Render thread/INFO]: Setting user: BreezeDev
+85-[07:44:47] [Render thread/INFO]: [Breeze] Initializing on Minecraft 1.20.2
+86-[07:44:47] [Render thread/INFO]: [Breeze] Registered 86 modules
+87-[07:44:47] [Render thread/INFO]: [Breeze] Web interface found at assets/breeze/html/index.html
+88-[07:44:47] [Render thread/INFO]: [Breeze autotest] {"dir":"/home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test","event":"start","t":1793432687387}
+89-[07:44:47] [Render thread/INFO]: [Indigo] Registering Indigo renderer!
+90-[07:44:47] [Thread-2/WARN]: Failed to download JCEF hash.
+91-[07:44:47] [Thread-2/INFO]: https://mcef-download.cinemamod.com/java-cef-builds/a78e832f9f13c2c688caea3d04d8b84fcd238d94/linux_amd64.tar.gz -> /home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test/game/mods/mcef-libraries/linux_amd64.tar.gz
+--
+102:java.lang.IllegalStateException: Failed to open OpenAL device
+103-	at net.minecraft.class_4225.method_38501(class_4225.java:293) ~[client-intermediary.jar:?]
+104-	at net.minecraft.class_4225.method_19661(class_4225.java:154) ~[client-intermediary.jar:?]
+105-	at net.minecraft.class_1140.method_4846(class_1140.java:116) ~[client-intermediary.jar:?]
+106-	at net.minecraft.class_1140.method_4837(class_1140.java:106) ~[client-intermediary.jar:?]
+107-	at net.minecraft.class_1144.method_18182(class_1144.java:125) ~[client-intermediary.jar:?]
+108-	at net.minecraft.class_1144.method_18788(class_1144.java:40) ~[client-intermediary.jar:?]
+109-	at net.minecraft.class_4080.method_18790(class_4080.java:13) ~[client-intermediary.jar:?]
+110-	at java.util.concurrent.CompletableFuture$UniAccept.tryFire(CompletableFuture.java:718) ~[?:?]
+111-	at java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:482) ~[?:?]
+112-	at net.minecraft.class_4014.method_18365(class_4014.java:69) ~[client-intermediary.jar:?]
+113-	at net.minecraft.class_1255.method_18859(class_1255.java:156) ~[client-intermediary.jar:?]
+114-	at net.minecraft.class_4093.method_18859(class_4093.java:23) ~[client-intermediary.jar:?]
+--
+148:[07:44:56] [IO-Worker-1/INFO]: Could not authorize you against Realms server: javax.ws.rs.BadRequestException: Invalid session
+149-[07:44:56] [IO-Worker-1/ERROR]: Couldn't connect to realms
+150:net.minecraft.class_4355: Realms authentication error with message 'javax.ws.rs.BadRequestException: Invalid session'
+151-	at net.minecraft.class_4341.method_20998(class_4341.java:432) ~[client-intermediary.jar:?]
+152-	at net.minecraft.class_4341.method_21027(class_4341.java:218) ~[client-intermediary.jar:?]
+153-	at net.minecraft.class_8647.method_52627(class_8647.java:45) ~[client-intermediary.jar:?]
+154-	at java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1768) ~[?:?]
+155-	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136) ~[?:?]
+156-	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635) ~[?:?]
+157-	at java.lang.Thread.run(Thread.java:840) ~[?:?]
+158-[07:44:56] [Render thread/INFO]: [Breeze autotest] {"ok":"true","targets":"31","ms":"28","event":"mixin-audit","t":1793432696617}
+159-[07:44:56] [Render thread/INFO]: [Breeze autotest] {"file":"screenshots/autotest-title-menu.png","event":"screenshot","t":1793432696633}
+160-[07:44:56] [Render thread/INFO]: [Breeze autotest] {"modules":"86","found":"86","missing":"","fallbacks":{"Custom Shield":"textures/item/oak_sign.png"},"pass":"true","event":"module-icons","t":1793432696649}
+161-[07:44:56] [Render thread/INFO]: [Breeze autotest] {"integrations":[],"problems":[],"event":"integrations","t":1793432696652}
+162-[07:44:56] [Render thread/INFO]: [Breeze autotest] {"id":"key.breeze.armor_bar","count":"88","bound":"J","afterReset":"","pass":"true","event":"keys-check","t":1793432696675}
+--
+652:java.lang.IllegalStateException: Failed to open OpenAL device
+653-	at net.minecraft.class_4225.method_38501(class_4225.java:293) ~[client-intermediary.jar:?]
+654-	at net.minecraft.class_4225.method_19661(class_4225.java:154) ~[client-intermediary.jar:?]
+655-	at net.minecraft.class_1140.method_4846(class_1140.java:116) ~[client-intermediary.jar:?]
+656-	at net.minecraft.class_1140.method_4837(class_1140.java:106) ~[client-intermediary.jar:?]
+657-	at net.minecraft.class_1144.method_18182(class_1144.java:125) ~[client-intermediary.jar:?]
+658-	at net.minecraft.class_1144.method_18788(class_1144.java:40) ~[client-intermediary.jar:?]
+659-	at net.minecraft.class_4080.method_18790(class_4080.java:13) ~[client-intermediary.jar:?]
+660-	at java.util.concurrent.CompletableFuture$UniAccept.tryFire(CompletableFuture.java:718) ~[?:?]
+661-	at java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:482) ~[?:?]
+662-	at net.minecraft.class_4014.method_18365(class_4014.java:69) ~[client-intermediary.jar:?]
+663-	at net.minecraft.class_1255.method_18859(class_1255.java:156) ~[client-intermediary.jar:?]
+664-	at net.minecraft.class_4093.method_18859(class_4093.java:23) ~[client-intermediary.jar:?]
+--
+698:java.lang.IllegalStateException: Failed to open OpenAL device
+699-	at net.minecraft.class_4225.method_38501(class_4225.java:293) ~[client-intermediary.jar:?]
+700-	at net.minecraft.class_4225.method_19661(class_4225.java:154) ~[client-intermediary.jar:?]
+701-	at net.minecraft.class_1140.method_4846(class_1140.java:116) ~[client-intermediary.jar:?]
+702-	at net.minecraft.class_1140.method_4837(class_1140.java:106) ~[client-intermediary.jar:?]
+703-	at net.minecraft.class_1144.method_18182(class_1144.java:125) ~[client-intermediary.jar:?]
+704-	at net.minecraft.class_1144.method_18788(class_1144.java:40) ~[client-intermediary.jar:?]
+705-	at net.minecraft.class_4080.method_18790(class_4080.java:13) ~[client-intermediary.jar:?]
+706-	at java.util.concurrent.CompletableFuture$UniAccept.tryFire(CompletableFuture.java:718) ~[?:?]
+707-	at java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:482) ~[?:?]
+708-	at net.minecraft.class_4014.method_18365(class_4014.java:69) ~[client-intermediary.jar:?]
+709-	at net.minecraft.class_1255.method_18859(class_1255.java:156) ~[client-intermediary.jar:?]
+710-	at net.minecraft.class_4093.method_18859(class_4093.java:23) ~[client-intermediary.jar:?]
