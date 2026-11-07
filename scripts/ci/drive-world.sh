@@ -270,9 +270,10 @@ tnt=$(grep '"event":"tnt-check"' "$LOG" | tail -1)
 say "tnt: $tnt"
 case "$tnt" in
   *'"skipped"'*) say "SKIP: $tnt" ;;
-  *'"pass":"true"'*) pass "TNT Countdown labelled a lit TNT with the seconds and milliseconds its fuse has left" ;;
+  *'"pass":"true"'*) pass "TNT Countdown labelled a lit TNT with the seconds and milliseconds its fuse has left, and the label's own pixels are in the screenshot" ;;
   '') fail "the self-test checked TNT Countdown" ;;
-  *) fail "TNT Countdown did not label a lit TNT with its seconds" ;;
+  *'"labelPixels":"0"'*|*'"labelPixels":"-1"'*) fail "TNT Countdown's label is not on the screen (none of its pixels in the screenshot)" ;;
+  *) fail "TNT Countdown did not label a lit TNT with its seconds and milliseconds" ;;
 esac
 hbox=$(grep '"event":"hitbox-check"' "$LOG" | tail -1)
 say "hitboxes: $hbox"

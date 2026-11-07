@@ -18,13 +18,17 @@ public final class WorldRender {
 
     private WorldRender() {}
 
-    /** A label facing the camera at a world position, drawn through walls at full brightness. */
+    /** A label facing the camera at a world position, at full brightness; blocks in front of it hide it. */
     public static void text(WorldCtx ctx, double wx, double wy, double wz, String s, int color) {
-        text(ctx, wx, wy, wz, s, color, 1.0f);
+        text(ctx, wx, wy, wz, s, color, 1.0f, false);
     }
 
-    /** As {@link #text(WorldCtx, double, double, double, String, int)}, {@code size} times as large. */
-    public static void text(WorldCtx ctx, double wx, double wy, double wz, String s, int color, float size) {
+    /**
+     * As {@link #text(WorldCtx, double, double, double, String, int)}, {@code size} times as
+     * large, and with {@code throughWalls} drawn over the blocks in front of it.
+     */
+    public static void text(WorldCtx ctx, double wx, double wy, double wz, String s, int color, float size,
+                            boolean throughWalls) {
         if (ctx.consumers() == null) return;
         Minecraft mc = Minecraft.getInstance();
         Font font = mc.font;
@@ -35,7 +39,8 @@ public final class WorldRender {
         ps.mulPose(mc.gameRenderer.getMainCamera().rotation());
         ps.scale(-0.025f * size, -0.025f * size, 0.025f * size);
         float x = -font.width(s) / 2.0f;
-        font.drawInBatch(s, x, 0.0f, color, false, ps.last().pose(), ctx.consumers(), Font.DisplayMode.NORMAL, 0, 0xF000F0);
+        font.drawInBatch(s, x, 0.0f, color, false, ps.last().pose(), ctx.consumers(),
+                throughWalls ? Font.DisplayMode.SEE_THROUGH : Font.DisplayMode.NORMAL, 0, 0xF000F0);
         ps.popPose();
     }
 

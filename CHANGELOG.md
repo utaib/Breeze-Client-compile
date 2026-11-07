@@ -37,14 +37,36 @@ it against what 2.17.0 to 2.23.1 did.
   invented; the seven Show switches (players, hostile mobs, animals and other
   mobs, items and experience orbs, projectiles, boats, minecarts and the
   rest, and yourself in third person) are the categories.
+- **Fix: labels in the world were invisible on 1.21 and later** (TNT
+  Countdown, Damage Indicator's numbers, Light Level Overlay's digits),
+  since those versions were first supported. Found in the screenshots of
+  this version's first full run (42366744529), which passed every check:
+  `tnt-check` counted draw calls, and the label was drawn, but no screenshot
+  from 1.21 to 26.3 shows it, while 1.17 to 1.20.6 do and Hitboxes' lines
+  sit where they should on all of them. From 1.21 Minecraft's own name tags
+  are scaled `(0.025, -0.025, 0.025)` instead of `(-0.025, -0.025, 0.025)`:
+  the camera's rotation is half a turn from before, so Breeze's mirrored
+  label showed its back, which is not drawn. The 1.21, 1.21.2, 1.21.9,
+  1.21.11 and 26.2 drawing code now scales as Minecraft does. That cause
+  is read from the pictures and the vanilla code's change; the next run's
+  pixel check (below) is the proof.
+- **TNT labels show through blocks** (Show through blocks, on by default),
+  as the module's description always said; up to now a TNT behind a wall
+  or in leaves had no label (seen in this run's screenshots). Damage and
+  light level numbers still stop at blocks.
 - Self-test: `freelook-default` (Free Look on at the first start of a game
-  folder with no saved config); `tnt-check` now requires the
-  milliseconds format.
-- Verified here: common 244 (3 new), Vitest 46 (2 new), Playwright 75 (one
+  folder with no saved config); `tnt-check` requires the milliseconds
+  format and, from now on, the label's own pixels in its screenshot: the
+  label is drawn in magenta for the test and common `PngPixels` (a small
+  PNG reader, 3 JUnit tests including every row filter) counts them in the
+  file Minecraft saved.
+- Verified here: common 247 (6 new), Vitest 46 (2 new), Playwright 75 (one
   new, two changed; Show, Use, Cancel), `npm run build`; the offline Java
-  check finds only its known false positives. The 34 versions are not built
-  yet: compile, drawing and the self-test results are UNVERIFIED until the
-  run.
+  check finds only its known false positives. First full run 42366744529
+  (`6faf95c`, before the label fix): every job passed, `freelook-default`
+  on all 34, the TNT label "7.850s" to "8.050s" on 33 (not offered on
+  1.21.9); its jars were not taken because of the invisible labels. The
+  run with the fix decides (UNVERIFIED until then).
 
 ## [2.23.1] - 2026-10-31
 

@@ -16,7 +16,7 @@ import net.minecraft.world.entity.Entity;
  * TNT Timer HUD shows only the nearest one), in seconds and milliseconds
  * ("3.250s"; tenths if the player prefers). Read from the fuse the game
  * already counts down on the client, each TNT its own; drawn facing the
- * camera, through walls, coloured by how close it is, and larger with the
+ * camera, through blocks (Show through blocks), coloured by how close it is, and larger with the
  * distance (up to three times) so far ones stay readable (Countdown).
  */
 public class TntCountdown extends Module {
@@ -32,9 +32,12 @@ public class TntCountdown extends Module {
             new String[]{"Seconds and milliseconds", "Tenths of a second"}, 0));
     private final Setting.Int size = add(new Setting.Int("size", "Size", "Text", 100, 50, 200, "%"));
     private final Setting.Bool grow = add(new Setting.Bool("grow", "Larger when far away", "Text", true));
+    private final Setting.Bool through = add(new Setting.Bool("through", "Show through blocks", "Text", true));
 
     private static volatile int lastDrawn;
     private static volatile String lastText = "";
+    /** The self-test's colour for every label (0 for the player's colours), so it can find them on screen. */
+    private static volatile int testColour;
 
     public TntCountdown() {
         super("TNT Countdown", Category.VISUAL, "Shows the time left above each lit TNT and TNT minecart.", KEY_NONE);
@@ -60,13 +63,13 @@ public class TntCountdown extends Module {
             if (!minecarts.value && !(e instanceof net.minecraft.world.entity.item.PrimedTnt)) continue;
             // The fuse counts down each tick; between ticks, a little less.
             double seconds = Math.max(0, (fuse - pt) / 20.0);
-            int colour = seconds < 1 ? now.argb : seconds < 2 ? soon.argb : safe.argb;
+            int colour = testColour != 0 ? testColour : seconds < 1 ? now.argb : seconds < 2 ? soon.argb : safe.argb;
             double x = e.xo + (e.getX() - e.xo) * pt;
             double y = e.yo + (e.getY() - e.yo) * pt + e.getBbHeight() + 0.5;
             double z = e.zo + (e.getZ() - e.zo) * pt;
             String text = Countdown.label(seconds, tenths);
             double distance = Math.sqrt((x - cam.x) * (x - cam.x) + (y - cam.y) * (y - cam.y) + (z - cam.z) * (z - cam.z));
-            WorldRender.text(ctx, x, y, z, text, colour, Countdown.size(distance, grow.value, size.value));
+            WorldRender.text(ctx, x, y, z, text, colour, Countdown.size(distance, grow.value, size.value), through.value);
             lastText = text;
             drawn++;
         }
@@ -77,4 +80,7 @@ public class TntCountdown extends Module {
     public static int lastDrawn() { return lastDrawn; }
 
     public static String lastText() { return lastText; }
+
+    /** For the self-test: draws every label in {@code argb} (0 gives the player's colours back). */
+    public static void testColour(int argb) { testColour = argb; }
 }

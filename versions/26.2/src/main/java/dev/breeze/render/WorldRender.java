@@ -23,13 +23,17 @@ public final class WorldRender {
 
     private WorldRender() {}
 
-    /** A label facing the camera at a world position, at full brightness. */
+    /** A label facing the camera at a world position, at full brightness; blocks in front of it hide it. */
     public static void text(WorldCtx ctx, double wx, double wy, double wz, String s, int color) {
-        text(ctx, wx, wy, wz, s, color, 1.0f);
+        text(ctx, wx, wy, wz, s, color, 1.0f, false);
     }
 
-    /** As {@link #text(WorldCtx, double, double, double, String, int)}, {@code size} times as large. */
-    public static void text(WorldCtx ctx, double wx, double wy, double wz, String s, int color, float size) {
+    /**
+     * As {@link #text(WorldCtx, double, double, double, String, int)}, {@code size} times as
+     * large, and with {@code throughWalls} drawn over the blocks in front of it.
+     */
+    public static void text(WorldCtx ctx, double wx, double wy, double wz, String s, int color, float size,
+                            boolean throughWalls) {
         if (ctx.submits() == null) return;
         Minecraft mc = Minecraft.getInstance();
         Font font = mc.font;
@@ -38,10 +42,14 @@ public final class WorldRender {
         ps.pushPose();
         ps.translate(wx - cam.x, wy - cam.y, wz - cam.z);
         ps.mulPose(mc.gameRenderer.getMainCamera().rotation());
-        ps.scale(-0.025f * size, -0.025f * size, 0.025f * size);
+        // From 1.21 the camera's rotation is turned half a turn from before
+        // (Camera.setRotation), so the label is not mirrored on X any more, as
+        // Minecraft's own name tags (scale 0.025, -0.025, 0.025). Mirrored, it
+        // showed its back, which is not drawn: the label was invisible.
+        ps.scale(0.025f * size, -0.025f * size, 0.025f * size);
         float x = -font.width(s) / 2.0f;
         ctx.submits().submitText(ps, x, 0.0f, Component.literal(s).getVisualOrderText(), false,
-                Font.DisplayMode.NORMAL, 0xF000F0, color, 0, 0);
+                throughWalls ? Font.DisplayMode.SEE_THROUGH : Font.DisplayMode.NORMAL, 0xF000F0, color, 0, 0);
         ps.popPose();
     }
 

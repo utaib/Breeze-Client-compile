@@ -1412,6 +1412,10 @@ public final class AutoTest {
             return;
         }
         if (!t.isEnabled()) t.setEnabled(true);
+        // Pure magenta, which nothing else on the test screen is, so the
+        // screenshot's pixels say whether the label reached the screen.
+        dev.breeze.modules.TntCountdown.testColour(0xFFFF00FF);
+        tntPhase = 0;
         // Five blocks ahead, where the camera looks, so the screenshot shows the label.
         net.minecraft.world.phys.Vec3 ahead = mc.player.getViewVector(1f);
         double len = Math.max(0.01, Math.hypot(ahead.x, ahead.z));
@@ -1427,16 +1431,39 @@ public final class AutoTest {
         worldAt = System.currentTimeMillis();
     }
 
+    private static int tntPhase;
+    private static int tntDrawn;
+    private static String tntText = "";
+
     private static void tntStep(Minecraft mc, long age) {
-        if (age < 2_000) return;
-        shot(mc, "autotest-tnt");
-        int drawn = dev.breeze.modules.TntCountdown.lastDrawn();
-        String text = dev.breeze.modules.TntCountdown.lastText();
+        if (tntPhase == 0) {
+            if (age < 2_000) return;
+            shot(mc, "autotest-tnt");
+            tntDrawn = dev.breeze.modules.TntCountdown.lastDrawn();
+            tntText = dev.breeze.modules.TntCountdown.lastText();
+            tntPhase = 1;
+            return;
+        }
+        // Minecraft writes the screenshot on another thread (and from 1.21.6
+        // reads the frame back later): wait for a whole file, up to 6 s in
+        // (the fuse, 10 s, has 4 s left then).
+        java.nio.file.Path png = mc.gameDirectory.toPath().resolve("screenshots").resolve("autotest-tnt.png");
+        int magenta = -1;
+        String unread = "";
+        try {
+            magenta = dev.breeze.render.PngPixels.count(Files.readAllBytes(png), 0xFF00FF, 24);
+        } catch (Throwable t) {
+            if (age < 6_000) return;
+            unread = t.toString();
+        }
         double seconds = -1;
-        try { seconds = Double.parseDouble(text.replace(',', '.').replace("s", "")); } catch (Throwable ignored) {}
-        // Seconds and milliseconds by default (Breeze 1.1.0 directive): "8.950s".
-        boolean pass = drawn >= 1 && seconds > 5 && seconds < 10 && text.matches("\\d+\\.\\d{3}s");
-        log("tnt-check", "drawn", String.valueOf(drawn), "label", text, "pass", String.valueOf(pass));
+        try { seconds = Double.parseDouble(tntText.replace(',', '.').replace("s", "")); } catch (Throwable ignored) {}
+        // Seconds and milliseconds by default (Breeze 1.1.0 directive): "8.950s";
+        // and seen: the label's own pixels in the screenshot, not only a draw call.
+        boolean pass = tntDrawn >= 1 && seconds > 5 && seconds < 10 && tntText.matches("\\d+\\.\\d{3}s") && magenta >= 20;
+        log("tnt-check", "drawn", String.valueOf(tntDrawn), "label", tntText, "labelPixels", String.valueOf(magenta),
+                "unread", unread, "pass", String.valueOf(pass));
+        dev.breeze.modules.TntCountdown.testColour(0);
         net.minecraft.client.server.IntegratedServer server = mc.getSingleplayerServer();
         if (server != null) {
             server.execute(() -> {
