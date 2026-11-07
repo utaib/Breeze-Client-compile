@@ -1038,6 +1038,10 @@ public final class AutoTest {
                 net.minecraft.util.Mth.floor(mc.player.getZ()));
         outlineAt = eye.relative(facing, 2);
         placeBlocks(mc, eye.relative(facing), outlineAt, true);
+        // The player's own eye block too: standing in tall grass, the look
+        // starts inside the plant and Minecraft aims at it (run 42369334637,
+        // 1.21.10). The player stands in it, so it is never solid.
+        placeBlocks(mc, null, eye, false);
         double dx = outlineAt.getX() + 0.5 - mc.player.getX();
         double dz = outlineAt.getZ() + 0.5 - mc.player.getZ();
         double dy = outlineAt.getY() + 0.5 - mc.player.getEyeY();
@@ -1416,13 +1420,19 @@ public final class AutoTest {
         // screenshot's pixels say whether the label reached the screen.
         dev.breeze.modules.TntCountdown.testColour(0xFFFF00FF);
         tntPhase = 0;
-        // Five blocks ahead, where the camera looks, so the screenshot shows the label.
+        // Four blocks ahead at eye level, held still: a lit TNT jumps and
+        // falls, and on a slope or a cliff it left the picture (run
+        // 42369334637: 1.20.1, 1.21.1, 1.21.11). The label then sits a
+        // little above the middle of the screen, clear of the HUD, and shows
+        // through any block in front of it.
         net.minecraft.world.phys.Vec3 ahead = mc.player.getViewVector(1f);
         double len = Math.max(0.01, Math.hypot(ahead.x, ahead.z));
-        double x = mc.player.getX() + ahead.x / len * 5, y = mc.player.getY() + 1, z = mc.player.getZ() + ahead.z / len * 5;
+        double x = mc.player.getX() + ahead.x / len * 4, y = mc.player.getEyeY() - 0.5, z = mc.player.getZ() + ahead.z / len * 4;
         server.execute(() -> {
             net.minecraft.server.level.ServerLevel level = server.overworld();
             net.minecraft.world.entity.item.PrimedTnt tnt = new net.minecraft.world.entity.item.PrimedTnt(level, x, y, z, null);
+            tnt.setNoGravity(true);
+            tnt.setDeltaMovement(0, 0, 0);
             tnt.setFuse(200);
             level.addFreshEntity(tnt);
             testTnt = tnt;

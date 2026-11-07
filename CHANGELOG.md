@@ -65,8 +65,16 @@ it against what 2.17.0 to 2.23.1 did.
   check finds only its known false positives. First full run 42366744529
   (`6faf95c`, before the label fix): every job passed, `freelook-default`
   on all 34, the TNT label "7.850s" to "8.050s" on 33 (not offered on
-  1.21.9); its jars were not taken because of the invisible labels. The
-  run with the fix decides (UNVERIFIED until then).
+  1.21.9); its jars were not taken because of the invisible labels.
+  Second run 42369334637 (`8210e37`, the fix): the label's pixels were in
+  the screenshot on 1.21 to 26.3 (74 to 1124 of them; none in the first
+  run), so the fix works. Four jobs failed, each on the test's own
+  placing: on 1.20.1, 1.21.1 and 1.21.11 the lit TNT jumped and fell out
+  of the picture (a cliff, a slope), so its label had no pixels; on
+  1.21.10 the player stood in tall grass and Block Overlay's check aimed
+  at the plant. The self-test now holds its TNT still at eye level four
+  blocks ahead and clears the player's own eye block before the outline
+  check. The next run decides (UNVERIFIED until then).
 
 ## [2.23.1] - 2026-10-31
 
