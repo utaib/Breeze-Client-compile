@@ -116,6 +116,16 @@ const CROSSHAIR_CODES: Record<string, Record<string, string | number | boolean>>
   'BZC-AQADAgABAf8A_wD_AAAA_vg': { style: 'Cross', length: 3, thickness: 2, gap: 0, color: '#FF00FF00', dot: true, outline: false, outline_thickness: 1, outline_color: '#FF000000' },
 }
 
+/** A known code's settings, or the refusal Java gives (common/.../hud/Crosshair.java). */
+function crosshairCode(raw: unknown): Record<string, string | number | boolean> {
+  const code = String(raw ?? '').trim()
+  if (!code) throw new FixtureError('INVALID_PARAMS', 'Paste a crosshair code.')
+  if (!code.toUpperCase().startsWith('BZC-')) throw new FixtureError('INVALID_PARAMS', 'That is not a Breeze crosshair code. They start with BZC-')
+  const known = CROSSHAIR_CODES[code]
+  if (!known) throw new FixtureError('INVALID_PARAMS', 'That code is damaged or incomplete. Copy it again.')
+  return known
+}
+
 // Mirrors versions/1.20.1/src/main/java/dev/breeze/modules/DisplayName.java.
 const DISPLAY_NAME_NOTE = 'Only on this computer. Other players, the server and its staff still see your real name, and commands still use it. Chat lines a server writes as plain text keep your real name.'
 
@@ -490,12 +500,18 @@ function handle(action: Action, p: Record<string, unknown>): unknown {
       const code = Object.entries(CROSSHAIR_CODES).find(([, c]) => Object.entries(c).every(([k, v]) => now[k] === v))?.[0]
       return { code: code ?? 'BZC-AQAEAQICAf______AAAApS4' }
     }
+    case 'crosshair.decode': {
+      const known = crosshairCode(p.code)
+      return {
+        config: {
+          style: String(known.style), length: Number(known.length), thickness: Number(known.thickness), gap: Number(known.gap),
+          color: String(known.color), dot: Boolean(known.dot), outline: Boolean(known.outline),
+          outlineThickness: Number(known.outline_thickness), outlineColor: String(known.outline_color),
+        },
+      }
+    }
     case 'crosshair.import': {
-      const code = String(p.code ?? '').trim()
-      const known = CROSSHAIR_CODES[code]
-      if (!code) throw new FixtureError('INVALID_PARAMS', 'Paste a crosshair code.')
-      if (!code.toUpperCase().startsWith('BZC-')) throw new FixtureError('INVALID_PARAMS', 'That is not a Breeze crosshair code. They start with BZC-')
-      if (!known) throw new FixtureError('INVALID_PARAMS', 'That code is damaged or incomplete. Copy it again.')
+      const known = crosshairCode(p.code)
       const m = state.modules.find((x) => x.name === 'Custom Crosshair')!
       for (const s of m.settings) if (s.id in known) (s as { value: unknown }).value = known[s.id]
       return m

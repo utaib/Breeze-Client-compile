@@ -61,6 +61,7 @@ public final class BridgeActions {
         client("shield.choose");
         client("shield.openFolder");
         client("crosshair.export");
+        any("crosshair.decode");
         client("crosshair.import");
         any("account.get");
         io("cosmetics.state");

@@ -231,6 +231,19 @@ export interface CommandKeysState {
   max: number
 }
 
+/** A crosshair share code's settings, read before the code is used (crosshair.decode). Colours #AARRGGBB. */
+export interface CrosshairCode {
+  style: string
+  length: number
+  thickness: number
+  gap: number
+  color: string
+  dot: boolean
+  outline: boolean
+  outlineThickness: number
+  outlineColor: string
+}
+
 export type Role = 'owner' | 'developer' | 'creator' | 'user'
 
 export interface Account {
@@ -359,6 +372,7 @@ export interface ActionMap {
   'commandKeys.capture': [{ id: string }, Record<string, never>]
   'commandKeys.unbind': [{ id: string }, CommandKeysState]
   'crosshair.export': [Record<string, never>, { code: string }]
+  'crosshair.decode': [{ code: string }, { config: CrosshairCode }]
   'crosshair.import': [{ code: string }, ModuleInfo]
   'account.get': [Record<string, never>, Account]
   'cosmetics.state': [{ fresh?: boolean }, CosmeticState]

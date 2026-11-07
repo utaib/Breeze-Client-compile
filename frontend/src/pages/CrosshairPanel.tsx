@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { describeError, useApp } from '../app/state'
-import { argbCss, fromSettings, rects } from '../app/crosshair'
-import type { ModuleInfo } from '../bridge/types'
+import { argbCss, fromSettings, rects, summarize, type CrosshairConfig } from '../app/crosshair'
+import type { CrosshairCode, ModuleInfo } from '../bridge/types'
 import { Row } from '../ui/controls'
 
 // Room for the largest crosshair (gap 12, length 20, thickness 8, outline 3)
@@ -13,18 +13,18 @@ const BACKDROPS = [
   { id: 'cave', label: 'In a cave' },
 ]
 
-/** The Custom Crosshair as the game will draw it, redrawn as each setting changes. */
-export function CrosshairPreview({ module }: { module: ModuleInfo }) {
-  const shape = rects(fromSettings(module.settings))
+/** A crosshair over each backdrop, drawn by the game's rules. */
+function CrosshairPanes({ config, name }: { config: CrosshairConfig; name: string }) {
+  const shape = rects(config)
   return (
-    <div className="xhair-preview" aria-label="Crosshair preview" role="group">
+    <>
       {BACKDROPS.map((b) => (
         <figure key={b.id} className={`xhair-pane xhair-${b.id}`}>
           <svg
             viewBox={`${-REACH} ${-REACH} ${REACH * 2 + 1} ${REACH * 2 + 1}`}
             shapeRendering="crispEdges"
             role="img"
-            aria-label={`Crosshair ${b.label.toLowerCase()}`}
+            aria-label={`${name} ${b.label.toLowerCase()}`}
             data-rects={shape.length}
           >
             {shape.map(([x0, y0, x1, y1, color], i) => (
@@ -34,14 +34,24 @@ export function CrosshairPreview({ module }: { module: ModuleInfo }) {
           <figcaption>{b.label}</figcaption>
         </figure>
       ))}
+    </>
+  )
+}
+
+/** The Custom Crosshair as the game will draw it, redrawn as each setting changes. */
+export function CrosshairPreview({ module }: { module: ModuleInfo }) {
+  return (
+    <div className="xhair-preview" aria-label="Crosshair preview" role="group">
+      <CrosshairPanes config={fromSettings(module.settings)} name="Crosshair" />
     </div>
   )
 }
 
 /**
  * Share codes: make one from the crosshair, or use another player's. Codes
- * are made and checked in Java (crosshair.export, crosshair.import); a code
- * only ever changes the crosshair's own settings.
+ * are made and checked in Java (crosshair.export, crosshair.decode,
+ * crosshair.import); a pasted code is shown first and changes nothing until
+ * Use, and then only the crosshair's own settings.
  */
 export function CrosshairShare({ onApplied }: { onApplied: (m: ModuleInfo) => void }) {
   const { call, toast } = useApp()
@@ -49,6 +59,8 @@ export function CrosshairShare({ onApplied }: { onApplied: (m: ModuleInfo) => vo
   const [paste, setPaste] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  /** A code that was read and is shown, waiting for Use or Cancel. */
+  const [pending, setPending] = useState<{ code: string; config: CrosshairCode } | null>(null)
 
   const make = async () => {
     try {
@@ -67,14 +79,31 @@ export function CrosshairShare({ onApplied }: { onApplied: (m: ModuleInfo) => vo
     }
   }
 
-  const use = async () => {
-    if (!paste.trim() || busy) return
+  const preview = async () => {
+    const text = paste.trim()
+    if (!text || busy) return
     setBusy(true)
     setError(null)
     try {
-      const applied = await call('crosshair.import', { code: paste.trim() })
+      const read = await call('crosshair.decode', { code: text })
+      setPending({ code: text, config: read.config })
+    } catch (err) {
+      setPending(null)
+      setError(describeError(err))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const use = async () => {
+    if (!pending || busy) return
+    setBusy(true)
+    setError(null)
+    try {
+      const applied = await call('crosshair.import', { code: pending.code })
       onApplied(applied)
       setPaste('')
+      setPending(null)
       setCode(null)
       toast('Crosshair changed to the code\'s.')
     } catch (err) {
@@ -100,23 +129,38 @@ export function CrosshairShare({ onApplied }: { onApplied: (m: ModuleInfo) => vo
           label="Use a code"
           desc={error
             ? <span className="row-error" role="alert">{error}</span>
-            : 'Paste a code from another player. It changes the crosshair settings above and nothing else.'}
+            : 'Paste a code from another player to see its crosshair. Use changes the crosshair settings above and nothing else.'}
         >
           <div className="xhair-code">
             <input
               value={paste}
-              onChange={(e) => { setPaste(e.target.value); setError(null) }}
-              onKeyDown={(e) => e.key === 'Enter' && use()}
+              onChange={(e) => { setPaste(e.target.value); setError(null); setPending(null) }}
+              onKeyDown={(e) => e.key === 'Enter' && preview()}
               placeholder="BZC-..."
               aria-label="Crosshair code to use"
               className="mono"
               maxLength={200}
               spellCheck={false}
             />
-            <button className="btn btn-primary btn-sm" disabled={!paste.trim() || busy} onClick={use}>Use</button>
+            <button className="btn btn-secondary btn-sm" disabled={!paste.trim() || busy || pending !== null} onClick={preview}>Show</button>
           </div>
         </Row>
       </div>
+      {pending && (
+        <div className="xhair-incoming" role="group" aria-label="The code's crosshair">
+          <div className="xhair-incoming-panes">
+            <CrosshairPanes config={pending.config} name="The code's crosshair" />
+          </div>
+          <div className="xhair-incoming-side">
+            <p className="xhair-incoming-title">The code's crosshair</p>
+            <p className="xhair-incoming-desc">{summarize(pending.config)}</p>
+            <div className="xhair-incoming-actions">
+              <button className="btn btn-primary btn-sm" disabled={busy} onClick={use} autoFocus>Use</button>
+              <button className="btn btn-secondary btn-sm" disabled={busy} onClick={() => setPending(null)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   )
 }

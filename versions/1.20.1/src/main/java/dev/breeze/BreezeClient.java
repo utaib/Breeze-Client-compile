@@ -28,6 +28,11 @@ public class BreezeClient implements ClientModInitializer {
         // Before the player's config is applied: these are the values
         // "Reset" in the module settings goes back to.
         dev.breeze.web.ModuleJson.captureDefaults();
+        // Modules that start on for a player with nothing saved for them; the
+        // saved choice, when there is one, replaces this in load().
+        for (Module m : ModuleManager.getModules()) {
+            if (m.onByDefault()) m.setStateSilently(true);
+        }
         BreezeConfig.load();
         dev.breeze.commands.CommandKeyRunner.load();
         Theme.load();

@@ -249,6 +249,15 @@ case "$freelook" in
   '') fail "the self-test checked Free Look" ;;
   *) fail "Free Look did not turn the camera alone and restore it" ;;
 esac
+# The first start of this game folder: no saved config, so the defaults.
+fldefault=$(grep '"event":"freelook-default"' "$LOG" | head -1)
+say "free look default: $fldefault"
+case "$fldefault" in
+  '') say "SKIP: Free Look is not offered on this version" ;;
+  *'"saved":"true"'*) say "SKIP: a saved config decided Free Look's state ($fldefault)" ;;
+  *'"on":"true"'*) pass "Free Look was on for a player with nothing saved" ;;
+  *) fail "Free Look was off for a player with nothing saved" ;;
+esac
 crosshair=$(grep '"event":"crosshair-check"' "$LOG" | tail -1)
 say "crosshair: $crosshair"
 case "$crosshair" in
@@ -261,7 +270,7 @@ tnt=$(grep '"event":"tnt-check"' "$LOG" | tail -1)
 say "tnt: $tnt"
 case "$tnt" in
   *'"skipped"'*) say "SKIP: $tnt" ;;
-  *'"pass":"true"'*) pass "TNT Countdown labelled a lit TNT with the seconds its fuse has left" ;;
+  *'"pass":"true"'*) pass "TNT Countdown labelled a lit TNT with the seconds and milliseconds its fuse has left" ;;
   '') fail "the self-test checked TNT Countdown" ;;
   *) fail "TNT Countdown did not label a lit TNT with its seconds" ;;
 esac

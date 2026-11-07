@@ -7,6 +7,45 @@ fixes bump PATCH. `scripts/check-version.sh` keeps `gradle.properties`,
 Each entry says what was verified and how. Anything not verified is marked
 **UNVERIFIED**.
 
+## [2.24.0] - 2026-11-07
+
+The rest of the Breeze 1.1.0 directive's in-game items, after a re-read of
+it against what 2.17.0 to 2.23.1 did.
+
+- **TNT Countdown in seconds and milliseconds** ("3.250s"), as the
+  directive asks; Time shown as: Tenths of a second keeps the old "3.2s".
+  The label now grows with the distance (normal size up to 8 blocks, up to
+  three times at 24 blocks and beyond) so far timers stay readable and near
+  ones do not fill the screen; **Larger when far away** turns that off and
+  **Size** (50 to 200 %) sets the base size. Each TNT and TNT minecart keeps
+  its own fuse, as before. Common `Countdown` (label and size rules, two
+  JUnit tests); every version's `WorldRender.text` takes a size.
+- **Free Look on by default for new players** ("enabled by default if that
+  is compatible"): `Module.onByDefault()`, applied before the saved config
+  is read, so a saved choice always wins. Players coming from 2.16.0 (no
+  Free Look) get it on: it only acts while Left Alt is held, and Left Alt
+  gives way when another binding already has it (since 2.18.0).
+- **A crosshair code is shown before it is used** ("show the resulting
+  settings or a preview before applying them"): paste a code, Show draws
+  the code's crosshair over the sky and in a cave with its settings in one
+  line ("Cross, length 3, thickness 2, gap 0, centre dot, no outline"); Use
+  applies it, Cancel or editing the code drops it. New bridge action
+  `crosshair.decode` (reads only, any thread; `Crosshair.json`, JUnit
+  against `contract/crosshair.json`).
+- Hitboxes and the directive's "A-through-G" options: the repository gives
+  those letters no meaning, so, as the directive says, nothing was
+  invented; the seven Show switches (players, hostile mobs, animals and other
+  mobs, items and experience orbs, projectiles, boats, minecarts and the
+  rest, and yourself in third person) are the categories.
+- Self-test: `freelook-default` (Free Look on at the first start of a game
+  folder with no saved config); `tnt-check` now requires the
+  milliseconds format.
+- Verified here: common 244 (3 new), Vitest 46 (2 new), Playwright 75 (one
+  new, two changed; Show, Use, Cancel), `npm run build`; the offline Java
+  check finds only its known false positives. The 34 versions are not built
+  yet: compile, drawing and the self-test results are UNVERIFIED until the
+  run.
+
 ## [2.23.1] - 2026-10-31
 
 - **Fix: the Custom Shield showed its back on 26.1 to 26.3.** Up to
@@ -19,6 +58,10 @@ Each entry says what was verified and how. Anything not verified is marked
   its plain back where the picture should be (2.23.0's screenshots on all
   five 26.x versions). The 26.x hook now undoes the layer's turn first.
   1.17 to 1.21.11 are unchanged.
+- **Run 41204227894 (`a81df18`, all 34, real Fabric installs): every job
+  passed**, Custom Shield included, and this time the screenshots show the
+  picture on 26.1 to 26.3 as on every other version (red pixels counted on
+  all 34 with ImageMagick; 26.1 looked at). Jars in `Breeze Jars/2.23.1/`.
 
 ## [2.23.0] - 2026-10-31
 

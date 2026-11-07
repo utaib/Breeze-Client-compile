@@ -344,3 +344,10 @@
 .shield-pick-row.on .shield-pick-dot { border-color: var(--accent); background: radial-gradient(circle, var(--accent) 0 45%, transparent 50%); }
 .shield-pick-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .shield-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.xhair-incoming { display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-start; width: fit-content; max-width: 100%; margin-top: 0.75rem; padding: 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); }
+.xhair-incoming-panes { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+.xhair-incoming-panes .xhair-pane svg { width: 9rem; height: 9rem; }
+.xhair-incoming-side { display: grid; gap: 0.375rem; align-content: start; flex: 0 1 17rem; min-width: 12rem; }
+.xhair-incoming-title { margin: 0; font-weight: 600; font-size: 0.85rem; color: var(--text-primary); }
+.xhair-incoming-desc { margin: 0; font-size: 0.78rem; color: var(--text-secondary); }
+.xhair-incoming-actions { display: flex; gap: 0.5rem; margin-top: 0.25rem; }

@@ -54,6 +54,16 @@ public class FreeLook extends Module {
         return true;
     }
 
+    /**
+     * On for new players (Breeze 1.1.0 directive: "enabled by default if that
+     * is compatible"): holding Left Alt only looks around, and the key gives
+     * way when another binding already has it (KeybindManager).
+     */
+    @Override
+    public boolean onByDefault() {
+        return true;
+    }
+
     @Override
     protected void onTick(Minecraft mc) {
         KeyMapping key = getKeyMapping();

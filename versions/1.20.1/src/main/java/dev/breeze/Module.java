@@ -104,6 +104,14 @@ public abstract class Module {
      */
     public boolean keyIsAction() { return false; }
 
+    /**
+     * Whether a player who has no saved state for this module starts with it
+     * on (a new player, or a save from before the module existed). A saved
+     * choice always wins, so turning a module on by default never overrides
+     * what a player already chose.
+     */
+    public boolean onByDefault() { return false; }
+
     public final KeyMapping getKeyMapping() { return keyMapping; }
     public final void setKeyMapping(KeyMapping keyMapping) { this.keyMapping = keyMapping; }
 

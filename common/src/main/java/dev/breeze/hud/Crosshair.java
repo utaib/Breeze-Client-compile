@@ -1,5 +1,6 @@
 package dev.breeze.hud;
 
+import com.google.gson.JsonObject;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -146,6 +147,30 @@ public final class Crosshair {
         }
         return new Decoded(new Config(STYLES[style], length, thickness, gap, getInt(b, 7),
                 (flags & 1) != 0, (flags & 2) != 0, outline, getInt(b, 11)), null);
+    }
+
+    /**
+     * The settings for the menu's preview of a code before it is used
+     * (crosshair.decode): the names the menu's crosshair code uses, colours
+     * as #AARRGGBB, numbers in range.
+     */
+    public static JsonObject json(Config raw) {
+        Config c = raw.clamped();
+        JsonObject o = new JsonObject();
+        o.addProperty("style", c.style());
+        o.addProperty("length", c.length());
+        o.addProperty("thickness", c.thickness());
+        o.addProperty("gap", c.gap());
+        o.addProperty("color", hex(c.color()));
+        o.addProperty("dot", c.dot());
+        o.addProperty("outline", c.outline());
+        o.addProperty("outlineThickness", c.outlineThickness());
+        o.addProperty("outlineColor", hex(c.outlineColor()));
+        return o;
+    }
+
+    private static String hex(int argb) {
+        return String.format(Locale.ROOT, "#%08X", argb);
     }
 
     // ── Helpers ─────────────────────────────────────────────────────────

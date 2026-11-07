@@ -21,6 +21,11 @@ public final class WorldRender {
 
     /** A label facing the camera at a world position, drawn through walls at full brightness. */
     public static void text(WorldCtx ctx, double wx, double wy, double wz, String s, int color) {
+        text(ctx, wx, wy, wz, s, color, 1.0f);
+    }
+
+    /** As {@link #text(WorldCtx, double, double, double, String, int)}, {@code size} times as large. */
+    public static void text(WorldCtx ctx, double wx, double wy, double wz, String s, int color, float size) {
         if (ctx.consumers() == null) return;
         Minecraft mc = Minecraft.getInstance();
         Font font = mc.font;
@@ -29,7 +34,7 @@ public final class WorldRender {
         ps.pushPose();
         ps.translate(wx - cam.x, wy - cam.y, wz - cam.z);
         ps.mulPose(mc.gameRenderer.getMainCamera().rotation());
-        ps.scale(-0.025f, -0.025f, 0.025f);
+        ps.scale(-0.025f * size, -0.025f * size, 0.025f * size);
         float x = -font.width(s) / 2.0f;
         font.drawInBatch(s, x, 0.0f, color, false, ps.last().pose(), ctx.consumers(), Font.DisplayMode.NORMAL, 0, 0xF000F0);
         ps.popPose();

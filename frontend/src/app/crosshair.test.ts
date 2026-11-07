@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { argbCss, fromSettings, rects, type CrosshairConfig } from './crosshair'
+import { argbCss, fromSettings, rects, summarize, type CrosshairConfig } from './crosshair'
 import type { ModuleSetting } from '../bridge/types'
 
 // The same examples the game's Java is tested against.
@@ -43,5 +43,16 @@ describe('crosshair preview shape', () => {
   it('turns ARGB into a CSS colour', () => {
     expect(argbCss('#80FF0000')).toBe('rgba(255, 0, 0, 0.502)')
     expect(argbCss('nonsense')).toBe('transparent')
+  })
+})
+
+describe('a share code in one line', () => {
+  const base: CrosshairConfig = { style: 'Cross', length: 3, thickness: 2, gap: 0, color: '#FF00FF00', dot: true, outline: false, outlineThickness: 1, outlineColor: '#FF000000' }
+  it('names the settings the code would set', () => {
+    expect(summarize(base)).toBe('Cross, length 3, thickness 2, gap 0, centre dot, no outline')
+    expect(summarize({ ...base, style: 't', dot: false, outline: true, outlineThickness: 2 })).toBe('T shape, length 3, thickness 2, gap 0, outline 2')
+  })
+  it('leaves out what a dot has no use for, and shows numbers in range', () => {
+    expect(summarize({ ...base, style: 'Dot', thickness: 30 })).toBe('Dot, thickness 8, no outline')
   })
 })

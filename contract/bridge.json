@@ -68,6 +68,7 @@
     "shield.openFolder": { "thread": "client", "params": {}, "summary": "Open the breeze_shields folder (made if missing) in the system's file manager." },
 
     "crosshair.export": { "thread": "client", "params": {}, "summary": "The Custom Crosshair's settings as a share code (contract/crosshair.json): { code }." },
+    "crosshair.decode": { "thread": "any", "params": { "code": "string" }, "summary": "Read a share code without using it, for a preview: { config } with style, length, thickness, gap, color, dot, outline, outlineThickness, outlineColor (colours #AARRGGBB). Refused with the reason (INVALID) as crosshair.import is. Changes nothing." },
     "crosshair.import": { "thread": "client", "params": { "code": "string" }, "summary": "Take a share code's crosshair settings, and nothing else. Refused with the reason (INVALID) when the code is damaged, foreign or from a newer Breeze. Returns the module." },
 
     "account.get": { "thread": "any", "params": {}, "summary": "The Minecraft profile and the state of the Breeze sign-in the launcher handed over." },

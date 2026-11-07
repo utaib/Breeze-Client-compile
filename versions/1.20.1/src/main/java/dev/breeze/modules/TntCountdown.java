@@ -3,7 +3,7 @@ package dev.breeze.modules;
 import dev.breeze.Category;
 import dev.breeze.Module;
 import dev.breeze.compat.Tnt;
-import dev.breeze.hud.Fmt;
+import dev.breeze.hud.Countdown;
 import dev.breeze.render.Frame;
 import dev.breeze.render.WorldCtx;
 import dev.breeze.render.WorldRender;
@@ -12,10 +12,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.Entity;
 
 /**
- * The seconds left above each lit TNT and lit TNT minecart in view range
- * (the TNT Timer HUD shows only the nearest one). Read from the fuse the game
- * already counts down on the client; drawn facing the camera, through
- * walls, coloured by how close it is.
+ * The time left above each lit TNT and lit TNT minecart in view range (the
+ * TNT Timer HUD shows only the nearest one), in seconds and milliseconds
+ * ("3.250s"; tenths if the player prefers). Read from the fuse the game
+ * already counts down on the client, each TNT its own; drawn facing the
+ * camera, through walls, coloured by how close it is, and larger with the
+ * distance (up to three times) so far ones stay readable (Countdown).
  */
 public class TntCountdown extends Module {
 
@@ -26,12 +28,16 @@ public class TntCountdown extends Module {
     private final Setting.Color safe = add(new Setting.Color("safe", "More than 2 seconds", "Colours", 0xFF55FF55));
     private final Setting.Color soon = add(new Setting.Color("soon", "1 to 2 seconds", "Colours", 0xFFFFDD55));
     private final Setting.Color now = add(new Setting.Color("now", "Under a second", "Colours", 0xFFFF5555));
+    private final Setting.Mode format = add(new Setting.Mode("format", "Time shown as", "Text",
+            new String[]{"Seconds and milliseconds", "Tenths of a second"}, 0));
+    private final Setting.Int size = add(new Setting.Int("size", "Size", "Text", 100, 50, 200, "%"));
+    private final Setting.Bool grow = add(new Setting.Bool("grow", "Larger when far away", "Text", true));
 
     private static volatile int lastDrawn;
     private static volatile String lastText = "";
 
     public TntCountdown() {
-        super("TNT Countdown", Category.VISUAL, "Shows the seconds left above each lit TNT and TNT minecart.", KEY_NONE);
+        super("TNT Countdown", Category.VISUAL, "Shows the time left above each lit TNT and TNT minecart.", KEY_NONE);
         instance = this;
     }
 
@@ -44,6 +50,8 @@ public class TntCountdown extends Module {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null || mc.player == null || !ctx.ready()) return;
         float pt = Frame.partialTick();
+        boolean tenths = format.index == 1;
+        net.minecraft.world.phys.Vec3 cam = ctx.cam();
         double maxSq = (double) range.value * range.value;
         int drawn = 0;
         for (Entity e : mc.level.entitiesForRendering()) {
@@ -56,8 +64,9 @@ public class TntCountdown extends Module {
             double x = e.xo + (e.getX() - e.xo) * pt;
             double y = e.yo + (e.getY() - e.yo) * pt + e.getBbHeight() + 0.5;
             double z = e.zo + (e.getZ() - e.zo) * pt;
-            String text = Fmt.d1(seconds);
-            WorldRender.text(ctx, x, y, z, text, colour);
+            String text = Countdown.label(seconds, tenths);
+            double distance = Math.sqrt((x - cam.x) * (x - cam.x) + (y - cam.y) * (y - cam.y) + (z - cam.z) * (z - cam.z));
+            WorldRender.text(ctx, x, y, z, text, colour, Countdown.size(distance, grow.value, size.value));
             lastText = text;
             drawn++;
         }

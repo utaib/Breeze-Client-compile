@@ -309,6 +309,14 @@ final class Handlers {
             o.addProperty("code", dev.breeze.hud.Crosshair.encode(c.config()));
             return o;
         });
+        on(r, "crosshair.decode", p -> {
+            // Only reads the code: the menu shows what it would change first.
+            dev.breeze.hud.Crosshair.Decoded d = dev.breeze.hud.Crosshair.decode(p.str("code", 200));
+            if (!d.ok()) throw BridgeException.invalid(d.error());
+            JsonObject o = new JsonObject();
+            o.add("config", dev.breeze.hud.Crosshair.json(d.config()));
+            return o;
+        });
         on(r, "crosshair.import", p -> {
             dev.breeze.modules.CustomCrosshair c = dev.breeze.modules.CustomCrosshair.get();
             if (c == null) throw BridgeException.unavailable("The Custom Crosshair is not here.");

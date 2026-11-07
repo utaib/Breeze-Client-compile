@@ -115,6 +115,14 @@ public final class AutoTest {
             return;
         }
         log("start", "dir", dir.toString());
+        // Free Look starts on for a player with no saved state (Module
+        // .onByDefault); the config has been read by now, so this is what a
+        // new player gets.
+        Module freeLook = module("Free Look");
+        if (freeLook != null) {
+            log("freelook-default", "on", String.valueOf(freeLook.isEnabled()),
+                    "saved", String.valueOf(Files.exists(dev.breeze.config.BreezeConfig.path())));
+        }
         Targets.enable();
         if (STUB) {
             // The stand-in API (scripts/ci/stub-api.mjs) serves this as every
@@ -1425,8 +1433,9 @@ public final class AutoTest {
         int drawn = dev.breeze.modules.TntCountdown.lastDrawn();
         String text = dev.breeze.modules.TntCountdown.lastText();
         double seconds = -1;
-        try { seconds = Double.parseDouble(text.replace(',', '.')); } catch (Throwable ignored) {}
-        boolean pass = drawn >= 1 && seconds > 5 && seconds < 10;
+        try { seconds = Double.parseDouble(text.replace(',', '.').replace("s", "")); } catch (Throwable ignored) {}
+        // Seconds and milliseconds by default (Breeze 1.1.0 directive): "8.950s".
+        boolean pass = drawn >= 1 && seconds > 5 && seconds < 10 && text.matches("\\d+\\.\\d{3}s");
         log("tnt-check", "drawn", String.valueOf(drawn), "label", text, "pass", String.valueOf(pass));
         net.minecraft.client.server.IntegratedServer server = mc.getSingleplayerServer();
         if (server != null) {

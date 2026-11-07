@@ -80,3 +80,19 @@ export function argbCss(hex: string): string {
   const a = parseInt(n.slice(0, 2), 16) / 255
   return `rgba(${parseInt(n.slice(2, 4), 16)}, ${parseInt(n.slice(4, 6), 16)}, ${parseInt(n.slice(6, 8), 16)}, ${a.toFixed(3)})`
 }
+
+/**
+ * A crosshair's settings in one line, for the preview of a share code before
+ * it is used: "Cross, length 3, thickness 2, gap 0, centre dot, no outline".
+ * Numbers are shown as the game draws them (in range).
+ */
+export function summarize(raw: CrosshairConfig): string {
+  const style = STYLES.find((s) => s.toLowerCase() === raw.style.toLowerCase()) ?? 'Cross'
+  const parts: string[] = [style === 'T' ? 'T shape' : style]
+  if (style !== 'Dot') parts.push(`length ${clamp(raw.length, RANGE.length)}`)
+  parts.push(`thickness ${clamp(raw.thickness, RANGE.thickness)}`)
+  if (style !== 'Dot') parts.push(`gap ${clamp(raw.gap, RANGE.gap)}`)
+  if (style !== 'Dot' && raw.dot) parts.push('centre dot')
+  parts.push(raw.outline ? `outline ${clamp(raw.outlineThickness, RANGE.outlineThickness)}` : 'no outline')
+  return parts.join(', ')
+}

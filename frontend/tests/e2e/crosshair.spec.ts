@@ -8,7 +8,7 @@ async function openCrosshair(page: Page) {
   await expect(page.getByRole('heading', { level: 1, name: 'Custom Crosshair' })).toBeVisible()
 }
 
-const preview = (page: Page) => page.getByRole('img', { name: 'Crosshair over the sky' })
+const preview = (page: Page) => page.getByRole('img', { name: 'Crosshair over the sky', exact: true })
 
 test('the preview redraws as each setting changes', async ({ page }, info) => {
   const opened = await open(page)
@@ -39,7 +39,7 @@ test('the preview redraws as each setting changes', async ({ page }, info) => {
   opened.assertClean()
 })
 
-test('a code is made, and another player\'s code changes only the crosshair', async ({ page }) => {
+test('a code is made, and another player\'s code is shown first, then changes only the crosshair', async ({ page }, info) => {
   await open(page)
   await openCrosshair(page)
   await page.getByRole('button', { name: 'Make a code' }).click()
@@ -47,32 +47,68 @@ test('a code is made, and another player\'s code changes only the crosshair', as
   expect((await calls(page, 'crosshair.export')).length).toBe(1)
 
   await page.getByRole('textbox', { name: 'Crosshair code to use' }).fill('  BZC-AQADAgABAf8A_wD_AAAA_vg ')
-  await page.getByRole('button', { name: 'Use', exact: true }).click()
+  await page.getByRole('button', { name: 'Show', exact: true }).click()
+  // The code's crosshair is drawn and described; nothing has changed yet.
+  const incoming = page.getByRole('group', { name: 'The code\'s crosshair' })
+  await expect(incoming.getByRole('img', { name: 'The code\'s crosshair over the sky' })).toHaveAttribute('data-rects', '5')
+  await expect(incoming.getByText('Cross, length 3, thickness 2, gap 0, centre dot, no outline')).toBeVisible()
+  await expect(preview(page)).toHaveAttribute('data-rects', '8')
+  expect(await calls(page, 'crosshair.import')).toEqual([])
+  expect((await calls(page, 'crosshair.decode')).at(-1)?.params).toEqual({ code: 'BZC-AQADAgABAf8A_wD_AAAA_vg' })
+  await snap(page, info, 'crosshair-code-preview')
+  await assertNoOverflow(page)
+
+  await incoming.getByRole('button', { name: 'Use', exact: true }).click()
   await expect.poll(async () => (await calls(page, 'crosshair.import')).at(-1)?.params).toEqual({ code: 'BZC-AQADAgABAf8A_wD_AAAA_vg' })
   // Green, thick, centre dot, no outline: four arms and the dot.
   await expect(preview(page)).toHaveAttribute('data-rects', '5')
   await expect(page.getByRole('switch', { name: 'Centre dot' })).toHaveAttribute('aria-checked', 'true')
   await expect(page.getByRole('textbox', { name: 'Colour', exact: true })).toHaveValue('#FF00FF00')
   await expect(page.getByRole('textbox', { name: 'Crosshair code to use' })).toHaveValue('')
+  await expect(incoming).toHaveCount(0)
   // Only the crosshair's own settings moved.
   expect(await calls(page, 'modules.setSetting')).toEqual([])
+})
+
+test('Cancel, or changing the code, leaves the crosshair as it was', async ({ page }) => {
+  await open(page)
+  await openCrosshair(page)
+  const field = page.getByRole('textbox', { name: 'Crosshair code to use' })
+  const incoming = page.getByRole('group', { name: 'The code\'s crosshair' })
+  await field.fill('BZC-AQADAgABAf8A_wD_AAAA_vg')
+  await field.press('Enter')
+  await expect(incoming).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Show', exact: true })).toBeDisabled()
+  await incoming.getByRole('button', { name: 'Cancel' }).click()
+  await expect(incoming).toHaveCount(0)
+  await expect(field).toHaveValue('BZC-AQADAgABAf8A_wD_AAAA_vg')
+
+  await page.getByRole('button', { name: 'Show', exact: true }).click()
+  await expect(incoming).toBeVisible()
+  await field.fill('BZC-AQADAgABAf8A_wD_AAAA_v')
+  await expect(incoming).toHaveCount(0)
+  expect(await calls(page, 'crosshair.import')).toEqual([])
+  await expect(preview(page)).toHaveAttribute('data-rects', '8')
+  await expect(page.getByRole('switch', { name: 'Centre dot' })).toHaveAttribute('aria-checked', 'false')
 })
 
 test('a damaged or foreign code is refused with the reason, and nothing changes', async ({ page }) => {
   await open(page)
   await openCrosshair(page)
   const field = page.getByRole('textbox', { name: 'Crosshair code to use' })
-  const use = page.getByRole('button', { name: 'Use', exact: true })
-  await expect(use).toBeDisabled()
+  const show = page.getByRole('button', { name: 'Show', exact: true })
+  await expect(show).toBeDisabled()
 
   await field.fill('hello')
-  await use.click()
+  await show.click()
   await expect(page.getByRole('alert')).toHaveText('That is not a Breeze crosshair code. They start with BZC-')
 
   await field.fill('BZC-AQAFAQICAf______AAAApS4')
   await field.press('Enter')
   await expect(page.getByRole('alert')).toHaveText('That code is damaged or incomplete. Copy it again.')
+  await expect(page.getByRole('group', { name: 'The code\'s crosshair' })).toHaveCount(0)
   await expect(preview(page)).toHaveAttribute('data-rects', '8')
+  expect(await calls(page, 'crosshair.import')).toEqual([])
 
   // Typing again clears the reason.
   await field.fill('BZC-')

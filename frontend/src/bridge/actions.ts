@@ -18,7 +18,7 @@ const ALL: Record<Action, true> = {
   'packs.list': true, 'packs.apply': true, 'packs.openFolder': true,
   'shield.state': true, 'shield.choose': true, 'shield.openFolder': true,
   'commandKeys.list': true, 'commandKeys.save': true, 'commandKeys.remove': true, 'commandKeys.capture': true, 'commandKeys.unbind': true,
-  'crosshair.export': true, 'crosshair.import': true,
+  'crosshair.export': true, 'crosshair.decode': true, 'crosshair.import': true,
   'cosmetics.state': true, 'cosmetics.equipCape': true, 'cosmetics.equipModel': true, 'cosmetics.unequipModel': true,
   'friends.list': true, 'friends.request': true, 'friends.respond': true, 'friends.remove': true,
   'hosting.state': true, 'hosting.start': true, 'hosting.stop': true, 'hosting.join': true,

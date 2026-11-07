@@ -96,6 +96,27 @@ class CrosshairTest {
     }
 
     @Test
+    void aCodeShowsItsSettingsBeforeItIsUsed() throws Exception {
+        // What crosshair.decode hands the menu: every example's own settings,
+        // colours as #AARRGGBB, under the names the menu's preview reads.
+        for (JsonElement e : contract().getAsJsonArray("examples")) {
+            JsonObject ex = e.getAsJsonObject();
+            JsonObject want = ex.getAsJsonObject("config").deepCopy();
+            want.addProperty("color", "#" + want.get("color").getAsString().toUpperCase());
+            want.addProperty("outlineColor", "#" + want.get("outlineColor").getAsString().toUpperCase());
+            Crosshair.Decoded d = Crosshair.decode(ex.get("code").getAsString());
+            assertTrue(d.ok(), ex.get("name").getAsString());
+            assertEquals(want, Crosshair.json(d.config()), ex.get("name").getAsString());
+        }
+        // Out of range is shown as it would be drawn.
+        JsonObject wild = Crosshair.json(new Crosshair.Config("Star", 500, 0, -4, 0x80FF0000, false, false, 9, 0));
+        assertEquals("Cross", wild.get("style").getAsString());
+        assertEquals(Crosshair.LENGTH_MAX, wild.get("length").getAsInt());
+        assertEquals("#80FF0000", wild.get("color").getAsString());
+        assertEquals("#00000000", wild.get("outlineColor").getAsString());
+    }
+
+    @Test
     void everyStyleAndSizeRoundTrips() {
         for (String style : Crosshair.STYLES)
             for (int t = Crosshair.THICKNESS_MIN; t <= Crosshair.THICKNESS_MAX; t++)
