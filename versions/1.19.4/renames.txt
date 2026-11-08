@@ -1,0 +1,5 @@
+# Minecraft before 1.20 has no GuiGraphics: drawing takes a PoseStack and
+# GuiComponent's static methods. Breeze's own GuiGraphics (compat/GuiGraphics)
+# offers the calls Breeze makes, so the rest of the source stays the same
+# (gradle/version.gradle, "Sources").
+net.minecraft.client.gui.GuiGraphics dev.breeze.compat.GuiGraphics
