@@ -31,7 +31,18 @@ Each entry says what was verified and how. Anything not verified is marked
   test only), and the driver checks the rectangles fell to under a third
   and logs both frame rates (software rendering on the build servers, so
   they compare the two drawings, not a player's computer).
-- Verified here: common tests (255). In-game results: see the run below.
+- Verified: common tests (255) here; **run 42512476981 on the build
+  repository (`90a0210`, all 34): every job passed**, jars in
+  `Breeze Jars/2.24.1/`. The measurement on the 14 native versions (1.17 to
+  1.19.4, 1.20, 1.20.5, 1.21.9, 26.1): 4,635 rectangles a frame became 573;
+  the menu's own drawing time went from 5.7 to 29.5 ms a frame to 0.7 to
+  7.6 ms (26.1: 12.9 to 0.8 ms; 1.20: 15.4 to 1.6 ms; 1.18.1: 29.5 to
+  7.6 ms); frames with the menu open rose everywhere not already at 60
+  (26.1: 32 to 57 fps; 1.20.5: 34 to 60; 1.17: 20 to 28). Software
+  rendering on the build servers, old and new measured one after the
+  other in the same game; a player's graphics card is **UNVERIFIED**.
+  Screenshots of the menu, module settings and Wardrobe on 26.1 and 1.20
+  look as before.
 
 ## [2.24.0] - 2026-11-07
 

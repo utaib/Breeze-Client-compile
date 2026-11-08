@@ -19,6 +19,15 @@
 //   mcef_bundled        true: the build travels inside Breeze's jar (Fabric
 //                       nested jar), for versions the launcher installs no
 //                       browser on
+//   mcef_minecraft      only with mcef_bundled: the Minecraft range written
+//                       into the bundled browser's own fabric.mod.json, for a
+//                       version its author built for the next patch release
+//                       only (26.1 runs Rinku's 26.1.1 build). The rest of
+//                       the jar is unchanged (LGPL-2.1+ allows the edit)
+//   mcef_relax          with mcef_minecraft: the browser's other dependencies
+//                       (comma-separated mod ids, such as fabric-api) that
+//                       become "*", when its author asked for a newer build
+//                       than this Minecraft version has
 //   obfuscated          false from 26.1: no mappings and no remapping
 //   source_chain        folders under versions/ whose src/main make up this
 //                       version's source, oldest first (see "Sources")
@@ -144,7 +153,58 @@ if (chain == [project.name]) {
     tasks.named('sourcesJar') { dependsOn merge }
 }
 
+// A browser build for the next patch release of Minecraft, with only the
+// Minecraft range in its fabric.mod.json changed (mcef_minecraft, mcef_relax).
+// Fabric checks a nested mod's dependencies like any other, so the build its
+// author made for 26.1.1 would stop 26.1 from starting. Written once into a
+// folder repository under build/, then used by its own coordinates for
+// compiling, the development client and the nested jar alike.
+def patchedRepo = layout.buildDirectory.dir('patched-browser').get().asFile
+ext.patchedBrowser = { String coords ->
+    def (group, name, version) = coords.split(':')
+    def patchedVersion = "${version}-mc${mc}"
+    def dir = new File(patchedRepo, "breeze/patched/${name}/${patchedVersion}")
+    def jar = new File(dir, "${name}-${patchedVersion}.jar")
+    if (!jar.isFile()) {
+        def original = configurations.detachedConfiguration(dependencies.create(coords))
+        original.transitive = false
+        def source = original.singleFile
+        dir.mkdirs()
+        def relax = (project.findProperty('mcef_relax') ?: '').toString().split(',')*.trim().findAll { it }
+        def tmp = new File(dir, jar.name + '.tmp')
+        new java.util.zip.ZipFile(source).withCloseable { zip ->
+            new java.util.zip.ZipOutputStream(new FileOutputStream(tmp)).withCloseable { out ->
+                zip.entries().each { e ->
+                    out.putNextEntry(new java.util.zip.ZipEntry(e.name))
+                    if (e.name == 'fabric.mod.json') {
+                        def meta = new groovy.json.JsonSlurper().parse(zip.getInputStream(e))
+                        meta.depends = meta.depends ?: [:]
+                        meta.depends.minecraft = project.mcef_minecraft
+                        relax.each { id -> if (meta.depends.containsKey(id)) meta.depends[id] = '*' }
+                        out.write(groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(meta)).getBytes('UTF-8'))
+                    } else if (!e.isDirectory()) {
+                        zip.getInputStream(e).withCloseable { out << it }
+                    }
+                    out.closeEntry()
+                }
+            }
+        }
+        tmp.renameTo(jar)
+        new File(dir, "${name}-${patchedVersion}.pom").text = """<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"><modelVersion>4.0.0</modelVersion>
+<groupId>breeze.patched</groupId><artifactId>${name}</artifactId><version>${patchedVersion}</version></project>
+"""
+        logger.lifecycle("[breeze] ${coords}: Minecraft range set to ${project.mcef_minecraft}" + (relax ? ", ${relax.join(', ')} relaxed" : ''))
+    }
+    return "breeze.patched:${name}:${patchedVersion}"
+}
+
 repositories {
+    maven {
+        name = 'PatchedBrowser'
+        url = patchedRepo
+        content { includeGroup 'breeze.patched' }
+    }
     maven { name = 'Fabric'; url = 'https://maven.fabricmc.net/' }
     // MCEF, the embedded browser, as published on Modrinth.
     maven {
@@ -177,6 +237,7 @@ dependencies {
     def mcef = project.findProperty('mcef_version')
     if (mcef) {
         def coords = "maven.modrinth:${project.findProperty('mcef_project') ?: 'mcef'}:${mcef}"
+        if (project.findProperty('mcef_minecraft')) coords = patchedBrowser(coords)
         add(obfuscated ? 'modCompileOnly' : 'compileOnly', coords)
         add(obfuscated ? 'modLocalRuntime' : 'localRuntime', coords)
         // Launcher 1.0.27 installs MCEF on the ten versions MCEF itself
