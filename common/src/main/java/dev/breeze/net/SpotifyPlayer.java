@@ -53,7 +53,18 @@ public final class SpotifyPlayer {
         BLOCKED,
         /** Connected and readable. */
         READY,
+        /**
+         * The Spotify app on this computer, read and controlled directly
+         * ({@link LocalSpotify}): the Web API is not usable for this player
+         * ({@link State#blocked} says why: NOT_SIGNED_IN, NOT_CONFIGURED,
+         * NOT_CONNECTED, NOT_REGISTERED, FORBIDDEN). Play/pause, next and
+         * previous only; no search, playlists, devices, seek or volume.
+         */
+        LOCAL,
     }
+
+    /** The device name a local reading shows ("on this computer"). */
+    public static final String LOCAL_DEVICE = "this computer";
 
     public static final class Track {
         public final String title;
@@ -167,7 +178,33 @@ public final class SpotifyPlayer {
 
         /** Whether commands are worth offering (Premium known or unknown, and not refused outright). */
         public boolean canControl() {
+            if (phase == Phase.LOCAL) return deviceName != null;
             return phase == Phase.READY && !Boolean.FALSE.equals(premium);
+        }
+
+        /** Whether the full controls (seek, volume, shuffle, search) are there: the Web API. */
+        public boolean full() {
+            return phase == Phase.READY;
+        }
+
+        /** A local reading applied; why the Web API is not used stays in blocked. */
+        State withLocal(LocalSpotify.Reading r, long now) {
+            Track t = r.hasTrack() ? new Track(r.title, r.artist == null ? "" : r.artist, r.album, null, r.artworkUrl,
+                    Math.max(0, r.durationMs)) : null;
+            boolean known = r.positionMs >= 0 && t != null && t.durationMs > 0;
+            return new State(Phase.LOCAL, blocked, premium, displayName, Boolean.TRUE.equals(r.playing),
+                    known ? r.positionMs : 0, now, false, "off", -1, false, r.present ? LOCAL_DEVICE : null, null, t,
+                    message, messageAt, false);
+        }
+
+        State withLocalPlaying(boolean playing, long now) {
+            return new State(Phase.LOCAL, blocked, premium, displayName, playing, progressNow(now), now, false, "off",
+                    -1, false, deviceName, null, track, message, messageAt, false);
+        }
+
+        State withWhy(String why, Boolean premium, String displayName) {
+            return new State(Phase.LOCAL, why, premium, displayName, playing, progressMs, readAt, false, "off", -1,
+                    false, deviceName, null, track, message, messageAt, false);
         }
 
         State withPlayback(boolean playing, long progressMs, long readAt, boolean shuffle, String repeat, int volume,
@@ -232,11 +269,16 @@ public final class SpotifyPlayer {
             // Connecting happens in the browser and nothing here learns that it
             // finished, so these are re-read every 20 seconds.
             case NOT_CONNECTED, BLOCKED -> since >= 20_000;
+            // Using the local app: still ask now and then whether the Web API
+            // became usable (signed in, connected, added to the app's list).
+            case LOCAL -> since >= ("NOT_SIGNED_IN".equals(s.blocked) ? 5_000
+                    : "NOT_CONNECTED".equals(s.blocked) ? 20_000 : STATUS_EVERY_MS);
             default -> since >= STATUS_EVERY_MS;
         };
         if (statusDue) readStatus(now);
         boolean soon = refreshSoon && now >= readPlayerAfter;
         if (s.phase == Phase.READY && (soon || now - lastPlayerAt >= everyMs)) readPlayer(now);
+        if (s.phase == Phase.LOCAL && (soon || now - lastPlayerAt >= everyMs)) readLocal(now);
     }
 
     /** Forget everything (the screen's "Check again", or after connecting). */
@@ -254,7 +296,7 @@ public final class SpotifyPlayer {
         HttpRequest.Builder b = request("/spotify/status").GET();
         if (!BreezeApi.authed(b)) {
             statusInFlight.set(false);
-            state = state.withStatus(Phase.NOT_SIGNED_IN, null, null, null);
+            state = toLocal(state.withStatus(Phase.NOT_SIGNED_IN, null, null, null));
             return;
         }
         BreezeApi.http().sendAsync(b.build(), HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8))
@@ -265,7 +307,7 @@ public final class SpotifyPlayer {
                             return;
                         }
                         if (breezeRefused(res)) {
-                            state = state.withStatus(Phase.NOT_SIGNED_IN, null, null, null);
+                            state = toLocal(state.withStatus(Phase.NOT_SIGNED_IN, null, null, null));
                             return;
                         }
                         if (res.statusCode() == 429 || res.statusCode() >= 500) {
@@ -274,7 +316,7 @@ public final class SpotifyPlayer {
                         }
                         JsonObject data = data(res.body());
                         if (data == null) return;
-                        state = applyStatus(state, data);
+                        state = toLocal(applyStatus(state, data));
                         if (state.phase == Phase.READY) {
                             readPlayerAfter = 0;
                             refreshSoon = true;
@@ -312,13 +354,13 @@ public final class SpotifyPlayer {
                         }
                         if (code == 401) {
                             // Spotify's own authorization is gone.
-                            state = state.withStatus(Phase.NOT_CONNECTED, null, null, null);
+                            state = toLocal(state.withStatus(Phase.NOT_CONNECTED, null, null, null));
                             return;
                         }
                         if (code == 403) {
                             String reason = reason(res.body());
                             if ("NOT_REGISTERED".equals(reason) || "FORBIDDEN".equals(reason)) {
-                                state = state.withStatus(Phase.BLOCKED, reason, state.premium, state.displayName);
+                                state = toLocal(state.withStatus(Phase.BLOCKED, reason, state.premium, state.displayName));
                             }
                             return;
                         }
@@ -333,6 +375,76 @@ public final class SpotifyPlayer {
 
     private static void backOff() {
         quietUntil = System.currentTimeMillis() + BACKOFF_MS;
+    }
+
+    /** One thread for the local app: its calls start child processes or walk windows. */
+    private static final java.util.concurrent.ExecutorService LOCAL_IO =
+            java.util.concurrent.Executors.newSingleThreadExecutor(r -> {
+                Thread t = new Thread(r, "Breeze local Spotify");
+                t.setDaemon(true);
+                return t;
+            });
+
+    /**
+     * A state where the Web API cannot be used becomes the local app's
+     * (when this system can reach one), keeping what the local app showed
+     * last. Package-private for the tests.
+     */
+    static State toLocal(State next) {
+        if (!LocalSpotify.supported()) return next;
+        String why = switch (next.phase) {
+            case NOT_SIGNED_IN, NOT_CONFIGURED, NOT_CONNECTED -> next.phase.name();
+            case BLOCKED -> next.blocked == null ? "FORBIDDEN" : next.blocked;
+            default -> null;
+        };
+        if (why == null) return next;
+        State cur = state;
+        if (cur.phase == Phase.LOCAL) return cur.withWhy(why, next.premium, next.displayName);
+        return new State(Phase.LOCAL, why, next.premium, next.displayName, false, 0, 0, false, "off", -1, false,
+                null, null, null, next.message, next.messageAt, false);
+    }
+
+    private static void readLocal(long now) {
+        if (!playerInFlight.compareAndSet(false, true)) return;
+        lastPlayerAt = now;
+        refreshSoon = false;
+        try {
+            LOCAL_IO.execute(() -> {
+                try {
+                    LocalSpotify.Reading r = LocalSpotify.read();
+                    State s = state;
+                    if (s.phase == Phase.LOCAL) state = s.withLocal(r, System.currentTimeMillis());
+                } catch (Throwable t) {
+                    Log.warn("[Breeze] local Spotify not read: {}", t.toString());
+                } finally {
+                    playerInFlight.set(false);
+                }
+            });
+        } catch (RuntimeException e) {
+            playerInFlight.set(false);
+        }
+    }
+
+    private static void localCommand(LocalSpotify.Command c, Boolean playingAfter) {
+        LOCAL_IO.execute(() -> {
+            if (!LocalSpotify.command(c)) {
+                say("Open Spotify on this computer to control it from here.", false);
+                return;
+            }
+            long now = System.currentTimeMillis();
+            State s = state;
+            if (playingAfter != null && s.phase == Phase.LOCAL) state = s.withLocalPlaying(playingAfter, now);
+            state = state.withMessage(null, 0, false);
+            readPlayerAfter = now + 400;
+            refreshSoon = true;
+        });
+    }
+
+    /** For the commands only the Web API has. */
+    private static boolean localRefuses() {
+        if (state.phase != Phase.LOCAL) return false;
+        say("Connect your Spotify account to Breeze for this. Play, pause and skipping work without it.", false);
+        return true;
     }
 
     /** The API's /spotify/status answer, applied. Package-private for the tests. */
@@ -369,19 +481,32 @@ public final class SpotifyPlayer {
 
     public static void togglePlay() {
         State s = state;
+        if (s.phase == Phase.LOCAL) {
+            localCommand(LocalSpotify.Command.PLAY_PAUSE, !s.playing);
+            return;
+        }
         if (s.playing) command("/spotify/pause", null, () -> state = flipPlaying(false));
         else command("/spotify/play", null, () -> state = flipPlaying(true));
     }
 
     public static void next() {
+        if (state.phase == Phase.LOCAL) {
+            localCommand(LocalSpotify.Command.NEXT, null);
+            return;
+        }
         command("/spotify/next", null, null);
     }
 
     public static void previous() {
+        if (state.phase == Phase.LOCAL) {
+            localCommand(LocalSpotify.Command.PREVIOUS, null);
+            return;
+        }
         command("/spotify/previous", null, null);
     }
 
     public static void volume(int percent) {
+        if (localRefuses()) return;
         int p = Math.max(0, Math.min(100, percent));
         JsonObject body = new JsonObject();
         body.addProperty("percent", p);
@@ -389,12 +514,14 @@ public final class SpotifyPlayer {
     }
 
     public static void seek(long positionMs) {
+        if (localRefuses()) return;
         JsonObject body = new JsonObject();
         body.addProperty("positionMs", Math.max(0, positionMs));
         command("/spotify/seek", body, null);
     }
 
     public static void shuffle(boolean on) {
+        if (localRefuses()) return;
         JsonObject body = new JsonObject();
         body.addProperty("state", on);
         command("/spotify/shuffle", body, null);
@@ -402,6 +529,7 @@ public final class SpotifyPlayer {
 
     /** off, then context (the playlist or album), then track, then off. */
     public static void cycleRepeat() {
+        if (localRefuses()) return;
         String next = switch (state.repeat) {
             case "off" -> "context";
             case "context" -> "track";
@@ -414,6 +542,7 @@ public final class SpotifyPlayer {
 
     /** Play a track, or a playlist (optionally from one of its tracks). */
     public static void play(String uri, String contextUri) {
+        if (localRefuses()) return;
         JsonObject body = new JsonObject();
         if (uri != null) body.addProperty("uri", uri);
         if (contextUri != null) body.addProperty("contextUri", contextUri);
@@ -421,6 +550,7 @@ public final class SpotifyPlayer {
     }
 
     public static void transfer(String deviceId) {
+        if (localRefuses()) return;
         JsonObject body = new JsonObject();
         body.addProperty("deviceId", deviceId);
         command("/spotify/transfer", body, null);
@@ -468,11 +598,11 @@ public final class SpotifyPlayer {
                             state = state.withPremium(Boolean.FALSE);
                             say("Spotify Premium is needed to control music. You can still see what is playing.", false);
                         } else if ("NOT_REGISTERED".equals(reason)) {
-                            state = state.withStatus(Phase.BLOCKED, reason, state.premium, state.displayName);
+                            state = toLocal(state.withStatus(Phase.BLOCKED, reason, state.premium, state.displayName));
                         } else if ("NO_DEVICE".equals(reason)) {
                             say("Spotify is not open anywhere. Open Spotify on this computer or your phone, or pick a device.", true);
                         } else if (code == 401) {
-                            state = state.withStatus(Phase.NOT_CONNECTED, null, null, null);
+                            state = toLocal(state.withStatus(Phase.NOT_CONNECTED, null, null, null));
                         } else {
                             say(message != null ? message : "Spotify refused that.", false);
                         }
@@ -660,6 +790,19 @@ public final class SpotifyPlayer {
             default:
                 return null;
         }
+    }
+
+    /** The line under the local player: where the music comes from, and what connecting would add. */
+    public static String localNote(State s) {
+        if (s.phase != Phase.LOCAL) return null;
+        if (s.deviceName == null) return "Open Spotify on this computer to see and control it here.";
+        if ("NOT_CONNECTED".equals(s.blocked)) {
+            return "Spotify on this computer. Connect your Spotify account for search, playlists and volume.";
+        }
+        if ("NOT_REGISTERED".equals(s.blocked)) {
+            return "Spotify on this computer. Search and playlists need your Spotify account added to Breeze's Spotify app.";
+        }
+        return "Spotify on this computer.";
     }
 
 }

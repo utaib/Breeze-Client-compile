@@ -98,6 +98,7 @@ public class SpotifyHud extends AbstractHudModule {
     private static String idleLine(SpotifyPlayer.State s) {
         return switch (s.phase) {
             case READY -> s.deviceName == null ? "Spotify: nothing playing" : "Spotify: paused";
+            case LOCAL -> s.deviceName == null ? "Spotify: not open" : "Spotify: paused";
             case NOT_CONNECTED -> "Spotify: press M to connect";
             case BLOCKED -> "Spotify: account not allowed yet";
             case NOT_SIGNED_IN -> "Spotify: sign in to Breeze";

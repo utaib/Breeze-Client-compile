@@ -25,7 +25,8 @@
 //                       only (26.1 runs Rinku's 26.1.1 build). The rest of
 //                       the jar is unchanged (LGPL-2.1+ allows the edit)
 //   mcef_relax          with mcef_minecraft: the browser's other dependencies
-//                       (comma-separated mod ids, such as fabric-api) that
+//                       (comma-separated mod ids, such as fabric-api, or *
+//                       for all but minecraft, java and fabricloader) that
 //                       become "*", when its author asked for a newer build
 //                       than this Minecraft version has
 //   obfuscated          false from 26.1: no mappings and no remapping
@@ -166,11 +167,20 @@ ext.patchedBrowser = { String coords ->
     def dir = new File(patchedRepo, "breeze/patched/${name}/${patchedVersion}")
     def jar = new File(dir, "${name}-${patchedVersion}.jar")
     if (!jar.isFile()) {
-        def original = configurations.detachedConfiguration(dependencies.create(coords))
-        original.transitive = false
-        def source = original.singleFile
+        // Fetched straight from Modrinth's Maven, not through this project's
+        // repositories: resolving them while the build script runs makes Loom
+        // fail its Minecraft setup ("Cannot mutate content repository
+        // descriptor after repository has been used", 1.20 in run 42515365247).
         dir.mkdirs()
-        def relax = (project.findProperty('mcef_relax') ?: '').toString().split(',')*.trim().findAll { it }
+        def source = new File(dir, "${name}-${version}-original.jar")
+        if (!source.isFile()) {
+            def url = new URL("https://api.modrinth.com/maven/maven/modrinth/${name}/${version}/${name}-${version}.jar")
+            def part = new File(dir, source.name + '.part')
+            url.withInputStream { i -> part.withOutputStream { o -> o << i } }
+            part.renameTo(source)
+        }
+        def relaxValue = (project.findProperty('mcef_relax') ?: '').toString().trim()
+        def relax = relaxValue.split(',')*.trim().findAll { it }
         def tmp = new File(dir, jar.name + '.tmp')
         new java.util.zip.ZipFile(source).withCloseable { zip ->
             new java.util.zip.ZipOutputStream(new FileOutputStream(tmp)).withCloseable { out ->
@@ -179,8 +189,14 @@ ext.patchedBrowser = { String coords ->
                     if (e.name == 'fabric.mod.json') {
                         def meta = new groovy.json.JsonSlurper().parse(zip.getInputStream(e))
                         meta.depends = meta.depends ?: [:]
+                        logger.lifecycle("[breeze] ${coords} depends on ${meta.depends}")
                         meta.depends.minecraft = project.mcef_minecraft
-                        relax.each { id -> if (meta.depends.containsKey(id)) meta.depends[id] = '*' }
+                        if (relaxValue == '*') {
+                            // Everything but Minecraft, Java and the loader.
+                            meta.depends.keySet().findAll { !(it in ['minecraft', 'java', 'fabricloader']) }.each { meta.depends[it] = '*' }
+                        } else {
+                            relax.each { id -> if (meta.depends.containsKey(id)) meta.depends[id] = '*' }
+                        }
                         out.write(groovy.json.JsonOutput.prettyPrint(groovy.json.JsonOutput.toJson(meta)).getBytes('UTF-8'))
                     } else if (!e.isDirectory()) {
                         zip.getInputStream(e).withCloseable { out << it }

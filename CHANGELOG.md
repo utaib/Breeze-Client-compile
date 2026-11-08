@@ -7,6 +7,35 @@ fixes bump PATCH. `scripts/check-version.sh` keeps `gradle.properties`,
 Each entry says what was verified and how. Anything not verified is marked
 **UNVERIFIED**.
 
+## [2.25.0] - 2026-11-08
+
+- **Spotify works for everyone again, through the Spotify app on your
+  computer.** Since February 2026 Spotify lets a test-mode app (like
+  Breeze's) be used by five accounts its owner adds by hand, so the
+  in-game player refused everyone else, Premium or not. Now, when your
+  account cannot use Breeze's Spotify login, the Music screen (M) and the
+  Spotify HUD control the Spotify app running on this computer: what is
+  playing, play/pause, next, previous. Free and Premium alike. macOS uses
+  Spotify's own AppleScript (song, album, cover, position; macOS asks once
+  whether Minecraft may control Spotify), Linux uses MPRIS, Windows reads
+  the Spotify window and sends it the media-key commands (no cover or
+  position there). The five accounts added in Spotify's dashboard keep the
+  full player (search, playlists, devices, volume). Common `LocalSpotify`
+  (8 JUnit tests), `SpotifyPlayer` phase LOCAL.
+- **The web menu on 26.1, 1.21.9, 1.20.5 and 1.20**, which had only the
+  native menus: no browser build names these versions, so each jar now
+  carries the nearest one (Rinku's 26.1.1 and 1.21.10 builds, MCEF's
+  1.20.6 and 1.20.1 builds) with the browser's own version check set to
+  the version (`mcef_minecraft`, `mcef_relax`; LGPL-2.1+ allows the edit).
+  The rest of each browser jar is unchanged.
+- Self-test: a stand-in Spotify on the Linux build servers
+  (`fake-mpris.py`); the game must read its song and pause it
+  (`local-spotify-check`).
+- Verified here: common tests (262); the Linux path against a real session
+  bus with the stand-in (song, artist, album, cover, position, length
+  read; paused; next). In-game: see the run below. macOS and Windows:
+  **UNVERIFIED** until a tester tries them.
+
 ## [2.24.1] - 2026-11-08
 
 - **The native menus are fast again** (testers, 2026-11-08: "the native UI

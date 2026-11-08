@@ -125,6 +125,7 @@ async function readJson(req) {
   }
 }
 
+let spotifyConnected = true
 const spotify = { playing: true, progressMs: 42000, at: Date.now(), durationMs: 215000, volume: 55, shuffle: false, repeat: 'off', title: 'Breeze Test Song' }
 
 // Custom Shield pictures, as the API keeps them (src/shields.js): one per
@@ -160,6 +161,10 @@ const server = http.createServer(async (req, res) => {
   const parts = url.pathname.split('/').filter(Boolean)
   log(`${req.method} ${url.pathname}`)
 
+  if (req.method === 'POST' && parts[0] === 'test' && parts[1] === 'spotify-local') {
+    spotifyConnected = false
+    return send(res, 200, { success: true })
+  }
   if (req.method === 'POST' && parts[0] === 'test' && parts[1] === 'personal-cape') {
     selfCape = 'personal'
     log('the account now wears a personal cape')
@@ -277,6 +282,9 @@ const server = http.createServer(async (req, res) => {
     const now = Date.now()
     const progress = () => Math.min(spotify.durationMs, spotify.progressMs + (spotify.playing ? now - spotify.at : 0))
     if (req.method === 'GET' && parts[1] === 'status') {
+      // After /test/spotify-local: no Spotify account connected, so the
+      // game uses the Spotify app on the computer (fake-mpris.py).
+      if (!spotifyConnected) return send(res, 200, { success: true, configured: true, connected: false, premium: false })
       return send(res, 200, { success: true, configured: true, connected: true, premium: true, product: 'premium', displayName: 'Breeze Test' })
     }
     if (req.method === 'GET' && parts[1] === 'now-playing') {

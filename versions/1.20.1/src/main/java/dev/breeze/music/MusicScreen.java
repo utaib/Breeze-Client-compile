@@ -124,7 +124,8 @@ public final class MusicScreen extends BreezeScreen {
         SpotifyPlayer.State s = SpotifyPlayer.state();
 
         g.drawString(this.font, "Music", px + 14, py + 10, Palette.TEXT_PRIMARY, false);
-        String who = s.displayName != null ? "Spotify, " + s.displayName : "Spotify";
+        String who = s.phase == SpotifyPlayer.Phase.LOCAL ? "Spotify on this computer"
+                : s.displayName != null ? "Spotify, " + s.displayName : "Spotify";
         g.drawString(this.font, this.font.plainSubstrByWidth(who, pw / 2), px + 14 + this.font.width("Music") + 8, py + 10, GREEN, false);
         g.drawString(this.font, "Esc to close", px + pw - 12 - this.font.width("Esc to close"), py + 10, Palette.TEXT_FAINT, false);
 
@@ -193,16 +194,19 @@ public final class MusicScreen extends BreezeScreen {
         long duration = t == null ? 0 : t.durationMs;
         long position = dragSeek >= 0 ? (long) (dragSeek * duration) : s.progressNow(now);
         int by = seekY();
-        boolean overSeek = t != null && inside(mouseX, mouseY, x, by - 3, w, 9);
-        g.fill(x, by, x + w, by + 3, Palette.alpha(0xFFFFFFFF, 0x33));
-        if (duration > 0) {
-            int filled = (int) Math.round(w * Math.min(1.0, position / (double) duration));
-            g.fill(x, by, x + filled, by + 3, s.playing ? GREEN : 0xFFB0B0B0);
-            if (overSeek || dragSeek >= 0) g.fill(x + filled - 1, by - 2, x + filled + 2, by + 5, Palette.TEXT_PRIMARY);
+        // The local app on Windows tells no position or length: no bar then.
+        if (s.full() || duration > 0) {
+            boolean overSeek = s.full() && t != null && inside(mouseX, mouseY, x, by - 3, w, 9);
+            g.fill(x, by, x + w, by + 3, Palette.alpha(0xFFFFFFFF, 0x33));
+            if (duration > 0) {
+                int filled = (int) Math.round(w * Math.min(1.0, position / (double) duration));
+                g.fill(x, by, x + filled, by + 3, s.playing ? GREEN : 0xFFB0B0B0);
+                if (overSeek || dragSeek >= 0) g.fill(x + filled - 1, by - 2, x + filled + 2, by + 5, Palette.TEXT_PRIMARY);
+            }
+            g.drawString(this.font, SpotifyPlayer.time(position), x, by + 6, Palette.TEXT_FAINT, false);
+            String end = SpotifyPlayer.time(duration);
+            g.drawString(this.font, end, x + w - this.font.width(end), by + 6, Palette.TEXT_FAINT, false);
         }
-        g.drawString(this.font, SpotifyPlayer.time(position), x, by + 6, Palette.TEXT_FAINT, false);
-        String end = SpotifyPlayer.time(duration);
-        g.drawString(this.font, end, x + w - this.font.width(end), by + 6, Palette.TEXT_FAINT, false);
 
         // Transport.
         boolean can = s.canControl();
@@ -210,7 +214,14 @@ public final class MusicScreen extends BreezeScreen {
         String[] labels = labels(s);
         for (int i = 0; i < c.length; i++) {
             boolean on = (i == 0 && s.shuffle) || (i == 4 && !"off".equals(s.repeat));
-            button(g, c[i][0], controlsY(), c[i][1], labels[i], mouseX, mouseY, on, can);
+            boolean enabled = can && (s.full() || (i >= 1 && i <= 3));
+            button(g, c[i][0], controlsY(), c[i][1], labels[i], mouseX, mouseY, on, enabled);
+        }
+
+        // The local app: where the music comes from, and what connecting adds.
+        if (s.phase == SpotifyPlayer.Phase.LOCAL) {
+            drawLocalNote(g, s, mouseX, mouseY, now);
+            return;
         }
 
         // Volume.
@@ -243,11 +254,49 @@ public final class MusicScreen extends BreezeScreen {
         }
     }
 
+    /** Under the local player: its note, a Connect button when that would add the full controls, Spotify's last word. */
+    private void drawLocalNote(GuiGraphics g, SpotifyPlayer.State s, int mouseX, int mouseY, long now) {
+        int x = lx(), w = lw(), y = volumeY();
+        for (String line : wrap(SpotifyPlayer.localNote(s), w)) {
+            g.drawString(this.font, line, x, y, Palette.TEXT_FAINT, false);
+            y += 11;
+        }
+        if (localConnectY(s) >= 0) {
+            button(g, x, localConnectY(s), 110, "Connect Spotify", mouseX, mouseY, false);
+            y = localConnectY(s) + 22;
+            if (connectProblem != null) {
+                for (String line : wrap(connectProblem, w)) {
+                    g.drawString(this.font, line, x, y, 0xFFFFB454, false);
+                    y += 11;
+                }
+            }
+        }
+        if (s.message != null && now - s.messageAt < 12_000) {
+            for (String line : wrap(s.message, w, 3)) {
+                g.drawString(this.font, line, x, y, 0xFFFFB454, false);
+                y += 11;
+            }
+        }
+    }
+
+    /** Where the local player's Connect button is, or -1 when it has none (only a player with no Spotify connected gets one). */
+    private int localConnectY(SpotifyPlayer.State s) {
+        if (s.phase != SpotifyPlayer.Phase.LOCAL || !"NOT_CONNECTED".equals(s.blocked)) return -1;
+        return volumeY() + wrap(SpotifyPlayer.localNote(s), lw()).size() * 11 + 4;
+    }
+
     private void drawRight(GuiGraphics g, SpotifyPlayer.State s, int mouseX, int mouseY) {
         int x = rx(), y = py + 28, w = rw();
         Glass.fillRounded(g, x - 4, y - 4, x + w + 4, py + ph - 8, Glass.RADIUS_SM, Palette.alpha(Palette.BG_DEEP, 0x33));
         if (s.phase != SpotifyPlayer.Phase.READY) {
-            g.drawString(this.font, this.font.plainSubstrByWidth("Your music appears here once Spotify is connected.", w), x, y, Palette.TEXT_FAINT, false);
+            String note = s.phase == SpotifyPlayer.Phase.LOCAL
+                    ? "Search, playlists and devices need your Spotify account connected to Breeze."
+                    : "Your music appears here once Spotify is connected.";
+            int ty = y;
+            for (String line : wrap(note, w)) {
+                g.drawString(this.font, line, x, ty, Palette.TEXT_FAINT, false);
+                ty += 11;
+            }
             return;
         }
         int tabX = x;
@@ -388,7 +437,7 @@ public final class MusicScreen extends BreezeScreen {
         }
 
         // Seek.
-        if (s.track != null && s.canControl() && inside(mx, my, x, seekY() - 3, w, 9)) {
+        if (s.track != null && s.full() && s.canControl() && inside(mx, my, x, seekY() - 3, w, 9)) {
             dragSeek = fraction(mx, x, w);
             return true;
         }
@@ -397,6 +446,7 @@ public final class MusicScreen extends BreezeScreen {
             int[][] c = controls(s);
             for (int i = 0; i < c.length; i++) {
                 if (!inside(mx, my, c[i][0], controlsY(), c[i][1], 16)) continue;
+                if (!s.full() && (i == 0 || i == 4)) return true;
                 switch (i) {
                     case 0 -> SpotifyPlayer.shuffle(!s.shuffle);
                     case 1 -> SpotifyPlayer.previous();
@@ -411,6 +461,12 @@ public final class MusicScreen extends BreezeScreen {
                 dragVolume = (int) Math.round(fraction(mx, vx, vw) * 100);
                 return true;
             }
+        }
+
+        int cy = localConnectY(s);
+        if (cy >= 0 && inside(mx, my, x, cy, 110, 16)) {
+            connect();
+            return true;
         }
 
         // Right column.

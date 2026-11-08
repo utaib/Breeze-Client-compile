@@ -157,6 +157,7 @@ public final class AutoTest {
             targetsDue = 10;
         }
         if (targetsDue > 0 && --targetsDue == 0) logTargets(mc, false);
+        LocalSpotifyCheck.tick();
         if (Files.exists(dir.resolve("targets-please"))) {
             try {
                 Files.deleteIfExists(dir.resolve("targets-please"));
@@ -2300,6 +2301,11 @@ public final class AutoTest {
         if (texture.contains("server_capes/")) return "account";
         if (texture.contains("remote_capes/")) return "personal";
         return texture.contains("capes/frame_") ? "local" : "other";
+    }
+
+    /** {@link #stubPost} for the other test helpers in this package. */
+    static void stubPostFromTest(String path) {
+        if (STUB) stubPost(path);
     }
 
     /** Tells the stand-in API to change what it answers. Test runs only. */

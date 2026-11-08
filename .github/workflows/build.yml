@@ -129,7 +129,7 @@ jobs:
       # The browser is inside Breeze's jar: the web menu must come up.
       EXPECT_WEB: ${{ matrix.v.bundled }}
       RESULT: ${{ github.workspace }}/release-test
-      APT_PACKAGES: xvfb openbox xdotool imagemagick ffmpeg mesa-utils x11-utils libnss3 libgbm1 libxkbcommon0 jq
+      APT_PACKAGES: xvfb openbox xdotool imagemagick ffmpeg mesa-utils x11-utils libnss3 libgbm1 libxkbcommon0 jq dbus python3-dbus python3-gi
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
