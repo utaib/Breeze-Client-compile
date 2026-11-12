@@ -1,0 +1,74 @@
+67:com.mojang.authlib.exceptions.InvalidCredentialsException: Status: 401
+68:	at com.mojang.authlib.exceptions.MinecraftClientHttpException.toAuthenticationException(MinecraftClientHttpException.java:56) ~[authlib-3.18.38.jar:?]
+69-	at com.mojang.authlib.yggdrasil.YggdrasilUserApiService.fetchProperties(YggdrasilUserApiService.java:156) ~[authlib-3.18.38.jar:?]
+70-	at com.mojang.authlib.yggdrasil.YggdrasilUserApiService.<init>(YggdrasilUserApiService.java:55) ~[authlib-3.18.38.jar:?]
+71-	at com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService.createUserApiService(YggdrasilAuthenticationService.java:161) ~[authlib-3.18.38.jar:?]
+72-	at net.minecraft.class_310.method_31382(class_310.java:732) ~[client-intermediary.jar:?]
+73-	at net.minecraft.class_310.<init>(class_310.java:440) ~[client-intermediary.jar:?]
+74-	at net.minecraft.client.main.Main.main(Main.java:198) ~[fabric-1.19.4-0.16.14.jar:?]
+75-	at net.fabricmc.loader.impl.game.minecraft.MinecraftGameProvider.launch(MinecraftGameProvider.java:480) ~[fabric-loader-0.16.14.jar:?]
+76-	at net.fabricmc.loader.impl.launch.knot.Knot.launch(Knot.java:74) ~[fabric-loader-0.16.14.jar:?]
+77-	at net.fabricmc.loader.impl.launch.knot.KnotClient.main(KnotClient.java:23) ~[fabric-loader-0.16.14.jar:?]
+78:Caused by: com.mojang.authlib.exceptions.MinecraftClientHttpException: Status: 401
+79-	at com.mojang.authlib.minecraft.client.MinecraftClient.readInputStream(MinecraftClient.java:85) ~[authlib-3.18.38.jar:?]
+80-	at com.mojang.authlib.minecraft.client.MinecraftClient.get(MinecraftClient.java:48) ~[authlib-3.18.38.jar:?]
+81-	at com.mojang.authlib.yggdrasil.YggdrasilUserApiService.fetchProperties(YggdrasilUserApiService.java:129) ~[authlib-3.18.38.jar:?]
+82-	... 8 more
+83-[13:53:15] [Render thread/INFO]: Setting user: BreezeDev
+84-[13:53:16] [Render thread/INFO]: [Breeze] Initializing on Minecraft 1.19.4
+85-[13:53:16] [Render thread/INFO]: [Breeze] Registered 86 modules
+86-[13:53:16] [Render thread/INFO]: [Breeze] No embedded browser exists for this Minecraft version; native screens are the interface
+87-[13:53:16] [Render thread/INFO]: [Breeze autotest] {"dir":"/home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test","event":"start","t":1794491596156}
+88-[13:53:16] [Render thread/INFO]: [Breeze autotest] {"on":"true","saved":"false","event":"freelook-default","t":1794491596156}
+89-[13:53:16] [Render thread/INFO]: [Indigo] Registering Indigo renderer!
+90-[13:53:16] [Render thread/INFO]: Backend library: LWJGL version 3.3.1 SNAPSHOT
+--
+97:[13:53:18] [Realms Notification Availability checker #1/INFO]: Could not authorize you against Realms server: javax.ws.rs.BadRequestException: Invalid session
+98-[13:53:18] [Render thread/INFO]: [Breeze autotest] {"title":"Local Test Song 1","artist":"The Local Testers","why":"NOT_CONNECTED","durationMs":"201000","artwork":"true","event":"local-spotify","t":1794491598918}
+99-[13:53:20] [Render thread/WARN]: Missing sound for event: minecraft:item.brush.brushing
+100-[13:53:20] [Render thread/WARN]: Missing sound for event: minecraft:item.brush.brush_sand_completed
+101-[13:53:20] [Render thread/WARN]: Missing sound for event: minecraft:item.goat_horn.play
+102-[13:53:20] [Render thread/WARN]: Missing sound for event: minecraft:entity.goat.screaming.horn_break
+103-[13:53:20] [Render thread/WARN]: Missing sound for event: minecraft:music.overworld.cherry_grove
+104-[13:53:20] [Render thread/ERROR]: Error starting SoundSystem. Turning off sounds & music
+105:java.lang.IllegalStateException: Failed to open OpenAL device
+106-	at net.minecraft.class_4225.method_38501(class_4225.java:283) ~[client-intermediary.jar:?]
+107-	at net.minecraft.class_4225.method_19661(class_4225.java:153) ~[client-intermediary.jar:?]
+108-	at net.minecraft.class_1140.method_4846(class_1140.java:116) ~[client-intermediary.jar:?]
+109-	at net.minecraft.class_1140.method_4837(class_1140.java:106) ~[client-intermediary.jar:?]
+110-	at net.minecraft.class_1144.method_18182(class_1144.java:125) ~[client-intermediary.jar:?]
+111-	at net.minecraft.class_1144.method_18788(class_1144.java:40) ~[client-intermediary.jar:?]
+112-	at net.minecraft.class_4080.method_18790(class_4080.java:13) ~[client-intermediary.jar:?]
+113-	at java.util.concurrent.CompletableFuture$UniAccept.tryFire(CompletableFuture.java:718) ~[?:?]
+114-	at java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:482) ~[?:?]
+115-	at net.minecraft.class_4014.method_18365(class_4014.java:69) ~[client-intermediary.jar:?]
+116-	at net.minecraft.class_1255.method_18859(class_1255.java:156) ~[client-intermediary.jar:?]
+117-	at net.minecraft.class_4093.method_18859(class_4093.java:23) ~[client-intermediary.jar:?]
+--
+577:java.lang.IllegalStateException: Failed to open OpenAL device
+578-	at net.minecraft.class_4225.method_38501(class_4225.java:283) ~[client-intermediary.jar:?]
+579-	at net.minecraft.class_4225.method_19661(class_4225.java:153) ~[client-intermediary.jar:?]
+580-	at net.minecraft.class_1140.method_4846(class_1140.java:116) ~[client-intermediary.jar:?]
+581-	at net.minecraft.class_1140.method_4837(class_1140.java:106) ~[client-intermediary.jar:?]
+582-	at net.minecraft.class_1144.method_18182(class_1144.java:125) ~[client-intermediary.jar:?]
+583-	at net.minecraft.class_1144.method_18788(class_1144.java:40) ~[client-intermediary.jar:?]
+584-	at net.minecraft.class_4080.method_18790(class_4080.java:13) ~[client-intermediary.jar:?]
+585-	at java.util.concurrent.CompletableFuture$UniAccept.tryFire(CompletableFuture.java:718) ~[?:?]
+586-	at java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:482) ~[?:?]
+587-	at net.minecraft.class_4014.method_18365(class_4014.java:69) ~[client-intermediary.jar:?]
+588-	at net.minecraft.class_1255.method_18859(class_1255.java:156) ~[client-intermediary.jar:?]
+589-	at net.minecraft.class_4093.method_18859(class_4093.java:23) ~[client-intermediary.jar:?]
+--
+623:java.lang.IllegalStateException: Failed to open OpenAL device
+624-	at net.minecraft.class_4225.method_38501(class_4225.java:283) ~[client-intermediary.jar:?]
+625-	at net.minecraft.class_4225.method_19661(class_4225.java:153) ~[client-intermediary.jar:?]
+626-	at net.minecraft.class_1140.method_4846(class_1140.java:116) ~[client-intermediary.jar:?]
+627-	at net.minecraft.class_1140.method_4837(class_1140.java:106) ~[client-intermediary.jar:?]
+628-	at net.minecraft.class_1144.method_18182(class_1144.java:125) ~[client-intermediary.jar:?]
+629-	at net.minecraft.class_1144.method_18788(class_1144.java:40) ~[client-intermediary.jar:?]
+630-	at net.minecraft.class_4080.method_18790(class_4080.java:13) ~[client-intermediary.jar:?]
+631-	at java.util.concurrent.CompletableFuture$UniAccept.tryFire(CompletableFuture.java:718) ~[?:?]
+632-	at java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:482) ~[?:?]
+633-	at net.minecraft.class_4014.method_18365(class_4014.java:69) ~[client-intermediary.jar:?]
+634-	at net.minecraft.class_1255.method_18859(class_1255.java:156) ~[client-intermediary.jar:?]
+635-	at net.minecraft.class_4093.method_18859(class_4093.java:23) ~[client-intermediary.jar:?]
