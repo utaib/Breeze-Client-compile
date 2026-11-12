@@ -131,10 +131,17 @@ public final class BreezeWebScreen extends BreezeScreen {
     /** Run after the current bridge answer is sent (screen changes, quitting). */
     void afterAnswer(Runnable r) {
         afterAnswer.add(r);
+        // At the start of the next frame (Minecraft's task queue runs before
+        // it draws, a safe point to change screens), not at the next game
+        // tick: waiting for the tick added up to 50 ms to every Escape, Back
+        // and screen change from the menu (testers, 2026-11-12: the menus
+        // have a little input delay, the game menu does not pop instantly).
+        Minecraft.getInstance().execute(this::drainAfterAnswer);
     }
 
     void onEscapeAck(boolean handled) {
         escapeAnswer = handled ? 1 : 2;
+        Minecraft.getInstance().execute(this::settleEscape);
     }
 
     private void drainAfterAnswer() {
@@ -152,6 +159,14 @@ public final class BreezeWebScreen extends BreezeScreen {
     public void tick() {
         drainAfterAnswer();
         watchPage();
+        settleEscape();
+    }
+
+    /** The page's answer to Escape, or the fail-safe once it is late. */
+    private void settleEscape() {
+        // Only for the screen that is showing (26.2 moved the screen field;
+        // ActiveScreen reads it on every version).
+        if (dev.breeze.compat.ActiveScreen.get(Minecraft.getInstance()) != this) return;
         long deadline = escapeDeadline;
         if (deadline == 0) return;
         int answer = escapeAnswer;

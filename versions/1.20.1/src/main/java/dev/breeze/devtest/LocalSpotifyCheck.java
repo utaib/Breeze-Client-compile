@@ -20,6 +20,7 @@ final class LocalSpotifyCheck {
     private static int step;
     private static long stepAt;
     private static String title;
+    private static long lastAsk;
 
     static void tick() {
         if (!ON || step < 0 || !AutoTest.running()) return;
@@ -44,6 +45,13 @@ final class LocalSpotifyCheck {
                 SpotifyPlayer.togglePlay();
                 step = 2;
                 stepAt = now;
+            } else if (s.phase == SpotifyPlayer.Phase.READY && now - lastAsk > 5_000) {
+                // A status read already on its way when the stand-in API was
+                // switched answered "connected" (1.18.1 and 1.19.2 in run
+                // 42517303439); switch it again and read the status afresh.
+                lastAsk = now;
+                AutoTest.stubPostFromTest("/test/spotify-local");
+                SpotifyPlayer.recheck();
             } else if (age > 40_000) {
                 done(false, "the local Spotify was never read (phase " + s.phase + ", why " + s.blocked
                         + ", track " + (s.track != null) + ", playing " + s.playing + ")");

@@ -22,12 +22,19 @@ Each entry says what was verified and how. Anything not verified is marked
   position there). The five accounts added in Spotify's dashboard keep the
   full player (search, playlists, devices, volume). Common `LocalSpotify`
   (8 JUnit tests), `SpotifyPlayer` phase LOCAL.
-- **The web menu on 26.1, 1.21.9, 1.20.5 and 1.20**, which had only the
-  native menus: no browser build names these versions, so each jar now
-  carries the nearest one (Rinku's 26.1.1 and 1.21.10 builds, MCEF's
-  1.20.6 and 1.20.1 builds) with the browser's own version check set to
-  the version (`mcef_minecraft`, `mcef_relax`; LGPL-2.1+ allows the edit).
-  The rest of each browser jar is unchanged.
+- **The web menu on 26.1, 1.20.5 and 1.20**, which had only the native
+  menus: no browser build names these versions, so each jar now carries
+  the nearest one (Rinku's 26.1.1 build, MCEF's 1.20.6 and 1.20.1 builds)
+  with the browser's own version check set to the version
+  (`mcef_minecraft`, `mcef_relax`; LGPL-2.1+ allows the edit). The rest of
+  each browser jar is unchanged. 1.21.9 was tried the same way with
+  Rinku's 1.21.10 build and Fabric still left the browser out, so 1.21.9
+  keeps the native menus.
+- **Less delay in the web menu** (testers, 2026-11-12: "the menus have a
+  little input delay", the game menu "should pop instantly"): Escape, Back
+  and every screen change from the menu waited for the next game tick (up
+  to 50 ms) and now happen at the next frame; Chromium drew the menu 30
+  times a second and now draws it 60 times (`setWindowlessFrameRate`).
 - Self-test: a stand-in Spotify on the Linux build servers
   (`fake-mpris.py`); the game must read its song and pause it
   (`local-spotify-check`).

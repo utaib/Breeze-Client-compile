@@ -102,6 +102,16 @@ public final class BreezeBrowser {
             }
             MCEFBrowser b = MCEF.createBrowser(url, true, w, h);
             b.resize(w, h);
+            // Chromium paints an off-screen page 30 times a second unless told
+            // otherwise, so a click showed up to 33 ms late on top of the
+            // game's own frame. 60 matches what players see elsewhere.
+            // By reflection: every MCEF and Rinku build has JCEF's method, but
+            // a build without it must still open the menu.
+            try {
+                b.getClass().getMethod("setWindowlessFrameRate", int.class).invoke(b, 60);
+            } catch (Throwable t) {
+                BreezeClient.LOGGER.info("[Breeze] browser frame rate left at Chromium's default: {}", t.toString());
+            }
             b.setFocus(true);
             BreezeBrowser session = new BreezeBrowser(b, router, w, h, fit[2]);
             BreezeWeb.attach(session);
