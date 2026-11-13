@@ -34,6 +34,16 @@ public final class WorldRender {
      */
     public static void text(WorldCtx ctx, double wx, double wy, double wz, String s, int color, float size,
                             boolean throughWalls) {
+        text(ctx, wx, wy, wz, s, color, size, throughWalls, 0);
+    }
+
+    /**
+     * As above, on a plate of {@code background} (ARGB, 0 for none) the size
+     * of the text, as Minecraft's name tags have, so it reads against sky
+     * and snow (Lyrics).
+     */
+    public static void text(WorldCtx ctx, double wx, double wy, double wz, String s, int color, float size,
+                            boolean throughWalls, int background) {
         if (ctx.submits() == null) return;
         Minecraft mc = Minecraft.getInstance();
         Font font = mc.font;
@@ -49,7 +59,7 @@ public final class WorldRender {
         ps.scale(0.025f * size, -0.025f * size, 0.025f * size);
         float x = -font.width(s) / 2.0f;
         ctx.submits().submitText(ps, x, 0.0f, Component.literal(s).getVisualOrderText(), false,
-                throughWalls ? Font.DisplayMode.SEE_THROUGH : Font.DisplayMode.NORMAL, 0xF000F0, color, 0, 0);
+                throughWalls ? Font.DisplayMode.SEE_THROUGH : Font.DisplayMode.NORMAL, 0xF000F0, color, background, 0);
         ps.popPose();
     }
 

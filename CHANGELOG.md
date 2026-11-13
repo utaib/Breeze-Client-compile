@@ -7,6 +7,71 @@ fixes bump PATCH. `scripts/check-version.sh` keeps `gradle.properties`,
 Each entry says what was verified and how. Anything not verified is marked
 **UNVERIFIED**.
 
+## [2.26.0] - 2026-11-13
+
+With launcher 1.1.2 (owner, 2026-11-12: "people really want Spotify", "we
+need a YouTube Music in the in-game thingy", "a thing called lyrics which
+make lyrics appear in game wherever you want (3d)"). 2.25.0 below was never
+given jars; its changes ship in this version.
+
+- **Music from any player on this computer, YouTube Music included.** The
+  Music screen (M) and the HUD read and control whatever plays music here,
+  not only the Spotify app: play/pause, next, previous, song, artist,
+  album, cover and position. Windows: the system's media sessions (the
+  list the volume flyout shows: Spotify, Chrome, Edge and Firefox, so
+  YouTube Music in a browser, Apple Music and others), read by a small
+  PowerShell helper that runs only while music is shown, started from one
+  command with no file written and no execution policy changed; if it
+  cannot start, the Spotify window as in 2.25.0. Linux: every MPRIS
+  player, browsers included. macOS: Spotify and Apple Music (a browser's
+  music cannot be read there). With several players, the one playing
+  wins. Covers come from Spotify's and YouTube Music's image hosts, a
+  file the player wrote, or Windows itself; nothing else is fetched.
+  Common `LocalMedia` (was `LocalSpotify`), `LocalMediaWindows`.
+- **A source switch in the Music screen**: with a usable Spotify account
+  the header offers "Use this computer" (and back), so a connected player
+  can still show YouTube Music. Saved as the Now Playing module's "Music
+  from".
+- **The Spotify HUD module is now "Now Playing"** (it shows any player).
+  Saved settings and its place on screen carry over (`earlierNames`).
+- **Lyrics** (new module, HUD): the words of the song playing, in time
+  with it. Show: On screen (a HUD element), In the world (at a spot you
+  choose with "Place here" in the Music screen, facing whoever looks, one
+  spot per world and dimension, kept in `config/breeze-lyrics.json`), or
+  Follow me (floating a few blocks ahead, catching up as you turn). One
+  to five lines, colours, size, a dark plate, show through blocks, and a
+  timing offset. The Music screen has a Lyrics tab with the whole song
+  and the module's controls. Words come from LRCLIB (lrclib.net, free, no
+  account), which is sent the song's title, artist and length, only while
+  the module is on or the tab is open; everything fetched is size-limited
+  and cleaned before it is drawn. Timed lyrics are only used when their
+  recording is as long as the one playing (3 s), else untimed ones show
+  in the tab. A player that does not tell its position is timed from when
+  the song appeared, and says so. Only on screen on 1.21.9 (no world
+  drawing there). Common `Lrc`, `Lyrics`; `WorldRender.text` takes a
+  background plate on all seven variants.
+- **Your own Spotify app**: an account Spotify refuses is told to set up
+  its own Spotify app in the Breeze launcher (Breeze FM), which launcher
+  1.1.2 and the API offer.
+- A song that reaches its end is asked for again at once, so the HUD and
+  the lyrics change with it instead of up to five seconds later.
+- Self-test: the stand-in player is now a browser (`fake-mpris.py`:
+  Chromium's bus name, a cover file, position 42 s); `local-spotify-check`
+  also requires the player's name, position and cover key;
+  `lyrics-check` (after the TNT check) takes lyrics from a stand-in
+  service whose lines name their own second, requires the right line on
+  screen, then at a spot in the world with the line's own pixels in the
+  screenshot, and the spot read back from its file. A Windows job
+  (`windows_media`) runs the reader's tests on a real Windows against a
+  stand-in player (`fake-smtc.ps1`).
+- Verified here: common tests (291, one more runs only on Windows); the
+  Linux path live against a session bus with the stand-in browser (found
+  among the bus names, song, artist, album, player name, position, length
+  and cover file read; paused; next). LRCLIB's contract read from its
+  server's source (tranxuanthang/lrclib), since lrclib.net is not
+  reachable from here: the real service is **UNVERIFIED** until a tester
+  tries it. In-game and Windows: see the run below. macOS: **UNVERIFIED**.
+
 ## [2.25.0] - 2026-11-08
 
 - **Spotify works for everyone again, through the Spotify app on your

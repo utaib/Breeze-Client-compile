@@ -47,11 +47,11 @@ class ModuleIconsTest {
 
     @Test
     void everyModuleHasAPictureAndTheyAreNotAllTheSame() {
-        assertEquals(86, ModuleIcons.modules().size());
+        assertEquals(87, ModuleIcons.modules().size());
         long distinctFirst = ModuleIcons.modules().stream()
                 .map(m -> ModuleIcons.sources(m).get(0).path())
                 .distinct().count();
-        assertEquals(86, distinctFirst, "two modules start from the same picture");
+        assertEquals(87, distinctFirst, "two modules start from the same picture");
         assertEquals(List.of(), ModuleIcons.sources("No Such Module"));
     }
 

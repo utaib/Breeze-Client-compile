@@ -19,10 +19,12 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Album covers for the Spotify HUD and the Music screen.
+ * Album covers for the Now Playing HUD and the Music screen.
  *
  * Spotify hands out cover pictures as JPEG on its own image hosts, and only
- * those hosts are fetched (anything else in a track's data is ignored). A
+ * those hosts (and YouTube Music's, LocalMedia.artHost) are fetched; anything
+ * else in a track's data is ignored. A player on this computer may also hand
+ * over the picture itself (a "local:" key, LocalMedia.artworkBytes). A
  * picture is decoded off the game thread and uploaded on it. Four texture
  * slots are reused in turn, so a long session of songs never piles up
  * textures: the fifth cover replaces the first.
@@ -61,35 +63,47 @@ public final class SpotifyArt {
     private static boolean allowed(String url) {
         try {
             URI u = URI.create(url);
-            return "https".equals(u.getScheme()) && u.getHost() != null && HOSTS.contains(u.getHost().toLowerCase(java.util.Locale.ROOT));
+            return "https".equals(u.getScheme()) && u.getHost() != null
+                    && (HOSTS.contains(u.getHost().toLowerCase(java.util.Locale.ROOT)) || dev.breeze.net.LocalMedia.artHost(u.getHost()));
         } catch (Throwable t) {
             return false;
         }
     }
 
     private static void fetch(String url) {
+        if (url.startsWith(dev.breeze.net.LocalMedia.LOCAL_ART)) {
+            // The picture comes from the player itself: read off the game thread.
+            java.util.concurrent.CompletableFuture.supplyAsync(() -> dev.breeze.net.LocalMedia.artworkBytes(url))
+                    .whenComplete((bytes, err) -> decoded(url, err == null ? bytes : null));
+            return;
+        }
         if (!allowed(url)) {
             LOADING.remove(url);
             FAILED_AT.put(url, Long.MAX_VALUE / 2);
             return;
         }
         HttpRequest req = HttpRequest.newBuilder(URI.create(url)).timeout(Duration.ofSeconds(8)).GET().build();
-        dev.breeze.net.BreezeApi.http().sendAsync(req, HttpResponse.BodyHandlers.ofByteArray()).whenComplete((res, err) -> {
-            BufferedImage bi = null;
-            try {
-                if (err == null && res.statusCode() == 200 && res.body().length < 2_000_000) {
-                    bi = ImageIO.read(new ByteArrayInputStream(res.body()));
-                }
-            } catch (Throwable ignored) {
+        dev.breeze.net.BreezeApi.http().sendAsync(req, HttpResponse.BodyHandlers.ofByteArray())
+                .whenComplete((res, err) -> decoded(url, err == null && res.statusCode() == 200 ? res.body() : null));
+    }
+
+    /** A cover's bytes (or null): decoded here, uploaded on the game thread. */
+    private static void decoded(String url, byte[] bytes) {
+        BufferedImage bi = null;
+        try {
+            if (bytes != null && bytes.length > 0 && bytes.length < 2_000_000) {
+                bi = ImageIO.read(new ByteArrayInputStream(bytes));
             }
-            if (bi == null) {
-                LOADING.remove(url);
-                FAILED_AT.put(url, System.currentTimeMillis());
-                return;
-            }
-            BufferedImage picture = shrink(bi);
-            Minecraft.getInstance().execute(() -> upload(url, picture));
-        });
+        } catch (Throwable ignored) {
+        }
+        // Nothing absurd onto the GPU, whatever a file claims to be.
+        if (bi == null || bi.getWidth() > 4096 || bi.getHeight() > 4096) {
+            LOADING.remove(url);
+            FAILED_AT.put(url, System.currentTimeMillis());
+            return;
+        }
+        BufferedImage picture = shrink(bi);
+        Minecraft.getInstance().execute(() -> upload(url, picture));
     }
 
     private static BufferedImage shrink(BufferedImage bi) {
@@ -123,7 +137,7 @@ public final class SpotifyArt {
             READY.put(url, new Art(rl, bi.getWidth(), bi.getHeight()));
         } catch (Throwable t) {
             FAILED_AT.put(url, System.currentTimeMillis());
-            BreezeClient.LOGGER.warn("[Breeze] Spotify cover not shown: {}", t.toString());
+            BreezeClient.LOGGER.warn("[Breeze] cover not shown: {}", t.toString());
         } finally {
             LOADING.remove(url);
         }

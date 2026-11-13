@@ -11,27 +11,54 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 
 /**
- * What is playing on the player's Spotify: cover, title, artist and how far
- * into the song. Read from the Breeze API while this module is on
- * ({@link dev.breeze.music.Music#tick}); the music itself plays in the
- * player's Spotify app. The Music screen (M by default) controls it.
+ * What is playing: cover, title, artist and how far into the song. From the
+ * player's Spotify account when one is connected, else from whatever plays
+ * music on this computer (Spotify, YouTube Music in a browser, ...), read
+ * while this module is on ({@link dev.breeze.music.Music#tick}). The music
+ * itself plays in that app; the Music screen (M by default) controls it.
+ * Was "Spotify" up to 2.25.0, when it knew only Spotify.
  */
-public class SpotifyHud extends AbstractHudModule {
+public class NowPlayingHud extends AbstractHudModule {
 
-    private static final String GROUP = "Spotify";
+    private static final String GROUP = "Now Playing";
     private final Setting.Bool cover = new Setting.Bool("cover", "Cover art", GROUP, true);
     private final Setting.Bool artist = new Setting.Bool("artist", "Artist", GROUP, true);
     private final Setting.Bool progress = new Setting.Bool("progress", "Progress bar", GROUP, true);
     private final Setting.Bool hideIdle = new Setting.Bool("hideIdle", "Hide when nothing plays", GROUP, false);
     private final Setting.Int width = new Setting.Int("width", "Width", GROUP, 160, 100, 260, "");
+    /** Also the Music screen's source switch: it is the Music player's choice, kept here so it is saved. */
+    private final Setting.Mode source = new Setting.Mode("source", "Music from", GROUP,
+            new String[]{"Spotify account, else this computer", "This computer"}, 0);
 
-    public SpotifyHud() {
-        super("Spotify", Category.HUD, "Shows the song playing on your Spotify. Press M for the Music player.", KEY_NONE, 4, 168);
+    private static NowPlayingHud instance;
+
+    public static NowPlayingHud get() {
+        return instance;
+    }
+
+    /** Whether the player chose this computer's music over a usable Spotify account. */
+    public boolean prefersLocal() {
+        return source.index == 1;
+    }
+
+    public void preferLocal(boolean on) {
+        source.index = on ? 1 : 0;
+    }
+
+    public NowPlayingHud() {
+        super("Now Playing", Category.HUD, "Shows the song playing in Spotify, YouTube Music or any player on this computer. Press M for the Music player.", KEY_NONE, 4, 168);
         add(cover);
         add(artist);
         add(progress);
         add(hideIdle);
         add(width);
+        add(source);
+        instance = this;
+    }
+
+    @Override
+    public java.util.List<String> earlierNames() {
+        return java.util.List.of("Spotify");
     }
 
     @Override
@@ -80,7 +107,7 @@ public class SpotifyHud extends AbstractHudModule {
             g.drawString(font, font.plainSubstrByWidth(t.artist, textW), tx, ty, Palette.TEXT_SECONDARY, shadow);
             ty += font.lineHeight + 1;
         }
-        if (progress.value && t.durationMs > 0) {
+        if (progress.value && t.durationMs > 0 && s.positionKnown()) {
             long now = System.currentTimeMillis();
             long p = s.progressNow(now);
             String times = SpotifyPlayer.time(p) + " / " + SpotifyPlayer.time(t.durationMs);
@@ -98,12 +125,12 @@ public class SpotifyHud extends AbstractHudModule {
     private static String idleLine(SpotifyPlayer.State s) {
         return switch (s.phase) {
             case READY -> s.deviceName == null ? "Spotify: nothing playing" : "Spotify: paused";
-            case LOCAL -> s.deviceName == null ? "Spotify: not open" : "Spotify: paused";
+            case LOCAL -> s.deviceName == null ? "No music playing" : "Music: paused";
             case NOT_CONNECTED -> "Spotify: press M to connect";
             case BLOCKED -> "Spotify: account not allowed yet";
             case NOT_SIGNED_IN -> "Spotify: sign in to Breeze";
             case NOT_CONFIGURED -> "Spotify: not available";
-            default -> "Spotify";
+            default -> "Music";
         };
     }
 }

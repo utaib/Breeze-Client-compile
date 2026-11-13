@@ -24,6 +24,8 @@ public class BreezeClient implements ClientModInitializer {
         LOGGER.info("[Breeze] Initializing on Minecraft {}", net.fabricmc.loader.api.FabricLoader.getInstance()
                 .getModContainer("minecraft").map(c -> c.getMetadata().getVersion().getFriendlyString()).orElse("?"));
 
+        dev.breeze.music.Lyrics.clientVersion(net.fabricmc.loader.api.FabricLoader.getInstance()
+                .getModContainer(MOD_ID).map(c -> c.getMetadata().getVersion().getFriendlyString()).orElse(""));
         ModuleManager.init();
         // Before the player's config is applied: these are the values
         // "Reset" in the module settings goes back to.

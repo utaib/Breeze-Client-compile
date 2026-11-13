@@ -275,6 +275,15 @@ case "$tnt" in
   *'"labelPixels":"0"'*|*'"labelPixels":"-1"'*) fail "TNT Countdown's label is not on the screen (none of its pixels in the screenshot)" ;;
   *) fail "TNT Countdown did not label a lit TNT with its seconds and milliseconds" ;;
 esac
+lyrics=$(grep '"event":"lyrics-check"' "$LOG" | tail -1)
+say "lyrics: $lyrics"
+case "$lyrics" in
+  *'"skipped"'*) say "SKIP: $lyrics" ;;
+  *'"pass":"true"'*'on screen only'*) pass "Lyrics showed the line for the song's position on screen (this version cannot draw in the world)" ;;
+  *'"pass":"true"'*) pass "Lyrics showed the line for the song's position on screen and at a spot in the world, and the line's own pixels are in the screenshot" ;;
+  '') fail "the self-test checked the Lyrics module" ;;
+  *) fail "Lyrics did not show the line for the song's position on screen and in the world" ;;
+esac
 hbox=$(grep '"event":"hitbox-check"' "$LOG" | tail -1)
 say "hitboxes: $hbox"
 case "$hbox" in

@@ -429,6 +429,51 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
 
+  # The music on this computer, on a real Windows (2.26.0): the game's reader
+  # (common LocalMedia), its PowerShell helper and Windows' media sessions,
+  # against a stand-in player (scripts/ci/fake-smtc.ps1). What it found goes
+  # to the evidence branch. The jars do not wait for it: a hosted runner may
+  # give a script no media session, which says nothing about a player's PC.
+  windows_media:
+    name: Music on this computer (Windows)
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: Stand-in player, then the game's reader
+        shell: pwsh
+        run: |
+          $ready = Join-Path $env:RUNNER_TEMP 'fake-smtc.ready'
+          $ps = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
+          Start-Process -FilePath $ps -ArgumentList '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', 'scripts/ci/fake-smtc.ps1', $ready `
+            -RedirectStandardOutput (Join-Path $env:RUNNER_TEMP 'fake-smtc.out') -RedirectStandardError (Join-Path $env:RUNNER_TEMP 'fake-smtc.err')
+          for ($i = 0; $i -lt 60 -and -not (Test-Path $ready); $i++) { Start-Sleep -Milliseconds 500 }
+          $state = if (Test-Path $ready) { (Get-Content $ready -Raw).Trim() } else { 'did not start' }
+          $env:BREEZE_LIVE_MEDIA = '1'
+          if ($state -eq 'ready') { $env:BREEZE_LIVE_SESSION = '1' }
+          ./gradlew.bat --no-daemon :common:test --configure-on-demand --tests '*LocalMedia*'
+          $code = $LASTEXITCODE
+          $out = Join-Path $env:RUNNER_TEMP 'shots/windows-media'
+          New-Item -ItemType Directory -Force $out | Out-Null
+          $result = Join-Path $out 'result.txt'
+          "windows: $([System.Environment]::OSVersion.VersionString)" | Set-Content $result
+          "stand-in player: $state" | Add-Content $result
+          if (Test-Path common/build/live-media.txt) { Get-Content common/build/live-media.txt | Add-Content $result } else { 'the reader test wrote nothing' | Add-Content $result }
+          "gradle exit code: $code" | Add-Content $result
+          Get-Content $result
+          exit $code
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: shots-windows-media
+          path: ${{ runner.temp }}/shots/
+          retention-days: 7
+          if-no-files-found: ignore
+
   # Run by hand with "publish", every version selected and every one passed:
   # the jars go into Breeze Jars/<mod version>/ (with SHA256SUMS)
   # on a new branch ci/jars-<run id> from the tested commit, for review and
@@ -474,7 +519,7 @@ jobs:
   # branches are never merged and can be deleted at any time.
   evidence:
     name: Screenshots to a branch
-    needs: version
+    needs: [version, windows_media]
     if: ${{ always() && !cancelled() && github.event_name == 'workflow_dispatch' && inputs.screenshots }}
     runs-on: ubuntu-24.04
     timeout-minutes: 10

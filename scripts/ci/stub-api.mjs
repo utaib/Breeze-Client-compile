@@ -161,6 +161,28 @@ const server = http.createServer(async (req, res) => {
   const parts = url.pathname.split('/').filter(Boolean)
   log(`${req.method} ${url.pathname}`)
 
+  // The stand-in lyrics service (the game's -Dbreeze.lyrics.url points at
+  // /lyrics): a line every two seconds that names its own second, so the
+  // self-test can tell that the line shown belongs to the song's position.
+  if (req.method === 'GET' && parts[0] === 'lyrics' && parts[1] === 'api') {
+    const record = (name, artist) => {
+      const lines = []
+      for (let sec = 0; sec <= 600; sec += 2) {
+        const mm = String(Math.floor(sec / 60)).padStart(2, '0')
+        const ss = String(sec % 60).padStart(2, '0')
+        lines.push(`[${mm}:${ss}.00] Breeze lyric ${sec}`)
+      }
+      return { id: 1, name, trackName: name, artistName: artist, albumName: 'CI', duration: 201, instrumental: false, hasWordSync: false,
+        plainLyrics: lines.map((l) => l.slice(11)).join('\n'), syncedLyrics: lines.join('\n'), lyricsfile: null }
+    }
+    const name = url.searchParams.get('track_name') || url.searchParams.get('q') || ''
+    const artist = url.searchParams.get('artist_name') || ''
+    log(`lyrics ${parts[2]} "${name}" by "${artist}" duration ${url.searchParams.get('duration')}`)
+    if (!name) return send(res, 400, { message: 'track_name: cannot be empty', name: 'ValidationError', statusCode: 400 })
+    if (parts[2] === 'get') return send(res, 200, record(name, artist))
+    if (parts[2] === 'search') return send(res, 200, [record(name, artist)])
+    return send(res, 404, { message: 'Failed to find specified track', name: 'TrackNotFound', statusCode: 404 })
+  }
   if (req.method === 'POST' && parts[0] === 'test' && parts[1] === 'spotify-local') {
     spotifyConnected = false
     return send(res, 200, { success: true })

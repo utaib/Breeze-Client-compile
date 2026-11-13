@@ -78,7 +78,8 @@ public final class ModuleIcons {
         put("TNT Timer", "block/tnt_side");
         put("TNT Countdown", "item/tnt_minecart");
         put("TPS", "item/repeater");
-        put("Spotify", "item/music_disc_far");
+        put("Now Playing", "item/music_disc_far");
+        put("Lyrics", "item/music_disc_pigstep", "item/music_disc_13");
         put("Time", "block/daylight_detector_top");
         put("Totem Counter", "item/totem_of_undying");
         put("Waypoint", "block/lodestone_top", "item/compass_16", "item/compass");

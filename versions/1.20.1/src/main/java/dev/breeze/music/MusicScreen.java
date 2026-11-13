@@ -17,12 +17,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The Music player: the player's Spotify, controlled from inside the game.
+ * The Music player: the player's music, controlled from inside the game.
+ *
+ * Two sources: the player's Spotify account (through the Breeze API), or
+ * whatever plays music on this computer (Spotify, YouTube Music in a
+ * browser, ...). The account is used when it is connected; a switch in the
+ * header changes to this computer, which is also what everyone without a
+ * usable account gets.
  *
  * Opened with M (Controls, under Breeze) or from the Breeze menus. Left: what
  * is playing, a seek bar, play, pause, skip, shuffle, repeat and volume.
- * Right: search Spotify, the account's playlists, and its devices (Spotify
- * plays on one of them: this computer's Spotify app, a phone, a speaker).
+ * Right: search Spotify, the account's playlists and devices (Spotify plays
+ * on one of them: this computer's Spotify app, a phone, a speaker), and the
+ * song's lyrics with the Lyrics module's controls.
  * A native screen on every version, so it opens at once, in a world or not,
  * without the embedded browser.
  *
@@ -34,7 +41,13 @@ public final class MusicScreen extends BreezeScreen {
     private static final int GREEN = 0xFF1ED760;
     private static final int ROW = 22;
 
-    private enum Tab { SEARCH, PLAYLISTS, DEVICES }
+    private enum Tab { SEARCH, PLAYLISTS, DEVICES, LYRICS }
+
+    /** A control drawn this frame and what a click on it does (the header's switch, the Lyrics tab's buttons). */
+    private record Hit(int x, int y, int w, int h, Runnable run) {}
+
+    private final List<Hit> hits = new ArrayList<>();
+    private int lyricsScroll;
 
     private final Screen parent;
     private int px, py, pw, ph;
@@ -85,6 +98,15 @@ public final class MusicScreen extends BreezeScreen {
     private int controlsY() { return py + 122; }
     private int volumeY() { return py + 148; }
     private int listTop() { return py + (tab == Tab.SEARCH ? 70 : 50); }
+
+    private static String tabLabel(Tab t) {
+        return switch (t) {
+            case SEARCH -> "Search";
+            case PLAYLISTS -> "Playlists";
+            case DEVICES -> "Devices";
+            case LYRICS -> "Lyrics";
+        };
+    }
     private int visibleRows() { return Math.max(1, (py + ph - 12 - listTop()) / ROW); }
 
     /** The five transport buttons, laid out across the left column: [x, w] each. */
@@ -122,12 +144,27 @@ public final class MusicScreen extends BreezeScreen {
         Glass.scrim(g, this.width, this.height);
         Glass.panel(g, new Rect(px, py, pw, ph), Theme.panelBg(), Palette.BORDER);
         SpotifyPlayer.State s = SpotifyPlayer.state();
+        hits.clear();
 
         g.drawString(this.font, "Music", px + 14, py + 10, Palette.TEXT_PRIMARY, false);
-        String who = s.phase == SpotifyPlayer.Phase.LOCAL ? "Spotify on this computer"
-                : s.displayName != null ? "Spotify, " + s.displayName : "Spotify";
-        g.drawString(this.font, this.font.plainSubstrByWidth(who, pw / 2), px + 14 + this.font.width("Music") + 8, py + 10, GREEN, false);
-        g.drawString(this.font, "Esc to close", px + pw - 12 - this.font.width("Esc to close"), py + 10, Palette.TEXT_FAINT, false);
+        String who = s.phase != SpotifyPlayer.Phase.LOCAL ? (s.displayName != null ? "Spotify, " + s.displayName : "Spotify")
+                : s.deviceName == null ? "This computer"
+                : SpotifyPlayer.LOCAL_DEVICE.equals(s.deviceName) ? "Music on this computer" : s.deviceName + " on this computer";
+        int right = px + pw - 12 - this.font.width("Esc to close");
+        g.drawString(this.font, "Esc to close", right, py + 10, Palette.TEXT_FAINT, false);
+        // The source switch, for a player whose Spotify account is usable:
+        // the account, or this computer (YouTube Music and other players).
+        boolean chosen = s.phase == SpotifyPlayer.Phase.LOCAL && SpotifyPlayer.CHOSEN.equals(s.blocked);
+        if (s.phase == SpotifyPlayer.Phase.READY || chosen) {
+            String label = chosen ? "Use Spotify account" : "Use this computer";
+            int bw = this.font.width(label) + 10;
+            int bx = right - 8 - bw;
+            button(g, bx, py + 6, bw, label, mouseX, mouseY, false);
+            hits.add(new Hit(bx, py + 6, bw, 16, () -> setSource(!chosen)));
+            right = bx;
+        }
+        int whoX = px + 14 + this.font.width("Music") + 8;
+        g.drawString(this.font, this.font.plainSubstrByWidth(who, Math.max(20, right - 8 - whoX)), whoX, py + 10, GREEN, false);
 
         drawNowPlaying(g, s, mouseX, mouseY);
         drawRight(g, s, mouseX, mouseY);
@@ -170,7 +207,8 @@ public final class MusicScreen extends BreezeScreen {
         int tx = x + art + 8, tw = w - art - 8, ty = y + 2;
         if (t == null) {
             g.drawString(this.font, "Nothing playing", tx, ty, Palette.TEXT_PRIMARY, false);
-            for (String line : wrap("Play something below, or open Spotify on any device.", tw)) {
+            for (String line : wrap(s.phase == SpotifyPlayer.Phase.LOCAL ? "Play a song in any player on this computer."
+                    : "Play something below, or open Spotify on any device.", tw)) {
                 ty += 11;
                 g.drawString(this.font, line, tx, ty, Palette.TEXT_FAINT, false);
             }
@@ -186,7 +224,8 @@ public final class MusicScreen extends BreezeScreen {
             }
         }
         if (s.deviceName != null) {
-            g.drawString(this.font, this.font.plainSubstrByWidth("on " + s.deviceName, tw), tx, y + art - 9, Palette.TEXT_FAINT, false);
+            String on = s.phase == SpotifyPlayer.Phase.LOCAL && !SpotifyPlayer.LOCAL_DEVICE.equals(s.deviceName) ? "in " : "on ";
+            g.drawString(this.font, this.font.plainSubstrByWidth(on + s.deviceName, tw), tx, y + art - 9, Palette.TEXT_FAINT, false);
         }
 
         // Seek bar and times.
@@ -194,8 +233,8 @@ public final class MusicScreen extends BreezeScreen {
         long duration = t == null ? 0 : t.durationMs;
         long position = dragSeek >= 0 ? (long) (dragSeek * duration) : s.progressNow(now);
         int by = seekY();
-        // The local app on Windows tells no position or length: no bar then.
-        if (s.full() || duration > 0) {
+        // A local player that tells no position or length: no bar then.
+        if (s.full() || (duration > 0 && s.positionKnown())) {
             boolean overSeek = s.full() && t != null && inside(mouseX, mouseY, x, by - 3, w, 9);
             g.fill(x, by, x + w, by + 3, Palette.alpha(0xFFFFFFFF, 0x33));
             if (duration > 0) {
@@ -288,12 +327,15 @@ public final class MusicScreen extends BreezeScreen {
     private void drawRight(GuiGraphics g, SpotifyPlayer.State s, int mouseX, int mouseY) {
         int x = rx(), y = py + 28, w = rw();
         Glass.fillRounded(g, x - 4, y - 4, x + w + 4, py + ph - 8, Glass.RADIUS_SM, Palette.alpha(Palette.BG_DEEP, 0x33));
+        if (s.phase == SpotifyPlayer.Phase.LOCAL) {
+            // No account to search with: the song's lyrics have the column.
+            g.drawString(this.font, "Lyrics", x, y + 4, Palette.TEXT_PRIMARY, false);
+            drawLyrics(g, s, x, y + 20, w, mouseX, mouseY);
+            return;
+        }
         if (s.phase != SpotifyPlayer.Phase.READY) {
-            String note = s.phase == SpotifyPlayer.Phase.LOCAL
-                    ? "Search, playlists and devices need your Spotify account connected to Breeze."
-                    : "Your music appears here once Spotify is connected.";
             int ty = y;
-            for (String line : wrap(note, w)) {
+            for (String line : wrap("Your music appears here once Spotify is connected.", w)) {
                 g.drawString(this.font, line, x, ty, Palette.TEXT_FAINT, false);
                 ty += 11;
             }
@@ -301,14 +343,14 @@ public final class MusicScreen extends BreezeScreen {
         }
         int tabX = x;
         for (Tab t : Tab.values()) {
-            String label = switch (t) {
-                case SEARCH -> "Search";
-                case PLAYLISTS -> "Playlists";
-                case DEVICES -> "Devices";
-            };
+            String label = tabLabel(t);
             int tw = this.font.width(label) + 12;
             button(g, tabX, y, tw, label, mouseX, mouseY, tab == t);
             tabX += tw + 4;
+        }
+        if (tab == Tab.LYRICS) {
+            drawLyrics(g, s, x, y + 22, w, mouseX, mouseY);
+            return;
         }
         if (tab == Tab.SEARCH) drawInput(g, x, y + 20, w, query, typing, "Song or artist, then Enter");
 
@@ -332,6 +374,7 @@ public final class MusicScreen extends BreezeScreen {
                 case SEARCH -> query.isBlank() ? "Search for a song to play it." : "Nothing found.";
                 case PLAYLISTS -> "No playlists on this account.";
                 case DEVICES -> "No devices. Open Spotify on this computer or your phone.";
+                default -> "";
             };
             int ty = top + 4;
             for (String line : wrap(empty, w)) {
@@ -361,6 +404,120 @@ public final class MusicScreen extends BreezeScreen {
             String more = (scroll + 1) + "-" + Math.min(l.items.size(), scroll + rows) + " of " + l.items.size();
             g.drawString(this.font, more, x + w - this.font.width(more), py + ph - 18, Palette.TEXT_FAINT, false);
         }
+    }
+
+    /**
+     * The song's lyrics and the Lyrics module's controls: in game on or off,
+     * where they show, the spot in the world, and the timing offset.
+     */
+    private void drawLyrics(GuiGraphics g, SpotifyPlayer.State s, int x, int y, int w, int mouseX, int mouseY) {
+        dev.breeze.modules.LyricsHud module = dev.breeze.modules.LyricsHud.get();
+        Minecraft mc = Minecraft.getInstance();
+        int bottom = py + ph - 14;
+        if (module != null) {
+            int bx = x;
+            String onOff = module.isEnabled() ? "In game: On" : "In game: Off";
+            bx = lyricsButton(g, bx, y, onOff, mouseX, mouseY, module.isEnabled(), () -> {
+                module.setEnabled(!module.isEnabled());
+                dev.breeze.config.BreezeConfig.save();
+            });
+            if (module.worldModes()) {
+                bx = lyricsButton(g, bx, y, "Show: " + module.where(), mouseX, mouseY, false, () -> {
+                    module.cycleWhere();
+                    dev.breeze.config.BreezeConfig.save();
+                });
+            }
+            int by = y + 20;
+            bx = x;
+            bx = lyricsButton(g, bx, by, "-", mouseX, mouseY, false, () -> nudge(module, -250));
+            String off = String.format(java.util.Locale.ROOT, "%+.2f s", module.offsetMs() / 1000.0);
+            g.drawString(this.font, off, bx, by + 4, Palette.TEXT_SECONDARY, false);
+            bx += this.font.width("+0.00 s") + 4;
+            bx = lyricsButton(g, bx, by, "+", mouseX, mouseY, false, () -> nudge(module, 250));
+            if (dev.breeze.modules.LyricsHud.IN_WORLD.equals(module.where()) && mc.level != null) {
+                boolean placed = dev.breeze.music.LyricsPlace.placedHere(mc);
+                bx = lyricsButton(g, bx + 4, by, placed ? "Move here" : "Place here", mouseX, mouseY, false,
+                        () -> dev.breeze.music.LyricsPlace.placeAtLook(mc));
+                if (placed) lyricsButton(g, bx, by, "Remove", mouseX, mouseY, false, () -> dev.breeze.music.LyricsPlace.removeHere(mc));
+            }
+            y += 42;
+        }
+        SpotifyPlayer.Track t = s.track;
+        if (t == null) {
+            for (String line : wrap("Play a song to see its lyrics.", w)) {
+                g.drawString(this.font, line, x, y, Palette.TEXT_FAINT, false);
+                y += 11;
+            }
+            return;
+        }
+        dev.breeze.music.Lyrics.Now now = dev.breeze.music.Lyrics.now(s, System.currentTimeMillis(), module == null ? 0 : module.offsetMs());
+        dev.breeze.music.Lyrics.Result r = now.result;
+        String note = switch (r.status) {
+            case LOADING -> "Looking for lyrics";
+            case NOT_FOUND -> "No lyrics found for this song.";
+            case INSTRUMENTAL -> "This one has no words.";
+            case FAILED -> "Could not reach the lyrics service. Trying again in a minute.";
+            default -> null;
+        };
+        if (note != null) {
+            for (String line : wrap(note, w)) {
+                g.drawString(this.font, line, x, y, Palette.TEXT_FAINT, false);
+                y += 11;
+            }
+            if (r.status == dev.breeze.music.Lyrics.Status.NOT_FOUND || r.status == dev.breeze.music.Lyrics.Status.FAILED) {
+                lyricsButton(g, x, y + 4, "Look again", mouseX, mouseY, false,
+                        () -> dev.breeze.music.Lyrics.forget(t.title, t.artist, t.durationMs));
+            }
+            return;
+        }
+        if (now.estimated && r.status == dev.breeze.music.Lyrics.Status.SYNCED) {
+            for (String line : wrap("This player does not tell where the song is, so the timing is a guess. Use - and + to line it up.", w, 3)) {
+                g.drawString(this.font, line, x, y, 0xFFFFB454, false);
+                y += 11;
+            }
+            y += 2;
+        }
+        int rows = Math.max(1, (bottom - y) / 11);
+        if (r.status == dev.breeze.music.Lyrics.Status.SYNCED) {
+            // The line being sung stays a third of the way down.
+            int centre = Math.max(0, now.index);
+            int from = Math.max(0, Math.min(centre - rows / 3, r.lines.size() - rows));
+            for (int i = 0; i < rows && from + i < r.lines.size(); i++) {
+                boolean sung = from + i == now.index;
+                String text = r.lines.get(from + i).text;
+                g.drawString(this.font, this.font.plainSubstrByWidth(text.isEmpty() ? "\u266a" : text, w), x, y + i * 11,
+                        sung ? Palette.TEXT_PRIMARY : Palette.TEXT_FAINT, false);
+            }
+            return;
+        }
+        // Without times: the whole text, scrolled with the wheel.
+        lyricsScroll = Math.max(0, Math.min(lyricsScroll, Math.max(0, r.plain.size() - rows)));
+        for (int i = 0; i < rows && lyricsScroll + i < r.plain.size(); i++) {
+            g.drawString(this.font, this.font.plainSubstrByWidth(r.plain.get(lyricsScroll + i), w), x, y + i * 11, Palette.TEXT_SECONDARY, false);
+        }
+    }
+
+    /** A button of the Lyrics tab: drawn, remembered for clicks; the x after it. */
+    private int lyricsButton(GuiGraphics g, int x, int y, String label, int mouseX, int mouseY, boolean on, Runnable run) {
+        int w = this.font.width(label) + 10;
+        button(g, x, y, w, label, mouseX, mouseY, on);
+        hits.add(new Hit(x, y, w, 16, run));
+        return x + w + 4;
+    }
+
+    private static void nudge(dev.breeze.modules.LyricsHud module, int byMs) {
+        module.nudgeOffset(byMs);
+        dev.breeze.config.BreezeConfig.save();
+    }
+
+    private void setSource(boolean thisComputer) {
+        dev.breeze.modules.NowPlayingHud hud = dev.breeze.modules.NowPlayingHud.get();
+        if (hud != null) {
+            hud.preferLocal(thisComputer);
+            dev.breeze.config.BreezeConfig.save();
+        }
+        SpotifyPlayer.preferLocal(thisComputer);
+        listing = new SpotifyPlayer.Listing(List.of(), null, null);
     }
 
     private void drawInput(GuiGraphics g, int x, int y, int w, String text, boolean focused, String placeholder) {
@@ -420,6 +577,13 @@ public final class MusicScreen extends BreezeScreen {
     @Override
     protected boolean onMouseClicked(double mx, double my, int button) {
         if (button != 0) return true;
+        // The header's switch and the Lyrics tab's buttons, as drawn in the last frame.
+        for (Hit h : new ArrayList<>(hits)) {
+            if (inside(mx, my, h.x(), h.y(), h.w(), h.h())) {
+                h.run().run();
+                return true;
+            }
+        }
         SpotifyPlayer.State s = SpotifyPlayer.state();
         int x = lx(), w = lw();
         String problem = SpotifyPlayer.explain(s);
@@ -473,11 +637,7 @@ public final class MusicScreen extends BreezeScreen {
         if (s.phase != SpotifyPlayer.Phase.READY) return true;
         int tabX = rx();
         for (Tab t : Tab.values()) {
-            String label = switch (t) {
-                case SEARCH -> "Search";
-                case PLAYLISTS -> "Playlists";
-                case DEVICES -> "Devices";
-            };
+            String label = tabLabel(t);
             int tw = this.font.width(label) + 12;
             if (inside(mx, my, tabX, py + 28, tw, 16)) {
                 openTab(t);
@@ -485,6 +645,7 @@ public final class MusicScreen extends BreezeScreen {
             }
             tabX += tw + 4;
         }
+        if (tab == Tab.LYRICS) return true;
         typing = tab == Tab.SEARCH && inside(mx, my, rx(), py + 48, rw(), 16);
         SpotifyPlayer.Listing l = listing;
         if (l.problem != null && "RECONNECT_REQUIRED".equals(l.reason)) {
@@ -501,6 +662,7 @@ public final class MusicScreen extends BreezeScreen {
                 case DEVICES -> {
                     if (it.id != null) SpotifyPlayer.transfer(it.id);
                 }
+                default -> { }
             }
             return true;
         }
@@ -533,7 +695,10 @@ public final class MusicScreen extends BreezeScreen {
 
     @Override
     protected boolean onMouseScrolled(double mx, double my, double scrollX, double scrollY) {
-        if (scrollY != 0) scroll = Math.max(0, scroll - (int) Math.signum(scrollY));
+        if (scrollY != 0) {
+            scroll = Math.max(0, scroll - (int) Math.signum(scrollY));
+            lyricsScroll = Math.max(0, lyricsScroll - 2 * (int) Math.signum(scrollY));
+        }
         return true;
     }
 
@@ -586,6 +751,7 @@ public final class MusicScreen extends BreezeScreen {
             }
             case PLAYLISTS -> load(SpotifyPlayer.playlists());
             case DEVICES -> load(SpotifyPlayer.devices());
+            default -> { }
         }
     }
 

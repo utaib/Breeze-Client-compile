@@ -119,7 +119,8 @@ public final class ModuleManager {
         register(new MouseStrokesHud());
         register(new ComboCounterHud());
         register(new SystemResourcesHud());
-        register(new SpotifyHud());
+        register(new NowPlayingHud());
+        register(new LyricsHud());
         register(new PotionEffectsHud());
         register(new ArmorStatusHud());
         register(new RecordingIndicatorHud());

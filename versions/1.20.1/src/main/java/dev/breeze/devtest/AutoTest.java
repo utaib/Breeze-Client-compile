@@ -157,7 +157,7 @@ public final class AutoTest {
             targetsDue = 10;
         }
         if (targetsDue > 0 && --targetsDue == 0) logTargets(mc, false);
-        LocalSpotifyCheck.tick();
+        LocalMediaCheck.tick();
         if (Files.exists(dir.resolve("targets-please"))) {
             try {
                 Files.deleteIfExists(dir.resolve("targets-please"));
@@ -271,7 +271,7 @@ public final class AutoTest {
 
     // ── In a world (after the menu checks) ─────────────────────────────────
 
-    private enum World { IDLE, OPENED, FPS, IN_WORLD, ARMOR, INVENTORY, PERSONAL_CAPE, LAYOUT, OUTLINE, GHOST, FREE_LOOK, CROSSHAIR, DISPLAY_NAME, COMMAND_KEYS, HITBOXES, TNT, SCOREBOARD, PACKS, SHIELD, SWEEP, EDITING, WARDROBE, TAGS, REAL, DONE }
+    private enum World { IDLE, OPENED, FPS, IN_WORLD, ARMOR, INVENTORY, PERSONAL_CAPE, LAYOUT, OUTLINE, GHOST, FREE_LOOK, CROSSHAIR, DISPLAY_NAME, COMMAND_KEYS, HITBOXES, TNT, LYRICS, SCOREBOARD, PACKS, SHIELD, SWEEP, EDITING, WARDROBE, TAGS, REAL, DONE }
 
     /** Taken off again once the Armor HUD has been looked at. */
     private static boolean armourOff;
@@ -760,6 +760,9 @@ public final class AutoTest {
             case DISPLAY_NAME -> displayNameStep(mc, age);
             case HITBOXES -> hitboxStep(mc, age);
             case TNT -> tntStep(mc, age);
+            case LYRICS -> {
+                if (LyricsCheck.step(mc, age)) startScoreboard(mc);
+            }
             case SCOREBOARD -> scoreboardStep(mc, age);
             case PACKS -> packsStep(mc, age);
             case SHIELD -> shieldStep(mc, age);
@@ -1073,8 +1076,12 @@ public final class AutoTest {
             return;
         }
         if (age < 1_500) return;
-        shot(mc, "autotest-block-outline-full");
         String full = dev.breeze.modules.BlockOverlay.lastDrawn();
+        // Until a frame has been drawn with the new shape (up to 10 s): on a
+        // slow frame the fixed 1.5 s read the frame from before the switch
+        // (26.1 in run 43231212147, with its browser still starting).
+        if (!full.startsWith("Full block") && age < 10_000) return;
+        shot(mc, "autotest-block-outline-full");
         // Stairs are two boxes with more edges than a cube; a full square is one box.
         boolean hitbox = outlineHitbox.startsWith("Hitbox ") && count(outlineHitbox, "boxes") >= 2
                 && count(outlineHitbox, "edges") > 12;
@@ -1413,7 +1420,7 @@ public final class AutoTest {
         net.minecraft.client.server.IntegratedServer server = mc.getSingleplayerServer();
         if (module("TNT Countdown") == null || t == null || server == null || mc.player == null) {
             log("tnt-check", "pass", "true", "skipped", "TNT Countdown is not offered on this version, or no server or player");
-            startScoreboard(mc);
+            startLyrics(mc);
             return;
         }
         if (!t.isEnabled()) t.setEnabled(true);
@@ -1485,7 +1492,17 @@ public final class AutoTest {
         }
         dev.breeze.modules.TntCountdown t = dev.breeze.modules.TntCountdown.get();
         if (t != null && t.isEnabled()) t.setEnabled(false);
-        startScoreboard(mc);
+        startLyrics(mc);
+    }
+
+    /** The Lyrics module (LyricsCheck): on screen, then placed in the world and found in a screenshot. */
+    private static void startLyrics(Minecraft mc) {
+        if (!LyricsCheck.start(mc)) {
+            startScoreboard(mc);
+            return;
+        }
+        world = World.LYRICS;
+        worldAt = System.currentTimeMillis();
     }
 
     private static int scoreStep;
@@ -1940,7 +1957,7 @@ public final class AutoTest {
         return null;
     }
 
-    private static void setInt(String module, String key, int value) {
+    static void setInt(String module, String key, int value) {
         Module m = module(module);
         if (m == null) return;
         for (dev.breeze.settings.Setting s : m.getSettings()) {
@@ -1956,7 +1973,7 @@ public final class AutoTest {
         }
     }
 
-    private static void setMode(String module, String key, String option) {
+    static void setMode(String module, String key, String option) {
         for (Module m : ModuleManager.getModules()) {
             if (!m.getName().equals(module)) continue;
             for (dev.breeze.settings.Setting s : m.getSettings()) {
@@ -1968,7 +1985,7 @@ public final class AutoTest {
         }
     }
 
-    private static void setBool(String module, String key, boolean value) {
+    static void setBool(String module, String key, boolean value) {
         for (Module m : ModuleManager.getModules()) {
             if (!m.getName().equals(module)) continue;
             for (dev.breeze.settings.Setting s : m.getSettings()) {
@@ -2214,7 +2231,7 @@ public final class AutoTest {
         return (r.totalMemory() - r.freeMemory()) / (1024 * 1024);
     }
 
-    private static void shot(Minecraft mc, String name) {
+    static void shot(Minecraft mc, String name) {
         try {
             dev.breeze.compat.Game.screenshot(mc, name + ".png", msg -> {});
             log("screenshot", "file", "screenshots/" + name + ".png");

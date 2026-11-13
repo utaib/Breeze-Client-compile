@@ -127,14 +127,17 @@ if [ "$MODE" = prod ]; then
       printf '{"token":"%s"}' "$stub_token" > "$OUT/stub-session.json"
       jvm="$jvm -Dbreeze.api.url=http://127.0.0.1:$(cat "$OUT/stub-port") -Dbreeze.session.file=$OUT/stub-session.json"
       jvm="$jvm -Dbreeze.player.uuid=$stub_uuid -Dbreeze.autotest.stub=1"
+      # Lyrics come from the stand-in too, never from the real service.
+      jvm="$jvm -Dbreeze.lyrics.url=http://127.0.0.1:$(cat "$OUT/stub-port")/lyrics"
       echo "[run] stand-in API on port $(cat "$OUT/stub-port")" | tee -a "$OUT/driver.log"
     else
       echo "[run] the stand-in API did not start; the test uses the real API" | tee -a "$OUT/driver.log"
     fi
   fi
-  # A stand-in Spotify on a session bus of its own (fake-mpris.py), for the
-  # local Spotify control (2.25.0): with the stand-in API saying no Spotify
-  # account is connected, the game must read this song and pause it.
+  # A stand-in player on a session bus of its own (fake-mpris.py: a browser
+  # playing a song, as YouTube Music in Chromium), for the music on this
+  # computer (2.26.0): with the stand-in API saying no Spotify account is
+  # connected, the game must find the player, read the song and pause it.
   if [ -s "$OUT/stub-port" ] && command -v dbus-daemon >/dev/null && python3 -c 'import dbus, gi' 2>/dev/null; then
     bus=$(dbus-daemon --session --fork --print-address=1 --print-pid=1 2>/dev/null)
     DBUS_SESSION_BUS_ADDRESS=$(printf '%s\n' "$bus" | sed -n 1p)
@@ -146,12 +149,12 @@ if [ "$MODE" = prod ]; then
     if grep -q ready "$OUT/mpris.log" 2>/dev/null; then
       jvm="$jvm -Dbreeze.autotest.localSpotify=1"
       LOCAL_SPOTIFY=1
-      echo "[run] stand-in Spotify on the session bus" | tee -a "$OUT/driver.log"
+      echo "[run] stand-in music player (a browser) on the session bus" | tee -a "$OUT/driver.log"
     else
-      echo "[run] the stand-in Spotify did not start: $(tail -3 "$OUT/fake-mpris.out" 2>/dev/null)" | tee -a "$OUT/driver.log"
+      echo "[run] the stand-in music player did not start: $(tail -3 "$OUT/fake-mpris.out" 2>/dev/null)" | tee -a "$OUT/driver.log"
     fi
   else
-    echo "[run] no session bus or python3-dbus: the local Spotify check is skipped" | tee -a "$OUT/driver.log"
+    echo "[run] no session bus or python3-dbus: the local music check is skipped" | tee -a "$OUT/driver.log"
   fi
   portablemc --main-dir "${PORTABLEMC_MAIN:-$HOME/.minecraft}" --work-dir "$RUN" \
     start "$version" -u "$PLAYER" --resolution 1280x720 --jvm-args="$jvm" \
@@ -217,8 +220,8 @@ fi
 if [ "${LOCAL_SPOTIFY:-}" = 1 ]; then
   ls_line=$(grep '"event":"local-spotify-check"' "$OUT/breeze-autotest.log" 2>/dev/null | tail -1)
   case "$ls_line" in
-    *'"pass":"true"'*) echo "[driver] PASS the game read the computer's Spotify and paused it ($(grep '"event":"local-spotify"' "$OUT/breeze-autotest.log" | tail -1 | jq -r '.title + " by " + .artist' 2>/dev/null); $(grep -c PlayPause "$OUT/mpris.log") PlayPause)" | tee -a "$OUT/driver.log" ;;
-    *) echo "[driver] FAIL the local Spotify control: ${ls_line:-no local-spotify-check event}" | tee -a "$OUT/driver.log"
+    *'"pass":"true"'*) echo "[driver] PASS the game read the music playing on the computer and paused it ($(grep '"event":"local-spotify"' "$OUT/breeze-autotest.log" | tail -1 | jq -r '.title + " by " + .artist + " in " + .app + ", position " + .positionMs + " ms"' 2>/dev/null); $(grep -c PlayPause "$OUT/mpris.log") PlayPause)" | tee -a "$OUT/driver.log" ;;
+    *) echo "[driver] FAIL the music on this computer: ${ls_line:-no local-spotify-check event}" | tee -a "$OUT/driver.log"
        DRIVER_EXIT=$((DRIVER_EXIT + 1)) ;;
   esac
 fi
@@ -253,7 +256,7 @@ grep -hE 'Exception|ERROR|FATAL' "$OUT/minecraft-latest.log" > "$OUT/errors.txt"
 # downloading the evidence: what the harness saw, and what Breeze, MCEF and
 # the error lines in the game log said.
 echo "== harness: screens, stages and failures"
-grep -E '"event":"(start|screen|menu-open|READY_FOR_INPUT|key|FAIL|stress-result|AUTOTEST_DONE|mixin-audit|module|native-menu-perf|local-spotify|local-spotify-check)"' "$OUT/breeze-autotest.log" 2>/dev/null | head -80
+grep -E '"event":"(start|screen|menu-open|READY_FOR_INPUT|key|FAIL|stress-result|AUTOTEST_DONE|mixin-audit|module|native-menu-perf|local-spotify|local-spotify-check|lyrics-check)"' "$OUT/breeze-autotest.log" 2>/dev/null | head -80
 echo "== harness: in the world"
 grep -E '"event":"(world-open|world-loaded|fps-sample|world-joined|hud-check|hud-layout|module-sweep|settings-persist|cape-check|cape-image|cosmetic-check|cosmetic-setup|WORLD_READY|hud-moved|wardrobe-open|wardrobe-check|real-cosmetics-start|real-cosmetics)"' "$OUT/breeze-autotest.log" 2>/dev/null | head -20
 echo "== harness: mouse presses (1.21.9 and later)"

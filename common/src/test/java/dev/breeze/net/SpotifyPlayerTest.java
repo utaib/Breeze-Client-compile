@@ -21,7 +21,56 @@ class SpotifyPlayerTest {
         assertEquals(SpotifyPlayer.Phase.BLOCKED, s.phase);
         assertNull(s.premium, "unknown, never false");
         assertFalse(s.canControl());
-        assertTrue(SpotifyPlayer.explain(s).contains("test mode"));
+        assertTrue(SpotifyPlayer.explain(s).contains("your own Spotify app"));
+    }
+
+    @Test
+    void musicOnThisComputerNamesItsPlayerAndKnowsWhenThePositionIsUnknown() {
+        SpotifyPlayer.State local = SpotifyPlayer.toLocal(SpotifyPlayer.applyStatus(SpotifyPlayer.State.EMPTY,
+                json("{\"configured\":true,\"connected\":false}")));
+        assertEquals(SpotifyPlayer.Phase.LOCAL, local.phase);
+        assertEquals("NOT_CONNECTED", local.blocked);
+        assertFalse(local.canControl(), "nothing read yet");
+        assertTrue(SpotifyPlayer.localNote(local).contains("YouTube Music"));
+
+        SpotifyPlayer.State chrome = local.withLocal(new LocalMedia.Reading(true, true, "Song", "Artist", null, null,
+                30_000, 200_000, "Chrome"), 1_000);
+        assertEquals("Chrome", chrome.deviceName);
+        assertTrue(chrome.canControl());
+        assertFalse(chrome.full(), "no seek, volume or search on a local player");
+        assertTrue(chrome.positionKnown());
+        assertEquals(35_000, chrome.progressNow(6_000));
+        assertTrue(SpotifyPlayer.localNote(chrome).startsWith("Chrome on this computer."));
+
+        // The Spotify window on Windows tells neither position nor length.
+        SpotifyPlayer.State title = local.withLocal(new LocalMedia.Reading(true, true, "Song", "Artist", null, null,
+                -1, -1, null), 1_000);
+        assertEquals(SpotifyPlayer.LOCAL_DEVICE, title.deviceName);
+        assertFalse(title.positionKnown());
+        assertEquals(0, title.progressNow(9_000));
+        assertFalse(title.withLocalPlaying(false, 2_000).positionKnown());
+        assertTrue(SpotifyPlayer.localNote(title).startsWith("Music on this computer."));
+
+        SpotifyPlayer.State closed = chrome.withLocal(LocalMedia.Reading.ABSENT, 2_000);
+        assertNull(closed.deviceName);
+        assertFalse(closed.canControl());
+    }
+
+    @Test
+    void aPlayerCanChooseThisComputerOverAUsableSpotifyAccount() {
+        SpotifyPlayer.State ready = SpotifyPlayer.applyStatus(SpotifyPlayer.State.EMPTY,
+                json("{\"configured\":true,\"connected\":true,\"premium\":true}"));
+        assertEquals(SpotifyPlayer.Phase.READY, SpotifyPlayer.toLocal(ready).phase);
+        SpotifyPlayer.preferLocal(true);
+        try {
+            SpotifyPlayer.State chosen = SpotifyPlayer.toLocal(ready);
+            assertEquals(SpotifyPlayer.Phase.LOCAL, chosen.phase);
+            assertEquals(SpotifyPlayer.CHOSEN, chosen.blocked);
+            assertTrue(SpotifyPlayer.prefersLocal());
+        } finally {
+            SpotifyPlayer.preferLocal(false);
+        }
+        assertEquals(SpotifyPlayer.Phase.READY, SpotifyPlayer.toLocal(ready).phase);
     }
 
     @Test
