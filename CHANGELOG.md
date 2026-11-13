@@ -64,13 +64,28 @@ given jars; its changes ship in this version.
   screenshot, and the spot read back from its file. A Windows job
   (`windows_media`) runs the reader's tests on a real Windows against a
   stand-in player (`fake-smtc.ps1`).
+- First test run (43395740395, nine versions across every era): every
+  version built; the music check (the stand-in browser found, its song,
+  player name and position read, paused) and `lyrics-check` (the right
+  line on screen, then in the world with 2,027 of its pixels in the
+  1.20.1 screenshot) passed on all nine. One check failed on all nine:
+  the Lyrics HUD box grew with its lines and came to rest over the
+  hotbar. It now has a fixed box (Width by Lines shown), centred above
+  the hotbar by default, and draws no empty panel between songs
+  (`AbstractHudModule.backgroundNow`).
+- **Windows, on a real Windows** (the run's `windows_media` job, Windows
+  build 26100): the PowerShell helper started from its one command and
+  read the stand-in player through Windows' media sessions: title,
+  artist, album, player, position (42 s plus the time since) and length;
+  play/pause was accepted. Not covered there: a cover picture (the
+  stand-in has none), a browser, and a player's antivirus.
 - Verified here: common tests (291, one more runs only on Windows); the
   Linux path live against a session bus with the stand-in browser (found
   among the bus names, song, artist, album, player name, position, length
   and cover file read; paused; next). LRCLIB's contract read from its
   server's source (tranxuanthang/lrclib), since lrclib.net is not
   reachable from here: the real service is **UNVERIFIED** until a tester
-  tries it. In-game and Windows: see the run below. macOS: **UNVERIFIED**.
+  tries it. macOS: **UNVERIFIED**.
 
 ## [2.25.0] - 2026-11-08
 

@@ -78,6 +78,49 @@ public class LyricsHud extends AbstractHudModule {
             add(through);
             add(distance);
         }
+        reserve();
+    }
+
+    /**
+     * The element's box is as wide as Width and as tall as Lines shown,
+     * whatever the line being sung: it is placed once and stays put instead
+     * of growing over its neighbours (or the hotbar) when a long line comes.
+     */
+    private void reserve() {
+        bounds(width.value, boxHeight(9));
+    }
+
+    private int boxHeight(int lineHeight) {
+        return lines.value * (lineHeight + 1) - 1;
+    }
+
+    @Override
+    public void settingsLoaded(boolean found) {
+        reserve();
+    }
+
+    /** Centred above the hotbar and its bars, where subtitles sit. */
+    @Override
+    protected dev.breeze.hud.HudPlacement defaultPlacement() {
+        return new dev.breeze.hud.HudPlacement(dev.breeze.hud.HudPlacement.H.CENTER, dev.breeze.hud.HudPlacement.V.BOTTOM, 0, 58);
+    }
+
+    @Override
+    protected boolean drawsShapes() {
+        return true;
+    }
+
+    @Override
+    protected boolean backgroundNow() {
+        Minecraft mc = Minecraft.getInstance();
+        return note(mc) != null || (where.is(ON_SCREEN) && !showing(mc.font, width.value).isEmpty());
+    }
+
+    /** What the HUD editor shows in the box while there are no words to show. */
+    private String note(Minecraft mc) {
+        if (!(dev.breeze.compat.ActiveScreen.get(mc) instanceof dev.breeze.menu.HudEditorScreen)) return null;
+        if (!where.is(ON_SCREEN)) return "Lyrics (shown in the world)";
+        return showing(mc.font, width.value).isEmpty() ? "Lyrics appear here" : null;
     }
 
     public static LyricsHud get() {
@@ -110,7 +153,7 @@ public class LyricsHud extends AbstractHudModule {
         offset.set(offset.value + byMs);
     }
 
-    /** The lines to show now: {text, colour} pairs around the one being sung. Empty when there is nothing to show. */
+    /** The rows to show now: {text, colour, whether it is being sung}, around the line being sung. Empty when there is nothing to show. */
     private List<Object[]> showing(Font font, int wrapWidth) {
         List<Object[]> out = new ArrayList<>();
         SpotifyPlayer.State s = SpotifyPlayer.state();
@@ -129,37 +172,59 @@ public class LyricsHud extends AbstractHudModule {
             boolean sung = i == now.index;
             if (text.isEmpty()) {
                 // A gap in the singing: a note where the line being sung would be, nothing elsewhere.
-                if (sung) out.add(new Object[]{"♪", lit});
+                if (sung) out.add(new Object[]{"♪", lit, true});
                 continue;
             }
             for (String part : Lrc.wrap(text, wrapWidth, 2, font::width)) {
-                out.add(new Object[]{part, sung ? lit : others.argb});
+                out.add(new Object[]{part, sung ? lit : others.argb, sung});
             }
         }
         return out;
     }
 
-    @Override
-    protected void draw(Minecraft mc, GuiGraphics g, Font font) {
-        boolean editing = dev.breeze.compat.ActiveScreen.get(mc) instanceof dev.breeze.menu.HudEditorScreen;
-        if (!where.is(ON_SCREEN)) {
-            // The words are in the world; the HUD editor still shows where the element would be.
-            if (editing) line(g, font, "Lyrics (shown in the world)", others.argb);
-            lastHud = "";
-            return;
+    /** At most max rows: rows that are not being sung go first, from the end and then the start. */
+    private static List<Object[]> fit(List<Object[]> rows, int max) {
+        while (rows.size() > max) {
+            if (!(Boolean) rows.get(rows.size() - 1)[2]) rows.remove(rows.size() - 1);
+            else if (!(Boolean) rows.get(0)[2]) rows.remove(0);
+            else rows.remove(rows.size() - 1);
         }
-        List<Object[]> rows = showing(font, width.value);
-        if (rows.isEmpty()) {
-            if (editing) line(g, font, "Lyrics appear here", others.argb);
-            lastHud = "";
-            return;
-        }
+        return rows;
+    }
+
+    private static String sung(List<Object[]> rows) {
         StringBuilder shown = new StringBuilder();
         for (Object[] row : rows) {
-            line(g, font, (String) row[0], (Integer) row[1]);
-            if ((Integer) row[1] != others.argb) shown.append(shown.length() > 0 ? " " : "").append((String) row[0]);
+            if ((Boolean) row[2]) shown.append(shown.length() > 0 ? " " : "").append((String) row[0]);
         }
-        lastHud = shown.toString();
+        return shown.toString();
+    }
+
+    @Override
+    protected void draw(Minecraft mc, GuiGraphics g, Font font) {
+        int step = font.lineHeight + 1;
+        int boxW = width.value, boxH = boxHeight(font.lineHeight);
+        bounds(boxW, boxH);
+        boolean shadow = style().textShadow.value;
+        String note = note(mc);
+        if (note != null) {
+            g.drawString(font, font.plainSubstrByWidth(note, boxW), x + (boxW - Math.min(boxW, font.width(note))) / 2,
+                    y + (boxH - font.lineHeight) / 2, others.argb, shadow);
+            lastHud = "";
+            return;
+        }
+        // In the world modes the words are in the world; the box is kept for the HUD editor.
+        List<Object[]> rows = where.is(ON_SCREEN) ? fit(showing(font, boxW), lines.value) : List.of();
+        if (rows.isEmpty()) {
+            lastHud = "";
+            return;
+        }
+        int top = y + (boxH - (rows.size() * step - 1)) / 2;
+        for (int i = 0; i < rows.size(); i++) {
+            String text = (String) rows.get(i)[0];
+            g.drawString(font, text, x + (boxW - font.width(text)) / 2, top + i * step, (Integer) rows.get(i)[1], shadow);
+        }
+        lastHud = sung(rows);
     }
 
     @Override
@@ -189,15 +254,13 @@ public class LyricsHud extends AbstractHudModule {
         // One line of text is 0.025 blocks a pixel: nine pixels and a gap.
         double step = 0.025 * scale * (font.lineHeight + 2);
         int back = plate.value && testColour == 0 ? 0x70000000 : 0;
-        StringBuilder shown = new StringBuilder();
         // Centred on the spot: the first row above it, the last below.
         double top = spot.y + step * (rows.size() - 1) / 2.0;
         for (int i = 0; i < rows.size(); i++) {
             Object[] row = rows.get(i);
             WorldRender.text(ctx, spot.x, top - i * step, spot.z, (String) row[0], (Integer) row[1], scale, through.value, back);
-            if ((Integer) row[1] != others.argb) shown.append(shown.length() > 0 ? " " : "").append((String) row[0]);
         }
-        lastWorld = shown.toString();
+        lastWorld = sung(rows);
     }
 
     /** Follow me: a point ahead of the player and a little above their line of sight, approached smoothly. */

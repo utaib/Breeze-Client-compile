@@ -104,7 +104,7 @@ public abstract class AbstractHudModule extends Module {
             dev.breeze.compat.Draw.pushScaled(g, boxX, boxY, s);
         }
 
-        if (drawsShapes()) {
+        if (drawsShapes() && backgroundNow()) {
             // Under the content, sized from the last frame's bounds: drawn
             // afterwards it would cover the icons and bars it frames.
             try { style.drawBackground(g, x, y, lastW, lastH); } catch (Throwable ignored) {}
@@ -230,6 +230,12 @@ public abstract class AbstractHudModule extends Module {
      * over it.
      */
     protected boolean drawsShapes() { return false; }
+
+    /**
+     * False in a frame where a shape-drawing module keeps its box but shows
+     * nothing in it (Lyrics between songs), so no empty panel is drawn.
+     */
+    protected boolean backgroundNow() { return true; }
 
     protected void line(GuiGraphics g, Font font, String s) {
         line(g, font, s, style.textColor.argb);

@@ -99,6 +99,32 @@ public final class MusicScreen extends BreezeScreen {
     private int volumeY() { return py + 148; }
     private int listTop() { return py + (tab == Tab.SEARCH ? 70 : 50); }
 
+    /**
+     * The right column's tabs: [x, w] each. Four of them do not fit a small
+     * window (427 pixels across at 854x480) with the usual padding, so the
+     * padding gives way before the last tab would leave the panel.
+     */
+    private int[][] tabs() {
+        Tab[] all = Tab.values();
+        int text = 0;
+        for (Tab t : all) text += this.font.width(tabLabel(t));
+        int gap = 4;
+        int pad = 12;
+        int room = rw() - text - gap * (all.length - 1);
+        if (room < pad * all.length) {
+            gap = 3;
+            pad = Math.max(4, (rw() - text - gap * (all.length - 1)) / all.length);
+        }
+        int[][] out = new int[all.length][];
+        int x = rx();
+        for (int i = 0; i < all.length; i++) {
+            int w = this.font.width(tabLabel(all[i])) + pad;
+            out[i] = new int[]{x, w};
+            x += w + gap;
+        }
+        return out;
+    }
+
     private static String tabLabel(Tab t) {
         return switch (t) {
             case SEARCH -> "Search";
@@ -341,12 +367,9 @@ public final class MusicScreen extends BreezeScreen {
             }
             return;
         }
-        int tabX = x;
+        int[][] tabs = tabs();
         for (Tab t : Tab.values()) {
-            String label = tabLabel(t);
-            int tw = this.font.width(label) + 12;
-            button(g, tabX, y, tw, label, mouseX, mouseY, tab == t);
-            tabX += tw + 4;
+            button(g, tabs[t.ordinal()][0], y, tabs[t.ordinal()][1], tabLabel(t), mouseX, mouseY, tab == t);
         }
         if (tab == Tab.LYRICS) {
             drawLyrics(g, s, x, y + 22, w, mouseX, mouseY);
@@ -433,14 +456,16 @@ public final class MusicScreen extends BreezeScreen {
             String off = String.format(java.util.Locale.ROOT, "%+.2f s", module.offsetMs() / 1000.0);
             g.drawString(this.font, off, bx, by + 4, Palette.TEXT_SECONDARY, false);
             bx += this.font.width("+0.00 s") + 4;
-            bx = lyricsButton(g, bx, by, "+", mouseX, mouseY, false, () -> nudge(module, 250));
+            lyricsButton(g, bx, by, "+", mouseX, mouseY, false, () -> nudge(module, 250));
+            y += 42;
+            // The spot in the world, on a row of its own: a small window has no room beside the offset.
             if (dev.breeze.modules.LyricsHud.IN_WORLD.equals(module.where()) && mc.level != null) {
                 boolean placed = dev.breeze.music.LyricsPlace.placedHere(mc);
-                bx = lyricsButton(g, bx + 4, by, placed ? "Move here" : "Place here", mouseX, mouseY, false,
+                bx = lyricsButton(g, x, y - 2, placed ? "Move here" : "Place here", mouseX, mouseY, false,
                         () -> dev.breeze.music.LyricsPlace.placeAtLook(mc));
-                if (placed) lyricsButton(g, bx, by, "Remove", mouseX, mouseY, false, () -> dev.breeze.music.LyricsPlace.removeHere(mc));
+                if (placed) lyricsButton(g, bx, y - 2, "Remove", mouseX, mouseY, false, () -> dev.breeze.music.LyricsPlace.removeHere(mc));
+                y += 20;
             }
-            y += 42;
         }
         SpotifyPlayer.Track t = s.track;
         if (t == null) {
@@ -635,15 +660,12 @@ public final class MusicScreen extends BreezeScreen {
 
         // Right column.
         if (s.phase != SpotifyPlayer.Phase.READY) return true;
-        int tabX = rx();
+        int[][] tabs = tabs();
         for (Tab t : Tab.values()) {
-            String label = tabLabel(t);
-            int tw = this.font.width(label) + 12;
-            if (inside(mx, my, tabX, py + 28, tw, 16)) {
+            if (inside(mx, my, tabs[t.ordinal()][0], py + 28, tabs[t.ordinal()][1], 16)) {
                 openTab(t);
                 return true;
             }
-            tabX += tw + 4;
         }
         if (tab == Tab.LYRICS) return true;
         typing = tab == Tab.SEARCH && inside(mx, my, rx(), py + 48, rw(), 16);
