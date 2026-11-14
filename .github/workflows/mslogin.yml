@@ -29,4 +29,8 @@ jobs:
             grep -oE '(name|id)="(otc|code|usercode|i0116)"[^>]{0,80}' page.html | sed -E "s/$code/<code>/g" | head -5 | sed 's/^/   field: /'
             grep -oE '"sOTC"[^,]{0,40}|sRemoteConnectCode[^,]{0,40}|"otc"[^,]{0,40}' page.html | sed -E "s/$code/<code>/g" | head -5 | sed 's/^/   script: /'
             grep -oiE '<title>[^<]{0,80}</title>' page.html | head -1 | sed 's/^/   /'
+            python3 -I -c 'import re,sys; t=open("page.html",encoding="utf-8",errors="replace").read(); c=sys.argv[1]
+          for m in re.finditer(re.escape(c), t):
+              print("   context:", t[max(0,m.start()-160):m.end()+60].replace(c,"<code>").replace("\n"," "))' "$code"
+            grep -oE '(sCode|sUserCode|otc|OTC|sOtc)[A-Za-z]*["'"'"']?\s*[:=][^,;]{0,40}' page.html | sed -E "s/$code/<code>/g" | sort -u | head -8 | sed 's/^/   key: /'
           done
