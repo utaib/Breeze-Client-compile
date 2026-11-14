@@ -1,3 +1,3 @@
-# Forge and NeoForge jars of run 43618692575
+# ci/loader-jars-43618692575
 
-Built from 44254b9; for the launcher live loader test. Emptied afterwards.
+Emptied after the run that used it (Breeze mod 2.27.0). Its jars are kept in the private repository.
