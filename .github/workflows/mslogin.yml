@@ -1,4 +1,4 @@
-name: Microsoft sign-in page check
+name: Admin panel deploy check
 on: push
 permissions:
   contents: read
@@ -7,32 +7,13 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
-      - name: Does Microsoft's page fill in a device code passed in its address?
+      - name: Does the live admin panel serve the new sign-in?
         run: |
-          set -u
-          ua='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36'
-          start=$(curl -s -X POST https://login.live.com/oauth20_connect.srf \
-            -d 'client_id=00000000402b5328' -d 'scope=service::user.auth.xboxlive.com::MBI_SSL' -d 'response_type=device_code')
-          code=$(echo "$start" | jq -r .user_code)
-          echo "start answered keys: $(echo "$start" | jq -r 'keys | join(",")')"
-          echo "verification_uri: $(echo "$start" | jq -r .verification_uri)"
-          echo "code length: ${#code}"
-          echo "::add-mask::$code"
-          for url in "https://login.live.com/oauth20_remoteconnect.srf?otc=$code" "https://www.microsoft.com/link?otc=$code" "https://microsoft.com/devicelogin?otc=$code"; do
-            name=$(echo "$url" | sed -E 's/otc=.*/otc=<code>/')
-            out=$(curl -s -L -A "$ua" -o page.html -w '%{http_code} %{url_effective} %{num_redirects}' "$url")
-            final=$(echo "$out" | awk '{print $2}' | sed -E "s/$code/<code>/g; s/(otc|code)=[^&]*/\1=<x>/g")
-            hits=$(grep -o "$code" page.html | wc -l)
-            echo "== $name"
-            echo "   status $(echo "$out" | awk '{print $1}'), redirects $(echo "$out" | awk '{print $3}'), final $final"
-            echo "   page bytes $(wc -c < page.html), code appears $hits times"
-            grep -oE '(name|id)="(otc|code|usercode|i0116)"[^>]{0,80}' page.html | sed -E "s/$code/<code>/g" | head -5 | sed 's/^/   field: /'
-            grep -oE '"sOTC"[^,]{0,40}|sRemoteConnectCode[^,]{0,40}|"otc"[^,]{0,40}' page.html | sed -E "s/$code/<code>/g" | head -5 | sed 's/^/   script: /'
-            grep -oiE '<title>[^<]{0,80}</title>' page.html | head -1 | sed 's/^/   /'
-            python3 -I -c 'import re,sys; t=open("page.html",encoding="utf-8",errors="replace").read(); c=sys.argv[1]
-          for m in re.finditer(re.escape(c), t):
-              print("   context:", t[max(0,m.start()-160):m.end()+60].replace(c,"<code>").replace("\n"," "))' "$code"
-            grep -oE '(sCode|sUserCode|otc|OTC|sOtc)[A-Za-z]*["'"'"']?\s*[:=][^,;]{0,40}' page.html | sed -E "s/$code/<code>/g" | sort -u | head -8 | sed 's/^/   key: /'
+          for i in 1 2 3 4 5 6 7 8; do
+            n=$(curl -s "https://admin.breezeclient.net/assets/js/auth.js?check=$i$RANDOM" | grep -c 'oauth20_remoteconnect.srf?otc=' || true)
+            echo "try $i: lines with the prefilled Microsoft page: $n"
+            if [ "$n" -gt 0 ]; then echo "::notice title=admin-deploy::live admin panel serves the new sign-in"; exit 0; fi
+            sleep 30
           done
-          echo "== headers that decide whether the opener keeps its handle on the popup"
-          curl -s -L -A "$ua" -D - -o /dev/null "https://www.microsoft.com/link?otc=$code" | grep -iE '^(HTTP/|location:|cross-origin-opener-policy|cross-origin-embedder|x-frame-options)' | sed -E "s/$code/<code>/g; s/(otc|code)=[^&]*/\1=<x>/g" | cut -c1-200 | sed 's/^/   /'
+          echo "::error title=admin-deploy::the live admin panel still serves the old sign-in"
+          exit 1
