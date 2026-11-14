@@ -1,7 +1,5 @@
 # launcher-loaders
 
-A branch of its own for building and testing the Breeze Launcher while the
-private repository's Actions are unavailable. It shares no history with
-`main` and holds no launcher source at its tip: the source is pushed in the
-commit before the one that runs, the workflow restores it from there, and the
-branch is emptied to this README when the build is done.
+Used to test the Breeze Launcher's mod loaders while the private
+repository's Actions were unavailable; last run 43618961034. Nothing here now: the
+launcher source and the workflow are gone from this branch.
