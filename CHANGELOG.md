@@ -7,6 +7,40 @@ fixes bump PATCH. `scripts/check-version.sh` keeps `gradle.properties`,
 Each entry says what was verified and how. Anything not verified is marked
 **UNVERIFIED**.
 
+## [2.27.0] - 2026-11-14
+
+With launcher 1.2.0 (owner, 2026-11-12: CurseForge, Forge and NeoForge in
+the launcher, "the Breeze mod on Forge 1.20.1 and NeoForge 1.21.1").
+
+- **Breeze on Forge 1.20.1 and NeoForge 1.21.1.** Two new builds,
+  `1.20.1-forge.jar` and `1.21.1-neoforge.jar`, made from the same source
+  as the Fabric jars of those versions: only the entry point, the hooks
+  (HUD, world drawing, block outline, tooltips, ticks), key registration,
+  the loader facts and the other-mods integration are the loader's own
+  (`versions/shared/forge-family`, `versions/forge-1.20.1`,
+  `versions/neoforge-1.21.1`, `gradle/forge.gradle`, ModDevGradle 2.0.148;
+  Forge's jar is reobfuscated to SRG names and carries a mixin refmap).
+  Every module and mixin is the Fabric build's. On these loaders the
+  menus are the native ones (no embedded browser), and "Other mods" lists
+  the loader's mods with their config screens and opens its Mods list.
+  The launcher asks the API for `<version>-<loader>.jar`, which the API
+  already serves when the file is in `versions/mods/`.
+- Fabric builds: no change in behaviour. The few calls that ask the loader
+  (versions, mod count, ticks) go through `compat/Platform`, so the shared
+  code no longer names Fabric.
+- Forge 1.20.1 cannot load the class Mixin makes for `@ModifyArgs`, so its
+  Free Look camera hook is two `@ModifyArg` (its own copy in
+  `versions/forge-1.20.1`).
+
+Verified: the Forge and NeoForge jars build with `:common:test` (run
+43617570500 on the build repository). NeoForge 1.21.1, installed and
+started by the launcher's own code with the jar in its mods folder (live
+loader test, run 43617930566): Breeze started (87 modules, 89 key
+bindings, other-mods report written), no mixin error, no crash report.
+Forge 1.20.1 in the same test stopped while loading (the `@ModifyArgs`
+above). Fabric 1.20.1 and 26.3 passed their in-game tests with the
+`Platform` change (run 43617208464).
+
 ## [2.26.0] - 2026-11-13
 
 With launcher 1.1.2 (owner, 2026-11-12: "people really want Spotify", "we
