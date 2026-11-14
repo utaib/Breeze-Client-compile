@@ -1,8 +1,0 @@
-// Breeze on Forge for Minecraft 1.20.1, built with ModDevGradle's legacyforge
-// plugin (Forge 1.20.1 runs on SRG names: the jar is reobfuscated).
-// Everything else is in gradle.properties and gradle/forge.gradle.
-plugins {
-    id 'net.neoforged.moddev.legacyforge'
-}
-
-apply from: rootProject.file('gradle/forge.gradle')
