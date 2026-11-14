@@ -1,34 +1,19 @@
-name: Microsoft sign-in check
+name: Admin panel deploy check
 on: push
 permissions:
   contents: read
 jobs:
   check:
     runs-on: ubuntu-24.04
-    timeout-minutes: 5
+    timeout-minutes: 6
     steps:
-      - name: What Microsoft and the live API answer
+      - name: Does the live admin panel serve the newest sign-in?
         run: |
-          set -u
-          echo "== Microsoft, with the API's own settings (scope XboxLive.signin offline_access)"
-          start=$(curl -s -X POST https://login.live.com/oauth20_connect.srf -d 'client_id=00000000402b5328' --data-urlencode 'scope=XboxLive.signin offline_access' -d 'response_type=device_code')
-          echo "start keys: $(echo "$start" | jq -r 'keys | join(",")' 2>/dev/null || echo "$start" | head -c 200)"
-          code=$(echo "$start" | jq -r .user_code); dc=$(echo "$start" | jq -r .device_code)
-          echo "::add-mask::$code"; echo "::add-mask::$dc"
-          echo "interval $(echo "$start" | jq -r .interval), expires_in $(echo "$start" | jq -r .expires_in), verification_uri $(echo "$start" | jq -r .verification_uri)"
-          poll=$(curl -s -X POST https://login.live.com/oauth20_token.srf -d 'grant_type=urn:ietf:params:oauth:grant-type:device_code' -d 'client_id=00000000402b5328' --data-urlencode "device_code=$dc")
-          echo "poll before approval: $(echo "$poll" | jq -c '{error, error_description}' 2>/dev/null || echo "$poll" | head -c 300)"
-          curl -s -L -A 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/130.0' -o page.html "https://login.live.com/oauth20_remoteconnect.srf?otc=$code"
-          echo "prefill present: $(grep -c '"sUserCodePrefill":"'"$code"'"' page.html)"
-          grep -oE '"(sErrTxt|sErrorCode|iErrorCode|sError)"\s*:\s*"[^"]{0,80}"' page.html | head -5 | sed 's/^/error field: /'
-          echo "== the live Breeze API"
-          s=$(curl -s -X POST https://api.breezeclient.net/auth/device/start -H 'Content-Type: application/json' -H 'Origin: https://admin.breezeclient.net' -d '{}' -D headers.txt)
-          echo "status line: $(head -1 headers.txt)"
-          grep -iE '^(access-control-allow-origin|access-control-allow-credentials):' headers.txt | sed 's/^/  /'
-          echo "start keys: $(echo "$s" | jq -r 'keys | join(",")' 2>/dev/null || echo "$s" | head -c 200)"
-          sess=$(echo "$s" | jq -r '.session // .data.session // empty'); [ -n "$sess" ] && echo "::add-mask::$sess"
-          ucode=$(echo "$s" | jq -r '.user_code // .data.user_code // empty'); [ -n "$ucode" ] && echo "::add-mask::$ucode"
-          if [ -n "$sess" ]; then
-            p=$(curl -s -X POST https://api.breezeclient.net/auth/device/poll -H 'Content-Type: application/json' -H 'Origin: https://admin.breezeclient.net' -H 'X-Breeze-Session: cookie' -d "{\"session\":\"$sess\"}" -D pheaders.txt)
-            echo "poll status: $(head -1 pheaders.txt), body: $(echo "$p" | jq -c . 2>/dev/null | head -c 300)"
-          fi
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            n=$(curl -s "https://admin.breezeclient.net/assets/js/auth.js?check=$i$RANDOM" | grep -c 'NOT_CONFIRMED' || true)
+            echo "try $i: lines from the newest sign-in: $n"
+            if [ "$n" -gt 0 ]; then echo "::notice title=admin-deploy::live admin panel serves the newest sign-in"; exit 0; fi
+            sleep 30
+          done
+          echo "::error title=admin-deploy::the live admin panel still serves an older sign-in"
+          exit 1
