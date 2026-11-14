@@ -1,0 +1,32 @@
+name: Microsoft sign-in page check
+on: push
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Does Microsoft's page fill in a device code passed in its address?
+        run: |
+          set -u
+          ua='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36'
+          start=$(curl -s -X POST https://login.live.com/oauth20_connect.srf \
+            -d 'client_id=00000000402b5328' -d 'scope=service::user.auth.xboxlive.com::MBI_SSL' -d 'response_type=device_code')
+          code=$(echo "$start" | jq -r .user_code)
+          echo "start answered keys: $(echo "$start" | jq -r 'keys | join(",")')"
+          echo "verification_uri: $(echo "$start" | jq -r .verification_uri)"
+          echo "code length: ${#code}"
+          echo "::add-mask::$code"
+          for url in "https://login.live.com/oauth20_remoteconnect.srf?otc=$code" "https://www.microsoft.com/link?otc=$code" "https://microsoft.com/devicelogin?otc=$code"; do
+            name=$(echo "$url" | sed -E 's/otc=.*/otc=<code>/')
+            out=$(curl -s -L -A "$ua" -o page.html -w '%{http_code} %{url_effective} %{num_redirects}' "$url")
+            final=$(echo "$out" | awk '{print $2}' | sed -E "s/$code/<code>/g; s/(otc|code)=[^&]*/\1=<x>/g")
+            hits=$(grep -o "$code" page.html | wc -l)
+            echo "== $name"
+            echo "   status $(echo "$out" | awk '{print $1}'), redirects $(echo "$out" | awk '{print $3}'), final $final"
+            echo "   page bytes $(wc -c < page.html), code appears $hits times"
+            grep -oE '(name|id)="(otc|code|usercode|i0116)"[^>]{0,80}' page.html | sed -E "s/$code/<code>/g" | head -5 | sed 's/^/   field: /'
+            grep -oE '"sOTC"[^,]{0,40}|sRemoteConnectCode[^,]{0,40}|"otc"[^,]{0,40}' page.html | sed -E "s/$code/<code>/g" | head -5 | sed 's/^/   script: /'
+            grep -oiE '<title>[^<]{0,80}</title>' page.html | head -1 | sed 's/^/   /'
+          done
