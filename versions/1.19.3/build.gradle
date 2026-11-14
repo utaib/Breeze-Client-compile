@@ -1,0 +1,7 @@
+// Minecraft up to 1.21.11 ships obfuscated: Loom remaps with Mojang's mappings.
+// Everything else is in gradle.properties and gradle/version.gradle.
+plugins {
+    id 'net.fabricmc.fabric-loom-remap'
+}
+
+apply from: rootProject.file('gradle/version.gradle')

@@ -1,0 +1,6 @@
+# Before Minecraft 1.19, text components were made with TextComponent and
+# TranslatableComponent; compat/Texts offers the 1.19 calls Breeze makes
+# (gradle/version.gradle, "Sources").
+Component.literal dev.breeze.compat.Texts.literal
+Component.empty dev.breeze.compat.Texts.empty
+Component.translatable dev.breeze.compat.Texts.translatable
