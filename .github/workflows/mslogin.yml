@@ -34,3 +34,5 @@ jobs:
               print("   context:", t[max(0,m.start()-160):m.end()+60].replace(c,"<code>").replace("\n"," "))' "$code"
             grep -oE '(sCode|sUserCode|otc|OTC|sOtc)[A-Za-z]*["'"'"']?\s*[:=][^,;]{0,40}' page.html | sed -E "s/$code/<code>/g" | sort -u | head -8 | sed 's/^/   key: /'
           done
+          echo "== headers that decide whether the opener keeps its handle on the popup"
+          curl -s -L -A "$ua" -D - -o /dev/null "https://www.microsoft.com/link?otc=$code" | grep -iE '^(HTTP/|location:|cross-origin-opener-policy|cross-origin-embedder|x-frame-options)' | sed -E "s/$code/<code>/g; s/(otc|code)=[^&]*/\1=<x>/g" | cut -c1-200 | sed 's/^/   /'
