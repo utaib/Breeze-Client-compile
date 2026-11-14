@@ -76,7 +76,8 @@ public final class Platform {
     }
 
     private static Optional<ModContainer> container(String modId) {
-        return ModList.get().getModContainerById(modId);
+        // NeoForge hands back Optional<? extends ModContainer>.
+        return ModList.get().getModContainerById(modId).map(c -> (ModContainer) c);
     }
 
     public static boolean hasConfigScreen(String modId) {
