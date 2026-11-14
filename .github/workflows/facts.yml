@@ -1,0 +1,44 @@
+name: Forge and NeoForge facts
+on: push
+permissions:
+  contents: read
+jobs:
+  facts:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Builds per Minecraft version
+        run: |
+          set -u
+          VERSIONS="1.17 1.17.1 1.18 1.18.1 1.18.2 1.19 1.19.1 1.19.2 1.19.3 1.19.4 1.20 1.20.1 1.20.2 1.20.3 1.20.4 1.20.5 1.20.6 1.21 1.21.1 1.21.2 1.21.3 1.21.4 1.21.5 1.21.6 1.21.7 1.21.8 1.21.9 1.21.10 1.21.11 26.1 26.1.1 26.1.2 26.2 26.3"
+          curl -s https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json > promos.json
+          curl -s https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml > forge.xml
+          curl -s https://maven.neoforged.net/releases/net/neoforged/neoforge/maven-metadata.xml > neo.xml
+          curl -s https://maven.neoforged.net/releases/net/neoforged/forge/maven-metadata.xml > neoforge1201.xml
+          echo "forge versions listed: $(grep -c '<version>' forge.xml), neoforge: $(grep -c '<version>' neo.xml)"
+          printf '%-8s | %-28s | %-30s\n' MC Forge NeoForge
+          for mc in $VERSIONS; do
+            rec=$(jq -r --arg k "$mc-recommended" '.promos[$k] // empty' promos.json)
+            lat=$(jq -r --arg k "$mc-latest" '.promos[$k] // empty' promos.json)
+            fcount=$(grep -oE "<version>$mc-[^<]+</version>" forge.xml | wc -l)
+            f="${rec:+rec $rec}${rec:+ }${lat:+latest $lat} ($fcount)"; [ "$fcount" -eq 0 ] && f="none"
+            # NeoForge: 1.20.x -> 20.x.*, 1.21.x -> 21.x.*, 26.x -> 26.x.*
+            case "$mc" in
+              1.20.1) n=$(grep -oE '<version>1\.20\.1-47[^<]*</version>' neoforge1201.xml | sed -E 's#</?version>##g' | tail -1); n="${n:+(old fork) $n}";;
+              1.*) IFS=. read -r a b c <<< "$mc"; pre="$b.${c:-0}."; n=$(grep -oE "<version>$pre[0-9][^<]*</version>" neo.xml | sed -E 's#</?version>##g' | grep -v -- '-beta\|-alpha' | tail -1); nb=$(grep -oE "<version>$pre[0-9][^<]*</version>" neo.xml | sed -E 's#</?version>##g' | tail -1); [ -z "$n" ] && [ -n "$nb" ] && n="beta only: $nb";;
+              26.*) IFS=. read -r a b c <<< "$mc"; pre="$a.$b.${c:-0}."; n=$(grep -oE "<version>$pre[0-9][^<]*</version>" neo.xml | sed -E 's#</?version>##g' | grep -v -- '-beta\|-alpha' | tail -1); nb=$(grep -oE "<version>$pre[0-9][^<]*</version>" neo.xml | sed -E 's#</?version>##g' | tail -1); [ -z "$n" ] && [ -n "$nb" ] && n="beta only: $nb";;
+            esac
+            printf '%-8s | %-28s | %-30s\n' "$mc" "$f" "${n:-none}"
+          done
+          echo "== newest NeoForge versions listed"; grep -oE '<version>[^<]+</version>' neo.xml | sed -E 's#</?version>##g' | tail -8 | tr '\n' ' '; echo
+      - name: ModDevGradle and ForgeGradle
+        run: |
+          echo "== ModDevGradle versions (plugin portal)"; curl -s https://plugins.gradle.org/m2/net/neoforged/moddev/net.neoforged.moddev.gradle.plugin/maven-metadata.xml | grep -oE '<(latest|release)>[^<]+' | head -3
+          curl -s https://maven.neoforged.net/releases/net/neoforged/moddev-gradle/maven-metadata.xml | grep -oE '<(latest|release)>[^<]+' | head -3
+          echo "== ForgeGradle versions"; curl -s https://maven.minecraftforge.net/net/minecraftforge/gradle/ForgeGradle/maven-metadata.xml | grep -oE '<version>[^<]+' | sed 's/<version>//' | tail -8 | tr '\n' ' '; echo
+          echo "== ModDevGradle README: what legacyforge and neoforge support"
+          curl -sL https://raw.githubusercontent.com/neoforged/ModDevGradle/main/README.md -o mdg.md
+          grep -niE 'legacy|1\.17|1\.20\.1|1\.20\.2|1\.20\.4|supported|support' mdg.md | head -40
+          echo "== LEGACY.md"
+          curl -sL https://raw.githubusercontent.com/neoforged/ModDevGradle/main/LEGACY.md -o legacy.md
+          grep -niE '1\.1[0-9]|1\.20|forge version|supports' legacy.md | head -20
