@@ -250,9 +250,12 @@ jar {
 // one (Forge 1.20.6+ and NeoForge run on Mojang's names). Copied to
 // build/release/<mc>-<loader>.jar so the workflow and the launcher find it by
 // one name.
-def finalJar = srgForge ? tasks.named('reobfJar') : tasks.named('jar')
+// ForgeGradle 6 makes reobfJar only once the project is evaluated, and it
+// rewrites the jar in place: copy the jar after it.
+def finalJar = (srgForge && !forgeGradle6) ? tasks.named('reobfJar') : tasks.named('jar')
 def release = tasks.register('releaseJar', Copy) {
     description = "Copies the jar players get to build/release/${jarName}.jar."
+    if (forgeGradle6) dependsOn 'reobfJar'
     from(finalJar)
     into layout.buildDirectory.dir('release')
     rename { "${jarName}.jar" }
