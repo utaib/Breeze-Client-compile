@@ -86,6 +86,10 @@ if (forgeGradle) {
     // map, its code is not obfuscated), Minecraft and Forge through
     // ForgeGradle's Mavenizer.
     java.toolchain.languageVersion = JavaLanguageVersion.of((project.findProperty('java_toolchain') ?: project.java_release) as Integer)
+    // Compiled for an older Java than Minecraft's (java_toolchain): Gradle
+    // would then look for libraries made for that older Java and refuse
+    // Forge's, which say Java 21 or 25 (run 43673993732).
+    if (project.findProperty('java_toolchain')) java.disableAutoTargetJvm()
     minecraft {
         if (!mc.startsWith('26.')) {
             mappings channel: 'official', version: mc
