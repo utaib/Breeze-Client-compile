@@ -1,3 +1,3 @@
 # ci/loader-jars-43618692575
 
-Emptied after the run that used it (Breeze mod 2.27.0). Its jars are kept in the private repository.
+Held Forge and NeoForge jars of one build for the launcher's live test; emptied.
