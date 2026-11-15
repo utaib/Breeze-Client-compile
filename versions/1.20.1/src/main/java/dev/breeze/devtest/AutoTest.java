@@ -67,8 +67,12 @@ public final class AutoTest {
     private static long stageStart;
     private static String lastScreen = "";
     private static int cycle;
-    /** When the web menu first painted (its wallpaper may still be decoding then). */
+    /** When the web menu first painted (its page may not have loaded yet then). */
     private static long firstPainted;
+    /** When the last menu wallpaper was handed out (the web page asks as it starts). */
+    private static volatile long wallpaperVisitAt;
+    /** When Minecraft's loading overlay was last seen gone (0 while it is up). */
+    private static long overlayGoneAt;
     /** Each menu wallpaper shown, in order (name and where: native or web). */
     private static final java.util.List<String> wallpaperVisits = new java.util.concurrent.CopyOnWriteArrayList<>();
     private static int maxLiveAfterClose;
@@ -147,6 +151,7 @@ public final class AutoTest {
         }
         dev.breeze.ui.Wallpaper.onVisit = (name, where) -> {
             wallpaperVisits.add(name);
+            wallpaperVisitAt = System.currentTimeMillis();
             log("wallpaper-visit", "name", name, "where", where);
         };
         if (STUB) {
@@ -221,11 +226,19 @@ public final class AutoTest {
                 if (nativeMode) {
                     ready = age > 1_000 && Targets.snapshot().containsKey("breeze-button");
                 } else {
-                    // A moment after the first paint, so the page's wallpaper
-                    // (a data: URI Chromium decodes on its own time) is in
-                    // the screenshot wallpaper-check reads.
-                    if (firstPainted == 0 && painted(mc)) firstPainted = System.currentTimeMillis();
-                    ready = firstPainted != 0 && System.currentTimeMillis() - firstPainted > 1_500;
+                    // The web menu can open, and its browser report a paint,
+                    // while Minecraft's loading overlay still covers it (1.20
+                    // to 1.21.2, 26.1.1 in run 43694654290). Wait until the
+                    // overlay is gone and the page has had 2.5 s since it asked
+                    // for its wallpaper: wallpaper-check reads this screenshot.
+                    long now = System.currentTimeMillis();
+                    if (firstPainted == 0 && painted(mc)) firstPainted = now;
+                    if (dev.breeze.compat.ActiveScreen.overlay(mc) != null) overlayGoneAt = 0;
+                    else if (overlayGoneAt == 0) overlayGoneAt = now;
+                    long visit = wallpaperVisitAt;
+                    long since = Math.max(overlayGoneAt, visit != 0 ? visit : firstPainted);
+                    ready = firstPainted != 0 && overlayGoneAt != 0
+                            && now - since > (visit != 0 ? 2_500 : 8_000);
                 }
                 if (ready) {
                     shot(mc, "autotest-title-menu");
@@ -239,8 +252,8 @@ public final class AutoTest {
                     stage = Stage.WAIT_DRIVER;
                     stageStart = System.currentTimeMillis();
                     log("READY_FOR_INPUT", "mode", nativeMode ? "native" : "web");
-                } else if (age > 60_000) {
-                    fail("the page never painted");
+                } else if (age > 120_000) {
+                    fail(firstPainted == 0 ? "the page never painted" : "the loading overlay never went");
                 }
             }
             case WAIT_DRIVER -> {
