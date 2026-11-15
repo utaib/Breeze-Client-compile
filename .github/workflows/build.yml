@@ -545,8 +545,17 @@ jobs:
           if grep -q '^java_release=25' "versions/$P/gradle.properties"; then export JAVA_HOME="$JAVA_HOME_25_X64"; else export JAVA_HOME="$JAVA_HOME_21_X64"; fi
           echo "Java: $JAVA_HOME"
           (cd frontend && npm ci --silent)
+          # Forge 1.20.2 to 1.20.4 build with ForgeGradle 6, which needs
+          # Gradle 8 (gradle/forge.gradle); everything else with the wrapper.
+          gradle=./gradlew
+          if grep -q '^forge_toolchain=forgegradle6' "versions/$P/gradle.properties"; then
+            curl -sSL -o "$RUNNER_TEMP/gradle8.zip" https://services.gradle.org/distributions/gradle-8.12.1-bin.zip
+            unzip -q "$RUNNER_TEMP/gradle8.zip" -d "$RUNNER_TEMP"
+            gradle="$RUNNER_TEMP/gradle-8.12.1/bin/gradle"
+          fi
+          echo "Gradle: $gradle"
           set -o pipefail
-          ./gradlew --no-daemon "-Pbreeze_versions=$P" \
+          "$gradle" --no-daemon "-Pbreeze_versions=$P" \
             -Porg.gradle.java.installations.fromEnv=JAVA_HOME_16_X64,JAVA_HOME_17_X64,JAVA_HOME_21_X64,JAVA_HOME_25_X64 \
             :common:test ":versions:$P:build" 2>&1 | tee "$RUNNER_TEMP/gradle.log"
       - name: Compile errors, one per line

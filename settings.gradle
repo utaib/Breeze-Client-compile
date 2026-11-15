@@ -9,6 +9,12 @@ pluginManagement {
             url = 'https://maven.minecraftforge.net/'
             content { includeGroupByRegex 'net\\.minecraftforge.*' }
         }
+        // MixinGradle, for Forge 1.20.2 to 1.20.4 (ForgeGradle 6).
+        maven {
+            name = 'Sponge'
+            url = 'https://repo.spongepowered.org/repository/maven-public/'
+            content { includeGroupByRegex 'org\\.spongepowered.*' }
+        }
     }
     plugins {
         id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
