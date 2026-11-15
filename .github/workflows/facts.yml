@@ -1,4 +1,4 @@
-name: Forge MDK build files
+name: Forge versions and example projects
 on: push
 permissions:
   contents: read
@@ -7,12 +7,34 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
-      - name: Forge's own example build files (1.20.4, 1.20.6, 26.3)
+      - name: Newest Forge build per Minecraft version
         run: |
-          for fv in 1.20.4-49.2.13 1.20.6-50.2.14 26.3-66.1.8; do
-            curl -s -o mdk.zip "https://maven.minecraftforge.net/net/minecraftforge/forge/$fv/forge-$fv-mdk.zip"
-            echo "=================== $fv settings.gradle"; unzip -p mdk.zip settings.gradle | grep -vE '^\s*//|^\s*$'
-            echo "=================== $fv build.gradle"; unzip -p mdk.zip build.gradle | grep -vE '^\s*//|^\s*$' | grep -vE '^\s*\*|/\*\*' | head -120
-            echo "=================== $fv gradle.properties"; unzip -p mdk.zip gradle.properties | grep -vE '^\s*#|^\s*$' | head -30
+          curl -s https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml -o forge.xml
+          curl -s https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json -o promo.json
+          for mc in 1.20.2 1.20.3 1.20.4 1.20.5 1.20.6 1.21 1.21.1 1.21.2 1.21.3 1.21.4 1.21.5 1.21.6 1.21.7 1.21.8 1.21.9 1.21.10 1.21.11 26.1 26.1.1 26.1.2 26.2 26.3; do
+            newest=$(grep -oE "<version>${mc//./\\.}-[0-9][^<]*" forge.xml | sed 's/<version>//' | sort -V | tail -1)
+            promo=$(python3 -c "import json,sys; d=json.load(open('promo.json'))['promos']; print(d.get('$mc-recommended','-'), d.get('$mc-latest','-'))")
+            echo "forge $mc: newest ${newest:-none}; promos recommended/latest $promo"
+          done
+      - name: NeoForge builds for the versions not built yet
+        run: |
+          curl -s https://maven.neoforged.net/releases/net/neoforged/neoforge/maven-metadata.xml -o neo.xml
+          for p in 20.2 20.3 20.4 20.5 20.6 21.2 21.6 21.7 21.9 26.1.0 26.1.1; do
+            all=$(grep -oE "<version>${p//./\\.}\.[^<]*" neo.xml | sed 's/<version>//' | sort -V)
+            stable=$(echo "$all" | grep -v -E 'beta|alpha|rc' | tail -1)
+            echo "neoforge $p: newest $(echo "$all" | tail -1), newest without beta: ${stable:-none}, count $(echo "$all" | grep -c . )"
+          done
+      - name: Forge example projects (build files)
+        run: |
+          for fv in 1.20.2-48.1.0 1.20.4-49.2.13 1.20.6-50.2.14 1.21.1-52.1.20 1.21.11-61.2.4 26.3-66.1.8; do
+            echo "=================== $fv"
+            curl -s -o mdk.zip "https://maven.minecraftforge.net/net/minecraftforge/forge/$fv/forge-$fv-mdk.zip" || continue
             unzip -p mdk.zip gradle/wrapper/gradle-wrapper.properties | grep distributionUrl
+            unzip -p mdk.zip settings.gradle | grep -v '^\s*//' | grep -v '^\s*$'
+            echo "--- build.gradle"
+            unzip -p mdk.zip build.gradle | grep -v '^\s*//' | grep -v '^\s*$' | head -120
+            echo "--- gradle.properties"
+            unzip -p mdk.zip gradle.properties | grep -v '^\s*#' | grep -v '^\s*$'
+            echo "--- mods.toml"
+            unzip -p mdk.zip src/main/resources/META-INF/mods.toml | grep -E 'loaderVersion|modLoader|license|\[\[|versionRange|side|mandatory|type' | head -20
           done
