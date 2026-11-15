@@ -1,3 +1,3 @@
-# Forge and NeoForge jars of run 43668605191
+# ci/loader-jars-43668605191
 
-Built from 8e9f40b; for the launcher live loader test. Emptied afterwards.
+Held Forge and NeoForge jars of one build for the launcher's live test; emptied.
