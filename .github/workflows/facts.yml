@@ -1,4 +1,4 @@
-name: Forge and NeoForge facts
+name: Forge runtime names
 on: push
 permissions:
   contents: read
@@ -7,38 +7,26 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
-      - name: Builds per Minecraft version
+      - name: Does Forge's own code call Minecraft by SRG or by Mojang names?
         run: |
-          set -u
-          VERSIONS="1.17 1.17.1 1.18 1.18.1 1.18.2 1.19 1.19.1 1.19.2 1.19.3 1.19.4 1.20 1.20.1 1.20.2 1.20.3 1.20.4 1.20.5 1.20.6 1.21 1.21.1 1.21.2 1.21.3 1.21.4 1.21.5 1.21.6 1.21.7 1.21.8 1.21.9 1.21.10 1.21.11 26.1 26.1.1 26.1.2 26.2 26.3"
-          curl -s https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json > promos.json
-          curl -s https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml > forge.xml
-          curl -s https://maven.neoforged.net/releases/net/neoforged/neoforge/maven-metadata.xml > neo.xml
-          curl -s https://maven.neoforged.net/releases/net/neoforged/forge/maven-metadata.xml > neoforge1201.xml
-          echo "forge versions listed: $(grep -c '<version>' forge.xml), neoforge: $(grep -c '<version>' neo.xml)"
-          printf '%-8s | %-28s | %-30s\n' MC Forge NeoForge
-          for mc in $VERSIONS; do
-            rec=$(jq -r --arg k "$mc-recommended" '.promos[$k] // empty' promos.json)
-            lat=$(jq -r --arg k "$mc-latest" '.promos[$k] // empty' promos.json)
-            fcount=$(grep -oE "<version>$mc-[^<]+</version>" forge.xml | wc -l)
-            f="${rec:+rec $rec}${rec:+ }${lat:+latest $lat} ($fcount)"; [ "$fcount" -eq 0 ] && f="none"
-            # NeoForge: 1.20.x -> 20.x.*, 1.21.x -> 21.x.*, 26.x -> 26.x.*
-            case "$mc" in
-              1.20.1) n=$(grep -oE '<version>1\.20\.1-47[^<]*</version>' neoforge1201.xml | sed -E 's#</?version>##g' | tail -1); n="${n:+(old fork) $n}";;
-              1.*) IFS=. read -r a b c <<< "$mc"; pre="$b.${c:-0}."; n=$(grep -oE "<version>$pre[0-9][^<]*</version>" neo.xml | sed -E 's#</?version>##g' | grep -v -- '-beta\|-alpha' | tail -1); nb=$(grep -oE "<version>$pre[0-9][^<]*</version>" neo.xml | sed -E 's#</?version>##g' | tail -1); [ -z "$n" ] && [ -n "$nb" ] && n="beta only: $nb";;
-              26.*) IFS=. read -r a b c <<< "$mc"; pre="$a.$b.${c:-0}."; n=$(grep -oE "<version>$pre[0-9][^<]*</version>" neo.xml | sed -E 's#</?version>##g' | grep -v -- '-beta\|-alpha' | tail -1); nb=$(grep -oE "<version>$pre[0-9][^<]*</version>" neo.xml | sed -E 's#</?version>##g' | tail -1); [ -z "$n" ] && [ -n "$nb" ] && n="beta only: $nb";;
-            esac
-            printf '%-8s | %-28s | %-30s\n' "$mc" "$f" "${n:-none}"
+          for fv in 1.20.1-47.4.28 1.20.2-48.1.0 1.20.4-49.2.13 1.20.6-50.2.14 1.21.1-52.1.20 1.21.5-55.1.18 1.21.11-61.2.4 26.3-66.1.8; do
+            url="https://maven.minecraftforge.net/net/minecraftforge/forge/$fv/forge-$fv-universal.jar"
+            code=$(curl -s -o u.jar -w '%{http_code}' "$url")
+            if [ "$code" != 200 ]; then url="https://maven.minecraftforge.net/net/minecraftforge/forge/$fv/forge-$fv-installer.jar"; code=$(curl -s -o u.jar -w '%{http_code}' "$url"); fi
+            srg=$(unzip -p u.jar 'net/minecraftforge/*' 2>/dev/null | grep -a -c 'm_91087_' || true)
+            moj=$(unzip -p u.jar 'net/minecraftforge/*' 2>/dev/null | grep -a -o 'getInstance()Lnet/minecraft/client/Minecraft' | head -1)
+            echo "$fv: http $code, size $(stat -c %s u.jar 2>/dev/null), SRG getInstance refs $srg, Mojang getInstance: ${moj:-none}"
+            unzip -l u.jar 2>/dev/null | grep -E 'META-INF/MANIFEST|mappings|srg|official' | head -3 | sed 's/^/   /'
           done
-          echo "== newest NeoForge versions listed"; grep -oE '<version>[^<]+</version>' neo.xml | sed -E 's#</?version>##g' | tail -8 | tr '\n' ' '; echo
-      - name: ModDevGradle and ForgeGradle
+      - name: ModDevGradle on NeoForge before 21
         run: |
-          echo "== ModDevGradle versions (plugin portal)"; curl -s https://plugins.gradle.org/m2/net/neoforged/moddev/net.neoforged.moddev.gradle.plugin/maven-metadata.xml | grep -oE '<(latest|release)>[^<]+' | head -3
-          curl -s https://maven.neoforged.net/releases/net/neoforged/moddev-gradle/maven-metadata.xml | grep -oE '<(latest|release)>[^<]+' | head -3
-          echo "== ForgeGradle versions"; curl -s https://maven.minecraftforge.net/net/minecraftforge/gradle/ForgeGradle/maven-metadata.xml | grep -oE '<version>[^<]+' | sed 's/<version>//' | tail -8 | tr '\n' ' '; echo
-          echo "== ModDevGradle README: what legacyforge and neoforge support"
           curl -sL https://raw.githubusercontent.com/neoforged/ModDevGradle/main/README.md -o mdg.md
-          grep -niE 'legacy|1\.17|1\.20\.1|1\.20\.2|1\.20\.4|supported|support' mdg.md | head -40
-          echo "== LEGACY.md"
-          curl -sL https://raw.githubusercontent.com/neoforged/ModDevGradle/main/LEGACY.md -o legacy.md
-          grep -niE '1\.1[0-9]|1\.20|forge version|supports' legacy.md | head -20
+          sed -n '35,60p' mdg.md
+          grep -niE '20\.[246]|1\.20\.[246]|neogradle|older' mdg.md | head -10
+          echo "== MDG versions 1.x and 2.0 (plugin portal)"; curl -s https://plugins.gradle.org/m2/net/neoforged/moddev/net.neoforged.moddev.gradle.plugin/maven-metadata.xml | grep -oE '<version>[0-9.]+' | sed 's/<version>//' | head -5 | tr '\n' ' '; echo
+          echo "== NeoGradle (userdev) versions"; curl -s https://maven.neoforged.net/releases/net/neoforged/gradle/userdev/maven-metadata.xml | grep -oE '<(latest|release)>[^<]+' | head -2
+          echo "== ForgeGradle 7?"; curl -s https://maven.minecraftforge.net/net/minecraftforge/gradle/ForgeGradle/maven-metadata.xml | grep -oE '<version>7[^<]*' | head -5
+          echo "== Forge MDK for 26.3: which ForgeGradle and Gradle"
+          curl -s -o mdk.zip "https://maven.minecraftforge.net/net/minecraftforge/forge/26.3-66.1.8/forge-26.3-66.1.8-mdk.zip" && unzip -p mdk.zip build.gradle | grep -nE "plugins|id '|id \"|version|minecraft \{|mappings" | head -12; unzip -p mdk.zip gradle/wrapper/gradle-wrapper.properties | grep distributionUrl
+          echo "== Forge MDK for 1.20.6"
+          curl -s -o mdk2.zip "https://maven.minecraftforge.net/net/minecraftforge/forge/1.20.6-50.2.14/forge-1.20.6-50.2.14-mdk.zip" && unzip -p mdk2.zip build.gradle | grep -nE "id '|mappings|reobf" | head -8; unzip -p mdk2.zip gradle/wrapper/gradle-wrapper.properties | grep distributionUrl
