@@ -1,4 +1,4 @@
-name: Forge runtime names
+name: Forge MDK build files
 on: push
 permissions:
   contents: read
@@ -7,26 +7,12 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
-      - name: Does Forge's own code call Minecraft by SRG or by Mojang names?
+      - name: Forge's own example build files (1.20.4, 1.20.6, 26.3)
         run: |
-          for fv in 1.20.1-47.4.28 1.20.2-48.1.0 1.20.4-49.2.13 1.20.6-50.2.14 1.21.1-52.1.20 1.21.5-55.1.18 1.21.11-61.2.4 26.3-66.1.8; do
-            url="https://maven.minecraftforge.net/net/minecraftforge/forge/$fv/forge-$fv-universal.jar"
-            code=$(curl -s -o u.jar -w '%{http_code}' "$url")
-            if [ "$code" != 200 ]; then url="https://maven.minecraftforge.net/net/minecraftforge/forge/$fv/forge-$fv-installer.jar"; code=$(curl -s -o u.jar -w '%{http_code}' "$url"); fi
-            srg=$(unzip -p u.jar 'net/minecraftforge/*' 2>/dev/null | grep -a -c 'm_91087_' || true)
-            moj=$(unzip -p u.jar 'net/minecraftforge/*' 2>/dev/null | grep -a -o 'getInstance()Lnet/minecraft/client/Minecraft' | head -1)
-            echo "$fv: http $code, size $(stat -c %s u.jar 2>/dev/null), SRG getInstance refs $srg, Mojang getInstance: ${moj:-none}"
-            unzip -l u.jar 2>/dev/null | grep -E 'META-INF/MANIFEST|mappings|srg|official' | head -3 | sed 's/^/   /'
+          for fv in 1.20.4-49.2.13 1.20.6-50.2.14 26.3-66.1.8; do
+            curl -s -o mdk.zip "https://maven.minecraftforge.net/net/minecraftforge/forge/$fv/forge-$fv-mdk.zip"
+            echo "=================== $fv settings.gradle"; unzip -p mdk.zip settings.gradle | grep -vE '^\s*//|^\s*$'
+            echo "=================== $fv build.gradle"; unzip -p mdk.zip build.gradle | grep -vE '^\s*//|^\s*$' | grep -vE '^\s*\*|/\*\*' | head -120
+            echo "=================== $fv gradle.properties"; unzip -p mdk.zip gradle.properties | grep -vE '^\s*#|^\s*$' | head -30
+            unzip -p mdk.zip gradle/wrapper/gradle-wrapper.properties | grep distributionUrl
           done
-      - name: ModDevGradle on NeoForge before 21
-        run: |
-          curl -sL https://raw.githubusercontent.com/neoforged/ModDevGradle/main/README.md -o mdg.md
-          sed -n '35,60p' mdg.md
-          grep -niE '20\.[246]|1\.20\.[246]|neogradle|older' mdg.md | head -10
-          echo "== MDG versions 1.x and 2.0 (plugin portal)"; curl -s https://plugins.gradle.org/m2/net/neoforged/moddev/net.neoforged.moddev.gradle.plugin/maven-metadata.xml | grep -oE '<version>[0-9.]+' | sed 's/<version>//' | head -5 | tr '\n' ' '; echo
-          echo "== NeoGradle (userdev) versions"; curl -s https://maven.neoforged.net/releases/net/neoforged/gradle/userdev/maven-metadata.xml | grep -oE '<(latest|release)>[^<]+' | head -2
-          echo "== ForgeGradle 7?"; curl -s https://maven.minecraftforge.net/net/minecraftforge/gradle/ForgeGradle/maven-metadata.xml | grep -oE '<version>7[^<]*' | head -5
-          echo "== Forge MDK for 26.3: which ForgeGradle and Gradle"
-          curl -s -o mdk.zip "https://maven.minecraftforge.net/net/minecraftforge/forge/26.3-66.1.8/forge-26.3-66.1.8-mdk.zip" && unzip -p mdk.zip build.gradle | grep -nE "plugins|id '|id \"|version|minecraft \{|mappings" | head -12; unzip -p mdk.zip gradle/wrapper/gradle-wrapper.properties | grep distributionUrl
-          echo "== Forge MDK for 1.20.6"
-          curl -s -o mdk2.zip "https://maven.minecraftforge.net/net/minecraftforge/forge/1.20.6-50.2.14/forge-1.20.6-50.2.14-mdk.zip" && unzip -p mdk2.zip build.gradle | grep -nE "id '|mappings|reobf" | head -8; unzip -p mdk2.zip gradle/wrapper/gradle-wrapper.properties | grep distributionUrl
