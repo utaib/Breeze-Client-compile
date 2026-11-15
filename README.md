@@ -1,3 +1,3 @@
 # ci-forge2
 
-Emptied after the run that used it (Breeze mod 2.27.0). Its jars are kept in the private repository.
+Held a copy for Breeze 1.2.0 builds (mod 2.28.0, Forge and NeoForge) for a moment; emptied.
