@@ -542,7 +542,7 @@ jobs:
           EOF
       - name: Build
         run: |
-          if grep -q '^java_release=25' "versions/$P/gradle.properties"; then export JAVA_HOME="$JAVA_HOME_25_X64"; else export JAVA_HOME="$JAVA_HOME_21_X64"; fi
+          if grep -qE '^java_(release|toolchain)=25' "versions/$P/gradle.properties"; then export JAVA_HOME="$JAVA_HOME_25_X64"; else export JAVA_HOME="$JAVA_HOME_21_X64"; fi
           echo "Java: $JAVA_HOME"
           (cd frontend && npm ci --silent)
           # Forge 1.20.2 to 1.20.4 build with ForgeGradle 6, which needs

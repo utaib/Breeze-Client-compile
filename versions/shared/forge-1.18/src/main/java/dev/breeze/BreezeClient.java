@@ -8,8 +8,8 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Breeze on Forge 1.18 to 1.18.2. Forge has no key registration event before
@@ -21,7 +21,9 @@ import org.slf4j.LoggerFactory;
 public class BreezeClient {
 
     public static final String MOD_ID = "breeze";
-    public static final Logger LOGGER = LoggerFactory.getLogger("Breeze");
+    // log4j, not SLF4J: Minecraft 1.18 and 1.18.1 have no SLF4J (it came with
+    // 1.18.2), and Breeze printed nothing there (launcher live test 43672858986).
+    public static final Logger LOGGER = LogManager.getLogger("Breeze");
 
     public BreezeClient() {
         if (FMLEnvironment.dist != Dist.CLIENT) {

@@ -30,6 +30,9 @@
 //   minecraft_range     the range written into mods.toml ([1.20.1,1.20.2))
 //   loader_range        the loader range written into mods.toml
 //   java_release        bytecode level
+//   java_toolchain      the Java ForgeGradle sets Minecraft up with, when it
+//                       differs from java_release (Forge 1.20.6 and 26.x,
+//                       whose Mixin does not know their Java's level)
 //   forge_toolchain     forgegradle (Forge 1.20.6 and later), forgegradle6
 //                       (Forge 1.20.2 to 1.20.4), else ModDevGradle
 //   mixin_java          Mixin compatibility level
@@ -82,7 +85,7 @@ if (forgeGradle) {
     // As Forge's example project: Mojang's official names (26.x has none to
     // map, its code is not obfuscated), Minecraft and Forge through
     // ForgeGradle's Mavenizer.
-    java.toolchain.languageVersion = JavaLanguageVersion.of(project.java_release as Integer)
+    java.toolchain.languageVersion = JavaLanguageVersion.of((project.findProperty('java_toolchain') ?: project.java_release) as Integer)
     minecraft {
         if (!mc.startsWith('26.')) {
             mappings channel: 'official', version: mc
