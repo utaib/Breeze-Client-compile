@@ -18,7 +18,7 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
 /**
- * Breeze's hooks into the game through Forge 1.20.6 to 1.21.5. The HUD is
+ * Breeze's hooks into the game through Forge 1.20.6 to 1.21.1. The HUD is
  * drawn by a mixin at the end of Minecraft's Gui.render (compat/ForgeHud),
  * since Forge has no RenderGuiEvent from 1.20.6. The level stage event hands
  * over the model-view matrix, not a pose stack: as on Fabric from 1.20.5 the
