@@ -513,11 +513,15 @@ jobs:
       P: ${{ matrix.p }}
     steps:
       - uses: actions/checkout@v4
-      # Java 21 for Minecraft up to 1.21.x, 25 for 26.x (the Build step picks).
+      # Java 21 runs Gradle for Minecraft up to 1.21.x and 25 for 26.x (the
+      # Build step picks); ModDevGradle's tools for Forge 1.17.1 want 16 and
+      # those for 1.18 to 1.20.1 17, found through fromEnv below.
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: |
+            16
+            17
             21
             25
       - uses: actions/setup-node@v4
@@ -542,7 +546,9 @@ jobs:
           echo "Java: $JAVA_HOME"
           (cd frontend && npm ci --silent)
           set -o pipefail
-          ./gradlew --no-daemon "-Pbreeze_versions=$P" :common:test ":versions:$P:build" 2>&1 | tee "$RUNNER_TEMP/gradle.log"
+          ./gradlew --no-daemon "-Pbreeze_versions=$P" \
+            -Porg.gradle.java.installations.fromEnv=JAVA_HOME_16_X64,JAVA_HOME_17_X64,JAVA_HOME_21_X64,JAVA_HOME_25_X64 \
+            :common:test ":versions:$P:build" 2>&1 | tee "$RUNNER_TEMP/gradle.log"
       - name: Compile errors, one per line
         if: failure()
         run: |
@@ -563,13 +569,19 @@ jobs:
           # The loader jars this build compiled against (ModDevGradle's
           # artifacts and Gradle's caches), and the event classes in them.
           find "versions/$P/build" ~/.gradle/caches -name '*.jar' 2>/dev/null \
-            | grep -E '/(forge|neoforge|fmlcore|fmlloader|javafmllanguage)[^/]*\.jar$|moddev/artifacts/.*\.jar$' | sort -u | head -20 > "$RUNNER_TEMP/loader-jars.txt" || true
+            | grep -E '/(forge|neoforge|fmlcore|fmlloader|javafmllanguage|loader)-[0-9][^/]*\.jar$|moddev/artifacts/.*\.jar$' | grep -v -- '-sources\.jar$' | sort -u | head -20 > "$RUNNER_TEMP/loader-jars.txt" || true
           cat "$RUNNER_TEMP/loader-jars.txt"
           while IFS= read -r j; do
             unzip -Z1 "$j" 2>/dev/null | grep -E '^net/(minecraftforge|neoforged/neoforge)/(client/(event|gui)|event|client)/[A-Za-z]+(\$[A-Za-z]+)?\.class$' \
               | sed 's/\.class$//' | sort -u
           done < "$RUNNER_TEMP/loader-jars.txt" | sort -u | tr '\n' ' ' | fold -w 3000 | head -20
           echo
+          echo "== signatures of the classes Breeze's loader code uses"
+          while IFS= read -r j; do
+            unzip -Z1 "$j" 2>/dev/null \
+              | grep -E '/(RenderLevelStageEvent|RenderHighlightEvent|ExtractBlockOutlineRenderStateEvent|SubmitCustomGeometryEvent|RenderGuiEvent|FMLEnvironment|ModListScreen|ClientTickEvent|IConfigScreenFactory|RegisterKeyMappingsEvent|ItemTooltipEvent)(\$[A-Za-z]+)?\.class$' \
+              | sed 's/\.class$//; s#/#.#g' | while IFS= read -r c; do javap -public -cp "$j" "$c" 2>/dev/null; done
+          done < "$RUNNER_TEMP/loader-jars.txt" | grep -vE '^Compiled from' | head -400
       - name: Inspect the jar
         run: |
           jar=$(ls versions/$P/build/release/*.jar)
