@@ -32,9 +32,14 @@ there supposed to be in game").
   `ui/Wallpaper`, `app/wallpaper.ts` (tested).
 - Self-test: three magenta test pictures stand in for the launcher's; after
   the open and close cycles a fresh title menu is a new visit;
-  `wallpaper-check` passes when the title screenshot is at least 15 %
-  magenta and at least two different pictures were shown. Checked by
-  drive-minecraft.sh and drive-native.sh. Common `PngPixels.countWhere`.
+  `wallpaper-check` passes when all three were found, at least two
+  different ones were shown, and the drivers' screenshot of the title menu
+  (what is on screen, taken once Minecraft's loading overlay has gone) is
+  at least 15 % magenta. Minecraft's own screenshot of the web menu comes
+  out black on 26.1.1, so it is logged but not used for the verdict.
+  Common `PngPixels.countWhere`.
+- Self-test: the TNT label check reads its screenshot again until its 6 s
+  are up when it finds no label pixels (a file still being written).
 
 ## [2.26.0] - 2026-11-13
 

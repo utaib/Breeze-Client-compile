@@ -1528,6 +1528,10 @@ public final class AutoTest {
             if (age < 6_000) return;
             unread = t.toString();
         }
+        // A file read while Minecraft is still writing it can parse and show
+        // nothing (run 43696532029, 1.17.1: 0 pixels counted, the label in
+        // the saved picture): read again until the 6 s are up.
+        if (magenta < 20 && unread.isEmpty() && age < 6_000) return;
         double seconds = -1;
         try { seconds = Double.parseDouble(tntText.replace(',', '.').replace("s", "")); } catch (Throwable ignored) {}
         // Seconds and milliseconds by default (Breeze 1.1.0 directive): "8.950s";

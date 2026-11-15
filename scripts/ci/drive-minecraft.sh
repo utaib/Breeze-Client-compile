@@ -51,6 +51,14 @@ shot() {
   import -window root "$OUT/$1.png" && say "screenshot $1.png"
 }
 
+# Share of the test wallpapers' magenta in a screenshot of the screen
+# (wallpaper-check). The driver's own picture is what a player sees; on
+# 26.1.1 Minecraft's screenshot of the web menu comes out black.
+magenta_share() { # png
+  convert "$1" -resize 320x -fx '(r>0.35&&b>0.35&&g<0.275&&abs(r-b)<0.235&&r-g>0.196)?1:0' \
+    -format '%[fx:mean]' info: 2>/dev/null
+}
+
 # Stops early when the harness reports a failure, or the game has exited
 # (BREEZE_GAME_PID, from run-minecraft-test.sh), rather than waiting out the
 # full timeout for a menu that will not come.
@@ -211,11 +219,17 @@ if wait_for '"event":"AUTOTEST_DONE"' 300; then
   esac
   wall=$(grep '"event":"wallpaper-check"' "$LOG" | tail -1)
   say "wallpaper: $wall"
-  case "$wall" in
-    *'"pass":"true"'*) pass "the title menu showed a menu wallpaper, and a new visit showed the next one" ;;
-    '') fail "no wallpaper-check was logged" ;;
-    *) fail "the menu wallpaper check failed" ;;
-  esac
+  found=$(printf '%s' "$wall" | grep -o '"found":"[0-9]*"' | grep -o '[0-9][0-9]*')
+  distinct=$(printf '%s' "$wall" | grep -o '"distinct":"[^"]*"' | cut -d'"' -f4 | tr ',' '\n' | grep -c .)
+  share=$(magenta_share "$OUT/01-title-menu.png")
+  say "wallpaper on screen: ${share:-unread} of the first title screenshot is the test pictures' magenta"
+  if [ -z "$wall" ]; then
+    fail "no wallpaper-check was logged"
+  elif [ "${found:-0}" = 3 ] && [ "${distinct:-0}" -ge 2 ] && awk -v s="${share:-0}" 'BEGIN { exit !(s >= 0.15) }'; then
+    pass "the title menu showed a menu wallpaper, and a new visit showed the next one"
+  else
+    fail "the menu wallpaper check failed (found ${found:-?}, distinct ${distinct:-?}, on screen ${share:-?})"
+  fi
 else
   fail "the open and close cycles did not finish"
 fi
