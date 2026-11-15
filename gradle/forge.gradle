@@ -1,7 +1,14 @@
 // Breeze for Forge or NeoForge, applied by versions/forge-*/build.gradle and
-// versions/neoforge-*/build.gradle after they apply ModDevGradle:
-// net.neoforged.moddev.legacyforge for Forge (1.20.1) and net.neoforged.moddev
-// for NeoForge (1.21.1). The Fabric builds use gradle/version.gradle instead.
+// versions/neoforge-*/build.gradle after they apply their build plugin:
+//
+//   ModDevGradle net.neoforged.moddev.legacyforge   Forge 1.17.1 to 1.20.4,
+//       which runs on SRG names: mixin refmap, jar reobfuscated
+//   ForgeGradle 7 net.minecraftforge.gradle          Forge 1.20.6 and later
+//       (forge_toolchain=forgegradle), which runs on Mojang's names, as in
+//       Forge's own example projects for those versions
+//   ModDevGradle net.neoforged.moddev                NeoForge (Mojang's names)
+//
+// The Fabric builds use gradle/version.gradle instead.
 //
 // The source is the same chain of folders as a Fabric build of that
 // Minecraft version (gradle/sources.gradle), ending with shared/forge-family
@@ -18,6 +25,7 @@
 //   minecraft_range     the range written into mods.toml ([1.20.1,1.20.2))
 //   loader_range        the loader range written into mods.toml
 //   java_release        bytecode level
+//   forge_toolchain     forgegradle for Forge 1.20.6 and later (else ModDevGradle)
 //   mixin_java          Mixin compatibility level
 //   source_chain        as for Fabric (gradle/version.gradle, "Sources")
 //
@@ -30,6 +38,11 @@ if (!(platform in ['forge', 'neoforge'])) {
     throw new GradleException("${project.name}: platform must be forge or neoforge, not '$platform'")
 }
 def forge = platform == 'forge'
+// Forge 1.20.6 and later: ForgeGradle 7, Mojang's names at run time, no
+// refmap and no reobfuscation.
+def forgeGradle = forge && project.findProperty('forge_toolchain') == 'forgegradle'
+// Forge on SRG names (1.17.1 to 1.20.4): the mixins need a refmap.
+def srgForge = forge && !forgeGradle
 def jarName = "${mc}-${platform}"
 
 version = rootProject.mod_version
@@ -57,7 +70,28 @@ repositories {
     mavenCentral()
 }
 
-if (forge) {
+if (forgeGradle) {
+    // As Forge's example project: Mojang's official names (26.x has none to
+    // map, its code is not obfuscated), Minecraft and Forge through
+    // ForgeGradle's Mavenizer.
+    java.toolchain.languageVersion = JavaLanguageVersion.of(project.java_release as Integer)
+    minecraft {
+        if (!mc.startsWith('26.')) {
+            mappings channel: 'official', version: mc
+        }
+        runs {
+            register('client')
+        }
+    }
+    repositories {
+        minecraft.mavenizer(it)
+        maven fg.forgeMaven
+        maven fg.minecraftLibsMaven
+    }
+    dependencies {
+        implementation minecraft.dependency("net.minecraftforge:forge:${project.loader_build}")
+    }
+} else if (forge) {
     legacyForge {
         version = project.loader_build
         runs {
@@ -146,7 +180,7 @@ processResources {
     filesMatching(['META-INF/mods.toml', 'META-INF/neoforge.mods.toml', 'breeze.mixins.json']) {
         expand props
     }
-    if (forge) {
+    if (srgForge) {
         // The refmap the annotation processor writes, named in the config so
         // Mixin finds it at runtime.
         filesMatching('breeze.mixins.json') {
@@ -183,10 +217,11 @@ jar {
     }
 }
 
-// The jar players get: on Forge the reobfuscated one, on NeoForge the plain
-// one (NeoForge runs on Mojang's names). Copied to build/release/<mc>-<loader>.jar
-// so the workflow and the launcher find it by one name.
-def finalJar = forge ? tasks.named('reobfJar') : tasks.named('jar')
+// The jar players get: on SRG Forge the reobfuscated one, otherwise the plain
+// one (Forge 1.20.6+ and NeoForge run on Mojang's names). Copied to
+// build/release/<mc>-<loader>.jar so the workflow and the launcher find it by
+// one name.
+def finalJar = srgForge ? tasks.named('reobfJar') : tasks.named('jar')
 def release = tasks.register('releaseJar', Copy) {
     description = "Copies the jar players get to build/release/${jarName}.jar."
     from(finalJar)

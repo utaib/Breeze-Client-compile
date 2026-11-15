@@ -568,20 +568,22 @@ jobs:
         run: |
           # The loader jars this build compiled against (ModDevGradle's
           # artifacts and Gradle's caches), and the event classes in them.
-          find "versions/$P/build" ~/.gradle/caches -name '*.jar' 2>/dev/null \
-            | grep -E '/(forge|neoforge|fmlcore|fmlloader|javafmllanguage|loader)-[0-9][^/]*\.jar$|moddev/artifacts/.*\.jar$' | grep -v -- '-sources\.jar$' | sort -u | head -20 > "$RUNNER_TEMP/loader-jars.txt" || true
+          # ForgeGradle 7 keeps its Minecraft and Forge jars under
+          # ~/.minecraftforge or in Gradle's caches.
+          find "versions/$P/build" ~/.gradle/caches ~/.minecraftforge -name '*.jar' 2>/dev/null \
+            | grep -E '/(forge|neoforge|fmlcore|fmlloader|javafmllanguage|loader|eventbus)-[0-9][^/]*\.jar$|moddev/artifacts/.*\.jar$' | grep -v -- '-sources\.jar$' | sort -u | head -24 > "$RUNNER_TEMP/loader-jars.txt" || true
           cat "$RUNNER_TEMP/loader-jars.txt"
           while IFS= read -r j; do
-            unzip -Z1 "$j" 2>/dev/null | grep -E '^net/(minecraftforge|neoforged/neoforge)/(client/(event|gui)|event|client)/[A-Za-z]+(\$[A-Za-z]+)?\.class$' \
+            unzip -Z1 "$j" 2>/dev/null | grep -E '^net/(minecraftforge|neoforged/neoforge)/(client/(event|gui)|event|client|eventbus/api(/[a-z]+)?)/[A-Za-z]+(\$[A-Za-z]+)?\.class$' \
               | sed 's/\.class$//' | sort -u
           done < "$RUNNER_TEMP/loader-jars.txt" | sort -u | tr '\n' ' ' | fold -w 3000 | head -20
           echo
           echo "== signatures of the classes Breeze's loader code uses"
           while IFS= read -r j; do
             unzip -Z1 "$j" 2>/dev/null \
-              | grep -E '/(RenderLevelStageEvent|RenderHighlightEvent|ExtractBlockOutlineRenderStateEvent|SubmitCustomGeometryEvent|RenderGuiEvent|FMLEnvironment|ModListScreen|ClientTickEvent|IConfigScreenFactory|RegisterKeyMappingsEvent|ItemTooltipEvent)(\$[A-Za-z]+)?\.class$' \
+              | grep -E '/(RenderLevelStageEvent|RenderHighlightEvent|ExtractBlockOutlineRenderStateEvent|SubmitCustomGeometryEvent|RenderGuiEvent|FMLEnvironment|ModListScreen|ClientTickEvent|TickEvent|IConfigScreenFactory|ConfigScreenHandler|RegisterKeyMappingsEvent|ItemTooltipEvent|FMLJavaModLoadingContext|FMLClientSetupEvent|MinecraftForge|EventBus|CancellableEventBus|BusGroup|AddGuiOverlayLayersEvent)(\$[A-Za-z]+)?\.class$' \
               | sed 's/\.class$//; s#/#.#g' | while IFS= read -r c; do javap -public -cp "$j" "$c" 2>/dev/null; done
-          done < "$RUNNER_TEMP/loader-jars.txt" | grep -vE '^Compiled from' | head -400
+          done < "$RUNNER_TEMP/loader-jars.txt" | grep -vE '^Compiled from' | head -700
       - name: Inspect the jar
         run: |
           jar=$(ls versions/$P/build/release/*.jar)
@@ -591,7 +593,9 @@ jobs:
           unzip -p "$jar" 'META-INF/*mods.toml'
           unzip -p "$jar" breeze.mixins.json | head -8
           if unzip -l "$jar" | grep -q 'fabric.mod.json'; then echo "::error::fabric.mod.json is in the $P jar"; exit 1; fi
-          if [ "${P%%-*}" = forge ]; then
+          # Forge on SRG names needs the refmap; from 1.20.6 (ForgeGradle 7)
+          # Forge runs on Mojang's names and there is none.
+          if [ "${P%%-*}" = forge ] && ! grep -q '^forge_toolchain=forgegradle' "versions/$P/gradle.properties"; then
             unzip -l "$jar" | grep -q breeze.refmap.json || { echo "::error::no refmap in the Forge jar"; exit 1; }
             echo "== refmap (first lines)"; unzip -p "$jar" breeze.refmap.json | head -c 1500; echo
           fi
