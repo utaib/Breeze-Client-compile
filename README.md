@@ -1,3 +1,3 @@
-# Forge and NeoForge jars of run 43670570079
+# ci/loader-jars-43670570079
 
-Built from f191504; for the launcher live loader test. Emptied afterwards.
+Held Forge and NeoForge jars of one build for the launcher's live test; emptied.
