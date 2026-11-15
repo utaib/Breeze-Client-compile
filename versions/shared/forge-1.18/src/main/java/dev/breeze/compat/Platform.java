@@ -91,6 +91,11 @@ public final class Platform {
         return factory(modId).map(f -> f.screenFunction().apply(Minecraft.getInstance(), parent)).orElse(null);
     }
 
+    /** Whether the loader has its own list of mods to open. */
+    public static boolean hasModsScreen() {
+        return true;
+    }
+
     /** Forge's own list of mods. */
     public static Screen modsScreen(Screen parent) {
         return new net.minecraftforge.client.gui.ModListScreen(parent);

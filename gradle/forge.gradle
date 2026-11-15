@@ -99,6 +99,9 @@ if (forge) {
 dependencies {
     // The portable half, merged into this jar (see jar below).
     implementation project(':common')
+    // @Nullable and friends, which shared code uses; Forge 1.17's libraries
+    // do not bring them (later Forge and NeoForge do).
+    compileOnly 'org.jetbrains:annotations:24.1.0'
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

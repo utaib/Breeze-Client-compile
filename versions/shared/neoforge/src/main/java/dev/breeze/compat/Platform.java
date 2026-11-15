@@ -90,9 +90,14 @@ public final class Platform {
                 .map(f -> f.createScreen(c, parent))).orElse(null);
     }
 
-    /** NeoForge's own list of mods. */
+    /** Whether the loader has its own list of mods to open (NeoForge 26.2 has none). */
+    public static boolean hasModsScreen() {
+        return ModsScreen.AVAILABLE;
+    }
+
+    /** NeoForge's own list of mods, or null where it has none. */
     public static Screen modsScreen(Screen parent) {
-        return new net.neoforged.neoforge.client.gui.ModListScreen(parent);
+        return ModsScreen.open(parent);
     }
 
     /** The id of the mod whose file is at {@code path}, or null. */

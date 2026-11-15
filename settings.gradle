@@ -3,6 +3,12 @@ pluginManagement {
         maven { name = 'Fabric'; url = 'https://maven.fabricmc.net/' }
         mavenCentral()
         gradlePluginPortal()
+        // ForgeGradle only, asked last so the other plugins never wait on it.
+        maven {
+            name = 'MinecraftForge'
+            url = 'https://maven.minecraftforge.net/'
+            content { includeGroupByRegex 'net\\.minecraftforge.*' }
+        }
     }
     plugins {
         id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
@@ -11,6 +17,9 @@ pluginManagement {
         // gradle/forge.gradle). ModDevGradle, from the Gradle plugin portal.
         id 'net.neoforged.moddev' version "${moddev_version}"
         id 'net.neoforged.moddev.legacyforge' version "${moddev_version}"
+        // Forge from 1.20.6, which runs on Mojang's names: ForgeGradle 7, as
+        // in Forge's own example project for those versions.
+        id 'net.minecraftforge.gradle' version "${forgegradle_version}"
     }
 }
 

@@ -122,7 +122,7 @@ public final class Integrations {
         discover();
         List<Integration> out = new ArrayList<>();
         List<Integration.Action> actions = new ArrayList<>();
-        actions.add(new Integration.Action("mods", Platform.name() + " mods", null));
+        if (Platform.hasModsScreen()) actions.add(new Integration.Action("mods", Platform.name() + " mods", null));
         for (String id : withScreen) {
             if (Boolean.FALSE.equals(hasScreen.get(id))) continue;
             actions.add(new Integration.Action("config:" + id, nameOf(id) + " settings", id));
@@ -244,7 +244,11 @@ public final class Integrations {
             throw new Unavailable("That is not available in this game.");
         }
         try {
-            if ("mods".equals(action)) return Platform.modsScreen(parent);
+            if ("mods".equals(action)) {
+                Screen s = Platform.modsScreen(parent);
+                if (s == null) throw new Unavailable(Platform.name() + " has no list of mods here.");
+                return s;
+            }
             if (action.startsWith("config:")) {
                 String id = action.substring("config:".length());
                 Screen s = Platform.configScreen(id, parent);
