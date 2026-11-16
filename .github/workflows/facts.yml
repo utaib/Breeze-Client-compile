@@ -1,4 +1,4 @@
-name: Modrinth coverage of performance mods
+name: Which Sodium the launcher picks
 on: push
 permissions:
   contents: read
@@ -7,32 +7,23 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
-      - name: Which performance mods exist per loader and Minecraft version
+      - name: Sodium, Lithium and the rest per Minecraft version, as the launcher orders them
         run: |
           set -u
           MC='1.17 1.17.1 1.18 1.18.1 1.18.2 1.19 1.19.1 1.19.2 1.19.3 1.19.4 1.20 1.20.1 1.20.2 1.20.3 1.20.4 1.20.5 1.20.6 1.21 1.21.1 1.21.2 1.21.3 1.21.4 1.21.5 1.21.6 1.21.7 1.21.8 1.21.9 1.21.10 1.21.11 26.1 26.1.1 26.1.2 26.2 26.3'
-          mcjson=$(printf '%s\n' $MC | jq -R . | jq -sc .)
-          for slug in sodium lithium ferrite-core entityculling immediatelyfast modernfix moreculling badoptimizations \
-                      embeddium rubidium xenon canary radium starlight starlight-forge scalablelux memoryleakfix \
-                      dynamic-fps noisium c2me-fabric c2me-neoforge exordium particle-core enhancedblockentities \
-                      krypton lazydfu fastload entity-view-distance cull-less-leaves cull-leaves sodium-extra \
-                      reeses-sodium-options threadtweak smoothboot-fabric fps-reducer betterfpsdist pluto \
-                      modernfix-mvus saturn clumps fast-ip-ping; do
-            code=$(curl -s -o p.json -w '%{http_code}' -A 'breeze-build-facts' "https://api.modrinth.com/v2/project/$slug")
-            if [ "$code" != 200 ]; then echo "## $slug: project answered $code"; continue; fi
-            curl -s -A 'breeze-build-facts' "https://api.modrinth.com/v2/project/$slug/version?include_changelog=false" -o v.json
-            echo "## $slug: id $(jq -r .id p.json), \"$(jq -r .title p.json)\", client $(jq -r .client_side p.json), server $(jq -r .server_side p.json), downloads $(jq -r .downloads p.json), license $(jq -r .license.id p.json), versions $(jq length v.json)"
-            for loader in fabric quilt forge neoforge; do
-              rel=$(jq -r --arg l "$loader" --argjson mc "$mcjson" '[.[] | select(.version_type=="release") | select(.loaders|index($l)) | .game_versions[]] | unique as $have | [$mc[] | select(. as $m | $have|index($m))] | join(" ")' v.json)
-              any=$(jq -r --arg l "$loader" --argjson mc "$mcjson" '[.[] | select(.loaders|index($l)) | .game_versions[]] | unique as $have | [$mc[] | select(. as $m | $have|index($m))] | join(" ")' v.json)
-              [ -n "$any" ] || continue
-              if [ "$rel" = "$any" ]; then echo "   $loader: $rel"; else echo "   $loader release: ${rel:-none}"; echo "   $loader any channel: $any"; fi
+          for slug in sodium lithium immediatelyfast entityculling ferrite-core badoptimizations modernfix; do
+            curl -s -A 'breeze-build-facts' "https://api.modrinth.com/v2/project/$slug/version?include_changelog=false&loaders=%5B%22fabric%22%5D" -o v.json
+            echo "## $slug ($(jq length v.json) fabric versions)"
+            for mc in $MC; do
+              # The launcher's order: releases before betas before alphas, featured first within each, then newest.
+              jq -r --arg mc "$mc" '
+                [ .[] | select(.game_versions | index($mc)) ] as $all
+                | ($all | map(select(.version_type=="release")) ) as $rel
+                | ($all | sort_by((if .version_type=="release" then 0 elif .version_type=="beta" then 1 else 2 end), (if .featured then 0 else 1 end)) | .[0]) as $pick
+                | ($all | sort_by(.date_published) | reverse | .[0]) as $newest
+                | ($rel | sort_by(.date_published) | reverse | .[0]) as $newrel
+                | if ($all|length)==0 then "   \($mc): none"
+                  else "   \($mc): picks \($pick.version_number) (\($pick.version_type)\(if $pick.featured then ", featured" else "" end), \($pick.date_published[0:10])); newest release \($newrel.version_number // "none") (\(($newrel.date_published // "")[0:10])); newest of all \($newest.version_number) (\($newest.version_type))"
+                  end' v.json
             done
-            # What the builds need (project ids of required dependencies), per loader set.
-            jq -r '[.[] | {l: (.loaders|join("+")), d: ([.dependencies[] | select(.dependency_type=="required") | .project_id] | unique | join(","))}] | unique | map(select(.d != "")) | .[] | "   needs [\(.l)]: \(.d)"' v.json | head -8
-          done
-      - name: Names of the projects other mods need
-        run: |
-          for id in P7dR8mSH qvIfYCYJ 9s6osm5g lhGA9TYQ uXXizFIs ; do
-            curl -s -A 'breeze-build-facts' "https://api.modrinth.com/v2/project/$id" | jq -r '"\(.id) = \(.slug) (\(.title))"' || true
           done
