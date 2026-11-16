@@ -1,3 +1,3 @@
 # ci/loader-jars-1.2.0-live
 
-Held Forge and NeoForge jars of one build for the launcher's live test; emptied.
+Breeze 2.28.0 for Forge and NeoForge, for the launcher live test of 1.2.1. Emptied after the run.
