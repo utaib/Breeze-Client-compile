@@ -1,0 +1,10 @@
+8:net.fabricmc.loader.impl.FormattedException: Some of your mods are incompatible with the game or each other!
+9-A potential solution has been determined, this may resolve your problem:
+10-	 - Remove mod 'More Culling' (moreculling) 1.7.4 (/home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test/game/mods/moreculling-fabric-26.1.2-1.7.4.jar).
+11-More details:
+12-	 - Mod 'More Culling' (moreculling) 1.7.4 is incompatible with version 0.145.2 or earlier of mod 'Fabric API' (fabric-api), yet a conflicting version is present: 0.145.1+26.1!
+13:	at net.fabricmc.loader.impl.FormattedException.ofLocalized(FormattedException.java:51)
+14-	at net.fabricmc.loader.impl.FabricLoaderImpl.load(FabricLoaderImpl.java:202)
+15-	at net.fabricmc.loader.impl.launch.knot.Knot.init(Knot.java:142)
+16-	at net.fabricmc.loader.impl.launch.knot.Knot.launch(Knot.java:66)
+17-	at net.fabricmc.loader.impl.launch.knot.KnotClient.main(KnotClient.java:23)

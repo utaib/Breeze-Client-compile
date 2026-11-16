@@ -1,0 +1,30 @@
+76:[09:21:28] [main/WARN]: Error loading class: net/minecraft/class_377$class_7647 (java.lang.ClassNotFoundException: net/minecraft/class_377$class_7647)
+77-[09:21:28] [main/INFO]: Initializing MixinExtras via com.llamalad7.mixinextras.service.MixinExtrasServiceImpl(version=0.4.1).
+78-[09:21:30] [main/INFO]: Building optimized datafixer
+79-[09:21:33] [main/WARN]: Unrecognized user type: 
+80-[09:21:34] [Render thread/INFO]: Environment: authHost='https://authserver.mojang.com', accountsHost='https://api.mojang.com', sessionHost='https://sessionserver.mojang.com', servicesHost='https://api.minecraftservices.com', name='PROD'
+81-[09:21:34] [Render thread/ERROR]: Failed to verify authentication
+82:com.mojang.authlib.exceptions.InvalidCredentialsException: Status: 401
+83:	at com.mojang.authlib.exceptions.MinecraftClientHttpException.toAuthenticationException(MinecraftClientHttpException.java:56) ~[authlib-3.5.41.jar:?]
+84-	at com.mojang.authlib.yggdrasil.YggdrasilUserApiService.fetchProperties(YggdrasilUserApiService.java:140) ~[authlib-3.5.41.jar:?]
+85-	at com.mojang.authlib.yggdrasil.YggdrasilUserApiService.<init>(YggdrasilUserApiService.java:47) ~[authlib-3.5.41.jar:?]
+86-	at com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService.createUserApiService(YggdrasilAuthenticationService.java:158) ~[authlib-3.5.41.jar:?]
+87-	at net.minecraft.class_310.method_31382(class_310.java:677) [client-intermediary.jar:?]
+88-	at net.minecraft.class_310.<init>(class_310.java:415) [client-intermediary.jar:?]
+89-	at net.minecraft.client.main.Main.main(Main.java:198) [client-intermediary.jar:?]
+90-	at net.fabricmc.loader.impl.game.minecraft.MinecraftGameProvider.launch(MinecraftGameProvider.java:480) [fabric-loader-0.16.14.jar:?]
+91-	at net.fabricmc.loader.impl.launch.knot.Knot.launch(Knot.java:74) [fabric-loader-0.16.14.jar:?]
+92-	at net.fabricmc.loader.impl.launch.knot.KnotClient.main(KnotClient.java:23) [fabric-loader-0.16.14.jar:?]
+93:Caused by: com.mojang.authlib.exceptions.MinecraftClientHttpException: Status: 401
+94-	at com.mojang.authlib.minecraft.client.MinecraftClient.readInputStream(MinecraftClient.java:85) ~[authlib-3.5.41.jar:?]
+95-	at com.mojang.authlib.minecraft.client.MinecraftClient.get(MinecraftClient.java:48) ~[authlib-3.5.41.jar:?]
+96-	at com.mojang.authlib.yggdrasil.YggdrasilUserApiService.fetchProperties(YggdrasilUserApiService.java:121) ~[authlib-3.5.41.jar:?]
+97-	... 8 more
+98-[09:21:34] [Render thread/INFO]: Setting user: BreezeDev
+99-[09:21:35] [Render thread/INFO]: [Breeze] Initializing on Minecraft 1.19
+100-[09:21:35] [Render thread/INFO]: [Breeze] Registered 87 modules
+101-[09:21:35] [Render thread/INFO]: [Breeze] No embedded browser exists for this Minecraft version; native screens are the interface
+102-[09:21:35] [Render thread/INFO]: [Breeze autotest] {"dir":"/home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test","event":"start","t":1794820895204}
+103-[09:21:35] [Render thread/INFO]: [Breeze autotest] {"on":"true","saved":"false","event":"freelook-default","t":1794820895208}
+104-[09:21:35] [Render thread/INFO]: [Indigo] Different rendering plugin detected; not applying Indigo.
+105-[09:21:35] [Render thread/INFO]: Backend library: LWJGL version 3.3.1 SNAPSHOT

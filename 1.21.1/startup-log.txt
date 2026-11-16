@@ -1,0 +1,18 @@
+[09:32:22] [main/INFO]: Loading Minecraft 1.21.1 with Fabric Loader 0.19.5
+[09:32:22] [main/INFO]: Fabric is preparing JARs on first launch, this may take a few seconds...
+[09:32:22] [main/WARN]: Mod resolution failed
+[09:32:22] [main/INFO]: Immediate reason: [NEG_HARD_DEP moreculling 1.0.11 {breaks sodium @ [<=0.6.13]}, ROOT_FORCELOAD_SINGLE moreculling 1.0.11, ROOT_FORCELOAD_SINGLE sodium 0.5.11+mc1.21]
+[09:32:22] [main/INFO]: Reason: [NEG_HARD_DEP moreculling 1.0.11 {breaks sodium @ [<=0.6.13]}]
+[09:32:22] [main/INFO]: Fix: add [], remove [], replace [[moreculling 1.0.11] -> add:moreculling 1 ([(-∞,∞)])]
+[09:32:22] [main/ERROR]: Incompatible mods found!
+net.fabricmc.loader.impl.FormattedException: Some of your mods are incompatible with the game or each other!
+A potential solution has been determined, this may resolve your problem:
+	 - Replace mod 'More Culling' (moreculling) 1.0.11 with any version that is compatible with:
+		 - sodium 0.5.11+mc1.21
+More details:
+	 - Mod 'More Culling' (moreculling) 1.0.11 is incompatible with version 0.6.13 or earlier of mod 'Sodium' (sodium), yet a conflicting version is present: 0.5.11+mc1.21!
+	at net.fabricmc.loader.impl.FormattedException.ofLocalized(FormattedException.java:51) ~[fabric-loader-0.19.5.jar:?]
+	at net.fabricmc.loader.impl.FabricLoaderImpl.load(FabricLoaderImpl.java:202) ~[fabric-loader-0.19.5.jar:?]
+	at net.fabricmc.loader.impl.launch.knot.Knot.init(Knot.java:142) ~[fabric-loader-0.19.5.jar:?]
+	at net.fabricmc.loader.impl.launch.knot.Knot.launch(Knot.java:66) [fabric-loader-0.19.5.jar:?]
+	at net.fabricmc.loader.impl.launch.knot.KnotClient.main(KnotClient.java:23) [fabric-loader-0.19.5.jar:?]

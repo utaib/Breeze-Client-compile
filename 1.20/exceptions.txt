@@ -1,0 +1,54 @@
+88:[09:32:47] [main/WARN]: Error loading class: me/jellysquid/mods/sodium/client/render/chunk/compile/pipeline/BlockOcclusionCache (java.lang.ClassNotFoundException: me/jellysquid/mods/sodium/client/render/chunk/compile/pipeline/BlockOcclusionCache)
+89:[09:32:47] [main/WARN]: Error loading class: me/jellysquid/mods/sodium/client/render/chunk/compile/pipeline/BlockOcclusionCache (java.lang.ClassNotFoundException: me/jellysquid/mods/sodium/client/render/chunk/compile/pipeline/BlockOcclusionCache)
+90:[09:32:47] [main/WARN]: Error loading class: me/jellysquid/mods/sodium/client/render/chunk/compile/pipeline/BlockOcclusionCache (java.lang.ClassNotFoundException: me/jellysquid/mods/sodium/client/render/chunk/compile/pipeline/BlockOcclusionCache)
+91-[09:32:47] [main/INFO]: Initializing MixinExtras via com.llamalad7.mixinextras.service.MixinExtrasServiceImpl(version=0.4.1).
+92-[09:32:50] [main/WARN]: Method overwrite conflict for method_21740 in modernfix-common.mixins.json:perf.remove_biome_temperature_cache.BiomeMixin from mod modernfix, previously written by me.jellysquid.mods.lithium.mixin.world.temperature_cache.BiomeMixin. Skipping method.
+93-[09:32:51] [main/INFO]: Vanilla bootstrap took 2711 milliseconds
+94-[09:32:51] [main/WARN]: Unrecognized user type: 
+95-[09:32:51] [Render thread/INFO]: Launching a new process to probe the system configuration!
+96-[09:32:51] [Render thread/INFO]: OpenGL Vendor: Mesa
+97-[09:32:51] [Render thread/INFO]: OpenGL Renderer: llvmpipe (LLVM 20.1.2, 256 bits)
+98-[09:32:51] [Render thread/INFO]: OpenGL Version: 4.5 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.4
+99-[09:32:51] [Thread-2/INFO]: java-cef commit: a78e832f9f13c2c688caea3d04d8b84fcd238d94
+100-[09:32:51] [Thread-2/INFO]: https://mcef-download.cinemamod.com/java-cef-builds/a78e832f9f13c2c688caea3d04d8b84fcd238d94/linux_amd64.tar.gz.sha256 -> /home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test/game/mods/mcef-libraries/linux_amd64.tar.gz.sha256.temp
+101-[09:32:51] [Render thread/INFO]: Environment: authHost='https://authserver.mojang.com', accountsHost='https://api.mojang.com', sessionHost='https://sessionserver.mojang.com', servicesHost='https://api.minecraftservices.com', name='PROD'
+102-[09:32:52] [Render thread/ERROR]: Failed to verify authentication
+103:com.mojang.authlib.exceptions.InvalidCredentialsException: Status: 401
+104:	at com.mojang.authlib.exceptions.MinecraftClientHttpException.toAuthenticationException(MinecraftClientHttpException.java:56) ~[authlib-4.0.43.jar:?]
+105-	at com.mojang.authlib.yggdrasil.YggdrasilUserApiService.fetchProperties(YggdrasilUserApiService.java:156) ~[authlib-4.0.43.jar:?]
+106-	at com.mojang.authlib.yggdrasil.YggdrasilUserApiService.<init>(YggdrasilUserApiService.java:55) ~[authlib-4.0.43.jar:?]
+107-	at com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService.createUserApiService(YggdrasilAuthenticationService.java:124) ~[authlib-4.0.43.jar:?]
+108-	at net.minecraft.class_310.method_31382(class_310.java:733) ~[client-intermediary.jar:?]
+109-	at net.minecraft.class_310.<init>(class_310.java:442) ~[client-intermediary.jar:?]
+110-	at net.minecraft.client.main.Main.main(Main.java:211) ~[fabric-1.20-0.16.14.jar:?]
+111-	at net.fabricmc.loader.impl.game.minecraft.MinecraftGameProvider.launch(MinecraftGameProvider.java:480) ~[fabric-loader-0.16.14.jar:?]
+112-	at net.fabricmc.loader.impl.launch.knot.Knot.launch(Knot.java:74) ~[fabric-loader-0.16.14.jar:?]
+113-	at net.fabricmc.loader.impl.launch.knot.KnotClient.main(KnotClient.java:23) ~[fabric-loader-0.16.14.jar:?]
+114:Caused by: com.mojang.authlib.exceptions.MinecraftClientHttpException: Status: 401
+115-	at com.mojang.authlib.minecraft.client.MinecraftClient.readInputStream(MinecraftClient.java:85) ~[authlib-4.0.43.jar:?]
+116-	at com.mojang.authlib.minecraft.client.MinecraftClient.get(MinecraftClient.java:48) ~[authlib-4.0.43.jar:?]
+117-	at com.mojang.authlib.yggdrasil.YggdrasilUserApiService.fetchProperties(YggdrasilUserApiService.java:129) ~[authlib-4.0.43.jar:?]
+118-	... 8 more
+119-[09:32:52] [Render thread/INFO]: Setting user: BreezeDev
+120-[09:32:52] [Render thread/INFO]: Bypassed Mojang DFU
+121-[09:32:52] [Thread-2/WARN]: Failed to download JCEF hash.
+122-[09:32:52] [Thread-2/INFO]: https://mcef-download.cinemamod.com/java-cef-builds/a78e832f9f13c2c688caea3d04d8b84fcd238d94/linux_amd64.tar.gz -> /home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test/game/mods/mcef-libraries/linux_amd64.tar.gz
+123-[09:32:52] [Render thread/INFO]: [Breeze] Initializing on Minecraft 1.20
+124-[09:32:52] [Render thread/INFO]: [Breeze] Registered 87 modules
+125-[09:32:52] [Render thread/INFO]: [Breeze] Web interface found at assets/breeze/html/index.html
+126-[09:32:52] [Render thread/INFO]: [Breeze autotest] {"dir":"/home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test","event":"start","t":1794821572423}
+--
+134:[09:32:54] [Render thread/ERROR]: Mixin apply for mod moreculling failed moreculling.mixins.json:compat.ItemRenderer_sodiumMixin from mod moreculling -> net.minecraft.class_918: org.spongepowered.asm.mixin.injection.throwables.InvalidInjectionException Critical injection failure: @Redirect annotation on moreculling$modifyDirections$Sodium could not find any targets matching '@MixinSquared:Handler[mixin='me.jellysquid.mods.sodium.mixin.features.render.model.item.ItemRendererMixin', name='renderModelFast', prefix='null']' in net/minecraft/class_918. Using refmap moreculling-refmap.json [INJECT_PREPARE Applicator Phase -> moreculling.mixins.json:compat.ItemRenderer_sodiumMixin from mod moreculling -> Prepare Injections -> redirect$bip000$moreculling$modifyDirections$Sodium()[Lnet/minecraft/class_2350; -> Parse ->  -> Validate Targets]
+135:org.spongepowered.asm.mixin.injection.throwables.InvalidInjectionException: Critical injection failure: @Redirect annotation on moreculling$modifyDirections$Sodium could not find any targets matching '@MixinSquared:Handler[mixin='me.jellysquid.mods.sodium.mixin.features.render.model.item.ItemRendererMixin', name='renderModelFast', prefix='null']' in net/minecraft/class_918. Using refmap moreculling-refmap.json [INJECT_PREPARE Applicator Phase -> moreculling.mixins.json:compat.ItemRenderer_sodiumMixin from mod moreculling -> Prepare Injections -> redirect$bip000$moreculling$modifyDirections$Sodium()[Lnet/minecraft/class_2350; -> Parse ->  -> Validate Targets]
+136-	at org.spongepowered.asm.mixin.injection.selectors.TargetSelectors.validate(TargetSelectors.java:346) ~[sponge-mixin-0.15.5+mixin.0.8.7.jar:0.15.5+mixin.0.8.7]
+137-	at org.spongepowered.asm.mixin.injection.struct.InjectionInfo.readAnnotation(InjectionInfo.java:369) ~[sponge-mixin-0.15.5+mixin.0.8.7.jar:0.15.5+mixin.0.8.7]
+138-	at org.spongepowered.asm.mixin.injection.struct.InjectionInfo.<init>(InjectionInfo.java:340) ~[sponge-mixin-0.15.5+mixin.0.8.7.jar:0.15.5+mixin.0.8.7]
+139-	at org.spongepowered.asm.mixin.injection.struct.InjectionInfo.<init>(InjectionInfo.java:331) ~[sponge-mixin-0.15.5+mixin.0.8.7.jar:0.15.5+mixin.0.8.7]
+140-	at org.spongepowered.asm.mixin.injection.struct.RedirectInjectionInfo.<init>(RedirectInjectionInfo.java:46) ~[sponge-mixin-0.15.5+mixin.0.8.7.jar:0.15.5+mixin.0.8.7]
+141-	at jdk.internal.reflect.GeneratedConstructorAccessor21.newInstance(Unknown Source) ~[?:?]
+142-	at jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45) ~[?:?]
+143-	at java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:500) ~[?:?]
+144-	at java.lang.reflect.Constructor.newInstance(Constructor.java:481) ~[?:?]
+145-	at org.spongepowered.asm.mixin.injection.struct.InjectionInfo$InjectorEntry.create(InjectionInfo.java:196) ~[sponge-mixin-0.15.5+mixin.0.8.7.jar:0.15.5+mixin.0.8.7]
+146-	at org.spongepowered.asm.mixin.injection.struct.InjectionInfo.parse(InjectionInfo.java:664) ~[sponge-mixin-0.15.5+mixin.0.8.7.jar:0.15.5+mixin.0.8.7]
+147-	at org.spongepowered.asm.mixin.transformer.MixinTargetContext.prepareInjections(MixinTargetContext.java:1399) ~[sponge-mixin-0.15.5+mixin.0.8.7.jar:0.15.5+mixin.0.8.7]

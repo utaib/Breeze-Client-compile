@@ -1,0 +1,11 @@
+8:net.fabricmc.loader.impl.FormattedException: Some of your mods are incompatible with the game or each other!
+9-A potential solution has been determined, this may resolve your problem:
+10-	 - Replace mod 'More Culling' (moreculling) 1.0.11 with any version that is compatible with:
+11-		 - sodium 0.5.11+mc1.21
+12-More details:
+13-	 - Mod 'More Culling' (moreculling) 1.0.11 is incompatible with version 0.6.13 or earlier of mod 'Sodium' (sodium), yet a conflicting version is present: 0.5.11+mc1.21!
+14:	at net.fabricmc.loader.impl.FormattedException.ofLocalized(FormattedException.java:51) ~[fabric-loader-0.19.5.jar:?]
+15-	at net.fabricmc.loader.impl.FabricLoaderImpl.load(FabricLoaderImpl.java:202) ~[fabric-loader-0.19.5.jar:?]
+16-	at net.fabricmc.loader.impl.launch.knot.Knot.init(Knot.java:142) ~[fabric-loader-0.19.5.jar:?]
+17-	at net.fabricmc.loader.impl.launch.knot.Knot.launch(Knot.java:66) [fabric-loader-0.19.5.jar:?]
+18-	at net.fabricmc.loader.impl.launch.knot.KnotClient.main(KnotClient.java:23) [fabric-loader-0.19.5.jar:?]

@@ -1,0 +1,17 @@
+[09:19:01] [main/INFO]: Loading Minecraft 26.1 with Fabric Loader 0.19.5
+[09:19:01] [main/INFO]: Mappings not present!
+[09:19:02] [main/WARN]: Mod resolution failed
+[09:19:02] [main/INFO]: Immediate reason: [HARD_DEP breeze 2.28.0 {depends fabric-api @ [*]}, NEG_HARD_DEP moreculling 1.7.4 {breaks fabric-api @ [<=0.145.2]}, ROOT_FORCELOAD_SINGLE breeze 2.28.0, ROOT_FORCELOAD_SINGLE moreculling 1.7.4]
+[09:19:02] [main/INFO]: Reason: [NEG_HARD_DEP moreculling 1.7.4 {breaks fabric-api @ [<=0.145.2]}]
+[09:19:02] [main/INFO]: Fix: add [], remove [moreculling 1.7.4], replace []
+[09:19:02] [main/ERROR]: Incompatible mods found!
+net.fabricmc.loader.impl.FormattedException: Some of your mods are incompatible with the game or each other!
+A potential solution has been determined, this may resolve your problem:
+	 - Remove mod 'More Culling' (moreculling) 1.7.4 (/home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test/game/mods/moreculling-fabric-26.1.2-1.7.4.jar).
+More details:
+	 - Mod 'More Culling' (moreculling) 1.7.4 is incompatible with version 0.145.2 or earlier of mod 'Fabric API' (fabric-api), yet a conflicting version is present: 0.145.1+26.1!
+	at net.fabricmc.loader.impl.FormattedException.ofLocalized(FormattedException.java:51)
+	at net.fabricmc.loader.impl.FabricLoaderImpl.load(FabricLoaderImpl.java:202)
+	at net.fabricmc.loader.impl.launch.knot.Knot.init(Knot.java:142)
+	at net.fabricmc.loader.impl.launch.knot.Knot.launch(Knot.java:66)
+	at net.fabricmc.loader.impl.launch.knot.KnotClient.main(KnotClient.java:23)

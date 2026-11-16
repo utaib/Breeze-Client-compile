@@ -1,0 +1,96 @@
+99:com.mojang.authlib.exceptions.InvalidCredentialsException: Status: 401
+100:	at knot//com.mojang.authlib.exceptions.MinecraftClientHttpException.toAuthenticationException(MinecraftClientHttpException.java:70)
+101-	at knot//com.mojang.authlib.services.MinecraftServicesUserApiService.fetchProperties(MinecraftServicesUserApiService.java:168)
+102-	at knot//net.minecraft.client.Minecraft.lambda$new$1(Minecraft.java:451)
+103-	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1789)
+104-	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090)
+105-	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614)
+106-	at java.base/java.lang.Thread.run(Thread.java:1474)
+107:Caused by: MinecraftClientHttpException[type=HTTP_ERROR, status=401, response=ErrorResponse[path=/player/attributes, error=null, errorMessage=null, details=null]]
+108:	at knot//com.mojang.authlib.minecraft.client.MinecraftClient.buildHttpException(MinecraftClient.java:170)
+109-	at knot//com.mojang.authlib.minecraft.client.MinecraftClient.readServiceResponse(MinecraftClient.java:147)
+110-	at knot//com.mojang.authlib.minecraft.client.MinecraftClient.getWithEtag(MinecraftClient.java:81)
+111-	at knot//com.mojang.authlib.minecraft.client.MinecraftClient.get(MinecraftClient.java:65)
+112-	at knot//com.mojang.authlib.services.MinecraftServicesUserApiService.fetchProperties(MinecraftServicesUserApiService.java:118)
+113-	... 5 more
+114-[09:31:51] [Rinku-Downloader/INFO]: Downloading JCEF asset archive.tar.gz from https://github.com
+115-[09:31:51] [Render thread/INFO]: [Indigo] Different rendering plugin detected; not applying Indigo.
+116-[09:31:52] [Render thread/INFO]: [STDOUT]: [TRender] Initializing Client...
+117-[09:31:52] [Render thread/INFO]: Setting exclusive fullscreen to true by default, as the user is not on Windows and the language cannot be guessed.
+118-[09:31:52] [Render thread/INFO]: Backend library: LWJGL version 3.4.3-snapshot
+119-[09:31:52] [Render thread/INFO]: SDL [SYSTEM]: App name: Minecraft
+120-[09:31:52] [Render thread/INFO]: SDL [SYSTEM]: App version: 26.3
+--
+129:[09:31:55] [Download-2/INFO]: Could not authorize you against Realms server: javax.ws.rs.BadRequestException: Invalid session
+130-[09:31:55] [Download-2/ERROR]: Failed to fetch Realms feature flags
+131:com.mojang.realmsclient.exception.RealmsServiceException: Realms authentication error with message 'javax.ws.rs.BadRequestException: Invalid session'
+132-	at knot//com.mojang.realmsclient.client.RealmsClient.execute(RealmsClient.java:625)
+133-	at knot//com.mojang.realmsclient.client.RealmsClient.fetchFeatureFlags(RealmsClient.java:204)
+134-	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1789)
+135-	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090)
+136-	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614)
+137-	at java.base/java.lang.Thread.run(Thread.java:1474)
+138-[09:31:55] [Render thread/INFO]: Thread[#3,Render thread,5,main]
+139-[09:31:55] [Render thread/INFO]: OpenGL Vendor: Mesa
+140-[09:31:55] [Render thread/INFO]: OpenGL Renderer: llvmpipe (LLVM 20.1.2, 256 bits)
+141-[09:31:55] [Render thread/INFO]: OpenGL Version: 4.5 (Core Profile) Mesa 25.2.8-0ubuntu0.24.04.4
+142-[09:31:55] [Render thread/INFO]: Cached all modded block culling states
+143-[09:31:55] [Render thread/INFO]: [Breeze] Integrations: Mod Menu absent, 0 settings screens, 0 Breeze entries, 0 problems
+--
+153:java.lang.IllegalStateException: Failed to open OpenAL device
+154-	at knot//com.mojang.blaze3d.audio.Library.openDeviceOrFallback(Library.java:274)
+155-	at knot//com.mojang.blaze3d.audio.Library.init(Library.java:149)
+156-	at knot//net.minecraft.client.sounds.SoundEngine.loadLibrary(SoundEngine.java:121)
+157-	at knot//net.minecraft.client.sounds.SoundEngine.reload(SoundEngine.java:110)
+158-	at knot//net.minecraft.client.sounds.SoundManager.apply(SoundManager.java:122)
+159-	at knot//net.minecraft.client.sounds.SoundManager.apply(SoundManager.java:41)
+160-	at knot//net.minecraft.server.packs.resources.SimplePreparableReloadListener.lambda$reload$1(SimplePreparableReloadListener.java:15)
+161-	at java.base/java.util.concurrent.CompletableFuture$UniAccept.tryFire(CompletableFuture.java:739)
+162-	at java.base/java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:503)
+163-	at knot//net.minecraft.server.packs.resources.SimpleReloadInstance.lambda$prepareTasks$3(SimpleReloadInstance.java:59)
+164-	at knot//net.minecraft.util.thread.BlockableEventLoop.doRunTask(BlockableEventLoop.java:173)
+165-	at knot//net.minecraft.util.thread.ReentrantBlockableEventLoop.doRunTask(ReentrantBlockableEventLoop.java:23)
+--
+196:[09:32:05] [Download-2/INFO]: Could not authorize you against Realms server: javax.ws.rs.BadRequestException: Invalid session
+197-[09:32:05] [Download-2/ERROR]: Couldn't connect to realms
+198:com.mojang.realmsclient.exception.RealmsServiceException: Realms authentication error with message 'javax.ws.rs.BadRequestException: Invalid session'
+199-	at knot//com.mojang.realmsclient.client.RealmsClient.execute(RealmsClient.java:625)
+200-	at knot//com.mojang.realmsclient.client.RealmsClient.clientCompatible(RealmsClient.java:354)
+201-	at knot//com.mojang.realmsclient.RealmsAvailability.lambda$check$0(RealmsAvailability.java:48)
+202-	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1789)
+203-	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090)
+204-	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614)
+205-	at java.base/java.lang.Thread.run(Thread.java:1474)
+206-[09:32:05] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live)
+207-[09:32:05] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1794821525983}
+208-[09:32:05] [Render thread/INFO]: [Breeze autotest] {"event":"menu-open","t":1794821525983}
+209-[09:32:05] [ForkJoinPool.commonPool-worker-2/WARN]: [Breeze] friends refresh failed: HTTP 404
+210-[09:32:06] [Render thread/INFO]: [Breeze autotest] {"kind":"breeze-web","scale":3.0,"items":[],"event":"targets","t":1794821526013}
+--
+706:java.lang.IllegalStateException: Failed to open OpenAL device
+707-	at knot//com.mojang.blaze3d.audio.Library.openDeviceOrFallback(Library.java:274)
+708-	at knot//com.mojang.blaze3d.audio.Library.init(Library.java:149)
+709-	at knot//net.minecraft.client.sounds.SoundEngine.loadLibrary(SoundEngine.java:121)
+710-	at knot//net.minecraft.client.sounds.SoundEngine.reload(SoundEngine.java:110)
+711-	at knot//net.minecraft.client.sounds.SoundManager.apply(SoundManager.java:122)
+712-	at knot//net.minecraft.client.sounds.SoundManager.apply(SoundManager.java:41)
+713-	at knot//net.minecraft.server.packs.resources.SimplePreparableReloadListener.lambda$reload$1(SimplePreparableReloadListener.java:15)
+714-	at java.base/java.util.concurrent.CompletableFuture$UniAccept.tryFire(CompletableFuture.java:739)
+715-	at java.base/java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:503)
+716-	at knot//net.minecraft.server.packs.resources.SimpleReloadInstance.lambda$prepareTasks$3(SimpleReloadInstance.java:59)
+717-	at knot//net.minecraft.util.thread.BlockableEventLoop.doRunTask(BlockableEventLoop.java:173)
+718-	at knot//net.minecraft.util.thread.ReentrantBlockableEventLoop.doRunTask(ReentrantBlockableEventLoop.java:23)
+--
+754:java.lang.IllegalStateException: Failed to open OpenAL device
+755-	at knot//com.mojang.blaze3d.audio.Library.openDeviceOrFallback(Library.java:274)
+756-	at knot//com.mojang.blaze3d.audio.Library.init(Library.java:149)
+757-	at knot//net.minecraft.client.sounds.SoundEngine.loadLibrary(SoundEngine.java:121)
+758-	at knot//net.minecraft.client.sounds.SoundEngine.reload(SoundEngine.java:110)
+759-	at knot//net.minecraft.client.sounds.SoundManager.apply(SoundManager.java:122)
+760-	at knot//net.minecraft.client.sounds.SoundManager.apply(SoundManager.java:41)
+761-	at knot//net.minecraft.server.packs.resources.SimplePreparableReloadListener.lambda$reload$1(SimplePreparableReloadListener.java:15)
+762-	at java.base/java.util.concurrent.CompletableFuture$UniAccept.tryFire(CompletableFuture.java:739)
+763-	at java.base/java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:503)
+764-	at knot//net.minecraft.server.packs.resources.SimpleReloadInstance.lambda$prepareTasks$3(SimpleReloadInstance.java:59)
+765-	at knot//net.minecraft.util.thread.BlockableEventLoop.doRunTask(BlockableEventLoop.java:173)
+766-	at knot//net.minecraft.util.thread.ReentrantBlockableEventLoop.doRunTask(ReentrantBlockableEventLoop.java:23)
