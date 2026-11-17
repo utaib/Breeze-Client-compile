@@ -137,7 +137,11 @@ public class BenchmarkHud extends AbstractHudModule {
                 }
             }
             case DONE, STOPPED -> {
-                if (now - stageAt >= (SELF_TEST ? 4_000_000_000L : SHOWN_NANOS)) finish = true;
+                // The result stays up for 20 s, then the module switches
+                // itself off. Not in the self-test, whose HUD checks expect
+                // every element they switched on to still be drawn (run
+                // 44007747414: "Benchmark ... not drawn" on 26 versions).
+                if (!SELF_TEST && now - stageAt >= SHOWN_NANOS) finish = true;
             }
         }
     }
