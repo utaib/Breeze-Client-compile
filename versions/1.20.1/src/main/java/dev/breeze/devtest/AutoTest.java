@@ -612,6 +612,22 @@ public final class AutoTest {
                 if (age < 5_000) return;
                 frameCost("every-hud");
                 dev.breeze.perf.FrameCost.enable(false);
+                // The benchmark was switched on with the other HUD modules and
+                // runs three seconds in the self-test: its numbers and file.
+                try {
+                    dev.breeze.perf.BenchStats bench = dev.breeze.modules.BenchmarkHud.lastResult();
+                    java.nio.file.Path file = dev.breeze.modules.BenchmarkHud.lastFile();
+                    boolean saved = file != null && Files.isRegularFile(file)
+                            && Files.readString(file, StandardCharsets.UTF_8).contains("\"avgFps\"");
+                    log("benchmark-check",
+                            "frames", String.valueOf(bench == null ? 0 : bench.frames),
+                            "summary", bench == null ? "" : bench.summary(),
+                            "saved", String.valueOf(saved),
+                            "pass", String.valueOf(bench != null && bench.frames > 0 && bench.avgFps > 0
+                                    && bench.low1Fps <= bench.avgFps + 0.001 && saved));
+                } catch (Throwable t) {
+                    log("benchmark-check", "error", t.toString(), "pass", "false");
+                }
                 shot(mc, "autotest-in-world");
                 write("hud-check", HudSweep.check());
 
@@ -2483,7 +2499,7 @@ public final class AutoTest {
             for (Module m : ModuleManager.getModules()) if (m.isEnabled()) on++;
             o.addProperty("modulesOn", on);
             for (String section : new String[] {dev.breeze.perf.FrameCost.TICK, dev.breeze.perf.FrameCost.HUD,
-                    dev.breeze.perf.FrameCost.WORLD}) {
+                    dev.breeze.perf.FrameCost.WORLD, dev.breeze.perf.FrameCost.HUD_CONTENT}) {
                 dev.breeze.perf.FrameCost.Total t = dev.breeze.perf.FrameCost.total(section);
                 JsonObject one = new JsonObject();
                 one.addProperty("calls", t.calls);
@@ -2492,6 +2508,10 @@ public final class AutoTest {
                 one.addProperty("bytes", Math.round(t.bytesPerCall()));
                 one.addProperty("topTime", String.join("; ", dev.breeze.perf.FrameCost.top(section, false, 6)));
                 one.addProperty("topBytes", String.join("; ", dev.breeze.perf.FrameCost.top(section, true, 6)));
+                // Every HUD module, costliest in memory first, so one change's effect on each is seen.
+                if (section.equals(dev.breeze.perf.FrameCost.HUD)) {
+                    one.addProperty("all", String.join("; ", dev.breeze.perf.FrameCost.top(section, true, 80)));
+                }
                 o.add(section, one);
             }
             write("frame-cost", o);

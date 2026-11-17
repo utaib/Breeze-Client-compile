@@ -77,6 +77,26 @@ public final class HudPlacement {
         return clamp(x, y, w, hgt, sw, sh);
     }
 
+    /** The x of {@link #resolve}, without making an array: this runs for every element every frame. */
+    public int resolveX(int w, int sw) {
+        int x = switch (h) {
+            case LEFT -> dx;
+            case CENTER -> sw / 2 + dx - w / 2;
+            case RIGHT -> sw - w - dx;
+        };
+        return Math.max(0, Math.min(x, sw - w));
+    }
+
+    /** The y of {@link #resolve}, without making an array. */
+    public int resolveY(int hgt, int sh) {
+        int y = switch (v) {
+            case TOP -> dy;
+            case MIDDLE -> sh / 2 + dy - hgt / 2;
+            case BOTTOM -> sh - hgt - dy;
+        };
+        return Math.max(0, Math.min(y, sh - hgt));
+    }
+
     /** Keeps an element of size w by h wholly on a screen sw by sh (top-left wins if it is larger). */
     public static int[] clamp(int x, int y, int w, int h, int sw, int sh) {
         int cx = Math.max(0, Math.min(x, sw - w));

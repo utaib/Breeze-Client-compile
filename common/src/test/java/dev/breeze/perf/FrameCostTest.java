@@ -44,22 +44,25 @@ class FrameCostTest {
 
     @Test
     void ranksModulesByTimeAndByMemory() {
+        // The first reads of the allocation counter can be slow on a cold
+        // runtime (a build machine took over 5 ms for "Cheap"): warm it up.
+        for (int i = 0; i < 1000; i++) FrameCost.allocated();
         FrameCost.enable(true);
         long t = System.nanoTime(), b = FrameCost.allocated();
         FrameCost.module(FrameCost.HUD, "Cheap", t, b);
-        t = System.nanoTime() - 5_000_000;
+        t = System.nanoTime() - 500_000_000;
         b = FrameCost.allocated();
         FrameCost.module(FrameCost.HUD, "Slow", t, b);
         t = System.nanoTime();
         b = FrameCost.allocated() - 1_000_000;
         FrameCost.module(FrameCost.HUD, "Hungry", t, b);
-        FrameCost.module(FrameCost.TICK, "Elsewhere", System.nanoTime() - 9_000_000, FrameCost.allocated());
+        FrameCost.module(FrameCost.TICK, "Elsewhere", System.nanoTime() - 900_000_000, FrameCost.allocated());
 
         List<String> byTime = FrameCost.top(FrameCost.HUD, false, 2);
         assertEquals(2, byTime.size());
         assertTrue(byTime.get(0).startsWith("Slow "), byTime.toString());
         assertEquals(1, FrameCost.moduleTotal(FrameCost.HUD, "Slow").calls);
-        assertTrue(FrameCost.moduleTotal(FrameCost.HUD, "Slow").microsPerCall() >= 5_000);
+        assertTrue(FrameCost.moduleTotal(FrameCost.HUD, "Slow").microsPerCall() >= 500_000);
         assertEquals(0, FrameCost.moduleTotal(FrameCost.HUD, "Elsewhere").calls);
         if (FrameCost.allocated() > 0) {
             List<String> byBytes = FrameCost.top(FrameCost.HUD, true, 3);

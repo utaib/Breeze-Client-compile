@@ -7,6 +7,54 @@ fixes bump PATCH. `scripts/check-version.sh` keeps `gradle.properties`,
 Each entry says what was verified and how. Anything not verified is marked
 **UNVERIFIED**.
 
+## [2.29.0] - 2026-11-16
+
+With launcher 1.2.1, the frame rate release (owner, 2026-11-15:
+"MAXIMISING FPS IN ANY WAY POSSIBLE"). What Breeze itself costs each frame
+was measured first on all 34 versions (run 43790021681, `perf/FrameCost`:
+time and bytes allocated inside Breeze's tick, HUD and world hooks, per
+module), and the changes below follow from it. The build machines have no
+graphics card, so nothing here is a frame rate measured by CI: what was
+measured is memory allocated per frame, which is the same on any computer,
+and every claim about draw calls is by construction. **UNVERIFIED on a
+real graphics card**; the Benchmark module is how to check.
+
+- **What was found.** With the modules a new player has on, Breeze's hooks
+  cost about nothing (a few bytes per frame). Every HUD element switched
+  on, though, allocated 7 to 40 KB per frame: with all 41 on, 350 KB to
+  1 MB per frame, which at 200 frames a second is 70 to 200 MB of garbage
+  a second for the collector.
+- **HUD text is worked out 20 times a second, not every frame.** A text
+  element (32 of the 39) builds its strings, reads the game and measures
+  its lines once per 50 ms and paints from that in between; each starts at
+  its own point of the 50 ms so they do not all fall on one frame. Nothing
+  shown changes faster than a game tick. Colours are no longer boxed, the
+  default place is no longer a new object per frame, and placing an
+  element makes no array.
+- **Fewer draw calls where the game makes one per fill.** On 1.17 to
+  1.19.4 a rounded panel was nine draws; fills inside one shape are now
+  gathered into one (`compat/GuiGraphics.drawManaged` for those versions).
+  On 1.20 to 1.21.1 a text element's panel and all its lines go out as one
+  batch instead of a draw each. Keystrokes, Mouse Strokes, Scoreboard and
+  Lyrics draw as one batch too.
+- **The heavy elements.** Scoreboard reads the sidebar and lays it out 20
+  times a second (it sorted the scores, rebuilt every row and built
+  self-test strings every frame). Armor Status lays out 20 times a second.
+  Inventory HUD keeps its grid until an option changes. Lyrics works its
+  rows out once per 50 ms (it wrapped every line up to three times a
+  frame). Now Playing keeps the cut title and artist per song and the
+  times per second.
+- **Benchmark** (HUD module): switch it on, close the menu, and it times
+  every frame for 15, 30 or 60 seconds while turning the camera twice
+  round, then shows the average, the 1% low and the 0.1% low, says them in
+  chat with how they compare to the run before, and writes them to
+  `breeze/benchmarks/` with the version, loader, mod count, window size
+  and graphics card. It switches itself off. Run it from the same spot
+  before and after a change.
+- Tests: `FrameCostTest`, `BenchStatsTest` (averages, lows, comparison);
+  the self-test writes `frame-cost` (per module, default and every HUD
+  module on) and `benchmark-check` on every version.
+
 ## [2.28.0] - 2026-11-15
 
 With launcher 1.2.0 (owner, 2026-11-12 and 14: CurseForge, Forge and

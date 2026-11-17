@@ -23,6 +23,8 @@ public final class FrameCost {
     public static final String TICK = "tick";
     public static final String HUD = "hud";
     public static final String WORLD = "world";
+    /** Inside the HUD: a text element working out what it shows (20 times a second). */
+    public static final String HUD_CONTENT = "hud-content";
 
     /** One section's or one module's totals since the last reset. */
     public static final class Total {

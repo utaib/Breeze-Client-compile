@@ -4,7 +4,6 @@ import dev.breeze.Category;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.network.chat.Component;
 
 public class MouseStrokesHud extends AbstractHudModule {
 
@@ -18,6 +17,10 @@ public class MouseStrokesHud extends AbstractHudModule {
     /** Draws its own boxes; sized so the HUD editor's handle and the background frame cover both. */
     @Override
     protected boolean drawsShapes() { return true; }
+
+    /** Boxes and letters only: one batch instead of a draw per fill and per letter. */
+    @Override
+    protected boolean batchesDraws() { return true; }
 
     @Override
     protected void draw(Minecraft mc, GuiGraphics g, Font font) {
@@ -34,6 +37,7 @@ public class MouseStrokesHud extends AbstractHudModule {
         g.fill(bx, by + bh - 1, bx + bw, by + bh, b);
         g.fill(bx, by, bx + 1, by + bh, b);
         g.fill(bx + bw - 1, by, bx + bw, by + bh, b);
-        g.drawCenteredString(font, Component.literal(label), bx + bw / 2, by + (bh - font.lineHeight) / 2 + 1, down ? 0xFF000000 : 0xFFFFFFFF);
+        // The plain string: a Component made here was a new object per box per frame.
+        g.drawCenteredString(font, label, bx + bw / 2, by + (bh - font.lineHeight) / 2 + 1, down ? 0xFF000000 : 0xFFFFFFFF);
     }
 }

@@ -3,8 +3,9 @@
 (1.0.28, src-tauri/src/lib.rs install_modrinth_project_recursive) does:
 
 - versions listed for that Minecraft version with the fabric loader, releases
-  before betas before alphas, the author's featured one first within each,
-  then Modrinth's order (newest first);
+  before betas before alphas, the newest first within each (launcher 1.2.1;
+  up to 1.2.0 the author's featured one came first, which held Sodium at
+  0.5.11 on 1.21.1);
 - a dependency the dependent pins (its version_id) is tried first;
 - a version is taken only when its fabric.mod.json fits: what the mods already
   in the folder ask of it, and what it asks of Minecraft, Fabric Loader and the
@@ -203,7 +204,9 @@ def fits(meta, mc, loader, provided, wants):
 def versions(project, mc):
     q = urllib.parse.urlencode({'loaders': json.dumps(['fabric']), 'game_versions': json.dumps([mc])})
     vs = json.loads(get(f'{API}/project/{project}/version?{q}'))
-    order = sorted(range(len(vs)), key=lambda i: (TYPE_RANK.get(vs[i].get('version_type'), 0), not vs[i].get('featured'), i))
+    # Newest first (stable, so versions without a date keep Modrinth's order), then by kind.
+    order = sorted(range(len(vs)), key=lambda i: vs[i].get('date_published') or '', reverse=True)
+    order = sorted(order, key=lambda i: TYPE_RANK.get(vs[i].get('version_type'), 0))
     return [vs[i] for i in order]
 
 

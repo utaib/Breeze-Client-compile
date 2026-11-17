@@ -66,6 +66,11 @@ public class NowPlayingHud extends AbstractHudModule {
         return true;
     }
 
+    private String cutTitleOf, cutArtistOf, cutTitle = "", cutArtist = "";
+    private int cutW = -1;
+    private String timesText;
+    private long timesSecond = -1, timesDuration = -1;
+
     @Override
     protected void draw(Minecraft mc, GuiGraphics g, Font font) {
         SpotifyPlayer.State s = SpotifyPlayer.state();
@@ -101,16 +106,30 @@ public class NowPlayingHud extends AbstractHudModule {
             }
         }
 
-        g.drawString(font, font.plainSubstrByWidth(t.title, textW), tx, ty, textColor, shadow);
+        // Cut to the width once per song, not every frame.
+        if (!t.title.equals(cutTitleOf) || !t.artist.equals(cutArtistOf) || cutW != textW) {
+            cutTitleOf = t.title;
+            cutArtistOf = t.artist;
+            cutW = textW;
+            cutTitle = font.plainSubstrByWidth(t.title, textW);
+            cutArtist = font.plainSubstrByWidth(t.artist, textW);
+        }
+        g.drawString(font, cutTitle, tx, ty, textColor, shadow);
         ty += font.lineHeight + 1;
         if (artist.value && !t.artist.isEmpty()) {
-            g.drawString(font, font.plainSubstrByWidth(t.artist, textW), tx, ty, Palette.TEXT_SECONDARY, shadow);
+            g.drawString(font, cutArtist, tx, ty, Palette.TEXT_SECONDARY, shadow);
             ty += font.lineHeight + 1;
         }
         if (progress.value && t.durationMs > 0 && s.positionKnown()) {
             long now = System.currentTimeMillis();
             long p = s.progressNow(now);
-            String times = SpotifyPlayer.time(p) + " / " + SpotifyPlayer.time(t.durationMs);
+            // The times change once a second.
+            if (timesText == null || p / 1000 != timesSecond || t.durationMs != timesDuration) {
+                timesSecond = p / 1000;
+                timesDuration = t.durationMs;
+                timesText = SpotifyPlayer.time(p) + " / " + SpotifyPlayer.time(t.durationMs);
+            }
+            String times = timesText;
             int barY = ty + 2;
             int filled = (int) Math.round(textW * (p / (double) t.durationMs));
             g.fill(tx, barY, tx + textW, barY + 2, Palette.alpha(0xFFFFFFFF, 0x40));

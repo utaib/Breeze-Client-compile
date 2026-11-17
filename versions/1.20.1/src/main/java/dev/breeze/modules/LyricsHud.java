@@ -110,6 +110,10 @@ public class LyricsHud extends AbstractHudModule {
         return true;
     }
 
+    /** Text only: one batch instead of a draw per row. */
+    @Override
+    protected boolean batchesDraws() { return true; }
+
     @Override
     protected boolean backgroundNow() {
         Minecraft mc = Minecraft.getInstance();
@@ -155,6 +159,21 @@ public class LyricsHud extends AbstractHudModule {
 
     /** The rows to show now: {text, colour, whether it is being sung}, around the line being sung. Empty when there is nothing to show. */
     private List<Object[]> showing(Font font, int wrapWidth) {
+        // The panel, the note and the draw each ask in the same frame, and
+        // every answer wraps every line again: one answer serves 50 ms.
+        long at = System.nanoTime();
+        if (shown != null && shownWidth == wrapWidth && at - shownAt < 50_000_000L) return shown;
+        shown = workOut(font, wrapWidth);
+        shownWidth = wrapWidth;
+        shownAt = at;
+        return shown;
+    }
+
+    private List<Object[]> shown;
+    private int shownWidth;
+    private long shownAt;
+
+    private List<Object[]> workOut(Font font, int wrapWidth) {
         List<Object[]> out = new ArrayList<>();
         SpotifyPlayer.State s = SpotifyPlayer.state();
         Lyrics.Now now = Lyrics.now(s, System.currentTimeMillis(), offset.value);
@@ -184,6 +203,8 @@ public class LyricsHud extends AbstractHudModule {
 
     /** At most max rows: rows that are not being sung go first, from the end and then the start. */
     private static List<Object[]> fit(List<Object[]> rows, int max) {
+        // A copy when rows have to go: the list is the one showing() keeps.
+        if (rows.size() > max) rows = new ArrayList<>(rows);
         while (rows.size() > max) {
             if (!(Boolean) rows.get(rows.size() - 1)[2]) rows.remove(rows.size() - 1);
             else if (!(Boolean) rows.get(0)[2]) rows.remove(0);

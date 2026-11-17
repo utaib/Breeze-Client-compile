@@ -63,9 +63,18 @@ public class InventoryHud extends AbstractHudModule {
         return true;
     }
 
+    private InventoryHudLayout.Result laidOut;
+    private boolean laidOutHotbar, laidOutArmour;
+
     @Override
     protected void draw(Minecraft mc, GuiGraphics g, Font font) {
-        InventoryHudLayout.Result layout = InventoryHudLayout.layout(new InventoryHudLayout.Options(hotbar.value, armour.value));
+        // The same grid every frame until an option changes: laid out then, not per frame.
+        if (laidOut == null || laidOutHotbar != hotbar.value || laidOutArmour != armour.value) {
+            laidOutHotbar = hotbar.value;
+            laidOutArmour = armour.value;
+            laidOut = InventoryHudLayout.layout(new InventoryHudLayout.Options(hotbar.value, armour.value));
+        }
+        InventoryHudLayout.Result layout = laidOut;
         // The size is known without a player, so the HUD editor can place the
         // grid before there is anything in it.
         bounds(layout.width(), layout.height());
