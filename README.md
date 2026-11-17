@@ -1,3 +1,3 @@
 # ci-loaderfacts
 
-Held a copy for Breeze 1.2.0 builds (mod 2.28.0, Forge and NeoForge) for a moment; emptied.
+Used for Breeze 1.2.1 (launcher 1.2.1, mod 2.29.0); emptied after use. The tested files are in the private repository.
