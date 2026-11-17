@@ -74,6 +74,7 @@ public final class ModuleIcons {
         put("Server Address", "item/oak_sign");
         put("Speed Meter", "item/sugar");
         put("Stopwatch", "item/clock_00", "item/clock");
+        put("Benchmark", "item/blaze_powder");
         put("System Resources", "item/comparator");
         put("TNT Timer", "block/tnt_side");
         put("TNT Countdown", "item/tnt_minecart");

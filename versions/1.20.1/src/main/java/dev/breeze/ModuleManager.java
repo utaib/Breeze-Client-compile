@@ -154,6 +154,7 @@ public final class ModuleManager {
         register(new ToastControl());
         register(new CustomAdvancements());
         register(new ScoreboardModule());
+        register(new BenchmarkHud());
         register(new BlockIndicatorHud());
         register(new ItemScale());
         register(new DropPrevention());

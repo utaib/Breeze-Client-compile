@@ -69,6 +69,8 @@ public class ArmorStatusHud extends AbstractHudModule {
     private final List<String> lastDrawn = new ArrayList<>(SLOTS.length);
     /** For the self-test: how many strips of hotbar slots the last frame drew. */
     private int lastFrames;
+    /** The layout worked out last; redone 20 times a second, painted every frame. */
+    private ArmorHudLayout.Result laidOut;
 
     public ArmorStatusHud() {
         super("Armor Status", Category.HUD, "Shows your armour and what is in your hands, with durability as a number or a bar, in Breeze's look or in Minecraft's hotbar slots.", KEY_NONE, 4, 264);
@@ -82,6 +84,13 @@ public class ArmorStatusHud extends AbstractHudModule {
     @Override
     protected void draw(Minecraft mc, GuiGraphics g, Font font) {
         if (mc.player == null) return;
+        if (laidOut == null || due()) laidOut = layOut(mc, font);
+        ArmorHudLayout.Result layout = laidOut;
+        paint(g, font, layout);
+    }
+
+    /** Reads the armour and hands and lays the pieces out (names, numbers, bars). */
+    private ArmorHudLayout.Result layOut(Minecraft mc, Font font) {
         pieces.clear();
         int slots = hands.value ? SLOTS.length : FIRST_HAND;
         for (int i = 0; i < slots; i++) {
@@ -103,9 +112,11 @@ public class ArmorStatusHud extends AbstractHudModule {
                 ArmorHudLayout.Align.of(style().align.value()),
                 icons.value, names.value, empties.value, colours.value,
                 style().lineGap.value, look.is("Hotbar"));
-        ArmorHudLayout.Result layout = ArmorHudLayout.layout(pieces, options,
+        return ArmorHudLayout.layout(pieces, options,
                 s -> font.width(style().applyCase(s)), style().textColor.argb);
+    }
 
+    private void paint(GuiGraphics g, Font font, ArmorHudLayout.Result layout) {
         if (RECORD) lastDrawn.clear();
         for (ArmorHudLayout.Frame f : layout.frames()) {
             dev.breeze.ui.HotbarFrames.draw(g, x + f.x(), y + f.y(), f.slots(), f.vertical());

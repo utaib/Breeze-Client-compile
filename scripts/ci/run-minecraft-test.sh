@@ -261,7 +261,7 @@ grep -hE 'Exception|ERROR|FATAL' "$OUT/minecraft-latest.log" > "$OUT/errors.txt"
 echo "== harness: screens, stages and failures"
 grep -E '"event":"(start|screen|menu-open|READY_FOR_INPUT|key|FAIL|stress-result|wallpaper-check|wallpaper-visit|AUTOTEST_DONE|mixin-audit|module|native-menu-perf|local-spotify|local-spotify-check|lyrics-check)"' "$OUT/breeze-autotest.log" 2>/dev/null | head -80
 echo "== harness: in the world"
-grep -E '"event":"(world-open|world-loaded|fps-sample|frame-cost|world-joined|hud-check|hud-layout|module-sweep|settings-persist|cape-check|cape-image|cosmetic-check|cosmetic-setup|WORLD_READY|hud-moved|wardrobe-open|wardrobe-check|real-cosmetics-start|real-cosmetics)"' "$OUT/breeze-autotest.log" 2>/dev/null | head -20
+grep -E '"event":"(world-open|world-loaded|fps-sample|frame-cost|benchmark-check|world-joined|hud-check|hud-layout|module-sweep|settings-persist|cape-check|cape-image|cosmetic-check|cosmetic-setup|WORLD_READY|hud-moved|wardrobe-open|wardrobe-check|real-cosmetics-start|real-cosmetics)"' "$OUT/breeze-autotest.log" 2>/dev/null | head -20
 echo "== options.txt (video and performance keys)"
 grep -E '^(version|maxFps|enableVsync|renderDistance|simulationDistance|graphicsMode|graphicsPreset|ao|renderClouds|cloudRange|particles|entityShadows|biomeBlendRadius|mipmapLevels|entityDistanceScaling|prioritizeChunkUpdates|fov|fullscreen|guiScale|bobView|chunkSectionFadeInTime|cutoutLeaves|improvedTransparency|weatherRadius|inactivityFpsLimit|menuBackgroundBlurriness|textureFiltering|maxAnisotropyBit|vignette):' "$OUT/options.txt" 2>/dev/null | tr '\n' ' '
 echo

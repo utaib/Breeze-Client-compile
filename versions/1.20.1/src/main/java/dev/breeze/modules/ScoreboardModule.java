@@ -88,15 +88,32 @@ public class ScoreboardModule extends AbstractHudModule {
             lastRows = -1;
             return false;
         }
-        Sidebar.Board b = null;
-        try {
-            b = Sidebar.read(mc);
-        } catch (Throwable ignored) {}
-        if (b == null && editing(mc)) b = sample();
-        board = b;
-        if (b == null) lastRows = 0;
-        return b != null;
+        // The sidebar is read 20 times a second, not every frame: reading it
+        // sorts the scores and builds every row's text.
+        if (!boardRead || due()) {
+            boardRead = true;
+            Sidebar.Board b = null;
+            try {
+                b = Sidebar.read(mc);
+            } catch (Throwable ignored) {}
+            if (b == null && editing(mc)) b = sample();
+            board = b;
+            laidOut = null;
+        }
+        if (board == null) lastRows = 0;
+        return board != null;
     }
+
+    private boolean boardRead;
+    /** The board's measured layout; worked out when the board is read. */
+    private SidebarLayout.Layout laidOut;
+    private int[] laidOutNumberW;
+    private boolean laidOutNumbers;
+    private static final boolean RECORD = System.getProperty("breeze.autotest") != null;
+
+    /** Text only: one batch instead of a draw per row. */
+    @Override
+    protected boolean batchesDraws() { return true; }
 
     /** What the HUD editor shows when there is no sidebar to place. */
     private static Sidebar.Board sample() {
@@ -112,17 +129,23 @@ public class ScoreboardModule extends AbstractHudModule {
         if (b == null) return;
         boolean showNumbers = numbers.index == 0;
         int n = b.rows().size();
-        int[] nameW = new int[n];
-        int[] numberW = new int[n];
-        for (int i = 0; i < n; i++) {
-            Sidebar.Row r = b.rows().get(i);
-            nameW[i] = font.width(r.name());
-            numberW[i] = r.number() == null ? 0 : font.width(r.number());
+        if (laidOut == null || laidOutNumbers != showNumbers || laidOutNumberW == null || laidOutNumberW.length != n) {
+            int[] nameW = new int[n];
+            int[] measured = new int[n];
+            for (int i = 0; i < n; i++) {
+                Sidebar.Row r = b.rows().get(i);
+                nameW[i] = font.width(r.name());
+                measured[i] = r.number() == null ? 0 : font.width(r.number());
+            }
+            SidebarLayout.Align align = title.index == 1 ? SidebarLayout.Align.LEFT
+                    : title.index == 2 ? SidebarLayout.Align.RIGHT : SidebarLayout.Align.CENTER;
+            laidOut = SidebarLayout.layout(font.width(b.title()), nameW, measured, font.lineHeight,
+                    rowGap.value, font.width(": "), align, showNumbers);
+            laidOutNumberW = measured;
+            laidOutNumbers = showNumbers;
         }
-        SidebarLayout.Align align = title.index == 1 ? SidebarLayout.Align.LEFT
-                : title.index == 2 ? SidebarLayout.Align.RIGHT : SidebarLayout.Align.CENTER;
-        SidebarLayout.Layout l = SidebarLayout.layout(font.width(b.title()), nameW, numberW, font.lineHeight,
-                rowGap.value, font.width(": "), align, showNumbers);
+        SidebarLayout.Layout l = laidOut;
+        int[] numberW = laidOutNumberW;
         bounds(l.width(), l.height());
         boolean shadow = style().textShadow.value;
         g.drawString(font, b.title(), x + l.titleX(), y, 0xFFFFFFFF, shadow);
@@ -132,18 +155,22 @@ public class ScoreboardModule extends AbstractHudModule {
             g.drawString(font, r.name(), x, ry, 0xFFFFFFFF, shadow);
             if (showNumbers && numberW[i] > 0) g.drawString(font, r.number(), x + l.numberRight() - numberW[i], ry, 0xFFFFFFFF, shadow);
         }
-        List<String> names = new ArrayList<>(n);
-        StringBuilder nums = new StringBuilder();
-        for (int i = 0; i < n; i++) {
-            Sidebar.Row r = b.rows().get(i);
-            names.add(r.name().getString());
-            if (i > 0) nums.append(',');
-            if (showNumbers && r.number() != null) nums.append(r.number().getString());
-        }
-        lastNames = names;
-        lastNumbers = nums.toString();
         lastRows = n;
-        lastTitle = b.title().getString();
+        // What was drawn, as text, is only for the self-test: a player's
+        // frames build none of these strings.
+        if (RECORD) {
+            List<String> names = new ArrayList<>(n);
+            StringBuilder nums = new StringBuilder();
+            for (int i = 0; i < n; i++) {
+                Sidebar.Row r = b.rows().get(i);
+                names.add(r.name().getString());
+                if (i > 0) nums.append(',');
+                if (showNumbers && r.number() != null) nums.append(r.number().getString());
+            }
+            lastNames = names;
+            lastNumbers = nums.toString();
+            lastTitle = b.title().getString();
+        }
     }
 
     /** Called where Minecraft draws its own sidebar (GuiMixin), while this is off. */

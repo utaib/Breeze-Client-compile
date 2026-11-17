@@ -15,6 +15,13 @@ mc="$1"; mods=$(realpath -m "$2"); shift 2
 # shellcheck source=launcher-pick.sh
 . "$(dirname "$0")/launcher-pick.sh"
 [ "$#" -gt 0 ] || set -- sodium lithium ferrite-core
+# The launcher leaves ImmediatelyFast out on 1.19 (its build listed for 1.19
+# crashes there; breeze launcher/src-tauri/src/performance.rs, BOOST_EXCLUSIONS).
+if [ "$mc" = 1.19 ]; then
+  keep=()
+  for slug in "$@"; do [ "$slug" = immediatelyfast ] && echo "immediatelyfast left out on 1.19, as the launcher does" || keep+=("$slug"); done
+  set -- "${keep[@]}"
+fi
 # The loader the game runs: the launcher's pick when the run is set up as the
 # launcher does, else the pinned one.
 loader="${LAUNCHER_LOADER:-${LOADER:-$(launcher_loader "$mc")}}"
