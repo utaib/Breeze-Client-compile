@@ -1,3 +1,3 @@
-# Forge and NeoForge jars of run 44010906089
+# ci/loader-jars-44010906089
 
-Built from a4825f3; for the launcher live loader test. Emptied afterwards.
+Used for Breeze 1.2.1 (launcher 1.2.1, mod 2.29.0); emptied after use. The tested files are in the private repository.
