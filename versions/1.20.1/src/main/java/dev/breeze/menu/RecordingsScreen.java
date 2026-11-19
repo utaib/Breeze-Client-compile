@@ -114,7 +114,7 @@ public class RecordingsScreen extends BreezeScreen {
     private void run(String problem) {
         if (problem != null) {
             notice = problem;
-        } else if (this.minecraft != null && this.minecraft.screen == this) {
+        } else if (this.minecraft != null && dev.breeze.compat.ActiveScreen.get(this.minecraft) == this) {
             dev.breeze.compat.ActiveScreen.set(this.minecraft, null);
         }
     }

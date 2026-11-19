@@ -1507,7 +1507,7 @@ public final class AutoTest {
         net.minecraft.client.server.IntegratedServer server = mc.getSingleplayerServer();
         if (module("TNT Countdown") == null || t == null || server == null || mc.player == null) {
             log("tnt-check", "pass", "true", "skipped", "TNT Countdown is not offered on this version, or no server or player");
-            startLyrics(mc);
+            startShots(mc);
             return;
         }
         if (!t.isEnabled()) t.setEnabled(true);
