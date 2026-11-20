@@ -1,3 +1,3 @@
-# Forge and NeoForge jars of mod 2.30.0
+# ci/loader-jars-123-all
 
-Run 44712570725 (41) and 44725137001 (forge 26.1.1, neoforge 26.2), both from faeeb60; for the launcher live loader test. Emptied afterwards.
+Used for Breeze 1.2.3 (launcher 1.2.3, mod 2.30.0); emptied after use. The tested files are in the private repository.
