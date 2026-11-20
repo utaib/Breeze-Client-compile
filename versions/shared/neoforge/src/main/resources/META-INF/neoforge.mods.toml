@@ -1,0 +1,29 @@
+modLoader="javafml"
+loaderVersion="[1,)"
+license="MIT"
+
+[[mods]]
+modId="breeze"
+version="${version}"
+displayName="Breeze"
+authors="utaib, Taxman, ThatOnesuub"
+displayURL="https://breezeclient.pages.dev"
+logoFile="assets/breeze/textures/gui/breeze_logo.png"
+description='''Breeze Client. Cosmetics, HUD modules and quality of life, all client side.'''
+
+[[mixins]]
+config="breeze.mixins.json"
+
+[[dependencies.breeze]]
+modId="neoforge"
+type="required"
+versionRange="${loader_range}"
+ordering="NONE"
+side="CLIENT"
+
+[[dependencies.breeze]]
+modId="minecraft"
+type="required"
+versionRange="${minecraft_range}"
+ordering="NONE"
+side="CLIENT"
