@@ -1,0 +1,200 @@
+110:com.mojang.authlib.exceptions.InvalidCredentialsException: Status: 401
+111:	at com.mojang.authlib.exceptions.MinecraftClientHttpException.toAuthenticationException(MinecraftClientHttpException.java:56) ~[authlib-4.0.43.jar:?]
+112-	at com.mojang.authlib.yggdrasil.YggdrasilUserApiService.fetchProperties(YggdrasilUserApiService.java:156) ~[authlib-4.0.43.jar:?]
+113-	at com.mojang.authlib.yggdrasil.YggdrasilUserApiService.<init>(YggdrasilUserApiService.java:55) ~[authlib-4.0.43.jar:?]
+114-	at com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService.createUserApiService(YggdrasilAuthenticationService.java:124) ~[authlib-4.0.43.jar:?]
+115-	at net.minecraft.class_310.method_31382(class_310.java:733) ~[client-intermediary.jar:?]
+116-	at net.minecraft.class_310.<init>(class_310.java:442) ~[client-intermediary.jar:?]
+117-	at net.minecraft.client.main.Main.main(Main.java:211) ~[fabric-1.20.1-0.16.14.jar:?]
+118-	at net.fabricmc.loader.impl.game.minecraft.MinecraftGameProvider.launch(MinecraftGameProvider.java:480) ~[fabric-loader-0.16.14.jar:?]
+119-	at net.fabricmc.loader.impl.launch.knot.Knot.launch(Knot.java:74) ~[fabric-loader-0.16.14.jar:?]
+120-	at net.fabricmc.loader.impl.launch.knot.KnotClient.main(KnotClient.java:23) ~[fabric-loader-0.16.14.jar:?]
+121:Caused by: com.mojang.authlib.exceptions.MinecraftClientHttpException: Status: 401
+122-	at com.mojang.authlib.minecraft.client.MinecraftClient.readInputStream(MinecraftClient.java:85) ~[authlib-4.0.43.jar:?]
+123-	at com.mojang.authlib.minecraft.client.MinecraftClient.get(MinecraftClient.java:48) ~[authlib-4.0.43.jar:?]
+124-	at com.mojang.authlib.yggdrasil.YggdrasilUserApiService.fetchProperties(YggdrasilUserApiService.java:129) ~[authlib-4.0.43.jar:?]
+125-	... 8 more
+126-[20:24:25] [Render thread/INFO]: Setting user: BreezeDev
+127-[20:24:25] [Render thread/INFO]: Bypassed Mojang DFU
+128-[20:24:25] [Render thread/INFO]: [Breeze] Initializing on Minecraft 1.20.1
+129-[20:24:25] [Thread-2/WARN]: Failed to download JCEF hash.
+130-[20:24:25] [Thread-2/INFO]: https://mcef-download.cinemamod.com/java-cef-builds/a78e832f9f13c2c688caea3d04d8b84fcd238d94/linux_amd64.tar.gz -> /home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test/game/mods/mcef-libraries/linux_amd64.tar.gz
+131-[20:24:25] [Render thread/INFO]: [Breeze] Registered 89 modules
+132-[20:24:25] [Render thread/INFO]: [Breeze] Web interface found at assets/breeze/html/index.html
+133-[20:24:25] [Render thread/INFO]: [Breeze autotest] {"dir":"/home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test","event":"start","t":1795206265244}
+--
+165:[20:24:29] [Render thread/INFO]: [Breeze] browser frame rate left at Chromium's default: java.lang.NoSuchMethodException: com.cinemamod.mcef.MCEFBrowser.setWindowlessFrameRate(int)
+166-[20:24:29] [Render thread/INFO]: [Breeze] interface browser opened at 1278x720 px (1 live)
+167-[20:24:29] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795206269716}
+168-[20:24:29] [Render thread/INFO]: [Breeze autotest] {"event":"menu-open","t":1795206269721}
+169:[20:24:29] [Realms Notification Availability checker #1/INFO]: Could not authorize you against Realms server: javax.ws.rs.BadRequestException: Invalid session
+170-[20:24:30] [Render thread/INFO]: [Breeze autotest] {"kind":"breeze-web","scale":3.0,"items":[],"event":"targets","t":1795206270033}
+171-[20:24:30] [Render thread/INFO]: [Breeze autotest] {"title":"Local Test Song 1","artist":"The Local Testers","app":"Chromium","positionMs":"42188","why":"NOT_CONNECTED","durationMs":"201000","artwork":"local:file:/home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test/fake-cover.png","event":"local-spotify","t":1795206270033}
+172-[20:24:30] [Render thread/WARN]: Missing sound for event: minecraft:item.goat_horn.play
+173-[20:24:30] [Render thread/WARN]: Missing sound for event: minecraft:entity.goat.screaming.horn_break
+174-[20:24:30] [Render thread/ERROR]: Error starting SoundSystem. Turning off sounds & music
+175:java.lang.IllegalStateException: Failed to open OpenAL device
+176-	at net.minecraft.class_4225.method_38501(class_4225.java:283) ~[client-intermediary.jar:?]
+177-	at net.minecraft.class_4225.method_19661(class_4225.java:153) ~[client-intermediary.jar:?]
+178-	at net.minecraft.class_1140.method_4846(class_1140.java:116) ~[client-intermediary.jar:?]
+179-	at net.minecraft.class_1140.method_4837(class_1140.java:106) ~[client-intermediary.jar:?]
+180-	at net.minecraft.class_1144.method_18182(class_1144.java:125) ~[client-intermediary.jar:?]
+181-	at net.minecraft.class_1144.method_18788(class_1144.java:40) ~[client-intermediary.jar:?]
+182-	at net.minecraft.class_4080.method_18790(class_4080.java:13) ~[client-intermediary.jar:?]
+183-	at java.util.concurrent.CompletableFuture$UniAccept.tryFire(CompletableFuture.java:718) ~[?:?]
+184-	at java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:482) ~[?:?]
+185-	at net.minecraft.class_4014.method_18365(class_4014.java:69) ~[client-intermediary.jar:?]
+186-	at net.minecraft.class_1255.method_18859(class_1255.java:156) ~[client-intermediary.jar:?]
+187-	at net.minecraft.class_4093.method_18859(class_4093.java:23) ~[client-intermediary.jar:?]
+--
+264:[20:24:55] [Render thread/INFO]: [Breeze] browser frame rate left at Chromium's default: java.lang.NoSuchMethodException: com.cinemamod.mcef.MCEFBrowser.setWindowlessFrameRate(int)
+265-[20:24:55] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live)
+266-[20:24:55] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795206295152}
+267-[20:24:55] [Render thread/INFO]: [Breeze] the interface page answered 76 ms after its browser opened
+268-[20:24:55] [Render thread/INFO]: [Breeze autotest] {"action":"app.hello","event":"bridge","t":1795206295186}
+269-[20:24:55] [Render thread/INFO]: [Breeze autotest] {"name":"test_b.jpg","where":"web","event":"wallpaper-visit","t":1795206295187}
+270-[20:24:55] [Render thread/INFO]: [Breeze autotest] {"action":"settings.get","event":"bridge","t":1795206295187}
+271-[20:24:55] [Render thread/INFO]: [Breeze autotest] {"action":"game.state","event":"bridge","t":1795206295203}
+272-[20:24:55] [Render thread/INFO]: [Breeze autotest] {"action":"account.get","event":"bridge","t":1795206295203}
+273-[20:24:55] [Render thread/INFO]: [Breeze autotest] {"action":"modules.list","event":"bridge","t":1795206295204}
+274-[20:24:55] [Render thread/INFO]: [Breeze autotest] {"action":"integrations.list","event":"bridge","t":1795206295206}
+275-[20:24:55] [Render thread/INFO]: [Breeze autotest] {"action":"ui.route","params":{"route":"home"},"event":"bridge","t":1795206295206}
+276-[20:24:55] [Render thread/INFO]: [Breeze autotest] {"kind":"breeze-web","scale":3.0,"items":[],"event":"targets","t":1795206295605}
+--
+282:[20:25:02] [Render thread/INFO]: [Breeze] browser frame rate left at Chromium's default: java.lang.NoSuchMethodException: com.cinemamod.mcef.MCEFBrowser.setWindowlessFrameRate(int)
+283-[20:25:02] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live)
+284-[20:25:02] [Render thread/INFO]: [Breeze autotest] {"cycle":"0","painted":"true","ms":"50","liveBrowsers":"1","event":"cycle-open","t":1795206302463}
+285-[20:25:02] [Render thread/INFO]: [Breeze autotest] {"integrations":[],"problems":[],"event":"integrations","t":1795206302469}
+286-[20:25:02] [Render thread/INFO]: [Breeze] interface browser closed (0 live)
+287-[20:25:02] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_429","kind":"options","liveBrowsers":"0","event":"screen","t":1795206302502}
+288-[20:25:02] [Render thread/INFO]: [Breeze autotest] {"cycle":"0","liveBrowsers":"0","heapMb":"803","event":"cycle-close","t":1795206302502}
+289:[20:25:02] [Render thread/INFO]: [Breeze] browser frame rate left at Chromium's default: java.lang.NoSuchMethodException: com.cinemamod.mcef.MCEFBrowser.setWindowlessFrameRate(int)
+290-[20:25:02] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live)
+291-[20:25:02] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795206302605}
+292-[20:25:02] [Render thread/INFO]: [Breeze autotest] {"cycle":"1","painted":"true","ms":"52","liveBrowsers":"1","event":"cycle-open","t":1795206302606}
+293-[20:25:02] [Render thread/INFO]: [Breeze] interface browser closed (0 live)
+294-[20:25:02] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_429","kind":"options","liveBrowsers":"0","event":"screen","t":1795206302655}
+295-[20:25:02] [Render thread/INFO]: [Breeze autotest] {"cycle":"1","liveBrowsers":"0","heapMb":"220","event":"cycle-close","t":1795206302656}
+296:[20:25:02] [Render thread/INFO]: [Breeze] browser frame rate left at Chromium's default: java.lang.NoSuchMethodException: com.cinemamod.mcef.MCEFBrowser.setWindowlessFrameRate(int)
+297-[20:25:02] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live)
+298-[20:25:02] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795206302757}
+299-[20:25:02] [Render thread/INFO]: [Breeze autotest] {"cycle":"2","painted":"true","ms":"49","liveBrowsers":"1","event":"cycle-open","t":1795206302758}
+300-[20:25:02] [Render thread/INFO]: [Breeze] interface browser closed (0 live)
+301-[20:25:02] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_429","kind":"options","liveBrowsers":"0","event":"screen","t":1795206302808}
+302-[20:25:02] [Render thread/INFO]: [Breeze autotest] {"cycle":"2","liveBrowsers":"0","heapMb":"259","event":"cycle-close","t":1795206302808}
+303:[20:25:02] [Render thread/INFO]: [Breeze] browser frame rate left at Chromium's default: java.lang.NoSuchMethodException: com.cinemamod.mcef.MCEFBrowser.setWindowlessFrameRate(int)
+304-[20:25:02] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live)
+305-[20:25:02] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795206302908}
+306-[20:25:02] [Render thread/INFO]: [Breeze autotest] {"cycle":"3","painted":"true","ms":"49","liveBrowsers":"1","event":"cycle-open","t":1795206302909}
+307-[20:25:02] [Render thread/INFO]: [Breeze] interface browser closed (0 live)
+308-[20:25:02] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_429","kind":"options","liveBrowsers":"0","event":"screen","t":1795206302959}
+309-[20:25:02] [Render thread/INFO]: [Breeze autotest] {"cycle":"3","liveBrowsers":"0","heapMb":"266","event":"cycle-close","t":1795206302959}
+310:[20:25:03] [Render thread/INFO]: [Breeze] browser frame rate left at Chromium's default: java.lang.NoSuchMethodException: com.cinemamod.mcef.MCEFBrowser.setWindowlessFrameRate(int)
+311-[20:25:03] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live)
+312-[20:25:03] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795206303059}
+313-[20:25:03] [Render thread/INFO]: [Breeze autotest] {"cycle":"4","painted":"true","ms":"48","liveBrowsers":"1","event":"cycle-open","t":1795206303059}
+314-[20:25:03] [Render thread/INFO]: [Breeze] interface browser closed (0 live)
+315-[20:25:03] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_429","kind":"options","liveBrowsers":"0","event":"screen","t":1795206303109}
+316-[20:25:03] [Render thread/INFO]: [Breeze autotest] {"cycle":"4","liveBrowsers":"0","heapMb":"275","event":"cycle-close","t":1795206303110}
+317:[20:25:03] [Render thread/INFO]: [Breeze] browser frame rate left at Chromium's default: java.lang.NoSuchMethodException: com.cinemamod.mcef.MCEFBrowser.setWindowlessFrameRate(int)
+318-[20:25:03] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live)
+319-[20:25:03] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795206303210}
+320-[20:25:03] [Render thread/INFO]: [Breeze autotest] {"cycle":"5","painted":"true","ms":"48","liveBrowsers":"1","event":"cycle-open","t":1795206303210}
+321-[20:25:03] [Render thread/INFO]: [Breeze] interface browser closed (0 live)
+322-[20:25:03] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_429","kind":"options","liveBrowsers":"0","event":"screen","t":1795206303260}
+323-[20:25:03] [Render thread/INFO]: [Breeze autotest] {"cycle":"5","liveBrowsers":"0","heapMb":"316","event":"cycle-close","t":1795206303260}
+324:[20:25:03] [Render thread/INFO]: [Breeze] browser frame rate left at Chromium's default: java.lang.NoSuchMethodException: com.cinemamod.mcef.MCEFBrowser.setWindowlessFrameRate(int)
+325-[20:25:03] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live)
+326-[20:25:03] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795206303361}
+327-[20:25:03] [Render thread/INFO]: [Breeze autotest] {"cycle":"6","painted":"true","ms":"49","liveBrowsers":"1","event":"cycle-open","t":1795206303361}
+328-[20:25:03] [Render thread/INFO]: [Breeze] interface browser closed (0 live)
+329-[20:25:03] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_429","kind":"options","liveBrowsers":"0","event":"screen","t":1795206303412}
+330-[20:25:03] [Render thread/INFO]: [Breeze autotest] {"cycle":"6","liveBrowsers":"0","heapMb":"325","event":"cycle-close","t":1795206303412}
+331:[20:25:03] [Render thread/INFO]: [Breeze] browser frame rate left at Chromium's default: java.lang.NoSuchMethodException: com.cinemamod.mcef.MCEFBrowser.setWindowlessFrameRate(int)
+332-[20:25:03] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live)
+333-[20:25:03] [ForkJoinPool.commonPool-worker-2/WARN]: [Breeze] friends refresh failed: HTTP 404
+334-[20:25:03] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795206303514}
+335-[20:25:03] [Render thread/INFO]: [Breeze autotest] {"cycle":"7","painted":"true","ms":"51","liveBrowsers":"1","event":"cycle-open","t":1795206303515}
+336-[20:25:03] [Render thread/INFO]: [Breeze] interface browser closed (0 live)
+337-[20:25:03] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_429","kind":"options","liveBrowsers":"0","event":"screen","t":1795206303564}
+338-[20:25:03] [Render thread/INFO]: [Breeze autotest] {"cycle":"7","liveBrowsers":"0","heapMb":"363","event":"cycle-close","t":1795206303564}
+339:[20:25:03] [Render thread/INFO]: [Breeze] browser frame rate left at Chromium's default: java.lang.NoSuchMethodException: com.cinemamod.mcef.MCEFBrowser.setWindowlessFrameRate(int)
+340-[20:25:03] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live)
+341-[20:25:03] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795206303665}
+342-[20:25:03] [Render thread/INFO]: [Breeze autotest] {"cycle":"8","painted":"true","ms":"49","liveBrowsers":"1","event":"cycle-open","t":1795206303665}
+343-[20:25:03] [Render thread/INFO]: [Breeze] interface browser closed (0 live)
+344-[20:25:03] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_429","kind":"options","liveBrowsers":"0","event":"screen","t":1795206303715}
+345-[20:25:03] [Render thread/INFO]: [Breeze autotest] {"cycle":"8","liveBrowsers":"0","heapMb":"373","event":"cycle-close","t":1795206303715}
+346:[20:25:03] [Render thread/INFO]: [Breeze] browser frame rate left at Chromium's default: java.lang.NoSuchMethodException: com.cinemamod.mcef.MCEFBrowser.setWindowlessFrameRate(int)
+347-[20:25:03] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live)
+348-[20:25:03] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795206303816}
+349-[20:25:03] [Render thread/INFO]: [Breeze autotest] {"cycle":"9","painted":"true","ms":"49","liveBrowsers":"1","event":"cycle-open","t":1795206303816}
+350-[20:25:03] [Render thread/INFO]: [Breeze] interface browser closed (0 live)
+351-[20:25:03] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_429","kind":"options","liveBrowsers":"0","event":"screen","t":1795206303866}
+352-[20:25:03] [Render thread/INFO]: [Breeze autotest] {"cycle":"9","liveBrowsers":"0","heapMb":"383","event":"cycle-close","t":1795206303866}
+353:[20:25:03] [Render thread/INFO]: [Breeze] browser frame rate left at Chromium's default: java.lang.NoSuchMethodException: com.cinemamod.mcef.MCEFBrowser.setWindowlessFrameRate(int)
+354-[20:25:03] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live)
+355-[20:25:03] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795206303966}
+356-[20:25:03] [Render thread/INFO]: [Breeze autotest] {"cycle":"10","painted":"true","ms":"49","liveBrowsers":"1","event":"cycle-open","t":1795206303967}
+357-[20:25:03] [Render thread/INFO]: [Breeze] interface browser closed (0 live)
+358-[20:25:04] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_429","kind":"options","liveBrowsers":"0","event":"screen","t":1795206304017}
+359-[20:25:04] [Render thread/INFO]: [Breeze autotest] {"cycle":"10","liveBrowsers":"0","heapMb":"393","event":"cycle-close","t":1795206304017}
+360:[20:25:04] [Render thread/INFO]: [Breeze] browser frame rate left at Chromium's default: java.lang.NoSuchMethodException: com.cinemamod.mcef.MCEFBrowser.setWindowlessFrameRate(int)
+361-[20:25:04] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live)
+362-[20:25:04] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795206304117}
+363-[20:25:04] [Render thread/INFO]: [Breeze autotest] {"cycle":"11","painted":"true","ms":"49","liveBrowsers":"1","event":"cycle-open","t":1795206304118}
+364-[20:25:04] [Render thread/INFO]: [Breeze] interface browser closed (0 live)
+365-[20:25:04] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_429","kind":"options","liveBrowsers":"0","event":"screen","t":1795206304167}
+366-[20:25:04] [Render thread/INFO]: [Breeze autotest] {"cycle":"11","liveBrowsers":"0","heapMb":"402","event":"cycle-close","t":1795206304168}
+367:[20:25:04] [Render thread/INFO]: [Breeze] browser frame rate left at Chromium's default: java.lang.NoSuchMethodException: com.cinemamod.mcef.MCEFBrowser.setWindowlessFrameRate(int)
+368-[20:25:04] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live)
+369-[20:25:04] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795206304268}
+370-[20:25:04] [Render thread/INFO]: [Breeze autotest] {"cycle":"12","painted":"true","ms":"49","liveBrowsers":"1","event":"cycle-open","t":1795206304268}
+371-[20:25:04] [Render thread/INFO]: [Breeze] interface browser closed (0 live)
+372-[20:25:04] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_429","kind":"options","liveBrowsers":"0","event":"screen","t":1795206304318}
+373-[20:25:04] [Render thread/INFO]: [Breeze autotest] {"cycle":"12","liveBrowsers":"0","heapMb":"411","event":"cycle-close","t":1795206304319}
+374:[20:25:04] [Render thread/INFO]: [Breeze] browser frame rate left at Chromium's default: java.lang.NoSuchMethodException: com.cinemamod.mcef.MCEFBrowser.setWindowlessFrameRate(int)
+375-[20:25:04] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live)
+376-[20:25:04] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795206304402}
+377-[20:25:04] [Render thread/INFO]: [Breeze autotest] {"cycle":"13","painted":"true","ms":"50","liveBrowsers":"1","event":"cycle-open","t":1795206304403}
+378-[20:25:04] [Render thread/INFO]: [Breeze] interface browser closed (0 live)
+379-[20:25:04] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_429","kind":"options","liveBrowsers":"0","event":"screen","t":1795206304452}
+380-[20:25:04] [Render thread/INFO]: [Breeze autotest] {"cycle":"13","liveBrowsers":"0","heapMb":"421","event":"cycle-close","t":1795206304453}
+381:[20:25:04] [Render thread/INFO]: [Breeze] browser frame rate left at Chromium's default: java.lang.NoSuchMethodException: com.cinemamod.mcef.MCEFBrowser.setWindowlessFrameRate(int)
+382-[20:25:04] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live)
+383-[20:25:04] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795206304553}
+384-[20:25:04] [Render thread/INFO]: [Breeze autotest] {"cycle":"14","painted":"true","ms":"48","liveBrowsers":"1","event":"cycle-open","t":1795206304553}
+385-[20:25:04] [Render thread/INFO]: [Breeze] interface browser closed (0 live)
+386-[20:25:04] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_429","kind":"options","liveBrowsers":"0","event":"screen","t":1795206304603}
+387-[20:25:04] [Render thread/INFO]: [Breeze autotest] {"cycle":"14","liveBrowsers":"0","heapMb":"428","event":"cycle-close","t":1795206304604}
+388:[20:25:04] [Render thread/INFO]: [Breeze] browser frame rate left at Chromium's default: java.lang.NoSuchMethodException: com.cinemamod.mcef.MCEFBrowser.setWindowlessFrameRate(int)
+389-[20:25:04] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live)
+390-[20:25:04] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795206304704}
+391-[20:25:04] [Render thread/INFO]: [Breeze autotest] {"cycle":"15","painted":"true","ms":"48","liveBrowsers":"1","event":"cycle-open","t":1795206304704}
+392-[20:25:04] [Render thread/INFO]: [Breeze] interface browser closed (0 live)
+393-[20:25:04] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_429","kind":"options","liveBrowsers":"0","event":"screen","t":1795206304754}
+394-[20:25:04] [Render thread/INFO]: [Breeze autotest] {"cycle":"15","liveBrowsers":"0","heapMb":"435","event":"cycle-close","t":1795206304755}
+395:[20:25:04] [Render thread/INFO]: [Breeze] browser frame rate left at Chromium's default: java.lang.NoSuchMethodException: com.cinemamod.mcef.MCEFBrowser.setWindowlessFrameRate(int)
+396-[20:25:04] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live)
+397-[20:25:04] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795206304855}
+398-[20:25:04] [Render thread/INFO]: [Breeze autotest] {"cycle":"16","painted":"true","ms":"49","liveBrowsers":"1","event":"cycle-open","t":1795206304855}
+399-[20:25:04] [Render thread/INFO]: [Breeze] interface browser closed (0 live)
+400-[20:25:04] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_429","kind":"options","liveBrowsers":"0","event":"screen","t":1795206304905}
+401-[20:25:04] [Render thread/INFO]: [Breeze autotest] {"cycle":"16","liveBrowsers":"0","heapMb":"444","event":"cycle-close","t":1795206304905}
+402:[20:25:04] [Render thread/INFO]: [Breeze] browser frame rate left at Chromium's default: java.lang.NoSuchMethodException: com.cinemamod.mcef.MCEFBrowser.setWindowlessFrameRate(int)
+403-[20:25:04] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live)
+404-[20:25:05] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795206305005}
+405-[20:25:05] [Render thread/INFO]: [Breeze autotest] {"cycle":"17","painted":"true","ms":"49","liveBrowsers":"1","event":"cycle-open","t":1795206305006}
+406-[20:25:05] [Render thread/INFO]: [Breeze] interface browser closed (0 live)
+407-[20:25:05] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_429","kind":"options","liveBrowsers":"0","event":"screen","t":1795206305056}
+408-[20:25:05] [Render thread/INFO]: [Breeze autotest] {"cycle":"17","liveBrowsers":"0","heapMb":"454","event":"cycle-close","t":1795206305056}
+409:[20:25:05] [Render thread/INFO]: [Breeze] browser frame rate left at Chromium's default: java.lang.NoSuchMethodException: com.cinemamod.mcef.MCEFBrowser.setWindowlessFrameRate(int)
+410-[20:25:05] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live)
+411-[20:25:05] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795206305156}
+412-[20:25:05] [Render thread/INFO]: [Breeze autotest] {"cycle":"18","painted":"true","ms":"50","liveBrowsers":"1","event":"cycle-open","t":1795206305157}
+413-[20:25:05] [Render thread/INFO]: [Breeze] interface browser closed (0 live)
+414-[20:25:05] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_429","kind":"options","liveBrowsers":"0","event":"screen","t":1795206305206}
+415-[20:25:05] [Render thread/INFO]: [Breeze autotest] {"cycle":"18","liveBrowsers":"0","heapMb":"463","event":"cycle-close","t":1795206305207}
+416:[20:25:05] [Render thread/INFO]: [Breeze] browser frame rate left at Chromium's default: java.lang.NoSuchMethodException: com.cinemamod.mcef.MCEFBrowser.setWindowlessFrameRate(int)
+417-[20:25:05] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live)
+418-[20:25:05] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795206305307}
