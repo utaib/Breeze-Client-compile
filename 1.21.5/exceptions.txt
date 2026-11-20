@@ -1,0 +1,200 @@
+77:[03:28:13] [Download-1/INFO]: Could not authorize you against Realms server: javax.ws.rs.BadRequestException: Invalid session
+78-[03:28:13] [Download-1/ERROR]: Failed to fetch Realms feature flags
+79:net.minecraft.class_4355: Realms authentication error with message 'javax.ws.rs.BadRequestException: Invalid session'
+80-	at knot/net.minecraft.class_4341.method_20998(class_4341.java:495) ~[client-intermediary.jar:?]
+81-	at knot/net.minecraft.class_4341.method_68466(class_4341.java:177) ~[client-intermediary.jar:?]
+82-	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1768) ~[?:?]
+83-	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144) ~[?:?]
+84-	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642) ~[?:?]
+85-	at java.base/java.lang.Thread.run(Thread.java:1583) [?:?]
+86-[03:28:13] [Render thread/INFO]: [Breeze] Integrations: Mod Menu absent, 0 settings screens, 0 Breeze entries, 0 problems
+87-[03:28:13] [Render thread/INFO]: [Breeze autotest] {"class":"com.cinemamod.mcef.internal.MCEFDownloaderMenu","kind":"other","liveBrowsers":"0","event":"screen","t":1795145293749}
+88-[03:28:13] [Worker-Main-2/INFO]: Found unifont_all_no_pua-16.0.01.hex, loading
+89-[03:28:13] [Render thread/INFO]: [Breeze autotest] {"kind":"other","scale":3.0,"items":[],"event":"targets","t":1795145293849}
+90-[03:28:13] [ForkJoinPool.commonPool-worker-1/INFO]: [Breeze autotest] {"path":"/test/spotify-local","status":"200","error":"","event":"stub-post","t":1795145293967}
+91-[03:28:13] [ForkJoinPool.commonPool-worker-1/WARN]: [Breeze] friends refresh failed: HTTP 404
+--
+103:java.lang.IllegalStateException: Failed to open OpenAL device
+104-	at knot/net.minecraft.class_4225.method_38501(class_4225.java:297) ~[client-intermediary.jar:?]
+105-	at knot/net.minecraft.class_4225.method_19661(class_4225.java:154) ~[client-intermediary.jar:?]
+106-	at knot/net.minecraft.class_1140.method_4846(class_1140.java:116) ~[client-intermediary.jar:?]
+107-	at knot/net.minecraft.class_1140.method_4837(class_1140.java:106) ~[client-intermediary.jar:?]
+108-	at knot/net.minecraft.class_1144.method_18182(class_1144.java:125) ~[client-intermediary.jar:?]
+109-	at knot/net.minecraft.class_1144.method_18788(class_1144.java:43) ~[client-intermediary.jar:?]
+110-	at knot/net.minecraft.class_4080.method_18790(class_4080.java:14) ~[client-intermediary.jar:?]
+111-	at java.base/java.util.concurrent.CompletableFuture$UniAccept.tryFire(CompletableFuture.java:718) ~[?:?]
+112-	at java.base/java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:482) ~[?:?]
+113-	at knot/net.minecraft.class_4014.method_67574(class_4014.java:60) ~[client-intermediary.jar:?]
+114-	at knot/net.minecraft.class_1255.method_18859(class_1255.java:164) [client-intermediary.jar:?]
+115-	at knot/net.minecraft.class_4093.method_18859(class_4093.java:23) [client-intermediary.jar:?]
+--
+139:[03:28:18] [Render thread/INFO]: [Breeze] browser frame rate left at Chromium's default: java.lang.NoSuchMethodException: com.cinemamod.mcef.MCEFBrowser.setWindowlessFrameRate(int)
+140-[03:28:18] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live)
+141-[03:28:18] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795145298024}
+142-[03:28:18] [Render thread/INFO]: [Breeze autotest] {"event":"menu-open","t":1795145298025}
+143-[03:28:18] [Render thread/INFO]: [Breeze autotest] {"kind":"breeze-web","scale":3.0,"items":[],"event":"targets","t":1795145298308}
+144-[03:28:18] [ForkJoinPool.commonPool-worker-1/WARN]: [Breeze] friends refresh failed: HTTP 404
+145-[03:28:19] [Render thread/INFO]: [Breeze] the interface page answered 1124 ms after its browser opened
+146-[03:28:19] [Render thread/INFO]: [Breeze autotest] {"action":"app.hello","event":"bridge","t":1795145299139}
+147-[03:28:19] [Render thread/INFO]: [Breeze] Menu wallpapers: 3 found
+148-[03:28:19] [Render thread/INFO]: [Breeze autotest] {"name":"test_a.jpg","where":"web","event":"wallpaper-visit","t":1795145299144}
+149-[03:28:19] [Render thread/INFO]: [Breeze autotest] {"action":"settings.get","event":"bridge","t":1795145299145}
+150-[03:28:19] [Render thread/INFO]: [Breeze autotest] {"action":"game.state","event":"bridge","t":1795145299275}
+151-[03:28:19] [Render thread/INFO]: [Breeze autotest] {"action":"account.get","event":"bridge","t":1795145299276}
+--
+196:[03:28:43] [Render thread/INFO]: [Breeze] browser frame rate left at Chromium's default: java.lang.NoSuchMethodException: com.cinemamod.mcef.MCEFBrowser.setWindowlessFrameRate(int)
+197-[03:28:43] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live)
+198-[03:28:43] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795145323230}
+199-[03:28:43] [Render thread/INFO]: [Breeze] the interface page answered 68 ms after its browser opened
+200-[03:28:43] [Render thread/INFO]: [Breeze autotest] {"action":"app.hello","event":"bridge","t":1795145323297}
+201-[03:28:43] [Render thread/INFO]: [Breeze autotest] {"name":"test_b.jpg","where":"web","event":"wallpaper-visit","t":1795145323298}
+202-[03:28:43] [Render thread/INFO]: [Breeze autotest] {"action":"settings.get","event":"bridge","t":1795145323299}
+203-[03:28:43] [Render thread/INFO]: [Breeze autotest] {"action":"game.state","event":"bridge","t":1795145323314}
+204-[03:28:43] [Render thread/INFO]: [Breeze autotest] {"action":"account.get","event":"bridge","t":1795145323314}
+205-[03:28:43] [Render thread/INFO]: [Breeze autotest] {"action":"modules.list","event":"bridge","t":1795145323314}
+206-[03:28:43] [Render thread/INFO]: [Breeze autotest] {"action":"integrations.list","event":"bridge","t":1795145323317}
+207-[03:28:43] [Render thread/INFO]: [Breeze autotest] {"action":"ui.route","params":{"route":"home"},"event":"bridge","t":1795145323317}
+208-[03:28:43] [Render thread/INFO]: [Breeze autotest] {"kind":"breeze-web","scale":3.0,"items":[],"event":"targets","t":1795145323615}
+--
+215:[03:28:49] [Render thread/INFO]: [Breeze] browser frame rate left at Chromium's default: java.lang.NoSuchMethodException: com.cinemamod.mcef.MCEFBrowser.setWindowlessFrameRate(int)
+216-[03:28:49] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live)
+217-[03:28:49] [Render thread/INFO]: [Breeze] the interface page answered 84 ms after its browser opened
+218-[03:28:49] [Render thread/INFO]: [Breeze autotest] {"action":"app.hello","event":"bridge","t":1795145329591}
+219-[03:28:49] [Render thread/INFO]: [Breeze autotest] {"name":"test_c.jpg","where":"web","event":"wallpaper-visit","t":1795145329592}
+220-[03:28:49] [Render thread/INFO]: [Breeze autotest] {"action":"settings.get","event":"bridge","t":1795145329593}
+221-[03:28:49] [Render thread/INFO]: [Breeze autotest] {"action":"game.state","event":"bridge","t":1795145329609}
+222-[03:28:49] [Render thread/INFO]: [Breeze autotest] {"action":"account.get","event":"bridge","t":1795145329610}
+223-[03:28:49] [Render thread/INFO]: [Breeze autotest] {"action":"modules.list","event":"bridge","t":1795145329610}
+224-[03:28:49] [Render thread/INFO]: [Breeze autotest] {"action":"integrations.list","event":"bridge","t":1795145329612}
+225-[03:28:49] [Render thread/INFO]: [Breeze autotest] {"action":"ui.route","params":{"route":"home"},"event":"bridge","t":1795145329612}
+226-[03:28:49] [Render thread/INFO]: [Breeze autotest] {"cycle":"0","painted":"true","ms":"151","liveBrowsers":"1","event":"cycle-open","t":1795145329658}
+227-[03:28:49] [Render thread/INFO]: [Breeze autotest] {"integrations":[],"problems":[],"event":"integrations","t":1795145329661}
+--
+231:[03:28:49] [Render thread/INFO]: [Breeze] browser frame rate left at Chromium's default: java.lang.NoSuchMethodException: com.cinemamod.mcef.MCEFBrowser.setWindowlessFrameRate(int)
+232-[03:28:49] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live)
+233-[03:28:49] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795145329822}
+234-[03:28:49] [Render thread/INFO]: [Breeze] the interface page answered 103 ms after its browser opened
+235-[03:28:49] [Render thread/INFO]: [Breeze autotest] {"action":"app.hello","event":"bridge","t":1795145329926}
+236-[03:28:49] [Render thread/INFO]: [Breeze autotest] {"name":"test_a.jpg","where":"web","event":"wallpaper-visit","t":1795145329927}
+237-[03:28:49] [Render thread/INFO]: [Breeze autotest] {"action":"settings.get","event":"bridge","t":1795145329929}
+238-[03:28:49] [Render thread/INFO]: [Breeze autotest] {"action":"game.state","event":"bridge","t":1795145329942}
+239-[03:28:49] [Render thread/INFO]: [Breeze autotest] {"action":"account.get","event":"bridge","t":1795145329943}
+240-[03:28:49] [Render thread/INFO]: [Breeze autotest] {"action":"modules.list","event":"bridge","t":1795145329943}
+241-[03:28:49] [Render thread/INFO]: [Breeze autotest] {"action":"integrations.list","event":"bridge","t":1795145329945}
+242-[03:28:49] [Render thread/INFO]: [Breeze autotest] {"action":"ui.route","params":{"route":"home"},"event":"bridge","t":1795145329946}
+243-[03:28:49] [Render thread/INFO]: [Breeze autotest] {"cycle":"1","painted":"true","ms":"137","liveBrowsers":"1","event":"cycle-open","t":1795145329959}
+--
+247:[03:28:50] [Render thread/INFO]: [Breeze] browser frame rate left at Chromium's default: java.lang.NoSuchMethodException: com.cinemamod.mcef.MCEFBrowser.setWindowlessFrameRate(int)
+248-[03:28:50] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live)
+249-[03:28:50] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795145330122}
+250-[03:28:50] [Render thread/INFO]: [Breeze] the interface page answered 117 ms after its browser opened
+251-[03:28:50] [Render thread/INFO]: [Breeze autotest] {"action":"app.hello","event":"bridge","t":1795145330238}
+252-[03:28:50] [Render thread/INFO]: [Breeze autotest] {"name":"test_b.jpg","where":"web","event":"wallpaper-visit","t":1795145330239}
+253-[03:28:50] [Render thread/INFO]: [Breeze autotest] {"action":"settings.get","event":"bridge","t":1795145330240}
+254-[03:28:50] [Render thread/INFO]: [Breeze autotest] {"action":"game.state","event":"bridge","t":1795145330256}
+255-[03:28:50] [Render thread/INFO]: [Breeze autotest] {"action":"account.get","event":"bridge","t":1795145330258}
+256-[03:28:50] [Render thread/INFO]: [Breeze autotest] {"action":"modules.list","event":"bridge","t":1795145330258}
+257-[03:28:50] [Render thread/INFO]: [Breeze autotest] {"action":"integrations.list","event":"bridge","t":1795145330260}
+258-[03:28:50] [Render thread/INFO]: [Breeze autotest] {"action":"ui.route","params":{"route":"home"},"event":"bridge","t":1795145330261}
+259-[03:28:50] [Render thread/INFO]: [Breeze autotest] {"cycle":"2","painted":"true","ms":"185","liveBrowsers":"1","event":"cycle-open","t":1795145330306}
+--
+263:[03:28:50] [Render thread/INFO]: [Breeze] browser frame rate left at Chromium's default: java.lang.NoSuchMethodException: com.cinemamod.mcef.MCEFBrowser.setWindowlessFrameRate(int)
+264-[03:28:50] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live)
+265-[03:28:50] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795145330463}
+266-[03:28:50] [Render thread/INFO]: [Breeze] the interface page answered 82 ms after its browser opened
+267-[03:28:50] [Render thread/INFO]: [Breeze autotest] {"action":"app.hello","event":"bridge","t":1795145330545}
+268-[03:28:50] [Render thread/INFO]: [Breeze autotest] {"name":"test_c.jpg","where":"web","event":"wallpaper-visit","t":1795145330545}
+269-[03:28:50] [Render thread/INFO]: [Breeze autotest] {"action":"settings.get","event":"bridge","t":1795145330546}
+270-[03:28:50] [Render thread/INFO]: [Breeze autotest] {"action":"game.state","event":"bridge","t":1795145330562}
+271-[03:28:50] [Render thread/INFO]: [Breeze autotest] {"action":"account.get","event":"bridge","t":1795145330565}
+272-[03:28:50] [Render thread/INFO]: [Breeze autotest] {"action":"modules.list","event":"bridge","t":1795145330565}
+273-[03:28:50] [Render thread/INFO]: [Breeze autotest] {"action":"integrations.list","event":"bridge","t":1795145330567}
+274-[03:28:50] [Render thread/INFO]: [Breeze autotest] {"action":"ui.route","params":{"route":"home"},"event":"bridge","t":1795145330567}
+275-[03:28:50] [Render thread/INFO]: [Breeze autotest] {"cycle":"3","painted":"true","ms":"149","liveBrowsers":"1","event":"cycle-open","t":1795145330612}
+--
+279:[03:28:50] [Render thread/INFO]: [Breeze] browser frame rate left at Chromium's default: java.lang.NoSuchMethodException: com.cinemamod.mcef.MCEFBrowser.setWindowlessFrameRate(int)
+280-[03:28:50] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live)
+281-[03:28:50] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795145330776}
+282-[03:28:50] [Render thread/INFO]: [Breeze] the interface page answered 101 ms after its browser opened
+283-[03:28:50] [Render thread/INFO]: [Breeze autotest] {"action":"app.hello","event":"bridge","t":1795145330878}
+284-[03:28:50] [Render thread/INFO]: [Breeze autotest] {"name":"test_a.jpg","where":"web","event":"wallpaper-visit","t":1795145330879}
+285-[03:28:50] [Render thread/INFO]: [Breeze autotest] {"action":"settings.get","event":"bridge","t":1795145330881}
+286-[03:28:50] [Render thread/INFO]: [Breeze autotest] {"action":"game.state","event":"bridge","t":1795145330894}
+287-[03:28:50] [Render thread/INFO]: [Breeze autotest] {"action":"account.get","event":"bridge","t":1795145330894}
+288-[03:28:50] [Render thread/INFO]: [Breeze autotest] {"action":"modules.list","event":"bridge","t":1795145330895}
+289-[03:28:50] [Render thread/INFO]: [Breeze autotest] {"action":"integrations.list","event":"bridge","t":1795145330897}
+290-[03:28:50] [Render thread/INFO]: [Breeze autotest] {"action":"ui.route","params":{"route":"home"},"event":"bridge","t":1795145330897}
+291-[03:28:50] [Render thread/INFO]: [Breeze autotest] {"cycle":"4","painted":"true","ms":"135","liveBrowsers":"1","event":"cycle-open","t":1795145330911}
+--
+295:[03:28:51] [Render thread/INFO]: [Breeze] browser frame rate left at Chromium's default: java.lang.NoSuchMethodException: com.cinemamod.mcef.MCEFBrowser.setWindowlessFrameRate(int)
+296-[03:28:51] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live)
+297-[03:28:51] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795145331074}
+298-[03:28:51] [Render thread/INFO]: [Breeze] the interface page answered 98 ms after its browser opened
+299-[03:28:51] [Render thread/INFO]: [Breeze autotest] {"action":"app.hello","event":"bridge","t":1795145331172}
+300-[03:28:51] [Render thread/INFO]: [Breeze autotest] {"name":"test_b.jpg","where":"web","event":"wallpaper-visit","t":1795145331173}
+301-[03:28:51] [Render thread/INFO]: [Breeze autotest] {"action":"settings.get","event":"bridge","t":1795145331175}
+302-[03:28:51] [Render thread/INFO]: [Breeze autotest] {"action":"game.state","event":"bridge","t":1795145331188}
+303-[03:28:51] [Render thread/INFO]: [Breeze autotest] {"action":"account.get","event":"bridge","t":1795145331189}
+304-[03:28:51] [Render thread/INFO]: [Breeze autotest] {"action":"modules.list","event":"bridge","t":1795145331189}
+305-[03:28:51] [Render thread/INFO]: [Breeze autotest] {"action":"integrations.list","event":"bridge","t":1795145331191}
+306-[03:28:51] [Render thread/INFO]: [Breeze autotest] {"action":"ui.route","params":{"route":"home"},"event":"bridge","t":1795145331191}
+307-[03:28:51] [Render thread/INFO]: [Breeze autotest] {"cycle":"5","painted":"true","ms":"132","liveBrowsers":"1","event":"cycle-open","t":1795145331205}
+--
+311:[03:28:51] [Render thread/INFO]: [Breeze] browser frame rate left at Chromium's default: java.lang.NoSuchMethodException: com.cinemamod.mcef.MCEFBrowser.setWindowlessFrameRate(int)
+312-[03:28:51] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live)
+313-[03:28:51] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795145331372}
+314-[03:28:51] [Render thread/INFO]: [Breeze] the interface page answered 105 ms after its browser opened
+315-[03:28:51] [Render thread/INFO]: [Breeze autotest] {"action":"app.hello","event":"bridge","t":1795145331477}
+316-[03:28:51] [Render thread/INFO]: [Breeze autotest] {"name":"test_c.jpg","where":"web","event":"wallpaper-visit","t":1795145331478}
+317-[03:28:51] [Render thread/INFO]: [Breeze autotest] {"action":"settings.get","event":"bridge","t":1795145331480}
+318-[03:28:51] [Render thread/INFO]: [Breeze autotest] {"action":"game.state","event":"bridge","t":1795145331493}
+319-[03:28:51] [Render thread/INFO]: [Breeze autotest] {"action":"account.get","event":"bridge","t":1795145331494}
+320-[03:28:51] [Render thread/INFO]: [Breeze autotest] {"action":"modules.list","event":"bridge","t":1795145331494}
+321-[03:28:51] [Render thread/INFO]: [Breeze autotest] {"action":"integrations.list","event":"bridge","t":1795145331496}
+322-[03:28:51] [Render thread/INFO]: [Breeze autotest] {"action":"ui.route","params":{"route":"home"},"event":"bridge","t":1795145331496}
+323-[03:28:51] [Render thread/INFO]: [Breeze autotest] {"cycle":"6","painted":"true","ms":"139","liveBrowsers":"1","event":"cycle-open","t":1795145331511}
+--
+327:[03:28:51] [Render thread/INFO]: [Breeze] browser frame rate left at Chromium's default: java.lang.NoSuchMethodException: com.cinemamod.mcef.MCEFBrowser.setWindowlessFrameRate(int)
+328-[03:28:51] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live)
+329-[03:28:51] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795145331675}
+330-[03:28:51] [Render thread/INFO]: [Breeze] the interface page answered 86 ms after its browser opened
+331-[03:28:51] [Render thread/INFO]: [Breeze autotest] {"action":"app.hello","event":"bridge","t":1795145331761}
+332-[03:28:51] [Render thread/INFO]: [Breeze autotest] {"name":"test_a.jpg","where":"web","event":"wallpaper-visit","t":1795145331761}
+333-[03:28:51] [Render thread/INFO]: [Breeze autotest] {"action":"settings.get","event":"bridge","t":1795145331764}
+334-[03:28:51] [Render thread/INFO]: [Breeze autotest] {"action":"game.state","event":"bridge","t":1795145331776}
+335-[03:28:51] [Render thread/INFO]: [Breeze autotest] {"action":"account.get","event":"bridge","t":1795145331777}
+336-[03:28:51] [Render thread/INFO]: [Breeze autotest] {"action":"modules.list","event":"bridge","t":1795145331777}
+337-[03:28:51] [Render thread/INFO]: [Breeze autotest] {"action":"integrations.list","event":"bridge","t":1795145331780}
+338-[03:28:51] [Render thread/INFO]: [Breeze autotest] {"action":"ui.route","params":{"route":"home"},"event":"bridge","t":1795145331780}
+339-[03:28:51] [Render thread/INFO]: [Breeze autotest] {"cycle":"7","painted":"true","ms":"138","liveBrowsers":"1","event":"cycle-open","t":1795145331812}
+--
+343:[03:28:51] [Render thread/INFO]: [Breeze] browser frame rate left at Chromium's default: java.lang.NoSuchMethodException: com.cinemamod.mcef.MCEFBrowser.setWindowlessFrameRate(int)
+344-[03:28:51] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live)
+345-[03:28:51] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795145331968}
+346-[03:28:52] [Render thread/INFO]: [Breeze] the interface page answered 100 ms after its browser opened
+347-[03:28:52] [Render thread/INFO]: [Breeze autotest] {"action":"app.hello","event":"bridge","t":1795145332068}
+348-[03:28:52] [Render thread/INFO]: [Breeze autotest] {"name":"test_b.jpg","where":"web","event":"wallpaper-visit","t":1795145332069}
+349-[03:28:52] [Render thread/INFO]: [Breeze autotest] {"action":"settings.get","event":"bridge","t":1795145332070}
+350-[03:28:52] [Render thread/INFO]: [Breeze autotest] {"cycle":"8","painted":"true","ms":"135","liveBrowsers":"1","event":"cycle-open","t":1795145332102}
+351-[03:28:52] [Render thread/INFO]: [Breeze] interface browser closed (0 live)
+352-[03:28:52] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_429","kind":"options","liveBrowsers":"0","event":"screen","t":1795145332185}
+353-[03:28:52] [Render thread/INFO]: [Breeze autotest] {"cycle":"8","liveBrowsers":"0","heapMb":"443","event":"cycle-close","t":1795145332185}
+354:[03:28:52] [Render thread/INFO]: [Breeze] browser frame rate left at Chromium's default: java.lang.NoSuchMethodException: com.cinemamod.mcef.MCEFBrowser.setWindowlessFrameRate(int)
+355-[03:28:52] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live)
+356-[03:28:52] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795145332264}
+357-[03:28:52] [Render thread/INFO]: [Breeze] the interface page answered 114 ms after its browser opened
+358-[03:28:52] [Render thread/INFO]: [Breeze autotest] {"action":"app.hello","event":"bridge","t":1795145332378}
+359-[03:28:52] [Render thread/INFO]: [Breeze autotest] {"name":"test_c.jpg","where":"web","event":"wallpaper-visit","t":1795145332379}
+360-[03:28:52] [Render thread/INFO]: [Breeze autotest] {"action":"settings.get","event":"bridge","t":1795145332380}
+361-[03:28:52] [Render thread/INFO]: [Breeze autotest] {"action":"game.state","event":"bridge","t":1795145332395}
+362-[03:28:52] [Render thread/INFO]: [Breeze autotest] {"action":"account.get","event":"bridge","t":1795145332395}
+363-[03:28:52] [Render thread/INFO]: [Breeze autotest] {"action":"modules.list","event":"bridge","t":1795145332395}
+364-[03:28:52] [Render thread/INFO]: [Breeze autotest] {"action":"integrations.list","event":"bridge","t":1795145332397}
+365-[03:28:52] [Render thread/INFO]: [Breeze autotest] {"action":"ui.route","params":{"route":"home"},"event":"bridge","t":1795145332397}
+366-[03:28:52] [Render thread/INFO]: [Breeze autotest] {"cycle":"9","painted":"true","ms":"148","liveBrowsers":"1","event":"cycle-open","t":1795145332411}
+--
+370:[03:28:52] [Render thread/INFO]: [Breeze] browser frame rate left at Chromium's default: java.lang.NoSuchMethodException: com.cinemamod.mcef.MCEFBrowser.setWindowlessFrameRate(int)
+371-[03:28:52] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live)
+372-[03:28:52] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795145332574}
+373-[03:28:52] [Render thread/INFO]: [Breeze] the interface page answered 64 ms after its browser opened
+374-[03:28:52] [Render thread/INFO]: [Breeze autotest] {"action":"app.hello","event":"bridge","t":1795145332638}
