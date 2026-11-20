@@ -1,0 +1,95 @@
+86:com.mojang.authlib.exceptions.InvalidCredentialsException: Status: 401
+87:	at knot//com.mojang.authlib.exceptions.MinecraftClientHttpException.toAuthenticationException(MinecraftClientHttpException.java:59)
+88-	at knot//com.mojang.authlib.yggdrasil.YggdrasilUserApiService.fetchProperties(YggdrasilUserApiService.java:150)
+89-	at knot//net.minecraft.class_310.method_55608(class_310.java:457)
+90-	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1768)
+91-	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+92-	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+93-	at java.base/java.lang.Thread.run(Thread.java:1583)
+94:Caused by: com.mojang.authlib.exceptions.MinecraftClientHttpException: Status: 401
+95-	at knot//com.mojang.authlib.minecraft.client.MinecraftClient.readInputStream(MinecraftClient.java:103)
+96-	at knot//com.mojang.authlib.minecraft.client.MinecraftClient.get(MinecraftClient.java:56)
+97-	at knot//com.mojang.authlib.yggdrasil.YggdrasilUserApiService.fetchProperties(YggdrasilUserApiService.java:121)
+98-	... 5 more
+99-[11:47:17] [Rinku-Downloader/INFO]: Downloading JCEF asset archive.tar.gz from https://github.com
+100-[11:47:17] [ForkJoinPool.commonPool-worker-1/WARN]: [Iris Update Check] This version doesn't have an update index, skipping.
+101-[11:47:18] [Render thread/INFO]: Backend library: LWJGL version 3.3.3-snapshot
+102-[11:47:18] [Render thread/INFO]: Debug functionality is disabled.
+103-[11:47:18] [Render thread/INFO]: OpenGL 4.5 detected, enabling DSA.
+104-[11:47:18] [Render thread/INFO]: Shaders are disabled because no valid shaderpack is selected
+105-[11:47:18] [Render thread/INFO]: OpenGL Vendor: Mesa
+106-[11:47:18] [Render thread/INFO]: OpenGL Renderer: llvmpipe (LLVM 20.1.2, 256 bits)
+--
+114:[11:47:19] [Download-2/INFO]: Could not authorize you against Realms server: javax.ws.rs.BadRequestException: Invalid session
+115-[11:47:19] [Download-2/ERROR]: Failed to fetch Realms feature flags
+116:net.minecraft.class_4355: Realms authentication error with message 'javax.ws.rs.BadRequestException: Invalid session'
+117-	at knot//net.minecraft.class_4341.method_20998(class_4341.java:526)
+118-	at knot//net.minecraft.class_4341.method_68466(class_4341.java:186)
+119-	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1768)
+120-	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+121-	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+122-	at java.base/java.lang.Thread.run(Thread.java:1583)
+123-[11:47:19] [Render thread/INFO]: [Breeze] Integrations: Mod Menu absent, 0 settings screens, 0 Breeze entries, 0 problems
+124-[11:47:19] [Render thread/INFO]: [Breeze autotest] {"class":"de.keksuccino.rinku.binarydownload.RinkuDownloaderScreen","kind":"other","liveBrowsers":"0","event":"screen","t":1795175239161}
+125-[11:47:19] [Render thread/INFO]: [Breeze autotest] {"kind":"other","scale":3.0,"items":[],"event":"targets","t":1795175239250}
+126-[11:47:19] [ForkJoinPool.commonPool-worker-1/INFO]: [Breeze autotest] {"path":"/test/spotify-local","status":"200","error":"","event":"stub-post","t":1795175239272}
+127-[11:47:19] [ForkJoinPool.commonPool-worker-1/WARN]: [Breeze] friends refresh failed: HTTP 404
+128-[11:47:19] [Worker-Main-1/INFO]: Found unifont_all_no_pua-17.0.01.hex, loading
+--
+133:java.lang.IllegalStateException: Failed to open OpenAL device
+134-	at knot//net.minecraft.class_4225.method_38501(class_4225.java:292)
+135-	at knot//net.minecraft.class_4225.method_19661(class_4225.java:150)
+136-	at knot//net.minecraft.class_1140.method_4846(class_1140.java:119)
+137-	at knot//net.minecraft.class_1140.method_4837(class_1140.java:109)
+138-	at knot//net.minecraft.class_1144.method_18182(class_1144.java:122)
+139-	at knot//net.minecraft.class_1144.method_18788(class_1144.java:41)
+140-	at knot//net.minecraft.class_4080.method_18790(class_4080.java:15)
+141-	at java.base/java.util.concurrent.CompletableFuture$UniAccept.tryFire(CompletableFuture.java:718)
+142-	at java.base/java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:482)
+143-	at knot//net.minecraft.class_4014.method_67574(class_4014.java:59)
+144-	at knot//net.minecraft.class_1255.method_18859(class_1255.java:169)
+145-	at knot//net.minecraft.class_4093.method_18859(class_4093.java:23)
+--
+183:[11:47:28] [IO-Worker-1/INFO]: Could not authorize you against Realms server: javax.ws.rs.BadRequestException: Invalid session
+184-[11:47:28] [IO-Worker-1/ERROR]: Couldn't connect to realms
+185:net.minecraft.class_4355: Realms authentication error with message 'javax.ws.rs.BadRequestException: Invalid session'
+186-	at knot//net.minecraft.class_4341.method_20998(class_4341.java:526)
+187-	at knot//net.minecraft.class_4341.method_21027(class_4341.java:307)
+188-	at knot//net.minecraft.class_8647.method_52627(class_8647.java:48)
+189-	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1768)
+190-	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+191-	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+192-	at java.base/java.lang.Thread.run(Thread.java:1583)
+193-[11:47:28] [JCEF-Lifecycle/INFO]: [Breeze] the interface page answered 177 ms after its browser opened
+194-[11:47:28] [JCEF-Lifecycle/INFO]: [Breeze autotest] {"action":"app.hello","event":"bridge","t":1795175248772}
+195-[11:47:28] [JCEF-Lifecycle/INFO]: [Breeze] Menu wallpapers: 3 found
+196-[11:47:28] [JCEF-Lifecycle/INFO]: [Breeze autotest] {"name":"test_a.jpg","where":"web","event":"wallpaper-visit","t":1795175248780}
+197-[11:47:28] [JCEF-Lifecycle/INFO]: [Breeze autotest] {"action":"settings.get","event":"bridge","t":1795175248787}
+--
+743:java.lang.IllegalStateException: Failed to open OpenAL device
+744-	at knot//net.minecraft.class_4225.method_38501(class_4225.java:292)
+745-	at knot//net.minecraft.class_4225.method_19661(class_4225.java:150)
+746-	at knot//net.minecraft.class_1140.method_4846(class_1140.java:119)
+747-	at knot//net.minecraft.class_1140.method_4837(class_1140.java:109)
+748-	at knot//net.minecraft.class_1144.method_18182(class_1144.java:122)
+749-	at knot//net.minecraft.class_1144.method_18788(class_1144.java:41)
+750-	at knot//net.minecraft.class_4080.method_18790(class_4080.java:15)
+751-	at java.base/java.util.concurrent.CompletableFuture$UniAccept.tryFire(CompletableFuture.java:718)
+752-	at java.base/java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:482)
+753-	at knot//net.minecraft.class_4014.method_67574(class_4014.java:59)
+754-	at knot//net.minecraft.class_1255.method_18859(class_1255.java:169)
+755-	at knot//net.minecraft.class_4093.method_18859(class_4093.java:23)
+--
+791:java.lang.IllegalStateException: Failed to open OpenAL device
+792-	at knot//net.minecraft.class_4225.method_38501(class_4225.java:292)
+793-	at knot//net.minecraft.class_4225.method_19661(class_4225.java:150)
+794-	at knot//net.minecraft.class_1140.method_4846(class_1140.java:119)
+795-	at knot//net.minecraft.class_1140.method_4837(class_1140.java:109)
+796-	at knot//net.minecraft.class_1144.method_18182(class_1144.java:122)
+797-	at knot//net.minecraft.class_1144.method_18788(class_1144.java:41)
+798-	at knot//net.minecraft.class_4080.method_18790(class_4080.java:15)
+799-	at java.base/java.util.concurrent.CompletableFuture$UniAccept.tryFire(CompletableFuture.java:718)
+800-	at java.base/java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:482)
+801-	at knot//net.minecraft.class_4014.method_67574(class_4014.java:59)
+802-	at knot//net.minecraft.class_1255.method_18859(class_1255.java:169)
+803-	at knot//net.minecraft.class_4093.method_18859(class_4093.java:23)
