@@ -258,7 +258,7 @@ if [ -n "$copy" ]; then
   during=$(grep '"event":"frame-cost"' "$LOG" | grep '"phase":"recorder-copy"' | tail -1 | jq -r '"\(.frame.us) us average, \(.frame.maxUs) us worst over \(.frame.calls) frames"' 2>/dev/null)
   say "recorder world copy: $copy; Breeze's frame section with the recorder off: ${off:-?}; while copying: ${during:-?}"
   case "$copy" in
-    *'"pass":"true"'*) pass "the world copy at render distance $(printf '%s' "$copy" | jq -r .renderDistance) took $(printf '%s' "$copy" | jq -r '.copy' | sed -nE 's/.* ms=([0-9]+).*/\1/p') ms, at most $(printf '%s' "$copy" | jq -r .worstFrameUs) us in one frame ($(printf '%s' "$copy" | jq -r .avgFrameUs) us on average)" ;;
+    *'"pass":"true"'*) pass "the world copy at render distance $(printf '%s' "$copy" | jq -r .renderDistance) took $(printf '%s' "$copy" | jq -r '.copy' | sed -nE 's/.* ms=([0-9]+).*/\1/p') ms, at most $(printf '%s' "$copy" | jq -r .worstFrameUs) us in one frame by the clock and $(printf '%s' "$copy" | jq -r .worstFrameCpuUs) us of processor time ($(printf '%s' "$copy" | jq -r .avgFrameUs) us on average)" ;;
     *) fail "the world copy: $copy" ;;
   esac
 else

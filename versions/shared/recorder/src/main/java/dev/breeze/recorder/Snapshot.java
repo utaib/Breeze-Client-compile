@@ -91,7 +91,20 @@ final class Snapshot {
         return entitiesCopied;
     }
 
-    private long worstPiece;
+    private long worstPiece, worstPieceCpu;
+
+    /** The processor time of the longest piece (the rest of its time went to other threads or the collector). */
+    long worstPieceCpuNanos() {
+        return worstPieceCpu;
+    }
+
+    private void piece(long wallStart, long cpuStart) {
+        long took = System.nanoTime() - wallStart;
+        if (took > worstPiece) {
+            worstPiece = took;
+            worstPieceCpu = cpuStart < 0 ? -1 : RecorderHooks.cpuNanos() - cpuStart;
+        }
+    }
     private int entitiesCopied;
     /** The entities to copy (taken once the chunks are done), the next one, and those carrying riders. */
     private Entity[] entities;
@@ -180,6 +193,7 @@ final class Snapshot {
         while (next < chunks.length) {
             long now = System.nanoTime();
             if (!first && now + nanosPerChunk() > until) return;
+            long cpu0 = RecorderHooks.cpuNanos();
             long c = chunks[next++];
             LevelChunk chunk = RecWorld.chunk(level, (int) (c >> 32), (int) c);
             if (chunk == null) continue;
@@ -187,9 +201,8 @@ final class Snapshot {
             for (Packet<?> pk : buf) out.accept(pk);
             buf.clear();
             chunksCopied++;
-            long took = System.nanoTime() - now;
-            chunkNanos += took;
-            worstPiece = Math.max(worstPiece, took);
+            chunkNanos += System.nanoTime() - now;
+            piece(now, cpu0);
             first = false;
         }
     }
@@ -204,7 +217,7 @@ final class Snapshot {
      */
     private void rest(LocalPlayer p, ClientLevel level, Consumer<Packet<?>> out, long until) {
         if (stage == Stage.PLAYER) {
-            long t0 = System.nanoTime();
+            long t0 = System.nanoTime(), cpu0 = RecorderHooks.cpuNanos();
             out.accept(RecWorld.position(p));
             out.accept(new ClientboundSetHealthPacket(p.getHealth(), p.getFoodData().getFoodLevel(), p.getFoodData().getSaturationLevel()));
             out.accept(new ClientboundSetExperiencePacket(p.experienceProgress, p.totalExperience, p.experienceLevel));
@@ -219,12 +232,13 @@ final class Snapshot {
             entities = all.toArray(new Entity[0]);
             nextEntity = 0;
             stage = Stage.ENTITIES;
-            worstPiece = Math.max(worstPiece, System.nanoTime() - t0);
+            piece(t0, cpu0);
         }
         if (stage == Stage.ENTITIES) {
             while (nextEntity < entities.length) {
                 long t0 = System.nanoTime();
                 if (t0 > until) return;
+                long cpu0 = RecorderHooks.cpuNanos();
                 Entity e = entities[nextEntity];
                 entities[nextEntity++] = null;
                 try {
@@ -233,7 +247,7 @@ final class Snapshot {
                     // One entity Breeze cannot copy leaves the rest.
                 }
                 entitiesCopied++;
-                worstPiece = Math.max(worstPiece, System.nanoTime() - t0);
+                piece(t0, cpu0);
             }
             for (Entity e : riders) out.accept(new ClientboundSetPassengersPacket(e));
             riders.clear();

@@ -128,7 +128,7 @@ jobs:
     needs: plan
     if: ${{ needs.plan.outputs.matrix != '[]' }}
     runs-on: ubuntu-24.04
-    timeout-minutes: 80
+    timeout-minutes: 90
     strategy:
       fail-fast: false
       matrix:
@@ -364,12 +364,15 @@ jobs:
       # load-start packet). The build under test watches it in the next step.
       - name: A recording from the earlier jar, stopped while it copied the world
         if: ${{ always() && hashFiles(format('old-jars/{0}.jar', matrix.v.mc)) != '' }}
-        timeout-minutes: 25
+        timeout-minutes: 35
         run: |
+          # On two of the machine's four processors: 2.30.0 copied the world
+          # within its 1 ms a tick by the clock, so a busier processor stands
+          # for the owner's slower one (in CI it otherwise just finished).
           BREEZE_LAUNCH=prod BREEZE_MC="$MC" BREEZE_LOADER="${LAUNCHER_LOADER:-$LOADER}" \
           BREEZE_ADDMODS="${LAUNCHER_LOADER:+1}" BREEZE_RENDER_DISTANCE=32 BREEZE_XMX=4G BREEZE_GAME_DIR="$RESULT/old-game" \
           BREEZE_JAR="old-jars/$MC.jar" BREEZE_MODS="$RUNNER_TEMP/mods" \
-            scripts/ci/run-minecraft-test.sh "$RESULT/old-jar" > "$RESULT/old-jar.out" 2>&1 || true
+            taskset -c 0,1 scripts/ci/run-minecraft-test.sh "$RESULT/old-jar" > "$RESULT/old-jar.out" 2>&1 || true
           rec=$(grep '"event":"rec-check"' "$RESULT/old-jar/breeze-autotest.log" 2>/dev/null | tail -1)
           stats=$(grep '"event":"rec-stats"' "$RESULT/old-jar/breeze-autotest.log" 2>/dev/null | tail -1)
           file=$(printf '%s' "$rec" | jq -r '.file // empty' 2>/dev/null)

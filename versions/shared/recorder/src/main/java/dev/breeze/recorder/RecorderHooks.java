@@ -215,6 +215,30 @@ public final class RecorderHooks {
     private static long lastFrameAt, frameNanosAvg;
     private static long copyStart, copyWorstNanos, copyTotalNanos, copyFirstNanos, flushNanos;
     private static int copyWorstFrame;
+    private static long frameCpuStart = -1, copyWorstCpu, gcStart;
+    private static final java.lang.management.ThreadMXBean THREADS = java.lang.management.ManagementFactory.getThreadMXBean();
+
+    /**
+     * The render thread's own processor time (or -1): set beside the clock,
+     * it tells the copy's work from time the system gave to other threads
+     * or to the garbage collector in the middle of a frame.
+     */
+    static long cpuNanos() {
+        try {
+            return THREADS.getCurrentThreadCpuTime();
+        } catch (Throwable t) {
+            return -1;
+        }
+    }
+
+    /** Time all garbage collectors have taken so far, in milliseconds. */
+    private static long gcMillis() {
+        long ms = 0;
+        for (java.lang.management.GarbageCollectorMXBean gc : java.lang.management.ManagementFactory.getGarbageCollectorMXBeans()) {
+            ms += Math.max(0, gc.getCollectionTime());
+        }
+        return ms;
+    }
     private static int copyFrames, copyDistance;
     private static String lastCopy = "";
 
@@ -267,6 +291,7 @@ public final class RecorderHooks {
      */
     private static void copyStep(Minecraft mc, RecWriter w) {
         long t0 = System.nanoTime();
+        frameCpuStart = cpuNanos();
         if (snapshot == null) {
             writeHead(mc, w);
             snapshot = new Snapshot(mc);
@@ -275,6 +300,8 @@ public final class RecorderHooks {
             copyWorstNanos = 0;
             copyTotalNanos = 0;
             copyWorstFrame = 0;
+            copyWorstCpu = 0;
+            gcStart = gcMillis();
             copyDistance = RecWorld.renderDistance(mc);
             BreezeClient.LOGGER.info("[Breeze] recorder: copying the world ({} chunk positions at render distance {})",
                     snapshot.positions(), copyDistance);
@@ -287,6 +314,8 @@ public final class RecorderHooks {
     /** The copy's cost in the frame that started at t0: first, worst and average frame. */
     private static void countFrame(long t0) {
         long spent = System.nanoTime() - t0;
+        long cpu = cpuNanos() - frameCpuStart;
+        if (frameCpuStart >= 0 && cpu > copyWorstCpu) copyWorstCpu = cpu;
         if (copyFrames == 0) copyFirstNanos = spent;
         copyFrames++;
         copyTotalNanos += spent;
@@ -329,9 +358,9 @@ public final class RecorderHooks {
         lastCopy = "renderDistance=" + copyDistance + " chunks=" + (s == null ? 0 : s.chunksCopied()) + " positions=" + (s == null ? 0 : s.positions())
                 + " entities=" + (s == null ? 0 : s.entitiesCopied()) + " frames=" + copyFrames + " ms=" + ms
                 + " budgetUs=" + copyBudgetNanos() / 1000
-                + " worstFrameUs=" + copyWorstNanos / 1000 + " worstFrame=" + copyWorstFrame + " firstFrameUs=" + copyFirstNanos / 1000
+                + " worstFrameUs=" + copyWorstNanos / 1000 + " worstFrameCpuUs=" + copyWorstCpu / 1000 + " gcMs=" + (gcMillis() - gcStart) + " worstFrame=" + copyWorstFrame + " firstFrameUs=" + copyFirstNanos / 1000
                 + " avgFrameUs=" + (copyFrames == 0 ? 0 : copyTotalNanos / copyFrames / 1000)
-                + " usPerChunk=" + (s == null ? 0 : s.nanosPerChunk() / 1000) + " worstPieceUs=" + (s == null ? 0 : s.worstPieceNanos() / 1000)
+                + " usPerChunk=" + (s == null ? 0 : s.nanosPerChunk() / 1000) + " worstPieceUs=" + (s == null ? 0 : s.worstPieceNanos() / 1000) + " worstPieceCpuUs=" + (s == null ? 0 : s.worstPieceCpuNanos() / 1000)
                 + " flushUs=" + flushNanos / 1000 + " flushed=" + flushed + " skipped=" + skipped;
         BreezeClient.LOGGER.info("[Breeze] recorder: world copied ({})", lastCopy);
     }
