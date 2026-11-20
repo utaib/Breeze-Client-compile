@@ -1,0 +1,111 @@
+58:com.mojang.authlib.exceptions.InvalidCredentialsException: Status: 401
+59:	at com.mojang.authlib.exceptions.MinecraftClientHttpException.toAuthenticationException(MinecraftClientHttpException.java:56) ~[authlib-2.3.31.jar:?]
+60-	at com.mojang.authlib.yggdrasil.YggdrasilSocialInteractionsService.checkPrivileges(YggdrasilSocialInteractionsService.java:112) ~[authlib-2.3.31.jar:?]
+61-	at com.mojang.authlib.yggdrasil.YggdrasilSocialInteractionsService.<init>(YggdrasilSocialInteractionsService.java:42) ~[authlib-2.3.31.jar:?]
+62-	at com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService.createSocialInteractionsService(YggdrasilAuthenticationService.java:151) ~[authlib-2.3.31.jar:?]
+63-	at net.minecraft.class_310.method_31382(class_310.java:672) [client-intermediary.jar:?]
+64-	at net.minecraft.class_310.<init>(class_310.java:431) [client-intermediary.jar:?]
+65-	at net.minecraft.client.main.Main.main(Main.java:179) [client-intermediary.jar:?]
+66-	at net.fabricmc.loader.impl.game.minecraft.MinecraftGameProvider.launch(MinecraftGameProvider.java:480) [fabric-loader-0.16.14.jar:?]
+67-	at net.fabricmc.loader.impl.launch.knot.Knot.launch(Knot.java:74) [fabric-loader-0.16.14.jar:?]
+68-	at net.fabricmc.loader.impl.launch.knot.KnotClient.main(KnotClient.java:23) [fabric-loader-0.16.14.jar:?]
+69:Caused by: com.mojang.authlib.exceptions.MinecraftClientHttpException: Status: 401
+70-	at com.mojang.authlib.minecraft.client.MinecraftClient.readInputStream(MinecraftClient.java:77) ~[authlib-2.3.31.jar:?]
+71-	at com.mojang.authlib.minecraft.client.MinecraftClient.get(MinecraftClient.java:47) ~[authlib-2.3.31.jar:?]
+72-	at com.mojang.authlib.yggdrasil.YggdrasilSocialInteractionsService.checkPrivileges(YggdrasilSocialInteractionsService.java:104) ~[authlib-2.3.31.jar:?]
+73-	... 8 more
+74-[06:55:14] [Render thread/INFO]: Setting user: BreezeDev
+75-[06:55:14] [Render thread/WARN]: @Inject(@At("INVOKE")) Shift.BY=3 on fabric-lifecycle-events-v1.mixins.json:client.WorldChunkMixin from mod fabric-lifecycle-events-v1::handler$zfd000$fabric-lifecycle-events-v1$onLoadBlockEntity exceeds the maximum allowed value: 0. Increase the value of maxShiftBy to suppress this warning.
+76-[06:55:14] [Render thread/INFO]: [Breeze] Initializing on Minecraft 1.17
+77-[06:55:14] [Render thread/INFO]: [Breeze] Registered 89 modules
+78-[06:55:14] [Render thread/INFO]: [Breeze] No embedded browser exists for this Minecraft version; native screens are the interface
+79-[06:55:14] [Render thread/INFO]: [Breeze autotest] {"dir":"/home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test","event":"start","t":1795157714995}
+80-[06:55:14] [Render thread/INFO]: [Breeze autotest] {"on":"true","saved":"false","event":"freelook-default","t":1795157714998}
+81-[06:55:15] [Render thread/INFO]: [Indigo] Registering Indigo renderer!
+--
+85:[06:55:17] [Realms Notification Availability checker #1/INFO]: Could not authorize you against Realms server: javax.ws.rs.BadRequestException: Invalid session
+86-[06:55:17] [Render thread/INFO]: [Breeze] Integrations: Mod Menu absent, 0 settings screens, 0 Breeze entries, 0 problems
+87-[06:55:17] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.class_442","kind":"title","liveBrowsers":"0","event":"screen","t":1795157717712}
+88-[06:55:17] [Render thread/INFO]: [Breeze autotest] {"kind":"title","scale":3.0,"items":[{"name":"Singleplayer","type":"widget","x":639,"y":354,"active":true},{"name":"Multiplayer","type":"widget","x":639,"y":426,"active":true},{"name":"Minecraft Realms","type":"widget","x":639,"y":498,"active":true},{"name":"Language","type":"widget","x":297,"y":606,"active":true},{"name":"Options...","type":"widget","x":486,"y":606,"active":true},{"name":"Quit Game","type":"widget","x":792,"y":606,"active":true},{"name":"Accessibility","type":"widget","x":981,"y":606,"active":true}],"event":"targets","t":1795157717894}
+89-[06:55:17] [ForkJoinPool.commonPool-worker-3/WARN]: [Breeze] friends refresh failed: HTTP 404
+90-[06:55:17] [ForkJoinPool.commonPool-worker-3/INFO]: [Breeze autotest] {"path":"/test/spotify-local","status":"200","error":"","event":"stub-post","t":1795157717933}
+91-[06:55:18] [Render thread/INFO]: [Breeze autotest] {"title":"Local Test Song 1","artist":"The Local Testers","app":"Chromium","positionMs":"42095","why":"NOT_CONNECTED","durationMs":"201000","artwork":"local:file:/home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test/fake-cover.png","event":"local-spotify","t":1795157718689}
+92-[06:55:21] [Render thread/INFO]: [Breeze autotest] {"pass":"true","title":"Local Test Song 1","reason":"","event":"local-spotify-check","t":1795157721227}
+93-[06:55:21] [Render thread/ERROR]: Error starting SoundSystem. Turning off sounds & music
+94:java.lang.IllegalStateException: Failed to open OpenAL device
+95-	at net.minecraft.class_4225.method_20050(class_4225.java:211) ~[client-intermediary.jar:?]
+96-	at net.minecraft.class_4225.method_19661(class_4225.java:136) ~[client-intermediary.jar:?]
+97-	at net.minecraft.class_1140.method_4846(class_1140.java:99) ~[client-intermediary.jar:?]
+98-	at net.minecraft.class_1140.method_4837(class_1140.java:90) ~[client-intermediary.jar:?]
+99-	at net.minecraft.class_1144.method_18182(class_1144.java:116) ~[client-intermediary.jar:?]
+100-	at net.minecraft.class_1144.method_18788(class_1144.java:39) ~[client-intermediary.jar:?]
+101-	at net.minecraft.class_4080.method_18790(class_4080.java:13) ~[client-intermediary.jar:?]
+102-	at java.util.concurrent.CompletableFuture$UniAccept.tryFire(CompletableFuture.java:714) ~[?:?]
+103-	at java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:478) ~[?:?]
+104-	at net.minecraft.class_4014.method_18365(class_4014.java:71) ~[client-intermediary.jar:?]
+105-	at net.minecraft.class_1255.execute(class_1255.java:101) ~[client-intermediary.jar:?]
+106-	at net.minecraft.class_4014.method_18367(class_4014.java:70) ~[client-intermediary.jar:?]
+--
+330:com.mojang.authlib.exceptions.AuthenticationUnavailableException: Cannot contact authentication server
+331-	at com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService.makeRequest(YggdrasilAuthenticationService.java:124) ~[authlib-2.3.31.jar:?]
+332-	at com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService.makeRequest(YggdrasilAuthenticationService.java:98) ~[authlib-2.3.31.jar:?]
+333-	at com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService.fillGameProfile(YggdrasilMinecraftSessionService.java:193) ~[authlib-2.3.31.jar:?]
+334-	at com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService$1.load(YggdrasilMinecraftSessionService.java:67) ~[authlib-2.3.31.jar:?]
+335-	at com.mojang.authlib.yggdrasil.YggdrasilMinecraftSessionService$1.load(YggdrasilMinecraftSessionService.java:64) ~[authlib-2.3.31.jar:?]
+336-	at com.google.common.cache.LocalCache$LoadingValueReference.loadFuture(LocalCache.java:3716) ~[guava-21.0.jar:?]
+337-	at com.google.common.cache.LocalCache$Segment.loadSync(LocalCache.java:2424) ~[guava-21.0.jar:?]
+338-	at com.google.common.cache.LocalCache$Segment.lockedGetOrLoad(LocalCache.java:2298) ~[guava-21.0.jar:?]
+339-	at com.google.common.cache.LocalCache$Segment.get(LocalCache.java:2211) ~[guava-21.0.jar:?]
+340-	at com.google.common.cache.LocalCache.get(LocalCache.java:4154) ~[guava-21.0.jar:?]
+341-	at com.google.common.cache.LocalCache.getOrLoad(LocalCache.java:4158) ~[guava-21.0.jar:?]
+342-	at com.google.common.cache.LocalCache$LocalLoadingCache.get(LocalCache.java:5147) ~[guava-21.0.jar:?]
+--
+353:Caused by: com.google.gson.JsonSyntaxException: java.lang.IllegalStateException: Expected BEGIN_OBJECT but was STRING at line 1 column 1 path $
+354-	at com.google.gson.internal.bind.ReflectiveTypeAdapterFactory$Adapter.read(ReflectiveTypeAdapterFactory.java:224) ~[gson-2.8.0.jar:?]
+355-	at com.google.gson.Gson.fromJson(Gson.java:887) ~[gson-2.8.0.jar:?]
+356-	at com.google.gson.Gson.fromJson(Gson.java:852) ~[gson-2.8.0.jar:?]
+357-	at com.google.gson.Gson.fromJson(Gson.java:801) ~[gson-2.8.0.jar:?]
+358-	at com.google.gson.Gson.fromJson(Gson.java:773) ~[gson-2.8.0.jar:?]
+359-	at com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService.makeRequest(YggdrasilAuthenticationService.java:104) ~[authlib-2.3.31.jar:?]
+360-	... 21 more
+361:Caused by: java.lang.IllegalStateException: Expected BEGIN_OBJECT but was STRING at line 1 column 1 path $
+362-	at com.google.gson.stream.JsonReader.beginObject(JsonReader.java:385) ~[gson-2.8.0.jar:?]
+363-	at com.google.gson.internal.bind.ReflectiveTypeAdapterFactory$Adapter.read(ReflectiveTypeAdapterFactory.java:213) ~[gson-2.8.0.jar:?]
+364-	at com.google.gson.Gson.fromJson(Gson.java:887) ~[gson-2.8.0.jar:?]
+365-	at com.google.gson.Gson.fromJson(Gson.java:852) ~[gson-2.8.0.jar:?]
+366-	at com.google.gson.Gson.fromJson(Gson.java:801) ~[gson-2.8.0.jar:?]
+367-	at com.google.gson.Gson.fromJson(Gson.java:773) ~[gson-2.8.0.jar:?]
+368-	at com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService.makeRequest(YggdrasilAuthenticationService.java:104) ~[authlib-2.3.31.jar:?]
+369-	... 21 more
+370-[06:56:34] [Render thread/INFO]: [Breeze autotest] {"class":"none","kind":"none","liveBrowsers":"0","event":"screen","t":1795157794320}
+371-[06:56:34] [Render thread/INFO]: [Breeze autotest] {"event":"world-loaded","t":1795157794321}
+372-[06:56:34] [Render thread/INFO]: [Breeze autotest] {"kind":"none","scale":3.0,"items":[],"event":"targets","t":1795157794423}
+373-[06:56:37] [ForkJoinPool.commonPool-worker-7/WARN]: [Breeze] friends refresh failed: HTTP 404
+--
+646:java.lang.IllegalStateException: Failed to open OpenAL device
+647-	at net.minecraft.class_4225.method_20050(class_4225.java:211) ~[client-intermediary.jar:?]
+648-	at net.minecraft.class_4225.method_19661(class_4225.java:136) ~[client-intermediary.jar:?]
+649-	at net.minecraft.class_1140.method_4846(class_1140.java:99) ~[client-intermediary.jar:?]
+650-	at net.minecraft.class_1140.method_4837(class_1140.java:90) ~[client-intermediary.jar:?]
+651-	at net.minecraft.class_1144.method_18182(class_1144.java:116) ~[client-intermediary.jar:?]
+652-	at net.minecraft.class_1144.method_18788(class_1144.java:39) ~[client-intermediary.jar:?]
+653-	at net.minecraft.class_4080.method_18790(class_4080.java:13) ~[client-intermediary.jar:?]
+654-	at java.util.concurrent.CompletableFuture$UniAccept.tryFire(CompletableFuture.java:714) ~[?:?]
+655-	at java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:478) ~[?:?]
+656-	at net.minecraft.class_4014.method_18365(class_4014.java:71) ~[client-intermediary.jar:?]
+657-	at net.minecraft.class_1255.execute(class_1255.java:101) ~[client-intermediary.jar:?]
+658-	at net.minecraft.class_4014.method_18367(class_4014.java:70) ~[client-intermediary.jar:?]
+--
+691:java.lang.IllegalStateException: Failed to open OpenAL device
+692-	at net.minecraft.class_4225.method_20050(class_4225.java:211) ~[client-intermediary.jar:?]
+693-	at net.minecraft.class_4225.method_19661(class_4225.java:136) ~[client-intermediary.jar:?]
+694-	at net.minecraft.class_1140.method_4846(class_1140.java:99) ~[client-intermediary.jar:?]
+695-	at net.minecraft.class_1140.method_4837(class_1140.java:90) ~[client-intermediary.jar:?]
+696-	at net.minecraft.class_1144.method_18182(class_1144.java:116) ~[client-intermediary.jar:?]
+697-	at net.minecraft.class_1144.method_18788(class_1144.java:39) ~[client-intermediary.jar:?]
+698-	at net.minecraft.class_4080.method_18790(class_4080.java:13) ~[client-intermediary.jar:?]
+699-	at java.util.concurrent.CompletableFuture$UniAccept.tryFire(CompletableFuture.java:714) ~[?:?]
+700-	at java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:478) ~[?:?]
+701-	at net.minecraft.class_4014.method_18365(class_4014.java:71) ~[client-intermediary.jar:?]
+702-	at net.minecraft.class_1255.execute(class_1255.java:101) ~[client-intermediary.jar:?]
+703-	at net.minecraft.class_4014.method_18367(class_4014.java:70) ~[client-intermediary.jar:?]
