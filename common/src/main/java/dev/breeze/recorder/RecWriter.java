@@ -38,12 +38,20 @@ public final class RecWriter implements AutoCloseable {
     private final RandomAccessFile file;
     private final RecMeta meta;
     private final BlockingQueue<Sealed> queue = new ArrayBlockingQueue<>(256);
+    /**
+     * Chunk buffers the writer thread has finished with, for the next chunk:
+     * sealing a chunk then takes one from here instead of allocating half a
+     * megabyte on whichever game thread happened to fill it (the render
+     * thread, for a frame's camera).
+     */
+    private final BlockingQueue<byte[]> spare = new ArrayBlockingQueue<>(2);
+    private static final int BUFFER = CHUNK_BYTES + 64 * 1024;
     private final AtomicLong pending = new AtomicLong();
     private final Thread thread;
     private final List<long[]> index = new ArrayList<>();
 
     // The chunk being filled (guarded by this).
-    private byte[] buf = new byte[CHUNK_BYTES + 64 * 1024];
+    private byte[] buf = new byte[BUFFER];
     private int len;
     private int records;
     private long firstMs = -1;
@@ -129,7 +137,8 @@ public final class RecWriter implements AutoCloseable {
         } else {
             rawBytes.addAndGet(len);
         }
-        buf = new byte[CHUNK_BYTES + 64 * 1024];
+        byte[] reuse = spare.poll();
+        buf = reuse != null ? reuse : new byte[BUFFER];
         len = 0;
         records = 0;
         firstMs = -1;
@@ -202,6 +211,7 @@ public final class RecWriter implements AutoCloseable {
                 }
                 written.set(file.length());
                 pending.addAndGet(-s.length());
+                if (s.data().length == BUFFER) spare.offer(s.data());
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

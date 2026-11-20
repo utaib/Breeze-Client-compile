@@ -41,10 +41,12 @@ if [ -n "${BREEZE_EXPORT:-}" ]; then
     name="export-${fps}fps${size:+-$size}"
     [ "$size" = 0 ] && name="export-${fps}fps"
     cp "$video" "$OUT/$name.mp4"
-    probe=$(ffprobe -v error -select_streams v:0 -count_frames -show_entries stream=codec_name,width,height,r_frame_rate,nb_read_frames,level -of csv=p=0 "$video")
-    say "ffprobe $spec: $probe (codec,width,height,rate,level,frames; recording ${dur:-?} ms)"
-    frames=$(printf '%s' "$probe" | awk -F, '{print $NF}')
-    rate=$(printf '%s' "$probe" | awk -F, '{print $4}')
+    # Named fields: ffprobe prints them in its own order, not the order asked.
+    probe=$(ffprobe -v error -select_streams v:0 -count_frames -show_entries stream=codec_name,width,height,r_frame_rate,nb_read_frames,level -of default=nw=1 "$video" | tr '\n' ' ')
+    say "ffprobe $spec: $probe(recording ${dur:-?} ms)"
+    field() { printf '%s' "$probe" | tr ' ' '\n' | sed -n "s/^$1=//p"; }
+    frames=$(field nb_read_frames)
+    rate=$(field r_frame_rate)
     want=$(python3 -c "import math; print(math.ceil(${dur:-0} * $fps / 1000))")
     if [ "$rate" = "$fps/1" ] && python3 -c "import sys; sys.exit(0 if abs($frames - $want) <= max(2, $fps // 2) else 1)"; then
       pass "exported at $fps fps: H.264 with a frame for every 1/$fps s ($frames frames, $want expected)"
@@ -52,9 +54,9 @@ if [ -n "${BREEZE_EXPORT:-}" ]; then
       fail "the $spec video's frames: $probe, $want frames at $fps/1 expected"
     fi
     # Every frame exactly 1/fps after the one before (the video's own timestamps).
-    even=$(ffprobe -v error -select_streams v:0 -show_entries frame=pts_time -of csv=p=0 "$video" | python3 -c "
-import sys
-t = sorted(float(x) for x in sys.stdin.read().split() if x.strip() and x.strip() != 'N/A')
+    even=$(ffprobe -v error -select_streams v:0 -show_entries packet=pts_time -of default=nw=1:nk=1 "$video" | python3 -c "
+import re, sys
+t = sorted(float(x) for x in re.findall(r'[0-9]+\.[0-9]+', sys.stdin.read()))
 step = 1.0 / $fps
 d = [b - a for a, b in zip(t, t[1:])]
 bad = sum(1 for x in d if abs(x - step) > step * 0.25)
@@ -80,7 +82,7 @@ print(f'{len(d)} {bad} {min(d) if d else 0:.5f} {max(d) if d else 0:.5f}')
     fi
     ffmpeg -v error -ss 3 -i "$video" -frames:v 1 "$OUT/$name-3s.png" -y && say "frame at 3 s: $name-3s.png"
     if [ "$size" != 0 ]; then
-      wh=$(printf '%s' "$probe" | awk -F, '{print $2 "x" $3}')
+      wh="$(field width)x$(field height)"
       drawn=$(printf '%s' "$res" | jq -r .result | sed -nE 's/.*drawn at ([0-9]+x[0-9]+).*/\1/p')
       if [ "$(printf '%s' "$wh" | cut -dx -f2)" = "$size" ] && [ "$drawn" = "$wh" ]; then
         pass "the ${size}p video is $wh and was drawn at $drawn, not scaled from the window"

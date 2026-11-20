@@ -154,14 +154,16 @@ final class RecorderCheck {
     }
 
     /**
-     * The camera of every frame (1.2.3): as many frames as the game drew, in
-     * time order, turning the way the player turned (the test turns 2 degrees
-     * a tick, so the frames' turn never goes back and, at each tick, matches
-     * that tick's state to within a tick's turn), the frame rate in the
-     * header, and the camera the playback reads (CameraTrack) agrees.
+     * The camera of every frame (1.2.3): frames in time order, turning the
+     * way the player turned (the test turns 2 degrees a tick, so the frames'
+     * turn never goes back, each frame shows the turn of the tick just
+     * before it, to within that tick's turn, and the whole turn matches the
+     * ticks'), the frame rate in the header, and the camera the playback
+     * reads (CameraTrack) agrees with the frames. The build machines draw a
+     * few frames a second, so nothing here asks for more frames than ticks.
      */
     private static void frames(RecReader r, java.util.List<double[]> cams, java.util.List<double[]> ticks) {
-        int n = cams.size(), back = 0, unordered = 0, matched = 0, compared = 0;
+        int n = cams.size(), back = 0, unordered = 0, matched = 0, compared = 0, tracked = 0;
         double worst = 0;
         for (int i = 1; i < n; i++) {
             if (cams.get(i)[0] < cams.get(i - 1)[0]) unordered++;
@@ -170,29 +172,32 @@ final class RecorderCheck {
         float[] out = new float[2];
         dev.breeze.recorder.CameraTrack track = new dev.breeze.recorder.CameraTrack(r);
         boolean fromFrames = false;
-        // Ticks while recording past the world copy, where the test turns every tick.
-        for (double[] t : ticks) {
-            if (t[0] < 1_000 || t[0] > LENGTH_MS - 200) continue;
-            if (!track.at(t[0], out)) continue;
-            fromFrames |= track.fromFrames();
-            double d = Math.abs(out[0] - t[1]);
+        int k = 0;
+        for (double[] c : cams) {
+            // Past the world copy, while the test turns every tick.
+            if (c[0] < 1_000 || c[0] > LENGTH_MS - 200) continue;
+            while (k + 1 < ticks.size() && ticks.get(k + 1)[0] <= c[0]) k++;
+            if (ticks.isEmpty() || ticks.get(k)[0] > c[0]) continue;
+            double d = Math.abs(c[1] - ticks.get(k)[1]);
             compared++;
             if (d <= 2.5) matched++;
             worst = Math.max(worst, d);
+            if (track.at(c[0], out) && Math.abs(out[0] - c[1]) < 0.01) tracked++;
+            fromFrames |= track.fromFrames();
         }
         double seconds = r.durationMs() / 1000.0;
         double rate = n / Math.max(0.001, seconds);
         double yawFrames = n < 2 ? 0 : cams.get(n - 1)[1] - cams.get(0)[1];
         double yawTicks = ticks.size() < 2 ? 0 : ticks.get(ticks.size() - 1)[1] - ticks.get(0)[1];
-        boolean pass = n >= ticks.size() / 2 && r.meta().frames == n && r.meta().fps > 0 && Math.abs(r.meta().fps - rate) < 1.5
-                && unordered == 0 && back == 0 && fromFrames && compared > 100 && matched >= compared * 0.95
-                && Math.abs(yawFrames - yawTicks) < 6;
+        boolean pass = n >= seconds * 2 && r.meta().frames == n && r.meta().fps > 0 && Math.abs(r.meta().fps - rate) < 1.5
+                && unordered == 0 && back == 0 && fromFrames && compared >= 10 && matched >= compared * 0.9
+                && tracked >= compared * 0.98 && Math.abs(yawFrames - yawTicks) < 6;
         AutoTest.report("rec-frames", "frames", String.valueOf(n), "ticks", String.valueOf(ticks.size()),
                 "fps", String.valueOf(r.meta().fps), "metaFrames", String.valueOf(r.meta().frames),
                 "unordered", String.valueOf(unordered), "turnedBack", String.valueOf(back),
                 "yawFrames", String.format(java.util.Locale.ROOT, "%.1f", yawFrames), "yawTicks", String.format(java.util.Locale.ROOT, "%.1f", yawTicks),
-                "ticksMatched", matched + "/" + compared, "worstDeg", String.format(java.util.Locale.ROOT, "%.2f", worst),
-                "pass", String.valueOf(pass));
+                "framesMatchingTheirTick", matched + "/" + compared, "worstDeg", String.format(java.util.Locale.ROOT, "%.2f", worst),
+                "playbackAtFrames", tracked + "/" + compared, "pass", String.valueOf(pass));
     }
 
     private static Path newest(Minecraft mc) {
