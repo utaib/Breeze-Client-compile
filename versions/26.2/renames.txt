@@ -1,0 +1,5 @@
+# What Minecraft 26.2 renamed without changing what Breeze uses of it
+# (gradle/version.gradle, "Sources").
+.getMainCamera .mainCamera
+# The client's own world: true while a singleplayer server runs.
+.isSingleplayer .hasSingleplayerServer
