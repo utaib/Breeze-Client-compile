@@ -36,11 +36,27 @@ a smooth video at any frame rate.
   did).
 - **Export.** Every frame of the video is drawn on a fixed clock, so a
   slow computer makes a smooth video, only more slowly. Size (the window's,
-  720p, 1080p, 1440p or 4K), 30, 60 or 120 fps, quality, and the graphics
-  card's encoder (NVENC, AMF, Quick Sync, VideoToolbox, VAAPI) or x264, on
-  the Recordings page. Frames are drawn at the game window's size; a larger
-  video size is reached by scaling (Lanczos). Progress and time left show
-  in the window's title; Escape cancels. ffmpeg comes from the launcher.
+  720p, 1080p, 1440p or 4K), quality, and the graphics card's encoder
+  (NVENC, AMF, Quick Sync, VideoToolbox, VAAPI) or x264, on the Recordings
+  page. Progress, time left and what is being made (for example "4K, 240
+  fps") show in the window's title; Escape cancels. ffmpeg comes from the
+  launcher.
+- **Any frame rate.** 30, 60, 120, 144, 165 or 240 fps, or **As recorded**:
+  the frame rate the player had while recording (kept in the recording's
+  header, shown on the Recordings page and in the launcher; up to 360).
+  Rendering is offline on a fixed step, so the game's live frame rate never
+  limits the video's. Each video gets an H.264 level that fits its size and
+  rate (5.2 for 1080p at 240, 6.1 for 4K at 240); when a graphics card
+  encoder refuses the size or rate, the export uses x264 instead.
+- **The camera of every frame.** Each frame the player sees adds its
+  camera turn and time to the recording (10 bytes, no allocation), so
+  watching and exporting at any frame rate turn exactly as the player did,
+  fast flicks included, instead of being smoothed between ticks.
+  Recordings made before this turn between their ticks.
+- **True size.** A video larger than the window is drawn at its own size
+  (the game's render targets are resized for the export and back after),
+  so 1440p and 4K are drawn at full size, not scaled up from the window.
+  The interface keeps its place and size against the picture.
 - **Recordings page** in the game: every recording with world, length,
   size and date; Watch, Export, Folder, Delete.
 - **Fixed: Custom Cape could close the game at start** on 1.17 to 1.21.4.
@@ -65,7 +81,8 @@ a smooth video at any frame rate.
   pack, free camera, export to H.264 at 60 fps with a frame every 1/60 s;
   with Iris and Complementary Reimagined on 1.17.1, 1.18.2, 1.20.1, 1.21.4,
   1.21.11 and 26.1.2 (runs 44683937836, 44699951405). Forge (31) and
-  NeoForge (12) jars carry it and were built and started with Breeze; the
+  NeoForge (12) jars carry it and were built and started with Breeze
+  (launcher live loader run 44725876856, all 53 jobs passed); the
   recorder in a world there is **UNVERIFIED**, as are the graphics card
   encoders (CI exports used x264).
 

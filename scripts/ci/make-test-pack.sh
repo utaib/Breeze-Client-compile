@@ -17,6 +17,16 @@ for b in grass_block_top grass_block_side dirt stone snow sand gravel deepslate 
          fern large_fern_top large_fern_bottom tall_grass_top tall_grass_bottom mycelium_top rooted_dirt; do
   cp "$T/magenta.png" "$T/assets/minecraft/textures/block/$b.png"
 done
+# Mushroom blocks too (a random world once put a giant red one in front of the camera).
+for b in red_mushroom_block brown_mushroom_block mushroom_stem mushroom_block_inside; do
+  cp "$T/magenta.png" "$T/assets/minecraft/textures/block/$b.png"
+done
+# The hotbar, which is on screen in every watched moment whatever the world
+# shows: tinted grass and leaves come out too dark to count as magenta.
+# From 1.20.2 a sprite of its own, before that the top left of widgets.png.
+mkdir -p "$T/assets/minecraft/textures/gui/sprites/hud"
+convert -size 182x22 xc:'#FF00FF' "$T/assets/minecraft/textures/gui/sprites/hud/hotbar.png"
+convert -size 256x256 xc:none -fill '#FF00FF' -draw 'rectangle 0,0 181,21' "PNG32:$T/assets/minecraft/textures/gui/widgets.png"
 rm "$T/magenta.png"
 # Every pack format from 1.17 to 26.x: the game warns, but loads it from options.txt.
 printf '{"pack":{"description":"Breeze recorder test","pack_format":75,"supported_formats":[1,200],"min_format":1,"max_format":200}}\n' > "$T/pack.mcmeta"

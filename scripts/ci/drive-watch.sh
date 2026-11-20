@@ -176,15 +176,17 @@ fi
 if [ -n "${BREEZE_WATCH_PACK:-}" ]; then
   # Watched with the magenta test pack on: the same moments, other colours.
   # The recorded pictures have no magenta at all; how much ground the random
-  # test world puts on screen varies, so one moment with 2% of the picture
-  # magenta (more than recorded) shows the pack chosen now was used.
+  # test world puts on screen varies (tinted grass and leaves come out too
+  # dark to count), so the pack also paints the hotbar magenta, which is
+  # about 1.5% of every picture: one moment with 1% of the picture magenta
+  # (more than recorded) shows the pack chosen now was used.
   best=0
   for m in 3s 6s; do
     r=$(magenta_share "$OUT/rec-$m.png"); w=$(magenta_share "$OUT/watch-$m.png")
     say "magenta share at $m: recorded ${r:-?}, watched with the test pack ${w:-?}"
     if [ -n "$r" ] && [ -n "$w" ]; then best=$(python3 -c "print(max($best, $w - $r))"); fi
   done
-  if python3 -c "import sys; sys.exit(0 if $best >= 0.02 else 1)"; then
+  if python3 -c "import sys; sys.exit(0 if $best >= 0.01 else 1)"; then
     pass "the recording was drawn with the resource pack chosen now, not the one it was recorded with (up to $best of the picture in the pack's colour, none when recorded)"
   else
     fail "the watched pictures do not show the test pack's colours (at most $best more than recorded)"
