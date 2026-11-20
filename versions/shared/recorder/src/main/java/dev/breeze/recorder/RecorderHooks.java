@@ -213,21 +213,22 @@ public final class RecorderHooks {
     private static PacketListener listener;
     /** Frame times, for the copy's share of each frame (an average over the last frames). */
     private static long lastFrameAt, frameNanosAvg;
-    private static long copyStart, copyWorstNanos, copyTotalNanos;
+    private static long copyStart, copyWorstNanos, copyTotalNanos, copyFirstNanos, flushNanos;
+    private static int copyWorstFrame;
     private static int copyFrames, copyDistance;
     private static String lastCopy = "";
 
     /**
      * How long one frame may spend on the world copy: a tenth of a frame at
-     * the frame rate the game has now, at least 1.5 ms and at most 8 ms. At
-     * 100 frames a second that is 1.5 ms (a chunk takes a tenth to a few
-     * tenths of a millisecond on a normal computer, so render distance 12 is
-     * copied in about a second); on a slow machine drawing 10 frames a second,
-     * 8 ms of a 100 ms frame.
+     * the frame rate the game has now, at least 1.5 ms and at most 4 ms. At
+     * 100 frames a second that is 1.5 ms (a chunk takes about a tenth of a
+     * millisecond, so render distance 12 is copied in under a second); at 30
+     * frames a second 3.3 ms; on a slow machine at 10 frames a second, 4 ms
+     * of a 100 ms frame.
      */
     static long copyBudgetNanos() {
         long tenth = frameNanosAvg / 10;
-        return Math.max(1_500_000L, Math.min(8_000_000L, tenth));
+        return Math.max(1_500_000L, Math.min(4_000_000L, tenth));
     }
 
     /** The connection's prelude: login, configuration, the world joined. Written once, first. */
@@ -273,16 +274,26 @@ public final class RecorderHooks {
             copyFrames = 0;
             copyWorstNanos = 0;
             copyTotalNanos = 0;
+            copyWorstFrame = 0;
             copyDistance = RecWorld.renderDistance(mc);
             BreezeClient.LOGGER.info("[Breeze] recorder: copying the world ({} chunk positions at render distance {})",
                     snapshot.positions(), copyDistance);
         }
         boolean done = snapshot.step(mc, p -> put(w, p), copyBudgetNanos());
+        if (done) completeCopy(w, 0, t0);
+        else countFrame(t0);
+    }
+
+    /** The copy's cost in the frame that started at t0: first, worst and average frame. */
+    private static void countFrame(long t0) {
         long spent = System.nanoTime() - t0;
+        if (copyFrames == 0) copyFirstNanos = spent;
         copyFrames++;
         copyTotalNanos += spent;
-        copyWorstNanos = Math.max(copyWorstNanos, spent);
-        if (done) completeCopy(w, 0);
+        if (spent > copyWorstNanos) {
+            copyWorstNanos = spent;
+            copyWorstFrame = copyFrames;
+        }
     }
 
     /**
@@ -291,15 +302,18 @@ public final class RecorderHooks {
      * and from now on everything is written as it comes.
      */
     private static void completeCopy(RecWriter w, int skipped) {
+        completeCopy(w, skipped, 0);
+    }
+
+    /** The same; frameStart is when this frame's share of the copy began (0 outside a frame), so its cost counts. */
+    private static void completeCopy(RecWriter w, int skipped, long frameStart) {
         Snapshot s = snapshot;
         long ms = (System.nanoTime() - copyStart) / 1_000_000;
-        lastCopy = "renderDistance=" + copyDistance + " chunks=" + (s == null ? 0 : s.chunksCopied()) + " positions=" + (s == null ? 0 : s.positions())
-                + " frames=" + copyFrames + " ms=" + ms
-                + " worstFrameUs=" + copyWorstNanos / 1000 + " avgFrameUs=" + (copyFrames == 0 ? 0 : copyTotalNanos / copyFrames / 1000)
-                + " usPerChunk=" + (s == null ? 0 : s.nanosPerChunk() / 1000) + " skipped=" + skipped;
-        BreezeClient.LOGGER.info("[Breeze] recorder: world copied ({})", lastCopy);
         snapshot = null;
+        long f0 = System.nanoTime();
+        int flushed;
         synchronized (LOCK) {
+            flushed = early.size();
             int f = 0;
             for (Rec r : early) {
                 while (f < earlyFrames && earlyNanos[f] / 1_000_000L <= r.timeMs()) writeFrame(w, earlyNanos[f], earlyYaw[f], earlyPitch[f++]);
@@ -310,6 +324,16 @@ public final class RecorderHooks {
             early.clear();
             snapshotDone = true;
         }
+        flushNanos = System.nanoTime() - f0;
+        if (frameStart != 0) countFrame(frameStart);
+        lastCopy = "renderDistance=" + copyDistance + " chunks=" + (s == null ? 0 : s.chunksCopied()) + " positions=" + (s == null ? 0 : s.positions())
+                + " entities=" + (s == null ? 0 : s.entitiesCopied()) + " frames=" + copyFrames + " ms=" + ms
+                + " budgetUs=" + copyBudgetNanos() / 1000
+                + " worstFrameUs=" + copyWorstNanos / 1000 + " worstFrame=" + copyWorstFrame + " firstFrameUs=" + copyFirstNanos / 1000
+                + " avgFrameUs=" + (copyFrames == 0 ? 0 : copyTotalNanos / copyFrames / 1000)
+                + " usPerChunk=" + (s == null ? 0 : s.nanosPerChunk() / 1000) + " worstPieceUs=" + (s == null ? 0 : s.worstPieceNanos() / 1000)
+                + " flushUs=" + flushNanos / 1000 + " flushed=" + flushed + " skipped=" + skipped;
+        BreezeClient.LOGGER.info("[Breeze] recorder: world copied ({})", lastCopy);
     }
 
     /** Whether the world copy at the start of the recording is still being made (self-test). */

@@ -242,7 +242,8 @@ final class RecorderCheck {
         double seconds = r.durationMs() / 1000.0;
         double rate = n / Math.max(0.001, seconds);
         double yawFrames = n < 2 ? 0 : cams.get(n - 1)[1] - cams.get(0)[1];
-        double yawTicks = ticks.size() < 2 ? 0 : ticks.get(ticks.size() - 1)[1] - ticks.get(0)[1];
+        // The ticks' turn over the same span as the frames' (first frame to last).
+        double yawTicks = n < 2 || ticks.size() < 2 ? 0 : tickYaw(ticks, cams.get(n - 1)[0]) - tickYaw(ticks, cams.get(0)[0]);
         boolean pass = n >= seconds * 2 && r.meta().frames == n && r.meta().fps > 0 && Math.abs(r.meta().fps - rate) < 1.5
                 && unordered == 0 && back == 0 && fromFrames && compared >= 10 && matched >= compared * 0.9
                 && tracked >= compared * 0.98 && Math.abs(yawFrames - yawTicks) < 6;
@@ -265,7 +266,7 @@ final class RecorderCheck {
         long worst = num(copy, "worstFrameUs"), avg = num(copy, "avgFrameUs");
         long ms = num(copy, "ms");
         boolean pass = copy.contains("chunks=") && num(copy, "chunks") > 0 && num(copy, "skipped") == 0
-                && worst <= 15_000 && ms <= 30_000;
+                && worst <= 10_000 && ms <= 30_000;
         AutoTest.report("rec-copy", "renderDistance", String.valueOf(num(copy, "renderDistance")),
                 "copy", copy, "copyDoneAtMs", String.valueOf(copyDoneMs),
                 "worstFrameUs", String.valueOf(worst), "avgFrameUs", String.valueOf(avg), "pass", String.valueOf(pass));
@@ -279,6 +280,16 @@ final class RecorderCheck {
     private static boolean midFail(String problem) {
         AutoTest.report("rec-midcopy", "problem", problem, "pass", "false");
         return true;
+    }
+
+    /** The recorded turn at a moment, from the ticks around it (interpolated). */
+    private static double tickYaw(java.util.List<double[]> ticks, double ms) {
+        if (ms <= ticks.get(0)[0]) return ticks.get(0)[1];
+        for (int i = 1; i < ticks.size(); i++) {
+            double[] a = ticks.get(i - 1), b = ticks.get(i);
+            if (ms <= b[0]) return b[0] == a[0] ? b[1] : a[1] + (b[1] - a[1]) * (ms - a[0]) / (b[0] - a[0]);
+        }
+        return ticks.get(ticks.size() - 1)[1];
     }
 
     private static Path newest(Minecraft mc) {

@@ -105,7 +105,7 @@ if [ "$MODE" = prod ]; then
   # What each jar declares, for the evidence (metadata only).
   "$(dirname "$0")/mods-summary.sh" "$RUN/mods" > "$OUT/mods-summary.jsonl" 2>/dev/null || true
   version="fabric:$MC${BREEZE_LOADER:+:$BREEZE_LOADER}"
-  jvm="-Xmx2G -Dbreeze.autotest=$OUT -Dbreeze.autotest.menuTimeoutSeconds=900"
+  jvm="-Xmx${BREEZE_XMX:-2G} -Dbreeze.autotest=$OUT -Dbreeze.autotest.menuTimeoutSeconds=900"
   [ -n "${MCEF_LIBRARIES:-}" ] && jvm="$jvm -Dmcef.libraries.path=$MCEF_LIBRARIES"
   # The first N opens of the web menu fail on purpose: it must come back on
   # its own (drive-minecraft.sh checks the log).

@@ -358,7 +358,7 @@ jobs:
           BREEZE_JAR="dist/$MC.jar" BREEZE_MODS="$RUNNER_TEMP/mods" \
             scripts/ci/run-minecraft-test.sh "$RESULT"
       # A recording made by the jar players were given to test (2.30.0, in
-      # old-jars/ on the build branch only) at render distance 24: its 8 s
+      # old-jars/ on the build branch only) at render distance 32: its 8 s
       # self-test recording ends before its slow world copy does, which is
       # how the owner's recording was saved (no player position, no
       # load-start packet). The build under test watches it in the next step.
@@ -367,7 +367,7 @@ jobs:
         timeout-minutes: 25
         run: |
           BREEZE_LAUNCH=prod BREEZE_MC="$MC" BREEZE_LOADER="${LAUNCHER_LOADER:-$LOADER}" \
-          BREEZE_ADDMODS="${LAUNCHER_LOADER:+1}" BREEZE_RENDER_DISTANCE=24 BREEZE_GAME_DIR="$RESULT/old-game" \
+          BREEZE_ADDMODS="${LAUNCHER_LOADER:+1}" BREEZE_RENDER_DISTANCE=32 BREEZE_XMX=4G BREEZE_GAME_DIR="$RESULT/old-game" \
           BREEZE_JAR="old-jars/$MC.jar" BREEZE_MODS="$RUNNER_TEMP/mods" \
             scripts/ci/run-minecraft-test.sh "$RESULT/old-jar" > "$RESULT/old-jar.out" 2>&1 || true
           rec=$(grep '"event":"rec-check"' "$RESULT/old-jar/breeze-autotest.log" 2>/dev/null | tail -1)

@@ -37,7 +37,7 @@ import java.util.function.Consumer;
  */
 final class Snapshot {
 
-    private enum Stage { HEAD, CHUNKS, REST, DONE }
+    private enum Stage { HEAD, CHUNKS, PLAYER, ENTITIES, DONE }
 
     /** Chunk positions to copy, nearest first (x and z packed). */
     private final long[] chunks;
@@ -81,6 +81,23 @@ final class Snapshot {
         return stage != Stage.HEAD && stage != Stage.CHUNKS;
     }
 
+    /** The longest single piece of the copy so far (one chunk, the player, one entity), in nanoseconds. */
+    long worstPieceNanos() {
+        return worstPiece;
+    }
+
+    /** Entities copied. */
+    int entitiesCopied() {
+        return entitiesCopied;
+    }
+
+    private long worstPiece;
+    private int entitiesCopied;
+    /** The entities to copy (taken once the chunks are done), the next one, and those carrying riders. */
+    private Entity[] entities;
+    private int nextEntity;
+    private final List<Entity> riders = new ArrayList<>();
+
     /** What one chunk has cost on average so far (nanoseconds, 0 before the first). */
     long nanosPerChunk() {
         return chunksCopied == 0 ? 0 : chunkNanos / chunksCopied;
@@ -106,15 +123,12 @@ final class Snapshot {
         if (stage == Stage.CHUNKS) {
             chunks(level, out, until, true);
             if (next < chunks.length) return false;
-            stage = Stage.REST;
-            // The rest on the next call, so this one stays within its budget.
+            stage = Stage.PLAYER;
+            // The rest from the next call, so this one stays within its budget.
             return false;
         }
-        if (stage == Stage.REST) {
-            rest(mc, p, level, out);
-            stage = Stage.DONE;
-        }
-        return true;
+        rest(p, level, out, until);
+        return stage == Stage.DONE;
     }
 
     /**
@@ -134,9 +148,9 @@ final class Snapshot {
             if (stage == Stage.CHUNKS) {
                 chunks(level, out, System.nanoTime() + budgetNanos, false);
                 skipped = chunks.length - next;
-                stage = Stage.REST;
+                stage = Stage.PLAYER;
             }
-            if (stage == Stage.REST) rest(mc, p, level, out);
+            rest(p, level, out, Long.MAX_VALUE);
         } else if (stage != Stage.DONE) {
             Packet<?> start = RecWorld.loadStart();
             if (start != null) out.accept(start);
@@ -173,42 +187,78 @@ final class Snapshot {
             for (Packet<?> pk : buf) out.accept(pk);
             buf.clear();
             chunksCopied++;
-            chunkNanos += System.nanoTime() - now;
+            long took = System.nanoTime() - now;
+            chunkNanos += took;
+            worstPiece = Math.max(worstPiece, took);
             first = false;
         }
     }
 
-    private void rest(Minecraft mc, LocalPlayer p, ClientLevel level, Consumer<Packet<?>> out) {
-        out.accept(RecWorld.position(p));
-        out.accept(new ClientboundSetHealthPacket(p.getHealth(), p.getFoodData().getFoodLevel(), p.getFoodData().getSaturationLevel()));
-        out.accept(new ClientboundSetExperiencePacket(p.experienceProgress, p.totalExperience, p.experienceLevel));
-        out.accept(RecWorld.inventory(p));
-        out.accept(RecWorld.heldSlot(RecPlayer.slot(p)));
-        Packet<?> own = RecWorld.entityData(p);
-        if (own != null) out.accept(own);
-
-        List<Entity> riders = new ArrayList<>();
-        for (Entity e : level.entitiesForRendering()) {
-            if (e == p || e instanceof Player) continue;
-            RecWorld.addEntity(buf, e);
-            for (Packet<?> pk : buf) out.accept(pk);
-            buf.clear();
-            Packet<?> data = RecWorld.entityData(e);
-            if (data != null) out.accept(data);
-            if (e instanceof LivingEntity le) {
-                List<Pair<EquipmentSlot, ItemStack>> gear = new ArrayList<>();
-                for (EquipmentSlot s : EquipmentSlot.values()) {
-                    ItemStack st = le.getItemBySlot(s);
-                    if (!st.isEmpty()) gear.add(Pair.of(s, st.copy()));
-                }
-                if (!gear.isEmpty()) out.accept(new ClientboundSetEquipmentPacket(e.getId(), gear));
+    /**
+     * The rest after the chunks, within the time left: the player (where
+     * they are, health, food, experience, inventory, held slot, their own
+     * data), then the entities a few at a time (each with its data,
+     * equipment and riders), then the packet that ends "Loading terrain".
+     * An entity that goes away meanwhile is still copied (its removal was
+     * recorded and follows); one that comes meanwhile came in a packet.
+     */
+    private void rest(LocalPlayer p, ClientLevel level, Consumer<Packet<?>> out, long until) {
+        if (stage == Stage.PLAYER) {
+            long t0 = System.nanoTime();
+            out.accept(RecWorld.position(p));
+            out.accept(new ClientboundSetHealthPacket(p.getHealth(), p.getFoodData().getFoodLevel(), p.getFoodData().getSaturationLevel()));
+            out.accept(new ClientboundSetExperiencePacket(p.experienceProgress, p.totalExperience, p.experienceLevel));
+            out.accept(RecWorld.inventory(p));
+            out.accept(RecWorld.heldSlot(RecPlayer.slot(p)));
+            Packet<?> own = RecWorld.entityData(p);
+            if (own != null) out.accept(own);
+            List<Entity> all = new ArrayList<>();
+            for (Entity e : level.entitiesForRendering()) {
+                if (e != p && !(e instanceof Player)) all.add(e);
             }
-            if (!e.getPassengers().isEmpty()) riders.add(e);
+            entities = all.toArray(new Entity[0]);
+            nextEntity = 0;
+            stage = Stage.ENTITIES;
+            worstPiece = Math.max(worstPiece, System.nanoTime() - t0);
         }
-        for (Entity e : riders) out.accept(new ClientboundSetPassengersPacket(e));
-        // What a server says once a joining player's first chunks are sent:
-        // the client's "Loading terrain" waits for it (1.20.3 and later).
-        Packet<?> start = RecWorld.loadStart();
-        if (start != null) out.accept(start);
+        if (stage == Stage.ENTITIES) {
+            while (nextEntity < entities.length) {
+                long t0 = System.nanoTime();
+                if (t0 > until) return;
+                Entity e = entities[nextEntity];
+                entities[nextEntity++] = null;
+                try {
+                    entity(e, out);
+                } catch (Throwable t) {
+                    // One entity Breeze cannot copy leaves the rest.
+                }
+                entitiesCopied++;
+                worstPiece = Math.max(worstPiece, System.nanoTime() - t0);
+            }
+            for (Entity e : riders) out.accept(new ClientboundSetPassengersPacket(e));
+            riders.clear();
+            // What a server says once a joining player's first chunks are sent:
+            // the client's "Loading terrain" waits for it (1.20.3 and later).
+            Packet<?> start = RecWorld.loadStart();
+            if (start != null) out.accept(start);
+            stage = Stage.DONE;
+        }
+    }
+
+    private void entity(Entity e, Consumer<Packet<?>> out) {
+        RecWorld.addEntity(buf, e);
+        for (Packet<?> pk : buf) out.accept(pk);
+        buf.clear();
+        Packet<?> data = RecWorld.entityData(e);
+        if (data != null) out.accept(data);
+        if (e instanceof LivingEntity le) {
+            List<Pair<EquipmentSlot, ItemStack>> gear = new ArrayList<>();
+            for (EquipmentSlot s : EquipmentSlot.values()) {
+                ItemStack st = le.getItemBySlot(s);
+                if (!st.isEmpty()) gear.add(Pair.of(s, st.copy()));
+            }
+            if (!gear.isEmpty()) out.accept(new ClientboundSetEquipmentPacket(e.getId(), gear));
+        }
+        if (!e.getPassengers().isEmpty()) riders.add(e);
     }
 }
