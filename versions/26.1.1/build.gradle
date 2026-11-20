@@ -1,8 +1,0 @@
-// From 26.1 Minecraft ships unobfuscated: Loom builds against its real names
-// and does not remap.
-// Everything else is in gradle.properties and gradle/version.gradle.
-plugins {
-    id 'net.fabricmc.fabric-loom'
-}
-
-apply from: rootProject.file('gradle/version.gradle')
