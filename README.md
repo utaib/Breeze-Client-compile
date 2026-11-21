@@ -1,3 +1,3 @@
-# Forge and NeoForge jars of run 44923704132
+# ci/loader-jars-44923704132
 
-Built from b4211cd; for the launcher live loader test. Emptied afterwards.
+Used for one run of the Breeze build (1.2.3 menu round, run output) and emptied afterwards; the files are in this branch's history.
