@@ -122,6 +122,8 @@ if [ "$MODE" = prod ]; then
   [ -n "${BREEZE_WATCH:-}" ] && jvm="$jvm -Dbreeze.autotest.watch=$BREEZE_WATCH"
   # Recordings watched to their end before it (a recording stopped mid-copy, one from 2.30.0).
   [ -n "${BREEZE_WATCH_FIRST:-}" ] && jvm="$jvm -Dbreeze.autotest.watchFirst=$BREEZE_WATCH_FIRST"
+  # And the earlier jar's recording cut the way 2.30.0 saved one stopped mid-copy.
+  [ -n "${BREEZE_WATCH_CUT:-}" ] && jvm="$jvm -Dbreeze.autotest.watchCut=$BREEZE_WATCH_CUT"
   # The third launch: export the recording to a video at this frame rate.
   [ -n "${BREEZE_EXPORT:-}" ] && jvm="$jvm -Dbreeze.autotest.export=$BREEZE_EXPORT"
   if [ "${BREEZE_ADDMODS:-}" = 1 ]; then

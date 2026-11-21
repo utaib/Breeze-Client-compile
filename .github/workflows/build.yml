@@ -357,22 +357,21 @@ jobs:
           BREEZE_ADDMODS="${LAUNCHER_LOADER:+1}" BREEZE_RENDER_DISTANCE=16 \
           BREEZE_JAR="dist/$MC.jar" BREEZE_MODS="$RUNNER_TEMP/mods" \
             scripts/ci/run-minecraft-test.sh "$RESULT"
-      # A recording made by the jar players were given to test (2.30.0, in
-      # old-jars/ on the build branch only) at render distance 32: its 8 s
-      # self-test recording ends before its slow world copy does, which is
-      # how the owner's recording was saved (no player position, no
-      # load-start packet). The build under test watches it in the next step.
-      - name: A recording from the earlier jar, stopped while it copied the world
+      # A recording made by the jar given to the owner to test (2.30.0, in
+      # old-jars/ on the build branch only). The build under test watches it
+      # in the next step, and also a copy cut the way 2.30.0 saved a
+      # recording stopped while it still copied the world (no player
+      # position, no load-start packet; the owner's case): on the build
+      # machines 2.30.0's copy finished within its 8 s recording (runs
+      # 44784657071, 44795416872, 44806404547), on the owner's laptop it did not.
+      - name: A recording from the earlier jar
         if: ${{ always() && hashFiles(format('old-jars/{0}.jar', matrix.v.mc)) != '' }}
-        timeout-minutes: 35
+        timeout-minutes: 25
         run: |
-          # On two of the machine's four processors: 2.30.0 copied the world
-          # within its 1 ms a tick by the clock, so a busier processor stands
-          # for the owner's slower one (in CI it otherwise just finished).
           BREEZE_LAUNCH=prod BREEZE_MC="$MC" BREEZE_LOADER="${LAUNCHER_LOADER:-$LOADER}" \
-          BREEZE_ADDMODS="${LAUNCHER_LOADER:+1}" BREEZE_RENDER_DISTANCE=32 BREEZE_XMX=4G BREEZE_GAME_DIR="$RESULT/old-game" \
+          BREEZE_ADDMODS="${LAUNCHER_LOADER:+1}" BREEZE_RENDER_DISTANCE=16 BREEZE_GAME_DIR="$RESULT/old-game" \
           BREEZE_JAR="old-jars/$MC.jar" BREEZE_MODS="$RUNNER_TEMP/mods" \
-            taskset -c 0,1 scripts/ci/run-minecraft-test.sh "$RESULT/old-jar" > "$RESULT/old-jar.out" 2>&1 || true
+            scripts/ci/run-minecraft-test.sh "$RESULT/old-jar" > "$RESULT/old-jar.out" 2>&1 || true
           rec=$(grep '"event":"rec-check"' "$RESULT/old-jar/breeze-autotest.log" 2>/dev/null | tail -1)
           stats=$(grep '"event":"rec-stats"' "$RESULT/old-jar/breeze-autotest.log" 2>/dev/null | tail -1)
           file=$(printf '%s' "$rec" | jq -r '.file // empty' 2>/dev/null)
@@ -381,10 +380,6 @@ jobs:
             mkdir -p "$RESULT/game/recordings"
             cp "$file" "$RESULT/game/recordings/earlier-$(basename "$file")"
             echo "$RESULT/game/recordings/earlier-$(basename "$file")" > "$RESULT/old-recording"
-            case "$stats" in
-              *'worldCopy= '*|*'worldCopy=,'*|*'"worldCopy="'*) echo "[driver] the earlier jar stopped while it was still copying the world (its stats name no finished copy)" | tee -a "$RESULT/driver.log" ;;
-              *) echo "[driver] FAIL the earlier jar finished its world copy within its recording, so its file does not stand for the owner's" | tee -a "$RESULT/driver.log"; exit 1 ;;
-            esac
           else
             echo "[driver] FAIL the earlier jar made no recording" | tee -a "$RESULT/driver.log"; exit 1
           fi
@@ -424,8 +419,9 @@ jobs:
           # earlier jar's (if made), each watched to its end; then the main one.
           mid=$(grep '"event":"rec-midcopy"' "$RESULT/breeze-autotest.log" 2>/dev/null | tail -1 | jq -r '.file // empty' 2>/dev/null)
           first="$mid"
-          [ -s "$RESULT/old-recording" ] && first="${first:+$first,}$(cat "$RESULT/old-recording")"
-          launch watch BREEZE_WATCH_FIRST="$first"
+          old=""
+          [ -s "$RESULT/old-recording" ] && old=$(cat "$RESULT/old-recording") && first="${first:+$first,}$old"
+          launch watch BREEZE_WATCH_FIRST="$first" BREEZE_WATCH_CUT="$old"
           launch watch-pack BREEZE_WATCH_PACK=1
           launch export BREEZE_EXPORT=30,240,30@2160
           # With Iris among the other mods (perf_mods): watched again with a

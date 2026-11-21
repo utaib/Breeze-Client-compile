@@ -118,6 +118,23 @@ if [ -n "${BREEZE_WATCH_FIRST:-}" ]; then
       *) fail "watching $(basename "$f"): ${ex:-it never finished}" ;;
     esac
   done
+  if [ -n "${BREEZE_WATCH_CUT:-}" ]; then
+    cutev=$(grep '"event":"watch-cut"' "$LOG" 2>/dev/null | tail -1)
+    cutfile=$(printf '%s' "$cutev" | jq -r '.file // empty' 2>/dev/null)
+    say "the earlier jar's recording cut as 2.30.0 saved one stopped mid-copy: ${cutev:-no watch-cut event}"
+    ex=$(grep '"event":"watch-extra"' "$LOG" 2>/dev/null | jq -c "select(.file == \"$cutfile\")" 2>/dev/null | tail -1)
+    say "watch $(basename "${cutfile:-cut}"): ${ex:-no watch-extra event}"
+    nopos=$(grep -c 'no player position in the recording' "$RUN"/logs/latest.log 2>/dev/null)
+    case "$ex" in
+      *'"pass":"true"'*)
+        if [ "${nopos:-0}" -ge 1 ]; then
+          pass "a recording saved the way 2.30.0 saved one stopped mid-copy (no player position, no load-start packet) played to its end in $(printf '%s' "$ex" | jq -r .seconds) s: Breeze placed the player and ended Loading terrain itself"
+        else
+          fail "the cut recording played, but Breeze never logged the missing player position, so the fallback was not what ran"
+        fi ;;
+      *) fail "watching the recording cut as 2.30.0 saved it: ${ex:-it never finished}" ;;
+    esac
+  fi
   # The stages Breeze logs while a watch starts (they were missing when the owner's watch hung).
   grep -h '\[Breeze\] watching' "$RUN"/logs/latest.log 2>/dev/null | cut -c1-300 | head -40 | sed 's/^/[driver]   /' | tee -a "$DRIVER"
 fi

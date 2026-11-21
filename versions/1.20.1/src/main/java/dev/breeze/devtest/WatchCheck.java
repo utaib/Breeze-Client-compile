@@ -46,6 +46,18 @@ final class WatchCheck {
     static final String FIRST = System.getProperty("breeze.autotest.watchFirst");
     private static final java.util.List<String> firsts = FIRST == null || FIRST.isBlank() ? new java.util.ArrayList<>()
             : new java.util.ArrayList<>(java.util.Arrays.asList(FIRST.split(",")));
+    /**
+     * A recording from the earlier jar (2.30.0) to cut the way 2.30.0 saved
+     * one stopped while it still copied the world
+     * (-Dbreeze.autotest.watchCut=<file>): the connection's prelude and the
+     * first part of the world copy, then nothing (no player position, no
+     * load-start packet, nothing recorded after the start), the length kept.
+     * 2.30.0 wrote exactly these records in this order; on the build
+     * machines its copy finished within its 8 s recording, so the cut stands
+     * for the owner's file. Watched first.
+     */
+    static final String CUT = System.getProperty("breeze.autotest.watchCut");
+    private static boolean cutMade;
     private static String extra = "";
     private static String extraLast = "";
     private static boolean extraWorld;
@@ -74,6 +86,11 @@ final class WatchCheck {
                 if (EXPORT_FPS != null) {
                     nextExport(mc);
                     return;
+                }
+                if (CUT != null && !CUT.isBlank() && !cutMade) {
+                    cutMade = true;
+                    Path cut = cutLike230(Path.of(CUT));
+                    if (cut != null) firsts.add(0, cut.toString());
                 }
                 if (!firsts.isEmpty()) {
                     extra = firsts.remove(0).trim();
@@ -225,6 +242,36 @@ final class WatchCheck {
                 phase = 0;
             }
             default -> { }
+        }
+    }
+
+    /** The earlier jar's recording cut as 2.30.0 saved one stopped mid-copy (see CUT), or null. */
+    private static Path cutLike230(Path src) {
+        Path out = src.resolveSibling("cut-" + src.getFileName());
+        try (dev.breeze.recorder.RecReader r = new dev.breeze.recorder.RecReader(src)) {
+            java.util.List<dev.breeze.recorder.RecReader.Rec> start = new java.util.ArrayList<>();
+            for (dev.breeze.recorder.RecReader.ChunkRef c : r.chunks()) {
+                for (dev.breeze.recorder.RecReader.Rec rec : r.readChunk(c)) {
+                    if (rec.timeMs() == 0) start.add(rec);
+                }
+            }
+            // The world copy is most of the records at the start, its rest
+            // (player, entities, load-start) the last few hundred: keeping 40%
+            // stops inside the chunks.
+            int keep = (int) (start.size() * 0.4);
+            dev.breeze.recorder.RecMeta meta = r.meta();
+            meta.finished = false;
+            meta.frames = 0;
+            meta.fps = 0;
+            dev.breeze.recorder.RecWriter w = new dev.breeze.recorder.RecWriter(out, meta);
+            for (int i = 0; i < keep; i++) w.record(start.get(i).kind(), 0, start.get(i).data());
+            w.close(r.durationMs());
+            AutoTest.report("watch-cut", "from", src.toString(), "file", out.toString(), "kept", String.valueOf(keep),
+                    "ofStart", String.valueOf(start.size()), "durationMs", String.valueOf(r.durationMs()));
+            return out;
+        } catch (Exception e) {
+            AutoTest.report("watch-cut", "from", src.toString(), "problem", e.toString());
+            return null;
         }
     }
 
