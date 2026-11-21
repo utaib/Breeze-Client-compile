@@ -1,3 +1,3 @@
-# Forge and NeoForge jars for the launcher live loader test
+# ci-123-recstart-loader-jars
 
-Built from 8a79795 (runs 44854373107 and 44860864165). Emptied afterwards.
+Used for one launcher live loader test (run 44861301003) and emptied afterwards; the jars are in this branch's history.
