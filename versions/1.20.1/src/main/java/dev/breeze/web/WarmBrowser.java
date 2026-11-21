@@ -26,7 +26,10 @@ import net.minecraft.client.gui.screens.Screen;
  * Java heap, its last picture on the graphics card, and nothing per frame
  * (the page draws nothing while hidden, so Chromium paints nothing). It is
  * freed after {@link #IDLE_MS} unused, when the Java heap runs short, and when
- * the player switches to the classic menu. There is never more than one.
+ * the player switches to the classic menu, and not kept when the computer
+ * has under 400 MB free. There is never more than one. Measured on the build
+ * machines (run 44908114407): Chromium's processes 561 MB with it hidden,
+ * 406 MB without, the Java heap unchanged.
  *
  * <p>Only the client thread calls this class.
  */
@@ -103,7 +106,8 @@ public final class WarmBrowser {
                 freedForIdle = true;
                 free("unused for " + (IDLE_MS / 60_000L) + " min");
             } else if (memoryShort(false)) {
-                free("the Java heap is nearly full");
+                free("memory is short (Java heap " + heapUsedMb() + " of " + (Runtime.getRuntime().maxMemory() >> 20)
+                        + " MB, " + systemFreeMb() + " MB free on the computer)");
             } else if (!b.pageAnswered() && b.ageMillis() > STANDBY_TIMEOUT_MS) {
                 failures++;
                 free("its page did not start within " + (STANDBY_TIMEOUT_MS / 1000) + " s (" + failures + " of " + MAX_FAILURES + ")");
@@ -183,7 +187,7 @@ public final class WarmBrowser {
         Runtime rt = Runtime.getRuntime();
         long max = rt.maxMemory();
         long free = max - (rt.totalMemory() - rt.freeMemory());
-        boolean shortNow = free < max * SHORT_HEAP;
+        boolean shortNow = free < max * SHORT_HEAP || systemFreeMb() < SHORT_SYSTEM_MB;
         if (now) return shortNow;
         long t = System.currentTimeMillis();
         if (t - lastHeapCheck < 5_000L) return false;
@@ -197,6 +201,32 @@ public final class WarmBrowser {
             return false;
         }
         return true;
+    }
+
+    /** The computer's free memory below this (MB): a hidden browser (about 150 MB of Chromium's) is not kept. */
+    private static final long SHORT_SYSTEM_MB = Long.getLong("breeze.menu.minFreeMb", 400L);
+
+    /** The computer's free physical memory in MB, or a large number when the runtime cannot say. */
+    static long systemFreeMb() {
+        // Linux: MemAvailable counts the file cache the system gives back;
+        // the runtime's free figure there does not, and reads low on any
+        // machine that has been busy.
+        try {
+            java.nio.file.Path info = java.nio.file.Path.of("/proc/meminfo");
+            if (java.nio.file.Files.isReadable(info)) {
+                for (String line : java.nio.file.Files.readAllLines(info)) {
+                    if (line.startsWith("MemAvailable:")) return Long.parseLong(line.replaceAll("[^0-9]", "")) >> 10;
+                }
+            }
+        } catch (Throwable ignored) {}
+        try {
+            java.lang.management.OperatingSystemMXBean os = java.lang.management.ManagementFactory.getOperatingSystemMXBean();
+            if (os instanceof com.sun.management.OperatingSystemMXBean sun) {
+                long free = sun.getFreePhysicalMemorySize();
+                if (free > 0) return free >> 20;
+            }
+        } catch (Throwable ignored) {}
+        return Long.MAX_VALUE;
     }
 
     static long heapUsedMb() {

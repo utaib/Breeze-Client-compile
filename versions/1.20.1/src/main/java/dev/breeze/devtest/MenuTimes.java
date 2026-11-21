@@ -102,12 +102,14 @@ final class MenuTimes {
             }
             case OPENED -> {
                 if (OpenTimer.waiting() && age < STEP_TIMEOUT_MS) return false;
-                OpenTimer.cancel();
-                boolean web = screen instanceof BreezeWebScreen w && w.painted();
-                allWeb &= web;
-                openMs.add((web ? "" : "native ") + OpenTimer.result());
-                opens++;
+                if (openMs.size() == opens) {
+                    OpenTimer.cancel();
+                    boolean web = screen instanceof BreezeWebScreen w && w.painted();
+                    allWeb &= web;
+                    openMs.add((web ? "" : "native ") + OpenTimer.result());
+                }
                 if (age < 700) return false;
+                opens++;
                 if (screen instanceof BreezeWebScreen w) {
                     long t0 = System.nanoTime();
                     w.testEscape();

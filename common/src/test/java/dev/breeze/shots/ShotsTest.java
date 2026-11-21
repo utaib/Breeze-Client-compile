@@ -67,6 +67,11 @@ class ShotsTest {
         assertNull(ShotFiles.named(dir, "Saved screenshot as 2026-11-19_10.00.00.png", 12_000));
         // A failed screenshot names no file.
         assertNull(ShotFiles.named(dir, "Couldn't save screenshot: disk full", 0));
+        // The name read straight from the text, with Minecraft's _1 suffix and a full stop after it.
+        pic("2026-11-19_10.00.01_1.png", 11_500);
+        ShotFiles.Shot t = ShotFiles.named(dir, "Saved screenshot as 2026-11-19_10.00.01_1.png.", 11_000);
+        assertNotNull(t);
+        assertEquals("2026-11-19_10.00.01_1.png", t.name());
     }
 
     @Test

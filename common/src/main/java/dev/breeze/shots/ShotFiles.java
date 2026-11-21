@@ -83,12 +83,29 @@ public final class ShotFiles {
      */
     public static Shot named(Path dir, String messageText, long sinceMs) {
         if (messageText == null) return null;
+        // The file the message names, looked at directly: listing the whole
+        // folder read the size and time of every picture in it after each
+        // screenshot (hundreds for a player who keeps them).
+        java.util.regex.Matcher m = NAME_IN_TEXT.matcher(messageText);
+        while (m.find()) {
+            Path p = resolve(dir, m.group());
+            if (p == null) continue;
+            try {
+                long modified = Files.getLastModifiedTime(p).toMillis();
+                if (modified >= sinceMs) return new Shot(m.group(), Files.size(p), modified);
+            } catch (IOException ignored) {
+                // Gone meanwhile: the listing below decides.
+            }
+        }
         for (Shot s : list(dir)) {
             if (s.modified() < sinceMs) break;
             if (messageText.contains(s.name())) return s;
         }
         return null;
     }
+
+    private static final java.util.regex.Pattern NAME_IN_TEXT =
+            java.util.regex.Pattern.compile("[^\\s\"'/\\\\]+\\.(?i:png|jpe?g)");
 
     /** A size for people: 512 B, 3.4 KB, 2.1 MB. */
     public static String size(long bytes) {

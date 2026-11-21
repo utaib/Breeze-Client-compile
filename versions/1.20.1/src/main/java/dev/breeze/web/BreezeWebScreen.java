@@ -394,7 +394,10 @@ public final class BreezeWebScreen extends BreezeScreen {
         // interface's own background colour rather than a black window.
         BreezeBrowser b = browser;
         if (b != null && b.visitShown() && b.painted()) {
-            if (!ingame) g.fill(0, 0, width, height, TITLE_BACKDROP);
+            // Nothing drawn under the page: up to 1.21.4 the page is drawn
+            // straight away while GuiGraphics fills wait for the end of the
+            // frame (1.21.2 on), so a fill here covered the page (the title
+            // menu showed only its backdrop on 1.21.3 and 1.21.4).
             b.render(g, width, height);
             if (drawnAt == 0) {
                 drawnAt = System.nanoTime();
