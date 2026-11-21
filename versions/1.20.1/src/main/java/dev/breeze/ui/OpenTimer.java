@@ -42,6 +42,7 @@ public final class OpenTimer {
         return what != null;
     }
 
+    /** Stops waiting; a wait that had not ended leaves the result at -1. */
     public static void cancel() {
         what = null;
     }

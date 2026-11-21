@@ -53,6 +53,8 @@ public final class BreezeWebScreen extends BreezeScreen {
     private static final int TITLE_BACKDROP = 0xFF0B0F18;
     /** In a world: how long the placeholder may show before the native menu opens instead. */
     static final long FALLBACK_MS = Long.getLong("breeze.menu.fallbackMs", 1_000L);
+    /** The same for a page already loaded in the kept browser. */
+    static final long KEPT_FALLBACK_MS = Long.getLong("breeze.menu.keptFallbackMs", 3_000L);
 
     /** A screen no one sees, whose handlers answer a hidden browser's page (WarmBrowser). */
     private final boolean standby;
@@ -261,7 +263,11 @@ public final class BreezeWebScreen extends BreezeScreen {
             if (!ingame) UiState.titleOpened();
             return;
         }
-        if (ingame && b.visitAgeMillis() >= FALLBACK_MS) {
+        // A page still loading gets FALLBACK_MS; one already loaded (the kept
+        // browser) is only drawing a fresh menu and gets KEPT_FALLBACK_MS, so
+        // a busy moment does not swap it for the native menu just before it
+        // shows (run 44911947345: 1.5 s on a slow build machine).
+        if (ingame && b.visitAgeMillis() >= (b.pageAnswered() ? KEPT_FALLBACK_MS : FALLBACK_MS)) {
             // The page is not ready yet (Chromium still starting on a busy
             // computer): the native menu now rather than a placeholder, and
             // the browser goes on loading for the next open.

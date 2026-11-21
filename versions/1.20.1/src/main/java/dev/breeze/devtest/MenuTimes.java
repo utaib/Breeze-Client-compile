@@ -115,7 +115,12 @@ final class MenuTimes {
                     w.testEscape();
                     OpenTimer.expect("escape", t0, s -> s == null);
                 } else {
+                    // The native menu: no page to answer Escape.
+                    OpenTimer.cancel();
                     dev.breeze.compat.ActiveScreen.set(mc, null);
+                    escapeMs.add("native");
+                    go(opens < 3 ? Step.OPEN : Step.PAUSE);
+                    return false;
                 }
                 go(Step.ESCAPE);
             }
