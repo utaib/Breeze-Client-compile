@@ -1,9 +1,0 @@
-// Breeze on Forge for Minecraft 1.21.8, built with ForgeGradle 7 (net.minecraftforge.gradle, as in
-// Forge's example project for this version; Forge runs on Mojang's names from 1.20.6: no refmap,
-// no reobfuscation). Everything else is in gradle.properties and gradle/forge.gradle.
-plugins {
-    id 'java'
-    id 'net.minecraftforge.gradle'
-}
-
-apply from: rootProject.file('gradle/forge.gradle')
