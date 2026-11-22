@@ -1,0 +1,48 @@
+{
+  "about": "Custom Crosshair: each example's settings, its share code and its shape (rectangles x0,y0,x1,y1 around the centre pixel, end not included, outline first; colours ARGB hex). Java (common/.../hud/Crosshair.java) and the menu preview (frontend/src/app/crosshair.ts) are both tested against this file. Codes of format version 1 must keep reading as they do here.",
+  "examples": [
+    {
+      "name": "defaults",
+      "config": {"style": "Cross", "length": 4, "thickness": 1, "gap": 2, "color": "ffffffff", "dot": false, "outline": true, "outlineThickness": 1, "outlineColor": "ff000000"},
+      "code": "BZC-AQAEAQICAf______AAAApS4",
+      "rects": [
+        [-7, -1, -1, 2, "ff000000"], [2, -1, 8, 2, "ff000000"], [-1, -7, 2, -1, "ff000000"], [-1, 2, 2, 8, "ff000000"],
+        [-6, 0, -2, 1, "ffffffff"], [3, 0, 7, 1, "ffffffff"], [0, -6, 1, -2, "ffffffff"], [0, 3, 1, 7, "ffffffff"]
+      ]
+    },
+    {
+      "name": "thick cross with a centre dot, no outline",
+      "config": {"style": "Cross", "length": 3, "thickness": 2, "gap": 0, "color": "ff00ff00", "dot": true, "outline": false, "outlineThickness": 1, "outlineColor": "ff000000"},
+      "code": "BZC-AQADAgABAf8A_wD_AAAA_vg",
+      "rects": [
+        [-4, -1, -1, 1, "ff00ff00"], [1, -1, 4, 1, "ff00ff00"], [-1, -4, 1, -1, "ff00ff00"], [-1, 1, 1, 4, "ff00ff00"],
+        [-1, -1, 1, 1, "ff00ff00"]
+      ]
+    },
+    {
+      "name": "T, see-through colour, thick see-through outline",
+      "config": {"style": "T", "length": 6, "thickness": 1, "gap": 3, "color": "ccff3355", "dot": false, "outline": true, "outlineThickness": 2, "outlineColor": "80000000"},
+      "code": "BZC-AQEGAQMCAsz_M1WAAAAAr7o",
+      "rects": [
+        [-11, -2, -1, 3, "80000000"], [2, -2, 12, 3, "80000000"], [-2, 2, 3, 12, "80000000"],
+        [-9, 0, -3, 1, "ccff3355"], [4, 0, 10, 1, "ccff3355"], [0, 4, 1, 10, "ccff3355"]
+      ]
+    },
+    {
+      "name": "dot",
+      "config": {"style": "Dot", "length": 4, "thickness": 3, "gap": 0, "color": "ffffffff", "dot": false, "outline": true, "outlineThickness": 1, "outlineColor": "ff000000"},
+      "code": "BZC-AQIEAwACAf______AAAARt0",
+      "rects": [
+        [-2, -2, 3, 3, "ff000000"], [-1, -1, 2, 2, "ffffffff"]
+      ]
+    }
+  ],
+  "refused": [
+    {"code": "", "why": "Paste a crosshair code."},
+    {"code": "hello", "why": "That is not a Breeze crosshair code. They start with BZC-"},
+    {"code": "BZC-AQAFAQICAf______AAAApS4", "why": "That code is damaged or incomplete. Copy it again."},
+    {"code": "BZC-AQAEAQICAf______AAAA", "why": "That code is damaged or incomplete. Copy it again."},
+    {"code": "BZC-<script>", "why": "That code is damaged or incomplete. Copy it again."},
+    {"code": "BZC-AgAEAQICAf______AAAApS4", "why": "That code is from a newer Breeze. Update Breeze to use it."}
+  ]
+}
