@@ -1,0 +1,267 @@
+[driver] waiting for the Breeze title menu to paint
+[driver] PASS Breeze title menu painted in a real Minecraft client
+[driver] no embedded browser here: testing the native menus
+[driver] window 6291463 at 1,60 size 1280x720, native menus
+[driver] screenshot 01-title-menu.png
+[driver] PASS Breeze's button is on Minecraft's title screen
+[driver] click '^breeze-button$' at 135 324
+[driver] PASS the Breeze button opened the native Breeze menu
+[driver] screenshot 02-breeze-menu.png
+[driver] PASS the native menu's frame cost was measured, old drawing and new
+[driver] INFO native menu frame cost: 2.24.0 drawing 14.33 fps, 30.26 ms in render, 4635 rectangles; now 23.76 fps, 3.46 ms, 573 rectangles
+[driver] PASS the menu's rounded shapes take under a third of 2.24.0's rectangles
+[driver] PASS the menu draws at least as fast as with 2.24.0's drawing
+[driver] click '^search$' at 978 81
+[driver] PASS typing reached the search field
+[driver] screenshot 03-search-typed.png
+[driver] click '^module-card-0$' at 534 201
+[driver] PASS a click on a module card switched the module
+[driver] screenshot 04-module-switched.png
+[driver] click '^module-card-0$' at 534 201
+[driver] PASS a second click switched it back
+[driver] PASS a right-click on a module card opened its settings
+[driver] screenshot 04b-module-settings.png
+[driver] PASS Escape went back from the module's settings to the Breeze menu
+[driver] click '^settings-icon$' at 258 654
+[driver] PASS the gear opened Breeze's settings
+[driver] screenshot 04c-breeze-settings.png
+[driver] click '^Minecraft settings$' at 963 72
+[driver] PASS Minecraft settings opened Minecraft's own options
+[driver] screenshot 04d-minecraft-settings.png
+[driver] PASS Escape went back from Minecraft's options to Breeze's settings
+[driver] PASS Escape went back from Breeze's settings to the Breeze menu
+[driver] PASS Escape closed the Breeze menu back to the title screen
+[driver] click '^singleplayer$' at 639 354
+[driver] PASS Singleplayer opened world selection or Create World
+[driver] screenshot 05-singleplayer.png
+[driver] PASS Escape returned to the title screen
+[driver] stress: {"cycles":"20","maxLiveAfterClose":"0","heapMb":"309","kept":"false","pass":"true","event":"stress-result","t":1795332664556}
+[driver] PASS 20 open and close cycles of the native menu
+[driver] wallpaper: {"found":"3","visits":"4","distinct":"test_a.jpg,test_b.jpg,test_c.jpg","magentaShare":"0.644","unread":"","pass":"true","event":"wallpaper-check","t":1795332664293}
+[driver] wallpaper on screen: 0.581937 of the first title screenshot is the test pictures' magenta
+[driver] PASS the title menu showed a menu wallpaper, and a new visit showed the next one
+[driver] screenshot 06-after-cycles.png
+[driver] keys: {"id":"key.breeze.armor_bar","count":"91","bound":"j","afterReset":"","pass":"true","event":"keys-check","t":1795332618234}
+[driver] PASS a Breeze key was rebound to J the way the Keys page does it, listed as J, and put back
+[driver] integrations: {"integrations":[],"problems":[],"event":"integrations","t":1795332658941}
+[driver] PASS with no other mods, no integration entries are offered
+[driver] click 'Create New World' on create-world at 399 666
+[driver] click 'Create New World' on create-world at 399 666
+[driver] click 'Create New World' on create-world at 399 666
+[driver] screenshot line: {"text":"Screenshot saved: 2026-11-22_07.33.07.png  [View] [Folder] [Copy]","name":"2026-11-22_07.33.07.png","buttons":"{VIEW=2026-11-22_07.33.07.png, FOLDER=2026-11-22_07.33.07.png, COPY=2026-11-22_07.33.07.png}","file":"/home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test/game/screenshots/2026-11-22_07.33.07.png","pass":"true","event":"shots-line","t":1795332787659}
+[driver] PASS a screenshot with Breeze's key put 'Screenshot saved: name' with View, Folder and Copy in chat
+[driver] screenshot 07a-shots-chat.png
+[driver] PASS View in chat, clicked with the real mouse, opened Breeze's Screenshots page on that picture
+[driver] screenshot 07b-shots-view.png
+[driver] copy: copy-result true Copied 2026-11-22_07.33.07.png to the clipboard.
+[driver] PASS Copy put the picture on the clipboard (read back with xclip: the same bytes as 2026-11-22_07.33.07.png)
+[driver] screenshot 07c-shots-copied.png
+[driver] screenshot 07d-shots-delete-confirm.png
+[driver] PASS Delete asked first, and the confirmation deleted the picture from the folder
+[driver] screenshot 07e-shots-grid.png
+[driver] PASS Escape went from the picture back to the grid
+[driver] screenshot check: {"name":"2026-11-22_07.33.07.png","states":"class_408 > large 2026-11-22_07.33.07.png > large 2026-11-22_07.33.07.png confirm > large autotest-tnt.png > grid 16 > game","events":"line 2026-11-22_07.33.07.png | view 2026-11-22_07.33.07.png | copy-result true Copied 2026-11-22_07.33.07.png to the clipboard. | deleted 2026-11-22_07.33.07.png","problem":"","pass":"true","event":"shots-check","t":1795332804485}
+[driver] PASS Escape on the grid went back to the game (not further), and every page state was as expected
+[driver] PASS a new singleplayer world loaded with Breeze
+[driver] frame rate before the checks: {"avg":"4.0","min":"3","max":"5","readings":"10","mods":"51","event":"fps-sample","t":1795332737438}
+[driver] screenshot 07-in-world.png
+[driver] recorder: {"file":"/home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test/game/recordings/2026-11-22_07.33.31.breezerec","bytes":"7781589","durationMs":"11569","chunks":"89","records":"19242","packets":"18935","self":"229","minecraft":"1.18.2","world":"New World","finished":"true","protocols":"3","thumbnail":"true","pass":"true","event":"rec-check","t":1795332823057}
+[driver] PASS the Recorder key recorded 11569 ms in the world: a finished file with the world, the packets and the player's state every tick
+[driver] recorder frames: {"frames":"75","ticks":"229","fps":"6.5","metaFrames":"75","unordered":"0","turnedBack":"0","yawFrames":"448.0","yawTicks":"446.1","framesMatchingTheirTick":"72/72","worstDeg":"2.00","playbackAtFrames":"72/72","pass":"true","event":"rec-frames","t":1795332823057}
+[driver] PASS the recording kept the camera of every frame the player saw (75 frames at 6.5 fps), turning the way the player turned
+[driver] PASS keeping each frame's camera costs 14.9 us a frame
+[driver] recorder world copy: {"renderDistance":"16","copy":"renderDistance=16 chunks=1021 positions=1225 entities=199 frames=41 ms=5174 budgetUs=4000 worstFrameUs=11032 worstFrameCpuUs=7046 gcMs=13 worstFrame=28 firstFrameUs=7176 avgFrameUs=4626 usPerChunk=171 worstPieceUs=9048 worstPieceCpuUs=234 flushUs=3346 flushed=9796 skipped=0","copyDoneAtMs":"5541","worstFrameUs":"11032","worstFrameCpuUs":"7046","avgFrameUs":"4626","pass":"true","event":"rec-copy","t":1795332816802}; Breeze's frame section with the recorder off: 0.0 us average, 0.0 us worst; while copying: 4909.4 us average, 11048.2 us worst over 41 frames
+[driver] PASS the world copy at render distance 16 took 5174 ms, at most 11032 us in one frame by the clock and 7046 us of processor time (4626 us on average)
+[driver] recording stopped mid-copy: {"file":"/home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test/game/recordings/2026-11-22_07.33.49.breezerec","durationMs":"522","packets":"2275","self":"7","camera":"2","copy":"renderDistance=16 chunks=1021 positions=1225 entities=195 frames=2 ms=283 budgetUs=4000 worstFrameUs=4798 worstFrameCpuUs=4796 gcMs=0 worstFrame=1 firstFrameUs=4798 avgFrameUs=4367 usPerChunk=99 worstPieceUs=2635 worstPieceCpuUs=105 flushUs=248 flushed=857 skipped=0","whileCopying":"true","pass":"true","event":"rec-midcopy","t":1795332831209} ({"whileCopying":"true","stopMs":"107","copy":"renderDistance=16 chunks=1021 positions=1225 entities=195 frames=2 ms=283 budgetUs=4000 worstFrameUs=4798 worstFrameCpuUs=4796 gcMs=0 worstFrame=1 firstFrameUs=4798 avgFrameUs=4367 usPerChunk=99 worstPieceUs=2635 worstPieceCpuUs=105 flushUs=248 flushed=857 skipped=0","event":"rec-midcopy-stop","t":1795332829609})
+[driver] PASS a recording stopped in the middle of its world copy was completed and saved (renderDistance=16 chunks=1021 positions=1225 entities=195 frames=2 ms=283 budgetUs=4000 worstFrameUs=4798 worstFrameCpuUs=4796 gcMs=0 worstFrame=1 firstFrameUs=4798 avgFrameUs=4367 usPerChunk=99 worstPieceUs=2635 worstPieceCpuUs=105 flushUs=248 flushed=857 skipped=0)
+[driver] recorder pages: {"line":"Video saved: 2026-11-22_07.33.31.mp4  [Export] [Folder] [Watch] [Recordings]","listed":"1","pass":"true","event":"rec-ui","t":1795332824265}
+[driver] PASS stopping put 'Recording saved' with Watch, Export and Recordings in chat, and the Recordings page lists it
+[driver] rec-prefs: {"screen":"dev.breeze.menu.RecorderSetupScreen@f5a067","recordingBeforeSave":"false","pass":"true","event":"rec-prefs","t":1795332808638}
+[driver] PASS the first press of the Recorder key opened its preferences, and nothing recorded before Save
+[driver] rec-video: {"file":"/home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test/game/recordings/videos/2026-11-22_07.33.31.mp4","video":"h264 1280x720 30/1 325 frames","audioTracks":"2","frames":"325","framesInDescription":"325","fps":"30","durationS":"10.833","recordedS":"10.811","fileDurationS":"10.833333","inventory":"t=6.89s dOwn=1.0 dPlain=83.9 pass","pauseMenu":"t=9.02s dOwn=0.8 dPlain=93.2 pass","rateOk":"true","framesOk":"true","lengthOk":"true","pass":"true","event":"rec-video","t":1795332832800}
+[driver] PASS the screen video is an MP4 of the recording's length and frame count, with game and microphone tracks, and shows the inventory and the pause menu when they were open
+[driver] screen video cost and evenness (software rendered): {"renderThreadUsPerFrame":"15308.7","worstUs":"21504.0","mapUs":"7.8","copyMs":"0.12","encodeMs":"0.58","frameMsRecorderOff":"220.70","frameMsRecording":"147.78","frameSdMsRecording":"70.88","motionJitterMs":"70.31","slotErrorMaxMs":"16.54","repeatedSlots":"251.0","skipped":"0.0","dropped":"0.0"}
+[driver] rec-editor-preview: {"framesShown":"45","editor":"ExportEditorScreen[2026-11-22_07.33.31 tracks=[game, mic] replay=2026-11-22_07.33.31.breezerec]","pass":"true","event":"rec-editor-preview","t":1795332837010}
+[driver] PASS the export editor plays the screen video as a preview
+[driver] rec-editor: {"state":"Saved: 2026-11-22_07.33.31_export.mp4","file":"/home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test/game/recordings/videos/2026-11-22_07.33.31_export.mp4","streams":"[{\"codec_name\":\"h264\",\"codec_type\":\"video\",\"width\":1280,\"height\":720,\"r_frame_rate\":\"30/1\"}, {\"codec_name\":\"aac\",\"codec_type\":\"audio\",\"channels\":2,\"r_frame_rate\":\"0/0\"}]","pass":"true","event":"rec-editor","t":1795332837835}
+[driver] PASS the export editor muted the microphone and exported an MP4 with one stereo track
+[driver] hud: {"FPS":"drawn 36x16 at 4,4","Coordinates":"drawn 124x16 at 4,24","Ping":"drawn 50x16 at 4,44","Direction":"drawn 95x16 at 4,64","Speed Meter":"drawn 84x16 at 4,84","Server Address":"drawn 110x16 at 4,104","Time":"drawn 72x16 at 4,124","Playtime":"drawn 91x16 at 4,144","Stopwatch":"drawn 102x16 at 4,164","CPS":"drawn 36x16 at 4,184","Saturation":"drawn 78x16 at 4,224","Totem Counter":"drawn 30x22 at 42,182","Item Counter":"drawn 38x16 at 4,206","TNT Timer":"drawn 54x16 at 42,4","Item Despawn Timer":"drawn 74x16 at 44,206","Attack Indicator":"drawn 67x16 at 56,42","Keystrokes":"drawn 58x58 at 108,122","Mouse Strokes":"drawn 46x46 at 116,60","Combo Counter":"drawn 48x16 at 98,4","System Resources":"drawn 108x25 at 130,22","Now Playing":"drawn 160x36 at 164,50","Lyrics":"drawn 220x29 at 164,88","Potion Effects":"drawn 74x16 at 148,4","Armor Status":"drawn 24x10 at 74,182","Recording Indicator":"drawn 33x16 at 388,6","Reach Display":"drawn 48x16 at 168,120","Pack Display":"drawn 71x16 at 168,138","Item Info":"drawn 38x16 at 168,156","Held Item":"drawn 39x16 at 208,156","Death Info":"drawn 64x16 at 218,120","Waypoint":"drawn 128x16 at 224,4","Inventory HUD":"drawn 162x76 at 261,110","Armor Bar":"drawn 48x22 at 240,22","Hearts":"drawn 54x16 at 242,138","Scoreboard":"drawn 70x47 at 298,120","Benchmark":"drawn 138x25 at 215,161","Block Indicator":"drawn 44x16 at 290,22","Horse Stats":"drawn 30x16 at 306,188","TPS":"drawn 50x16 at 306,206","Day Counter":"drawn 36x16 at 326,40","count":"40","onHotbar":"","pass":"true","event":"hud-check","t":1795332742636}
+[driver] PASS every HUD module drew in the world without an error, none on the hotbar
+[driver] layout: {"moved":"40","wrong":"","pass":"true","event":"hud-layout","t":1795332771003}
+[driver] PASS every HUD module was moved, saved, read back and drawn where it was put
+[driver] modules: {"modules":"89","settings":"656","threw":"","openedScreens":"Keybind Search","pass":"true","event":"module-sweep","t":1795333106000}
+[driver] PASS every module was switched on and every setting changed in the world, none threw
+[driver] settings saved: {"checked":"46","kept":"46","lost":"","pass":"true","event":"settings-persist","t":1795333106005}
+[driver] PASS changed settings were saved and read back
+[driver] tag icon: {"width":"11,11,11,11,11,11,11","pass":"true","event":"tag-icon","t":1795332742639}
+[driver] PASS every colour's Wind Charge tag picture is in the game's font
+[driver] font: {"i":"2","W":"6","pass":"true","event":"font-check","t":1795332742640}
+[driver] PASS Minecraft's own text draws (i is narrower than W): Breeze's font files did not replace the game's font
+[driver] cape: {"breeze":"breeze:server_capes/c0ffee00-0000-4000-8000-00000000cafe","vanilla":"breeze:server_capes/c0ffee00-0000-4000-8000-00000000cafe","layerCalls":"14","source":"account","stub":"true","pass":"true","event":"cape-check","t":1795332742643}
+[driver] PASS the Breeze cape is the cape Minecraft draws, and the cape layer ran
+[driver] PASS the account's equipped cape is drawn though the cosmetic state could not read the account
+[driver] personal cape: {"breeze":"breeze:remote_capes/7e57b2ee00004000800000000000b2ee","vanilla":"breeze:remote_capes/7e57b2ee00004000800000000000b2ee","source":"personal","seconds":"10","pass":"true","event":"cape-personal-check","t":1795332767746}
+[driver] PASS a personal cape replaced the catalogue cape and is the cape Minecraft draws
+[driver] cosmetic: {"autotest-hat":"13","autotest-pet":"13","autotest-trail":"13","draws":"39","failures":"0","pass":"true","event":"cosmetic-check","t":1795332742643}
+[driver] PASS 3D cosmetics (GLBs built by the test: a hat, a flying pet, a trail) were drawn, none threw
+[driver] armor: {"drawn":"head 75% #ff7eff00 | chest 10% #ffff3300 | legs 40% #ffffcc00 | feet 100% #ff00ff00 | mainhand 50% #fffeff00 | offhand 90% #ff32ff00","pass":"true","event":"armor-check","t":1795332746877}
+[driver] PASS the Armor HUD drew four armour pieces, the sword and the shield, the worn chestplate in red
+[driver] armor hotbar: {"source":"textures/gui/widgets.png x1","frames":"1","drawn":"head 75% #ff7eff00 | chest 10% #ffff3300 | legs 40% #ffffcc00 | feet 100% #ff00ff00 | mainhand 50% #fffeff00 | offhand 90% #ff32ff00","pass":"true","event":"armor-hotbar-check","t":1795332748502}
+[driver] PASS the Armor HUD's Hotbar look drew the six pieces in slots cut from this version's own hotbar picture
+[driver] armor hotbar row: {"frames":"1","drawn":"head  #ff7eff00 | chest  #ffff3300 | legs  #ffffcc00 | feet  #ff00ff00","box":"34,218 82x22 on 427x240","pass":"true","event":"armor-hotbar-row-check","t":1795332750825}
+[driver] PASS the Hotbar look as a row of the four armour pieces beside the hotbar, Minecraft's own durability bars, no words
+[driver] inventory: {"at":"206x76 at 217,110 on 427x240","defaultPlace":"true","drawn":"inventory9 minecraft:stone 64 | inventory10 minecraft:dirt 32 | inventory11 minecraft:iron_ingot 7 | inventory12 minecraft:diamond 3 | inventory13 minecraft:netherite_ingot 1 | inventory14 minecraft:iron_pickaxe 1 | inventory15 minecraft:diamond_axe 1 | inventory16 minecraft:totem_of_undying 1 | inventory35 minecraft:bread 12 | inventory0 minecraft:diamond_sword 1 | inventory1 minecraft:oak_planks 16 | armor0 minecraft:diamond_helmet 1 | armor1 minecraft:iron_chestplate 1 | armor2 minecraft:diamond_leggings 1 | armor3 minecraft:golden_boots 1 | offhand0 minecraft:shield 1","missing":"","icons":"{Totem Counter=[minecraft:totem_of_undying], Item Info=[minecraft:diamond_sword], Held Item=[minecraft:diamond_sword], Inventory HUD=[], Armor Bar=[textures/gui/icons.png]}","pictures":{"slot":"textures/gui/container/inventory.png","slot.helmet":"textures/item/empty_armor_slot_helmet.png","slot.chestplate":"textures/item/empty_armor_slot_chestplate.png","slot.leggings":"textures/item/empty_armor_slot_leggings.png","slot.boots":"textures/item/empty_armor_slot_boots.png","slot.shield":"textures/item/empty_armor_slot_shield.png","hud.armor":"textures/gui/icons.png","effect speed":"textures/mob_effect/speed.png"},"pass":"true","event":"inventory-check","t":1795332754920}
+[driver] PASS the Inventory HUD drew the real inventory (16 slots, counts, armour, off hand) at its default place above the hotbar, clear of Minecraft's pop-ups, the totem, held item and armour modules drew Minecraft's own items and icons
+[driver] block outline: {"hitbox":"Hitbox 18 edges 2 boxes","full":"Full block 12 edges 1 boxes","target":"Block{minecraft:oak_stairs}[facing=north,half=bottom,shape=straight,waterlogged=false] at -7, 116, -4","styled":"false","pass":"true","event":"block-outline-check","t":1795332774638}
+[driver] PASS Block Overlay outlined the stairs by their real shape (two boxes) with fill and width, then as a full square, in place of Minecraft's outline
+[driver] ping ghost: {"drawn":"1","styled":"false","pass":"true","event":"ghost-check","t":1795332776715}
+[driver] PASS Ping Ghost drew its see-through figure
+[driver] free look: {"while":"active=true camera=THIRD_PERSON_BACK playerTurned=false lookYaw=60 lookPitch=30 cameraFrames=11","after":"active=false camera=FIRST_PERSON playerKept=true mouseTurnsPlayer=true","pass":"true","event":"freelook-check","t":1795332779606}
+[driver] PASS Free Look turned the camera, not the player, in third person while its key was held, and put the camera and the mouse back when it was let go
+[driver] free look default: {"on":"true","saved":"false","event":"freelook-default","t":1795332604398}
+[driver] PASS Free Look was on for a player with nothing saved
+[driver] crosshair: {"code":"BZC-AQADAgABAf8A_wD_AAAA_vg","frames":"10","rects":"5","damagedRefused":"true","pass":"true","event":"crosshair-check","t":1795332781188}
+[driver] PASS the Custom Crosshair took a share code's settings, drew them in the world, gave the same code back and refused a damaged one
+[driver] tnt: {"drawn":"1","label":"7.900s","labelPixels":"973","unread":"","pass":"true","event":"tnt-check","t":1795332786377}
+[driver] PASS TNT Countdown labelled a lit TNT with the seconds and milliseconds its fuse has left, and the label's own pixels are in the screenshot
+[driver] lyrics: {"pass":"true","onScreen":"Breeze lyric 42","onScreenAtMs":"42172","inWorld":"Breeze lyric 42","inWorldAtMs":"42379","source":"LOCAL","song":"Local Test Song 1","notes":"linePixels 2053","reason":"","event":"lyrics-check","t":1795332839882}
+[driver] PASS Lyrics showed the line for the song's position on screen and at a spot in the world, and the line's own pixels are in the screenshot
+[driver] hitboxes: {"drawn":"1","kinds":"{PLAYER=1}","pass":"true","event":"hitbox-check","t":1795332783948}
+[driver] PASS Hitboxes drew the player's own box, as a player's, in third person
+[driver] scoreboard: {"notes":"title Breeze Test; rows carl|Alice|bob|Coins: §71,250; numbers 7,3,3,1; numbers hidden ',,,'; hidden rows -1; off: Minecraft drew its own 5 times","pass":"true","event":"scoreboard-check","t":1795332844075}
+[driver] PASS the Scoreboard drew the server's sidebar in Minecraft's order, with and without numbers, hid it, and gave it back to Minecraft when off
+[driver] resource packs: {"notes":"listed 3, pictures 1, on Fabric Mods|vanilla; game's own pack required; on: changed true; on: pack list true, options true (vanilla,Fabric Mods,programer_art); off again: pack list true, options true","pass":"true","event":"packs-check","t":1795332854122}
+[driver] PASS Resource packs from the menu reached Minecraft's own pack list and options, reloaded, and came off again
+[driver] custom shield: {"notes":"listed true, preview true; own texture true; first person drawn 39; third person drawn 55, raised; shared and in the cosmetic state; downloaded as another player's; off: own texture false; removed from the API when off true","contexts":"{THIRD_PERSON_LEFT_HAND=57, FIRST_PERSON_LEFT_HAND=39}","pass":"true","event":"shield-check","t":1795332864456}
+[driver] PASS Custom Shield drew the chosen picture on the held shield in first and third person, shared it through the API and took it off again
+[driver] display name: {"line":"<Breeze Tester> display name check","tab":" Breeze Tester","real":"BreezeDev","plainKept":"true","pass":"true","event":"displayname-check","t":1795332782417}
+[driver] PASS Display Name showed the chosen name for the player's own chat line and tab entry, and left a line that only spelled the real name alone
+[driver] module icons: {"modules":"89","found":"89","missing":"","fallbacks":{"Saturation":"textures/gui/icons.png","Hearts":"textures/gui/icons.png","Custom Shield":"textures/item/oak_sign.png"},"pass":"true","event":"module-icons","t":1795332618207}
+[driver] PASS every module found its Minecraft icon in this version's textures
+[driver] PASS the HUD editor shows the FPS element
+[driver] drag from 66 36 by 250 150
+[driver] drag from 99 633 by 250 -150
+[driver] drag from 1026 444 by -300 150
+[driver] screenshot 08-hud-editor-dragged.png
+[driver] moved: {"FPS":"4,4 -> 87,56 saved LEFT,TOP,87,56","Keystrokes":"4,182 -> 87,134 saved LEFT,BOTTOM,87,48","Inventory HUD":"261,110 -> 161,162 saved CENTER,BOTTOM,29,2","pass":"true","event":"hud-moved","t":1795333118178}
+[driver] PASS drags in the HUD editor moved FPS, Keystrokes and the Inventory HUD, and Done saved them
+[driver] screenshot 09-wardrobe-clicked.png
+[driver] wardrobe: {"status":"READY","listed":"true","equipped":"true","worn":"true","draws":"1","pass":"true","event":"wardrobe-check","t":1795333123257}
+[driver] PASS a click in the Wardrobe equipped a 3D cosmetic through the API, and it was drawn on the player
+[driver] wardrobe tags: {"count":"6","pictures":"Owner:RED,Developer:PURPLE,Admin:PURPLE,Creator:YELLOW,Donator:YELLOW,Breeze:BLUE","pass":"true","event":"wardrobe-tags","t":1795333125769}
+[driver] PASS the Wardrobe's Tags tab listed the account's tags, each with its Wind Charge picture
+[driver] real cosmetics: {"hat Cap":"drawn 105x","wings Wings":"drawn 105x","pet Guardian":"drawn 40x","pet Penguin":"drawn 64x","failures":"0","pass":"true","event":"real-cosmetics","t":1795333145167}
+[driver] PASS real cosmetics from the Breeze catalogue were read and drawn on the player
+[driver] PASS M opened the Music player in the world
+[driver] screenshot 09-music.png
+[driver] Right Shift as Minecraft read it: {"screen":"music","code":"340","rshift":"false","event":"screen-key","t":1795333149188}
+[driver] Right Shift as the window saw it: {"screen":"none","binding":"true","key":"Right Shift","shared":"","focused":"true","event":"rshift-raw","t":1795333150958}
+[driver] menu in the world: {"kind":"breeze-native","pass":"true","event":"ingame-menu","t":1795333152628}
+[driver] PASS Right Shift opened the Breeze menu in a world and it drew (breeze-native)
+[driver] screenshot 08-menu-in-world.png
+[driver] menu times: {"pass":"skipped","why":"no web menu here (UNAVAILABLE)","event":"menu-times","t":1795332786378}
+[driver] SKIP menu times: {"pass":"skipped","why":"no web menu here (UNAVAILABLE)","event":"menu-times","t":1795332786378}
+[driver] F2: {"pictures":"1","notices":"0","breezeShots":"0","enabled":"false","pass":"true","event":"f2-check","t":1795333159911}
+[driver] PASS F2 took one screenshot and switched nothing, with Breeze's Screenshots key on F2 too
+[driver] command keys: {"meOffered":"true","madeUpOffered":"false","toldNotAvailable":"true","nothingSent":"true","formattingRefused":"true","kept":"1","pass":"true","event":"command-keys-check","t":1795332782421}
+[driver] PASS command keys asked the server's own command list: a command it does not offer was not sent and the player was told; a formatting code was refused
+[driver] ran: {"command":"me tests a Breeze command key","offered":"true","event":"command-key-ran","t":1795333161828}
+[driver] chat: {"text":"* BreezeDev tests a Breeze command key","event":"chat-line","t":1795333162022}
+[driver] PASS Ctrl+J, pressed for real, sent the command key's /me, and the game's server answered in chat
+[driver] screenshot command-key.png
+[driver] screenshot pause-menu.png
+[driver] PASS Save and Quit returned to the title screen
+[driver] click '^quit game$' at 792 606
+[driver] PASS every Breeze mixin applies on this Minecraft version
+[driver] done: 0 failed check(s)
+[driver] PASS the game read the music playing on the computer and paused it (Local Test Song 1 by The Local Testers in Chromium, position 42008 ms; 2 PlayPause)
+[run] game exited on its own after Quit
+[driver] earlier jar's recording: {"file":"/home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test/old-game/recordings/2026-11-22_07.43.05.breezerec","bytes":"3986709","durationMs":"8252","chunks":"60","records":"4386","packets":"4134","self":"165","minecraft":"1.18.2","world":"New World","finished":"true","protocols":"3","thumbnail":"true","pass":"true","event":"rec-check","t":1795333393701}; {"stats":"worldCopy=renderDistance=16,chunks=1021,positions=1225,entities=61,frames=23,ms=3010,budgetUs=4000,worstFrameUs=7203,worstFrameCpuUs=7099,gcMs=0,worstFrame=1,firstFrameUs=7203,avgFrameUs=4160,usPerChunk=84,worstPieceUs=3099,worstPieceCpuUs=98,flushUs=1096,flushed=1080,skipped=0 packets=2970 copyUsPerPacket=16.456 copiedBytes=22678 onDisk=3984800 raw=31014767 pending=0","event":"rec-stats","t":1795333393595}
+[driver] watch: watch 2026-11-22_07.33.49.breezerec: {"file":"/home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test/game/recordings/2026-11-22_07.33.49.breezerec","info":"pos=522 length=522 playing=false speed=1.0 camera=player world=true fed=2275 errors=0","seconds":"2","y":"115.0","screen":"","pass":"true","event":"watch-extra","t":1795333816027}
+[driver] watch: PASS 2026-11-22_07.33.49.breezerec played to its end in 2 s, never stuck on Loading terrain
+[driver] watch: watch earlier-2026-11-22_07.43.05.breezerec: {"file":"/home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test/game/recordings/earlier-2026-11-22_07.43.05.breezerec","info":"pos=8252 length=8252 playing=false speed=1.0 camera=player world=true fed=4134 errors=0","seconds":"10","y":"72.0","screen":"","pass":"true","event":"watch-extra","t":1795333829884}
+[driver] watch: PASS earlier-2026-11-22_07.43.05.breezerec played to its end in 10 s, never stuck on Loading terrain
+[driver] watch: the earlier jar's recording cut as 2.30.0 saved one stopped mid-copy: {"from":"/home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test/game/recordings/earlier-2026-11-22_07.43.05.breezerec","file":"/home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test/game/recordings/cut-earlier-2026-11-22_07.43.05.breezerec","kept":"462","ofStart":"1157","durationMs":"8252","event":"watch-cut","t":1795333798242}
+[driver] watch: watch cut-earlier-2026-11-22_07.43.05.breezerec: {"file":"/home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test/game/recordings/cut-earlier-2026-11-22_07.43.05.breezerec","info":"pos=8252 length=8252 playing=false speed=1.0 camera=player world=true fed=459 errors=0","seconds":"11","y":"72.0","screen":"","pass":"true","event":"watch-extra","t":1795333809992}
+[driver] watch: PASS a recording saved the way 2.30.0 saved one stopped mid-copy (no player position, no load-start packet) played to its end in 11 s: Breeze placed the player and ended Loading terrain itself
+[driver] watch:   [07:49:58] [Render thread/INFO]: [Breeze] watching cut-earlier-2026-11-22_07.43.05.breezerec: Minecraft 1.18.2, 8252 ms, 25 parts, 1741348 bytes
+[driver] watch:   [07:49:58] [Render thread/INFO]: [Breeze] watching: login phase
+[driver] watch:   [07:49:59] [Render thread/INFO]: [Breeze] watching: configuration phase
+[driver] watch:   [07:49:59] [Render thread/INFO]: [Breeze] watching: play phase
+[driver] watch:   [07:50:00] [Render thread/INFO]: [Breeze] watching: joined the recorded world after 316 ms
+[driver] watch:   [07:50:00] [Render thread/INFO]: [Breeze] watching: the recorded world is in (459 packets, no player position)
+[driver] watch:   [07:50:00] [Render thread/INFO]: [Breeze] watching: no player position in the recording; the player is put at -88 73 -168
+[driver] watch:   [07:50:01] [Render thread/INFO]: [Breeze] watching: the loading screen (class_434) stayed 3007 ms after the world was in; Breeze closes it
+[driver] watch:   [07:50:01] [Render thread/INFO]: [Breeze] watching: the recorded world is on screen after 3350 ms; playing
+[driver] watch:   [07:50:09] [Render thread/INFO]: [Breeze] watching: reached the end (8252 ms, 459 packets, 0 not played)
+[driver] watch:   [07:50:13] [Render thread/INFO]: [Breeze] watching 2026-11-22_07.33.49.breezerec: Minecraft 1.18.2, 522 ms, 87 parts, 7693203 bytes
+[driver] watch:   [07:50:13] [Render thread/INFO]: [Breeze] watching: login phase
+[driver] watch:   [07:50:13] [Render thread/INFO]: [Breeze] watching: configuration phase
+[driver] watch:   [07:50:13] [Render thread/INFO]: [Breeze] watching: play phase
+[driver] watch:   [07:50:14] [Render thread/INFO]: [Breeze] watching: joined the recorded world after 1 ms
+[driver] watch:   [07:50:14] [Render thread/INFO]: [Breeze] watching: the recorded world is in (1425 packets)
+[driver] watch:   [07:50:15] [Render thread/INFO]: [Breeze] watching: the recorded world is on screen after 2204 ms; playing
+[driver] watch:   [07:50:16] [Render thread/INFO]: [Breeze] watching: reached the end (522 ms, 2275 packets, 0 not played)
+[driver] watch:   [07:50:19] [Render thread/INFO]: [Breeze] watching earlier-2026-11-22_07.43.05.breezerec: Minecraft 1.18.2, 8252 ms, 60 parts, 3986709 bytes
+[driver] watch:   [07:50:19] [Render thread/INFO]: [Breeze] watching: login phase
+[driver] watch:   [07:50:19] [Render thread/INFO]: [Breeze] watching: configuration phase
+[driver] watch:   [07:50:19] [Render thread/INFO]: [Breeze] watching: play phase
+[driver] watch:   [07:50:19] [Render thread/INFO]: [Breeze] watching: joined the recorded world after 0 ms
+[driver] watch:   [07:50:19] [Render thread/INFO]: [Breeze] watching: the recorded world is in (1154 packets)
+[driver] watch:   [07:50:21] [Render thread/INFO]: [Breeze] watching: the recorded world is on screen after 2149 ms; playing
+[driver] watch:   [07:50:29] [Render thread/INFO]: [Breeze] watching: reached the end (8252 ms, 4134 packets, 0 not played)
+[driver] watch:   [07:50:33] [Render thread/INFO]: [Breeze] watching 2026-11-22_07.33.31.breezerec: Minecraft 1.18.2, 11569 ms, 89 parts, 7781589 bytes
+[driver] watch:   [07:50:33] [Render thread/INFO]: [Breeze] watching: login phase
+[driver] watch:   [07:50:33] [Render thread/INFO]: [Breeze] watching: configuration phase
+[driver] watch:   [07:50:33] [Render thread/INFO]: [Breeze] watching: play phase
+[driver] watch:   [07:50:33] [Render thread/INFO]: [Breeze] watching: joined the recorded world after 1 ms
+[driver] watch:   [07:50:33] [Render thread/INFO]: [Breeze] watching: the recorded world is in (1433 packets)
+[driver] watch:   [07:50:35] [Render thread/INFO]: [Breeze] watching: the recorded world is on screen after 2170 ms; playing
+[driver] watch:   [07:50:47] [Render thread/INFO]: [Breeze] watching: reached the end (11569 ms, 18935 packets, 0 not played)
+[driver] watch: watch: {"info":"pos=11569 length=11569 playing=false speed=1.0 camera=player world=true fed=18935 errors=0","pass":"true","event":"watch-check","t":1795333847040}
+[driver] watch: PASS the recording opened from the title screen as a world and played to its end, every packet accepted
+[driver] watch: PASS the playback bar opened over the playing recording
+[driver] watch: PASS the free camera held the viewer's own place while the recording played, and Player view gave the camera back
+[driver] watch: PASS at 3s the watched player turned as recorded (yaw 122.0 at 3135 ms, recorded 123.4 then: 1.4 degrees apart)
+[driver] watch: PASS at 6s the watched player turned as recorded (yaw 235.1 at 6000 ms, recorded 236.9 then: 1.8 degrees apart)
+[driver] watch: picture distance (RMSE, 0 same): 3s 0.292036 (other moment 0.422808), 6s 0.262376 (other moment 0.444782)
+[driver] watch: PASS the watched pictures pair with their own recorded moments (total 0.5544 against 0.8676 swapped)
+[run] game exited on its own after Quit
+[driver] watch-pack: watch: {"info":"pos=11569 length=11569 playing=false speed=1.0 camera=player world=true fed=18935 errors=0","pass":"true","event":"watch-check","t":1795333913227}
+[driver] watch-pack: PASS the recording opened from the title screen as a world and played to its end, every packet accepted
+[driver] watch-pack: PASS the playback bar opened over the playing recording
+[driver] watch-pack: PASS the free camera held the viewer's own place while the recording played, and Player view gave the camera back
+[driver] watch-pack: PASS at 3s the watched player turned as recorded (yaw 122.0 at 3163 ms, recorded 124.6 then: 2.6 degrees apart)
+[driver] watch-pack: PASS at 6s the watched player turned as recorded (yaw 240.0 at 6132 ms, recorded 242.2 then: 2.2 degrees apart)
+[driver] watch-pack: magenta share at 3s: recorded 0, watched with the test pack 0.688854
+[driver] watch-pack: magenta share at 6s: recorded 0, watched with the test pack 0.310278
+[driver] watch-pack: PASS the recording was drawn with the resource pack chosen now, not the one it was recorded with (up to 0.688854 of the picture in the pack's colour, none when recorded)
+[run] game exited on its own after Quit
+[driver] export: export 30: {"spec":"30","fps":"30","size":"0","result":"Video saved: 2026-11-22_07.33.31_1.mp4 (343 frames, 1280x720 drawn at 1280x720, 30 fps, x264 (processor))","video":"/home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test/game/recordings/videos/2026-11-22_07.33.31_1.mp4","packsBefore":"file/breeze-test-pack.zip,Fabric Mods,vanilla","packsAfter":"file/breeze-test-pack.zip,Fabric Mods,vanilla","seconds":"70","pass":"true","event":"export-check","t":1795334029174}
+[driver] export: ffprobe 30: codec_name=h264 width=1280 height=720 level=31 r_frame_rate=30/1 nb_read_frames=343 (recording 11569 ms)
+[driver] export: PASS exported at 30 fps: H.264 with a frame for every 1/30 s (343 frames, 348 expected)
+[driver] export: PASS the 30 video's frames are evenly spaced (342 steps from 0.03333 s to 0.03333 s, 1/30 is 0.03333 s)
+[driver] export: frame at 3 s: export-30fps-3s.png
+[driver] export: export 240: {"spec":"240","fps":"240","size":"0","result":"Video saved: 2026-11-22_07.33.31_2.mp4 (2770 frames, 1280x720 drawn at 1280x720, 240 fps, x264 (processor))","video":"/home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test/game/recordings/videos/2026-11-22_07.33.31_2.mp4","packsBefore":"file/breeze-test-pack.zip,Fabric Mods,vanilla","packsAfter":"file/breeze-test-pack.zip,Fabric Mods,vanilla","seconds":"610","pass":"true","event":"export-check","t":1795334642966}
+[driver] export: ffprobe 240: codec_name=h264 width=1280 height=720 level=51 r_frame_rate=240/1 nb_read_frames=2770 (recording 11569 ms)
+[driver] export: PASS exported at 240 fps: H.264 with a frame for every 1/240 s (2770 frames, 2777 expected)
+[driver] export: PASS the 240 video's frames are evenly spaced (2769 steps from 0.00417 s to 0.00417 s, 1/240 is 0.00417 s)
+[driver] export: PASS at 240 fps each frame is its own moment: 0 of 2770 frames repeat the one before
+[driver] export: frame at 3 s: export-240fps-3s.png
+[driver] export: export 30@2160: {"spec":"30@2160","fps":"30","size":"2160","result":"Video saved: 2026-11-22_07.33.31_3.mp4 (342 frames, 3840x2160 drawn at 3840x2160, 30 fps, x264 (processor))","video":"/home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test/game/recordings/videos/2026-11-22_07.33.31_3.mp4","packsBefore":"file/breeze-test-pack.zip,Fabric Mods,vanilla","packsAfter":"file/breeze-test-pack.zip,Fabric Mods,vanilla","seconds":"149","pass":"true","event":"export-check","t":1795334795841}
+[driver] export: ffprobe 30@2160: codec_name=h264 width=3840 height=2160 level=51 r_frame_rate=30/1 nb_read_frames=342 (recording 11569 ms)
+[driver] export: PASS exported at 30 fps: H.264 with a frame for every 1/30 s (342 frames, 348 expected)
+[driver] export: PASS the 30@2160 video's frames are evenly spaced (341 steps from 0.03333 s to 0.03333 s, 1/30 is 0.03333 s)
+[driver] export: frame at 3 s: export-30fps-2160-3s.png
+[driver] export: PASS the 2160p video is 3840x2160 and was drawn at 3840x2160, not scaled from the window
+[driver] export: export 30#pack: {"spec":"30#pack","fps":"30","size":"0","result":"Video saved: 2026-11-22_07.33.31_4.mp4 (346 frames, 1280x720 drawn at 1280x720, 30 fps, x264 (processor))","video":"/home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test/game/recordings/videos/2026-11-22_07.33.31_4.mp4","packsBefore":"file/breeze-test-pack.zip,Fabric Mods,vanilla","packsAfter":"file/breeze-test-pack.zip,Fabric Mods,vanilla","seconds":"40","pass":"true","event":"export-check","t":1795334839720}
+[driver] export: ffprobe 30#pack: codec_name=h264 width=1280 height=720 level=31 r_frame_rate=30/1 nb_read_frames=346 (recording 11569 ms)
+[driver] export: PASS exported at 30 fps: H.264 with a frame for every 1/30 s (346 frames, 348 expected)
+[driver] export: PASS the 30#pack video's frames are evenly spaced (345 steps from 0.03333 s to 0.03333 s, 1/30 is 0.03333 s)
+[driver] export: frame at 3 s: export-30fps-pack-3s.png
+[driver] export: pack render: magenta share 0.312156 (plain export 0.314844); packs before file/breeze-test-pack.zip,Fabric Mods,vanilla, after file/breeze-test-pack.zip,Fabric Mods,vanilla
+[driver] export: FAIL the render with the test pack: magenta 0.312156 against 0.314844, packs before 'file/breeze-test-pack.zip,Fabric Mods,vanilla', after 'file/breeze-test-pack.zip,Fabric Mods,vanilla'
+[driver] export: PASS the pause menu and the inventory opened during an export were closed again and the export went on
+[driver] export: detail at 3 s (what a 1.5 px blur removes, at 4K): drawn at 4K 0.011074, window frame scaled to 4K 0.0047767
+[driver] export: PASS the 4K video has the detail of a picture drawn at 4K (0.011074 against 0.0047767 for the window's frame scaled up)
+[run] game exited on its own after Quit

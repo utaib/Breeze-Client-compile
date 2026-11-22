@@ -1,0 +1,114 @@
+62:com.mojang.authlib.exceptions.InvalidCredentialsException: Status: 401
+63:	at knot//com.mojang.authlib.exceptions.MinecraftClientHttpException.toAuthenticationException(MinecraftClientHttpException.java:59)
+64-	at knot//com.mojang.authlib.yggdrasil.YggdrasilUserApiService.fetchProperties(YggdrasilUserApiService.java:150)
+65-	at knot//net.minecraft.client.Minecraft.lambda$new$1(Minecraft.java:459)
+66-	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1789)
+67-	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090)
+68-	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614)
+69-	at java.base/java.lang.Thread.run(Thread.java:1474)
+70:Caused by: com.mojang.authlib.exceptions.MinecraftClientHttpException: Status: 401
+71-	at knot//com.mojang.authlib.minecraft.client.MinecraftClient.readInputStream(MinecraftClient.java:103)
+72-	at knot//com.mojang.authlib.minecraft.client.MinecraftClient.get(MinecraftClient.java:56)
+73-	at knot//com.mojang.authlib.yggdrasil.YggdrasilUserApiService.fetchProperties(YggdrasilUserApiService.java:121)
+74-	... 5 more
+75-[06:53:55] [Render thread/INFO]: [Breeze] Initializing on Minecraft 26.1.2
+76-[06:53:55] [Render thread/INFO]: [Breeze] Registered 89 modules
+77-[06:53:55] [Render thread/INFO]: [Breeze] Web interface found at assets/breeze/html/index.html
+78-[06:53:55] [Render thread/INFO]: [Breeze autotest] {"dir":"/home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test","event":"start","t":1795330435369}
+79-[06:53:55] [Render thread/INFO]: [Breeze autotest] {"on":"true","saved":"false","event":"freelook-default","t":1795330435370}
+80-[06:53:55] [MCEF-Downloader/INFO]: Local JCEF hash file does not exist.
+81-[06:53:55] [MCEF-Downloader/INFO]: https://github.com/Keksuccino/mcef_resources/releases/download/java-cef-eaeb3d4370aa3526ee237ad1981ad59af3de4dd1/linux_amd64.tar.gz -> /home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test/game/mods/mcef-libraries/linux_amd64.tar.gz
+82-[06:53:55] [Render thread/INFO]: [Indigo] Registering Indigo renderer!
+--
+86:[06:53:57] [Download-2/INFO]: Could not authorize you against Realms server: javax.ws.rs.BadRequestException: Invalid session
+87-[06:53:57] [Download-2/ERROR]: Failed to fetch Realms feature flags
+88:com.mojang.realmsclient.exception.RealmsServiceException: Realms authentication error with message 'javax.ws.rs.BadRequestException: Invalid session'
+89-	at knot//com.mojang.realmsclient.client.RealmsClient.execute(RealmsClient.java:526)
+90-	at knot//com.mojang.realmsclient.client.RealmsClient.fetchFeatureFlags(RealmsClient.java:186)
+91-	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1789)
+92-	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090)
+93-	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614)
+94-	at java.base/java.lang.Thread.run(Thread.java:1474)
+95-[06:53:57] [Render thread/INFO]: [Breeze] Integrations: Mod Menu absent, 0 settings screens, 0 Breeze entries, 0 problems
+96-[06:53:57] [Render thread/INFO]: [Breeze autotest] {"class":"com.cinemamod.mcef.internal.MCEFDownloaderMenu","kind":"other","liveBrowsers":"0","event":"screen","t":1795330437260}
+97-[06:53:57] [Render thread/INFO]: [Breeze autotest] {"kind":"other","scale":3.0,"items":[],"event":"targets","t":1795330437384}
+98-[06:53:57] [ForkJoinPool.commonPool-worker-1/INFO]: [Breeze autotest] {"path":"/test/spotify-local","status":"200","error":"","event":"stub-post","t":1795330437404}
+99-[06:53:57] [ForkJoinPool.commonPool-worker-1/WARN]: [Breeze] friends refresh failed: HTTP 404
+100-[06:53:57] [Worker-Main-2/INFO]: Found unifont_all_no_pua-17.0.01.hex, loading
+--
+105:java.lang.IllegalStateException: Failed to open OpenAL device
+106-	at knot//com.mojang.blaze3d.audio.Library.openDeviceOrFallback(Library.java:275)
+107-	at knot//com.mojang.blaze3d.audio.Library.init(Library.java:150)
+108-	at knot//net.minecraft.client.sounds.SoundEngine.loadLibrary(SoundEngine.java:120)
+109-	at knot//net.minecraft.client.sounds.SoundEngine.reload(SoundEngine.java:109)
+110-	at knot//net.minecraft.client.sounds.SoundManager.apply(SoundManager.java:122)
+111-	at knot//net.minecraft.client.sounds.SoundManager.apply(SoundManager.java:41)
+112-	at knot//net.minecraft.server.packs.resources.SimplePreparableReloadListener.lambda$reload$1(SimplePreparableReloadListener.java:15)
+113-	at java.base/java.util.concurrent.CompletableFuture$UniAccept.tryFire(CompletableFuture.java:739)
+114-	at java.base/java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:503)
+115-	at knot//net.minecraft.server.packs.resources.SimpleReloadInstance.lambda$prepareTasks$3(SimpleReloadInstance.java:59)
+116-	at knot//net.minecraft.util.thread.BlockableEventLoop.doRunTask(BlockableEventLoop.java:173)
+117-	at knot//net.minecraft.util.thread.ReentrantBlockableEventLoop.doRunTask(ReentrantBlockableEventLoop.java:23)
+--
+148:[06:54:03] [Render thread/INFO]: [Breeze] browser frame rate left at Chromium's default: java.lang.NoSuchMethodException: com.cinemamod.mcef.MCEFBrowser.setWindowlessFrameRate(int)
+149-[06:54:03] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live, created in 4 ms on the render thread)
+150-[06:54:03] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795330443893}
+151-[06:54:03] [Render thread/INFO]: [Breeze autotest] {"event":"menu-open","t":1795330443894}
+152-[06:54:03] [ForkJoinPool.commonPool-worker-1/WARN]: [Breeze] friends refresh failed: HTTP 404
+153:[06:54:03] [IO-Worker-1/INFO]: Could not authorize you against Realms server: javax.ws.rs.BadRequestException: Invalid session
+154-[06:54:03] [IO-Worker-1/ERROR]: Couldn't connect to realms
+155:com.mojang.realmsclient.exception.RealmsServiceException: Realms authentication error with message 'javax.ws.rs.BadRequestException: Invalid session'
+156-	at knot//com.mojang.realmsclient.client.RealmsClient.execute(RealmsClient.java:526)
+157-	at knot//com.mojang.realmsclient.client.RealmsClient.clientCompatible(RealmsClient.java:307)
+158-	at knot//com.mojang.realmsclient.RealmsAvailability.lambda$check$0(RealmsAvailability.java:48)
+159-	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1789)
+160-	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090)
+161-	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614)
+162-	at java.base/java.lang.Thread.run(Thread.java:1474)
+163-[06:54:04] [Render thread/INFO]: [Breeze autotest] {"ok":"true","targets":"35","ms":"39","event":"mixin-audit","t":1795330444011}
+164-[06:54:04] [Render thread/INFO]: [Breeze autotest] {"kind":"breeze-web","scale":3.0,"items":[],"event":"targets","t":1795330444013}
+165-[06:54:04] [Render thread/INFO]: [Breeze] the interface page answered 551 ms after its browser opened
+166-[06:54:04] [Render thread/INFO]: [Breeze autotest] {"action":"app.hello","event":"bridge","t":1795330444444}
+167-[06:54:04] [Render thread/INFO]: [Breeze] Menu wallpapers: 3 found
+--
+925:[06:56:30] [Render thread/INFO]: [Breeze] browser frame rate left at Chromium's default: java.lang.NoSuchMethodException: com.cinemamod.mcef.MCEFBrowser.setWindowlessFrameRate(int)
+926-[06:56:30] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live, created in 1 ms on the render thread)
+927-[06:56:30] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795330590169}
+928-[06:56:30] [Server thread/INFO]: Saving and pausing game...
+929-[06:56:30] [Server thread/INFO]: Saving chunks for level 'ServerLevel[New World]'/minecraft:overworld
+930-[06:56:30] [Server thread/INFO]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_end
+931-[06:56:30] [Server thread/INFO]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_nether
+932-[06:56:30] [Render thread/INFO]: [Breeze] the interface page answered 336 ms after its browser opened
+933-[06:56:30] [Render thread/INFO]: [Breeze autotest] {"action":"app.hello","event":"bridge","t":1795330590395}
+934-[06:56:30] [Render thread/INFO]: [Breeze autotest] {"action":"settings.get","event":"bridge","t":1795330590396}
+935-[06:56:30] [Render thread/INFO]: [Breeze autotest] {"action":"game.state","event":"bridge","t":1795330590510}
+936-[06:56:30] [Render thread/INFO]: [Breeze autotest] {"action":"account.get","event":"bridge","t":1795330590513}
+937-[06:56:30] [Render thread/INFO]: [Breeze autotest] {"action":"modules.list","event":"bridge","t":1795330590515}
+--
+1082:java.lang.IllegalStateException: Failed to open OpenAL device
+1083-	at knot//com.mojang.blaze3d.audio.Library.openDeviceOrFallback(Library.java:275)
+1084-	at knot//com.mojang.blaze3d.audio.Library.init(Library.java:150)
+1085-	at knot//net.minecraft.client.sounds.SoundEngine.loadLibrary(SoundEngine.java:120)
+1086-	at knot//net.minecraft.client.sounds.SoundEngine.reload(SoundEngine.java:109)
+1087-	at knot//net.minecraft.client.sounds.SoundManager.apply(SoundManager.java:122)
+1088-	at knot//net.minecraft.client.sounds.SoundManager.apply(SoundManager.java:41)
+1089-	at knot//net.minecraft.server.packs.resources.SimplePreparableReloadListener.lambda$reload$1(SimplePreparableReloadListener.java:15)
+1090-	at java.base/java.util.concurrent.CompletableFuture$UniAccept.tryFire(CompletableFuture.java:739)
+1091-	at java.base/java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:503)
+1092-	at knot//net.minecraft.server.packs.resources.SimpleReloadInstance.lambda$prepareTasks$3(SimpleReloadInstance.java:59)
+1093-	at knot//net.minecraft.util.thread.BlockableEventLoop.doRunTask(BlockableEventLoop.java:173)
+1094-	at knot//net.minecraft.util.thread.ReentrantBlockableEventLoop.doRunTask(ReentrantBlockableEventLoop.java:23)
+--
+1129:java.lang.IllegalStateException: Failed to open OpenAL device
+1130-	at knot//com.mojang.blaze3d.audio.Library.openDeviceOrFallback(Library.java:275)
+1131-	at knot//com.mojang.blaze3d.audio.Library.init(Library.java:150)
+1132-	at knot//net.minecraft.client.sounds.SoundEngine.loadLibrary(SoundEngine.java:120)
+1133-	at knot//net.minecraft.client.sounds.SoundEngine.reload(SoundEngine.java:109)
+1134-	at knot//net.minecraft.client.sounds.SoundManager.apply(SoundManager.java:122)
+1135-	at knot//net.minecraft.client.sounds.SoundManager.apply(SoundManager.java:41)
+1136-	at knot//net.minecraft.server.packs.resources.SimplePreparableReloadListener.lambda$reload$1(SimplePreparableReloadListener.java:15)
+1137-	at java.base/java.util.concurrent.CompletableFuture$UniAccept.tryFire(CompletableFuture.java:739)
+1138-	at java.base/java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:503)
+1139-	at knot//net.minecraft.server.packs.resources.SimpleReloadInstance.lambda$prepareTasks$3(SimpleReloadInstance.java:59)
+1140-	at knot//net.minecraft.util.thread.BlockableEventLoop.doRunTask(BlockableEventLoop.java:173)
+1141-	at knot//net.minecraft.util.thread.ReentrantBlockableEventLoop.doRunTask(ReentrantBlockableEventLoop.java:23)
