@@ -114,8 +114,8 @@ public class RecorderSetupScreen extends BreezeScreen {
         Glass.panel(g, panel);
         int x = panel.x + Spacing.MD, w = panel.w - Spacing.MD * 2;
         UiRender.textClipped(g, this.font, "Recorder preferences", x, panel.y + 10, w, Palette.TEXT_PRIMARY);
-        UiRender.textClipped(g, this.font, "Your screen is always recorded to an MP4, exactly as you see it.", x, panel.y + 24, w, Palette.TEXT_SECONDARY);
-        UiRender.textClipped(g, this.font, "The world replay lets you watch again and render with other packs.", x, panel.y + 116, w, Palette.TEXT_SECONDARY);
+        UiRender.textClipped(g, this.font, "Your screen is always recorded to an MP4.", x, panel.y + 24, w, Palette.TEXT_SECONDARY);
+        UiRender.textClipped(g, this.font, "Watch the world replay again with other packs.", x, panel.y + 116, w, Palette.TEXT_SECONDARY);
         UiRender.textClipped(g, this.font, "Change these later on the Recordings page.", x, panel.y + 128, w, Palette.TEXT_SECONDARY);
         super.render(g, mouseX, mouseY, partialTick);
     }

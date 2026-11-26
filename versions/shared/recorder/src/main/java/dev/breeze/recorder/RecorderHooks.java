@@ -663,6 +663,10 @@ public final class RecorderHooks {
     private static String leaveThen(Minecraft mc, Runnable then) {
         afterLeaving = then;
         BreezeClient.LOGGER.info("[Breeze] recorder: leaving the world first (a singleplayer world is saved, which can take a while)");
+        // The owner waited 27 s here with nothing said (1.2.3_test_2).
+        if (mc.getSingleplayerServer() != null) {
+            RecGame.toast(mc, "Saving the world", "The recording opens once your world is saved. This can take a while.");
+        }
         if (Replay.active()) {
             Replay.stop(mc);
             RecGame.toTitle(mc);

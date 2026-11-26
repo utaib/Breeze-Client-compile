@@ -61,13 +61,16 @@ final class ScreenVideoCheck {
         boolean decodes = !log.contains("Invalid data") && !log.toLowerCase(Locale.ROOT).contains("error while decoding");
         Path shots = mc.gameDirectory.toPath().resolve("screenshots");
         Files.createDirectories(shots);
-        double invGrey = -1, worldGrey = -1, pauseDiff = -1;
+        double invGrey = -1, worldGrey = -1, pauseDiff = -1, invCentre = -1, worldCentre = -1, invDiff = -1;
         if (invOpen >= 0 && invClose > invOpen) {
             double mid = (invOpen + invClose) / 2000.0;
             int[] inv = frame(ff, video, mid, shots.resolve("rec-video-inventory.png"));
             int[] before = frame(ff, video, Math.max(0, invOpen / 1000.0 - 1.0), shots.resolve("rec-video-before-inventory.png"));
             invGrey = grey(inv);
             worldGrey = grey(before);
+            invCentre = centreGrey(inv);
+            worldCentre = centreGrey(before);
+            invDiff = diff(inv, before);
         }
         if (pauseOpen >= 0 && pauseClose > pauseOpen) {
             int[] pause = frame(ff, video, (pauseOpen + pauseClose) / 2000.0, shots.resolve("rec-video-pause.png"));
@@ -75,7 +78,8 @@ final class ScreenVideoCheck {
             pauseDiff = diff(pause, after);
         }
         boolean lengthOk = frames > 0 && Math.abs(frames - expectedTicks) <= 2;
-        boolean inventoryShown = invGrey >= 0.03 && invGrey > worldGrey * 2 + 0.01;
+        // The inventory's panel covers the middle of the screen: much of it its grey, and the picture changed.
+        boolean inventoryShown = invCentre >= 0.25 && invCentre > worldCentre + 0.15;
         boolean pauseShown = pauseDiff >= 12;
         boolean pass = decodes && lengthOk && inventoryShown && pauseShown && ("" + fps).equals(r.replaceAll("\\.0+$", ""));
         AutoTest.report("rec-video", "file", video.toAbsolutePath().toString(), "bytes", String.valueOf(Files.size(video)),
@@ -83,6 +87,8 @@ final class ScreenVideoCheck {
                 "seconds", String.format(Locale.ROOT, "%.2f", frames / (double) Math.max(1, fps)),
                 "inventoryGrey", String.format(Locale.ROOT, "%.3f", invGrey), "worldGrey", String.format(Locale.ROOT, "%.3f", worldGrey),
                 "pauseDiff", String.format(Locale.ROOT, "%.1f", pauseDiff),
+                "inventorySlotGrey", String.format(Locale.ROOT, "%.3f", invCentre), "worldSlotGrey", String.format(Locale.ROOT, "%.3f", worldCentre),
+                "inventoryDiff", String.format(Locale.ROOT, "%.1f", invDiff),
                 "inventoryAtMs", invOpen + "-" + invClose, "pauseAtMs", pauseOpen + "-" + pauseClose,
                 "stats", stats, "decodes", String.valueOf(decodes), "pass", String.valueOf(pass));
     }
@@ -107,6 +113,27 @@ final class ScreenVideoCheck {
         for (int i = 0; i < n; i++) {
             int r = rgb[i * 3], g = rgb[i * 3 + 1], b = rgb[i * 3 + 2];
             if (Math.abs(r - 198) <= 14 && Math.abs(g - 198) <= 14 && Math.abs(b - 198) <= 14) hit++;
+        }
+        return n == 0 ? -1 : hit / (double) n;
+    }
+
+    /**
+     * The share of the middle of the picture (35 to 65% across, 30 to 70%
+     * down, where the inventory's panel is) in the grey of its slots (139,
+     * neutral, give or take). Measured on run 45822107616's frames: 40% with
+     * the inventory open on every version, 4.5 to 12% in the world before.
+     */
+    private static double centreGrey(int[] rgb) {
+        int w = 160, h = 90, hit = 0, n = 0;
+        if (rgb.length < w * h * 3) return -1;
+        for (int y = h * 30 / 100; y < h * 70 / 100; y++) {
+            for (int x = w * 35 / 100; x < w * 65 / 100; x++) {
+                int i = (y * w + x) * 3;
+                int r = rgb[i], g = rgb[i + 1], b = rgb[i + 2];
+                n++;
+                if (Math.abs(r - 139) <= 12 && Math.abs(g - 139) <= 12 && Math.abs(b - 139) <= 12
+                        && Math.max(r, Math.max(g, b)) - Math.min(r, Math.min(g, b)) <= 8) hit++;
+            }
         }
         return n == 0 ? -1 : hit / (double) n;
     }
