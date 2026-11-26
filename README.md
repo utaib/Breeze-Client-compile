@@ -1,3 +1,3 @@
-# Forge and NeoForge jars of run 45891686819
+# ci/loader-jars-45891686819
 
-Built from 11ccbea; for the launcher live loader test. Emptied afterwards.
+Held a copy for round 2 of the 2.30.0 recorder work for a moment (jars or source); emptied.
