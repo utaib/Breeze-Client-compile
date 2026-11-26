@@ -1,0 +1,101 @@
+71:com.mojang.authlib.exceptions.InvalidCredentialsException: Status: 401
+72:	at com.mojang.authlib.exceptions.MinecraftClientHttpException.toAuthenticationException(MinecraftClientHttpException.java:59) ~[authlib-6.0.52.jar:?]
+73-	at com.mojang.authlib.yggdrasil.YggdrasilUserApiService.fetchProperties(YggdrasilUserApiService.java:150) ~[authlib-6.0.52.jar:?]
+74-	at net.minecraft.class_310.method_55608(class_310.java:467) ~[client-intermediary.jar:?]
+75-	at java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1768) ~[?:?]
+76-	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136) ~[?:?]
+77-	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635) ~[?:?]
+78-	at java.lang.Thread.run(Thread.java:840) ~[?:?]
+79:Caused by: com.mojang.authlib.exceptions.MinecraftClientHttpException: Status: 401
+80-	at com.mojang.authlib.minecraft.client.MinecraftClient.readInputStream(MinecraftClient.java:100) ~[authlib-6.0.52.jar:?]
+81-	at com.mojang.authlib.minecraft.client.MinecraftClient.get(MinecraftClient.java:57) ~[authlib-6.0.52.jar:?]
+82-	at com.mojang.authlib.yggdrasil.YggdrasilUserApiService.fetchProperties(YggdrasilUserApiService.java:121) ~[authlib-6.0.52.jar:?]
+83-	... 5 more
+84-[19:30:59] [Render thread/INFO]: [Breeze] Registered 89 modules
+85-[19:30:59] [Render thread/INFO]: [Breeze] Web interface found at assets/breeze/html/index.html
+86-[19:30:59] [Render thread/INFO]: [Breeze autotest] {"dir":"/home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test","event":"start","t":1795721459083}
+87-[19:30:59] [Render thread/INFO]: [Breeze autotest] {"on":"true","saved":"false","event":"freelook-default","t":1795721459084}
+88-[19:30:59] [Render thread/INFO]: [Indigo] Registering Indigo renderer!
+89-[19:30:59] [Thread-2/WARN]: Failed to download JCEF hash.
+90-[19:30:59] [Thread-2/INFO]: https://mcef-download.cinemamod.com/java-cef-builds/a78e832f9f13c2c688caea3d04d8b84fcd238d94/linux_amd64.tar.gz -> /home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test/game/mods/mcef-libraries/linux_amd64.tar.gz
+91-[19:30:59] [Render thread/INFO]: Backend library: LWJGL version 3.3.2-snapshot
+--
+104:java.lang.IllegalStateException: Failed to open OpenAL device
+105-	at net.minecraft.class_4225.method_38501(class_4225.java:302) ~[client-intermediary.jar:?]
+106-	at net.minecraft.class_4225.method_19661(class_4225.java:154) ~[client-intermediary.jar:?]
+107-	at net.minecraft.class_1140.method_4846(class_1140.java:116) ~[client-intermediary.jar:?]
+108-	at net.minecraft.class_1140.method_4837(class_1140.java:106) ~[client-intermediary.jar:?]
+109-	at net.minecraft.class_1144.method_18182(class_1144.java:126) ~[client-intermediary.jar:?]
+110-	at net.minecraft.class_1144.method_18788(class_1144.java:41) ~[client-intermediary.jar:?]
+111-	at net.minecraft.class_4080.method_18790(class_4080.java:13) ~[client-intermediary.jar:?]
+112-	at java.util.concurrent.CompletableFuture$UniAccept.tryFire(CompletableFuture.java:718) ~[?:?]
+113-	at java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:482) ~[?:?]
+114-	at net.minecraft.class_4014.method_18365(class_4014.java:69) ~[client-intermediary.jar:?]
+115-	at net.minecraft.class_1255.method_18859(class_1255.java:156) ~[client-intermediary.jar:?]
+116-	at net.minecraft.class_4093.method_18859(class_4093.java:23) ~[client-intermediary.jar:?]
+--
+147:[19:31:08] [IO-Worker-1/INFO]: Could not authorize you against Realms server: javax.ws.rs.BadRequestException: Invalid session
+148-[19:31:08] [IO-Worker-1/ERROR]: Couldn't connect to realms
+149:net.minecraft.class_4355: Realms authentication error with message 'javax.ws.rs.BadRequestException: Invalid session'
+150-	at net.minecraft.class_4341.method_20998(class_4341.java:447) ~[client-intermediary.jar:?]
+151-	at net.minecraft.class_4341.method_21027(class_4341.java:232) ~[client-intermediary.jar:?]
+152-	at net.minecraft.class_8647.method_52627(class_8647.java:45) ~[client-intermediary.jar:?]
+153-	at java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1768) ~[?:?]
+154-	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136) ~[?:?]
+155-	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635) ~[?:?]
+156-	at java.lang.Thread.run(Thread.java:840) ~[?:?]
+157:[19:31:08] [Render thread/INFO]: [Breeze] browser frame rate left at Chromium's default: java.lang.NoSuchMethodException: com.cinemamod.mcef.MCEFBrowser.setWindowlessFrameRate(int)
+158-[19:31:08] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live, created in 4 ms on the render thread)
+159-[19:31:08] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795721468757}
+160-[19:31:08] [Render thread/INFO]: [Breeze autotest] {"event":"menu-open","t":1795721468758}
+161-[19:31:08] [Render thread/INFO]: [Breeze autotest] {"kind":"breeze-web","scale":3.0,"items":[],"event":"targets","t":1795721468773}
+162-[19:31:09] [Render thread/INFO]: [Breeze] the interface page answered 587 ms after its browser opened
+163-[19:31:09] [Render thread/INFO]: [Breeze autotest] {"action":"app.hello","event":"bridge","t":1795721469316}
+164-[19:31:09] [Render thread/INFO]: [Breeze] Menu wallpapers: 3 found
+165-[19:31:09] [Render thread/INFO]: [Breeze autotest] {"name":"test_a.jpg","where":"web","event":"wallpaper-visit","t":1795721469324}
+166-[19:31:09] [Render thread/INFO]: [Breeze autotest] {"action":"settings.get","event":"bridge","t":1795721469334}
+167-[19:31:09] [Render thread/INFO]: [Breeze autotest] {"action":"game.state","event":"bridge","t":1795721469368}
+168-[19:31:09] [Render thread/INFO]: [Breeze autotest] {"action":"account.get","event":"bridge","t":1795721469369}
+169-[19:31:09] [Render thread/INFO]: [Breeze autotest] {"action":"modules.list","event":"bridge","t":1795721469373}
+--
+928:[19:33:59] [Render thread/INFO]: [Breeze] browser frame rate left at Chromium's default: java.lang.NoSuchMethodException: com.cinemamod.mcef.MCEFBrowser.setWindowlessFrameRate(int)
+929-[19:33:59] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live, created in 0 ms on the render thread)
+930-[19:33:59] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795721639916}
+931-[19:34:00] [Server thread/INFO]: Saving and pausing game...
+932-[19:34:00] [Server thread/INFO]: Saving chunks for level 'ServerLevel[New World]'/minecraft:overworld
+933-[19:34:00] [Server thread/INFO]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_nether
+934-[19:34:00] [Server thread/INFO]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_end
+935-[19:34:00] [Render thread/INFO]: [Breeze] the interface page answered 391 ms after its browser opened
+936-[19:34:00] [Render thread/INFO]: [Breeze autotest] {"action":"app.hello","event":"bridge","t":1795721640306}
+937-[19:34:00] [Render thread/INFO]: [Breeze autotest] {"action":"settings.get","event":"bridge","t":1795721640307}
+938-[19:34:00] [Render thread/INFO]: [Breeze autotest] {"kind":"breeze-web","scale":3.0,"items":[],"event":"targets","t":1795721640402}
+939-[19:34:00] [Render thread/INFO]: [Breeze autotest] {"action":"game.state","event":"bridge","t":1795721640404}
+940-[19:34:00] [Render thread/INFO]: [Breeze autotest] {"action":"account.get","event":"bridge","t":1795721640405}
+--
+1086:java.lang.IllegalStateException: Failed to open OpenAL device
+1087-	at net.minecraft.class_4225.method_38501(class_4225.java:302) ~[client-intermediary.jar:?]
+1088-	at net.minecraft.class_4225.method_19661(class_4225.java:154) ~[client-intermediary.jar:?]
+1089-	at net.minecraft.class_1140.method_4846(class_1140.java:116) ~[client-intermediary.jar:?]
+1090-	at net.minecraft.class_1140.method_4837(class_1140.java:106) ~[client-intermediary.jar:?]
+1091-	at net.minecraft.class_1144.method_18182(class_1144.java:126) ~[client-intermediary.jar:?]
+1092-	at net.minecraft.class_1144.method_18788(class_1144.java:41) ~[client-intermediary.jar:?]
+1093-	at net.minecraft.class_4080.method_18790(class_4080.java:13) ~[client-intermediary.jar:?]
+1094-	at java.util.concurrent.CompletableFuture$UniAccept.tryFire(CompletableFuture.java:718) ~[?:?]
+1095-	at java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:482) ~[?:?]
+1096-	at net.minecraft.class_4014.method_18365(class_4014.java:69) ~[client-intermediary.jar:?]
+1097-	at net.minecraft.class_1255.method_18859(class_1255.java:156) ~[client-intermediary.jar:?]
+1098-	at net.minecraft.class_4093.method_18859(class_4093.java:23) ~[client-intermediary.jar:?]
+--
+1133:java.lang.IllegalStateException: Failed to open OpenAL device
+1134-	at net.minecraft.class_4225.method_38501(class_4225.java:302) ~[client-intermediary.jar:?]
+1135-	at net.minecraft.class_4225.method_19661(class_4225.java:154) ~[client-intermediary.jar:?]
+1136-	at net.minecraft.class_1140.method_4846(class_1140.java:116) ~[client-intermediary.jar:?]
+1137-	at net.minecraft.class_1140.method_4837(class_1140.java:106) ~[client-intermediary.jar:?]
+1138-	at net.minecraft.class_1144.method_18182(class_1144.java:126) ~[client-intermediary.jar:?]
+1139-	at net.minecraft.class_1144.method_18788(class_1144.java:41) ~[client-intermediary.jar:?]
+1140-	at net.minecraft.class_4080.method_18790(class_4080.java:13) ~[client-intermediary.jar:?]
+1141-	at java.util.concurrent.CompletableFuture$UniAccept.tryFire(CompletableFuture.java:718) ~[?:?]
+1142-	at java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:482) ~[?:?]
+1143-	at net.minecraft.class_4014.method_18365(class_4014.java:69) ~[client-intermediary.jar:?]
+1144-	at net.minecraft.class_1255.method_18859(class_1255.java:156) ~[client-intermediary.jar:?]
+1145-	at net.minecraft.class_4093.method_18859(class_4093.java:23) ~[client-intermediary.jar:?]
