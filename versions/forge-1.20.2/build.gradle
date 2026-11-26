@@ -1,0 +1,10 @@
+// Breeze on Forge for Minecraft 1.20.2, built with ForgeGradle 6 and MixinGradle, as Forge's example
+// project for this version (Forge runs on SRG names here: refmap, reobfuscated jar). ForgeGradle 6
+// needs Gradle 8: this version builds in a Gradle 8.12.1 run of its own (gradle/forge.gradle).
+plugins {
+    id 'java'
+    id 'net.minecraftforge.gradle' version '[6.0.16,6.2)'
+    id 'org.spongepowered.mixin' version '0.7.+'
+}
+
+apply from: rootProject.file('gradle/forge.gradle')
