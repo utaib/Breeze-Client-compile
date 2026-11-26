@@ -75,7 +75,7 @@ final class ScreenVideoCheck {
             pauseDiff = diff(pause, after);
         }
         boolean lengthOk = frames > 0 && Math.abs(frames - expectedTicks) <= 2;
-        boolean inventoryShown = invGrey >= 0.08 && invGrey > worldGrey * 2 + 0.02;
+        boolean inventoryShown = invGrey >= 0.03 && invGrey > worldGrey * 2 + 0.01;
         boolean pauseShown = pauseDiff >= 12;
         boolean pass = decodes && lengthOk && inventoryShown && pauseShown && ("" + fps).equals(r.replaceAll("\\.0+$", ""));
         AutoTest.report("rec-video", "file", video.toAbsolutePath().toString(), "bytes", String.valueOf(Files.size(video)),

@@ -28,6 +28,34 @@ a smooth video at any frame rate.
   each frame (nearest chunks first, a tenth of a frame: at least 1.5 ms and
   at most 4 ms), so starting to record never holds up a frame; packets are
   copied on the network thread and written by a thread of their own.
+- **Round 1 of the owner's third test (2026-11-22, same version): the
+  screen video.** The Recorder key now records the screen like OBS, inside
+  the game: exactly what the player sees (the world, hand and skin, HUD,
+  chat, inventory, the pause menu, settings and Breeze's screens), to an
+  MP4 in `recordings/videos/`. The world replay is still made beside it
+  unless switched off.
+  - The first press opens the recorder preferences (world replay kept or
+    not; 30, 60 or 120 fps; the game window's size or 1080p, 720p, 480p;
+    Standard, High or Best; the encoder automatic or the processor only).
+    "Save and record" starts recording; later presses just record. They are
+    changed later from the Recordings page ("Recorder preferences").
+  - Each frame is copied on the graphics card into a ring of three pixel
+    buffers after it is shown and taken out a frame or two later, so the
+    game never waits for the card; a smaller video is scaled on the card.
+    Each frame keeps the moment it was shown, and the video's even frames
+    take the frame shown nearest each tick, so a game at an uneven 54 to 70
+    FPS makes a 60 fps video that moves as the game looked and lasts the
+    real time. ffmpeg (graphics card encoder when it works, else x264 at a
+    real-time preset) writes a fragmented MP4 that plays even when the game
+    stops without saving. When ffmpeg falls behind, a frame repeats rather
+    than the game waiting.
+  - "Video saved" in chat with Open (plays it) and Folder.
+  - Watching a recording is read only (adventure mode: nothing is broken
+    or placed).
+  - Fixed: "GL ERROR 65539: Invalid key 0/1" every tick, from mouse buttons
+    asked of the keyboard by the command keys (`CommandKeyRunner`).
+  - On 26.3 the screen video needs Minecraft's OpenGL renderer; with the
+    Vulkan one chat says so and only the world replay records.
 - **Fixes from the owner's test (2026-11-20, same version).** Starting a
   recording dropped the game to about 0 FPS on an Intel Iris Xe laptop at
   render distance 12, and a recording stopped after 10 seconds stayed on

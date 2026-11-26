@@ -257,6 +257,7 @@ public final class Replay {
             BreezeClient.LOGGER.info("[Breeze] watching: reached the end ({} ms, {} packets, {} not played)", timeline.durationMs(), fed, packetErrors);
         }
         if (mc.level != null && mc.player != null) {
+            readOnly(mc);
             if (freeCamera) {
                 // Flying, moved by the viewer's own keys and mouse.
                 mc.player.getAbilities().mayfly = true;
@@ -266,6 +267,20 @@ public final class Replay {
                 showRecordedScreen(mc);
             }
         }
+    }
+
+    /**
+     * Watching is read only (owner, 1.2.3_test_2: blocks could be broken and
+     * placed while watching): the viewer plays as in adventure mode, which
+     * breaks and places nothing, and the player may not build. Set each tick,
+     * as the recorded packets set the recorded game mode again.
+     */
+    private static void readOnly(Minecraft mc) {
+        if (mc.gameMode != null && mc.gameMode.getPlayerMode() != net.minecraft.world.level.GameType.ADVENTURE
+                && mc.gameMode.getPlayerMode() != net.minecraft.world.level.GameType.SPECTATOR) {
+            mc.gameMode.setLocalMode(net.minecraft.world.level.GameType.ADVENTURE);
+        }
+        mc.player.getAbilities().mayBuild = false;
     }
 
     /** How long a watch may take to show the recorded world before Breeze gives up on it. */

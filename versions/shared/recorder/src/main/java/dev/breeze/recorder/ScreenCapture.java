@@ -68,6 +68,7 @@ public final class ScreenCapture {
     private final boolean[] busy = new boolean[RING];
     private int head, tail;
     private boolean glBroken;
+    private int noTexture;
 
     // Cost and counts.
     private long frames, ringFull, noBuffer, workNanos, worstNanos, waited;
@@ -306,7 +307,12 @@ public final class ScreenCapture {
             return;
         }
         int tex = ScreenSource.texture(mc);
-        if (tex == 0) return;
+        if (tex == 0) {
+            if (frames == 0 && ++noTexture >= 30) {
+                startProblem = "it works with Minecraft's OpenGL renderer, and this game draws with another one. The world replay still records.";
+            }
+            return;
+        }
         int[] src = RecFrames.size(mc);
         int sw = src[0], sh = src[1];
         int prevRead = GL11.glGetInteger(GL30.GL_READ_FRAMEBUFFER_BINDING);
