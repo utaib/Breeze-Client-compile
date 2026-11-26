@@ -1,0 +1,69 @@
+81:java.lang.IllegalStateException: Failed to open OpenAL device
+82-	at knot/net.minecraft.class_4225.method_38501(class_4225.java:297) ~[client-intermediary.jar:?]
+83-	at knot/net.minecraft.class_4225.method_19661(class_4225.java:154) ~[client-intermediary.jar:?]
+84-	at knot/net.minecraft.class_1140.method_4846(class_1140.java:118) ~[client-intermediary.jar:?]
+85-	at knot/net.minecraft.class_1140.method_4837(class_1140.java:108) ~[client-intermediary.jar:?]
+86-	at knot/net.minecraft.class_1144.method_18182(class_1144.java:122) ~[client-intermediary.jar:?]
+87-	at knot/net.minecraft.class_1144.method_18788(class_1144.java:41) ~[client-intermediary.jar:?]
+88-	at knot/net.minecraft.class_4080.method_18790(class_4080.java:14) ~[client-intermediary.jar:?]
+89-	at java.base/java.util.concurrent.CompletableFuture$UniAccept.tryFire(CompletableFuture.java:718) ~[?:?]
+90-	at java.base/java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:482) ~[?:?]
+91-	at knot/net.minecraft.class_4014.method_67574(class_4014.java:60) ~[client-intermediary.jar:?]
+92-	at knot/net.minecraft.class_1255.method_18859(class_1255.java:164) [client-intermediary.jar:?]
+93-	at knot/net.minecraft.class_4093.method_18859(class_4093.java:23) [client-intermediary.jar:?]
+--
+122:[18:09:30] [Render thread/INFO]: [Breeze] browser frame rate left at Chromium's default: java.lang.NoSuchMethodException: com.cinemamod.mcef.MCEFBrowser.setWindowlessFrameRate(int)
+123-[18:09:30] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live, created in 8 ms on the render thread)
+124-[18:09:30] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795716570767}
+125-[18:09:30] [Render thread/INFO]: [Breeze autotest] {"event":"menu-open","t":1795716570768}
+126-[18:09:30] [Render thread/INFO]: [Breeze autotest] {"kind":"breeze-web","scale":3.0,"items":[],"event":"targets","t":1795716570774}
+127-[18:09:31] [ForkJoinPool.commonPool-worker-2/WARN]: [Breeze] friends refresh failed: HTTP 404
+128-[18:09:32] [Render thread/INFO]: [Breeze autotest] {"ok":"true","targets":"34","ms":"34","event":"mixin-audit","t":1795716572821}
+129-[18:09:34] [Render thread/INFO]: [Breeze] the interface page answered 3842 ms after its browser opened
+130-[18:09:34] [Render thread/INFO]: [Breeze autotest] {"action":"app.hello","event":"bridge","t":1795716574601}
+131-[18:09:34] [Render thread/INFO]: [Breeze] Menu wallpapers: 3 found
+132-[18:09:34] [Render thread/INFO]: [Breeze autotest] {"name":"test_a.jpg","where":"web","event":"wallpaper-visit","t":1795716574606}
+133-[18:09:34] [Render thread/INFO]: [Breeze autotest] {"action":"settings.get","event":"bridge","t":1795716574613}
+134-[18:09:34] [Render thread/INFO]: [Breeze autotest] {"action":"game.state","event":"bridge","t":1795716574630}
+--
+860:[18:11:57] [Render thread/INFO]: [Breeze] browser frame rate left at Chromium's default: java.lang.NoSuchMethodException: com.cinemamod.mcef.MCEFBrowser.setWindowlessFrameRate(int)
+861-[18:11:57] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live, created in 0 ms on the render thread)
+862-[18:11:57] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795716717997}
+863-[18:11:58] [Server thread/INFO]: Saving and pausing game...
+864-[18:11:58] [Server thread/INFO]: Saving chunks for level 'ServerLevel[New World]'/minecraft:overworld
+865-[18:11:58] [Server thread/INFO]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_nether
+866-[18:11:58] [Server thread/INFO]: Saving chunks for level 'ServerLevel[New World]'/minecraft:the_end
+867-[18:11:58] [Render thread/INFO]: [Breeze autotest] {"kind":"breeze-web","scale":3.0,"items":[],"event":"targets","t":1795716718518}
+868-[18:11:58] [Render thread/INFO]: [Breeze] the interface page answered 649 ms after its browser opened
+869-[18:11:58] [Render thread/INFO]: [Breeze autotest] {"action":"app.hello","event":"bridge","t":1795716718644}
+870-[18:11:58] [Render thread/INFO]: [Breeze autotest] {"action":"settings.get","event":"bridge","t":1795716718644}
+871-[18:11:58] [Render thread/INFO]: [Breeze autotest] {"action":"game.state","event":"bridge","t":1795716718767}
+872-[18:11:58] [Render thread/INFO]: [Breeze autotest] {"action":"account.get","event":"bridge","t":1795716718769}
+--
+1008:java.lang.IllegalStateException: Failed to open OpenAL device
+1009-	at knot/net.minecraft.class_4225.method_38501(class_4225.java:297) ~[client-intermediary.jar:?]
+1010-	at knot/net.minecraft.class_4225.method_19661(class_4225.java:154) ~[client-intermediary.jar:?]
+1011-	at knot/net.minecraft.class_1140.method_4846(class_1140.java:118) ~[client-intermediary.jar:?]
+1012-	at knot/net.minecraft.class_1140.method_4837(class_1140.java:108) ~[client-intermediary.jar:?]
+1013-	at knot/net.minecraft.class_1144.method_18182(class_1144.java:122) ~[client-intermediary.jar:?]
+1014-	at knot/net.minecraft.class_1144.method_18788(class_1144.java:41) ~[client-intermediary.jar:?]
+1015-	at knot/net.minecraft.class_4080.method_18790(class_4080.java:14) ~[client-intermediary.jar:?]
+1016-	at java.base/java.util.concurrent.CompletableFuture$UniAccept.tryFire(CompletableFuture.java:718) ~[?:?]
+1017-	at java.base/java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:482) ~[?:?]
+1018-	at knot/net.minecraft.class_4014.method_67574(class_4014.java:60) ~[client-intermediary.jar:?]
+1019-	at knot/net.minecraft.class_1255.method_18859(class_1255.java:164) [client-intermediary.jar:?]
+1020-	at knot/net.minecraft.class_4093.method_18859(class_4093.java:23) [client-intermediary.jar:?]
+--
+1053:java.lang.IllegalStateException: Failed to open OpenAL device
+1054-	at knot/net.minecraft.class_4225.method_38501(class_4225.java:297) ~[client-intermediary.jar:?]
+1055-	at knot/net.minecraft.class_4225.method_19661(class_4225.java:154) ~[client-intermediary.jar:?]
+1056-	at knot/net.minecraft.class_1140.method_4846(class_1140.java:118) ~[client-intermediary.jar:?]
+1057-	at knot/net.minecraft.class_1140.method_4837(class_1140.java:108) ~[client-intermediary.jar:?]
+1058-	at knot/net.minecraft.class_1144.method_18182(class_1144.java:122) ~[client-intermediary.jar:?]
+1059-	at knot/net.minecraft.class_1144.method_18788(class_1144.java:41) ~[client-intermediary.jar:?]
+1060-	at knot/net.minecraft.class_4080.method_18790(class_4080.java:14) ~[client-intermediary.jar:?]
+1061-	at java.base/java.util.concurrent.CompletableFuture$UniAccept.tryFire(CompletableFuture.java:718) ~[?:?]
+1062-	at java.base/java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:482) ~[?:?]
+1063-	at knot/net.minecraft.class_4014.method_67574(class_4014.java:60) ~[client-intermediary.jar:?]
+1064-	at knot/net.minecraft.class_1255.method_18859(class_1255.java:164) [client-intermediary.jar:?]
+1065-	at knot/net.minecraft.class_4093.method_18859(class_4093.java:23) [client-intermediary.jar:?]
