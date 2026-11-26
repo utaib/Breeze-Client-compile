@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.breeze.recmixin",
+  "compatibilityLevel": "${mixin_java}",
+  "client": [
+    "ExportClockMixin",
+    "ExportFrameMixin",
+    "FrameCameraMixin",
+    "PlayerInfoMapAccess"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
