@@ -1,0 +1,300 @@
+[13:43:10] [main/INFO]: Loading Minecraft 26.1 with Fabric Loader 0.19.5
+[13:43:10] [main/INFO]: Mappings not present!
+[13:43:10] [main/INFO]: Loading 49 mods:
+	- breeze 2.30.0
+	   \-- mcef 2.2.0
+	- fabric-api 0.145.1+26.1
+	   |-- fabric-api-base 2.0.3+ece0632347
+	   |-- fabric-api-lookup-api-v1 2.0.10+d5a053b647
+	   |-- fabric-biome-api-v1 18.0.4+35c80edc47
+	   |-- fabric-block-api-v1 3.0.2+ec56b60147
+	   |-- fabric-block-getter-api-v2 2.0.6+ec56b60147
+	   |-- fabric-command-api-v2 3.0.5+e2bdee7847
+	   |-- fabric-content-registries-v0 11.0.12+d871b99e47
+	   |-- fabric-convention-tags-v2 4.3.2+c37e6e5f47
+	   |-- fabric-crash-report-info-v1 1.0.3+9f78a5a847
+	   |-- fabric-creative-tab-api-v1 5.0.10+d871b99e47
+	   |-- fabric-data-attachment-api-v1 2.2.3+d602a89647
+	   |-- fabric-data-generation-api-v1 24.0.17+35c80edc47
+	   |-- fabric-debug-api-v1 1.0.1+c792624d47
+	   |-- fabric-dimensions-v1 5.1.4+9cbf5da547
+	   |-- fabric-entity-events-v1 5.0.2+e2bdee7847
+	   |-- fabric-events-interaction-v0 5.1.10+c82f046147
+	   |-- fabric-game-rule-api-v1 4.0.5+d871b99e47
+	   |-- fabric-item-api-v1 14.1.0+9833182c47
+	   |-- fabric-key-mapping-api-v1 2.0.4+e2bdee7847
+	   |-- fabric-lifecycle-events-v1 4.0.6+a9b9c17647
+	   |-- fabric-loot-api-v3 3.0.11+00a1fba647
+	   |-- fabric-menu-api-v1 2.0.12+d871b99e47
+	   |-- fabric-message-api-v1 7.0.5+dae8ce3e47
+	   |-- fabric-model-loading-api-v1 8.0.1+c7e428fd47
+	   |-- fabric-networking-api-v1 6.3.0+50a808ce47
+	   |-- fabric-object-builder-api-v1 23.0.13+b61fef4347
+	   |-- fabric-particles-v1 5.0.14+b61fef4347
+	   |-- fabric-recipe-api-v1 9.0.13+be4b75ae47
+	   |-- fabric-registry-sync-v0 7.0.12+b61fef4347
+	   |-- fabric-renderer-api-v1 12.0.0+51b152e147
+	   |-- fabric-renderer-indigo 8.0.0+51b152e147
+	   |-- fabric-rendering-fluids-v1 6.0.1+d871b99e47
+	   |-- fabric-rendering-v1 23.0.4+c7e428fd47
+	   |-- fabric-resource-conditions-api-v1 6.0.5+00a1fba647
+	   |-- fabric-resource-loader-v0 3.3.16+4fc5413f47
+	   |-- fabric-resource-loader-v1 2.0.9+d871b99e47
+	   |-- fabric-screen-api-v1 5.0.1+d871b99e47
+	   |-- fabric-serialization-api-v1 2.0.3+11a26f3147
+	   |-- fabric-sound-api-v1 2.0.4+11a26f3147
+	   |-- fabric-tag-api-v1 2.0.9+11a26f3147
+	   |-- fabric-transfer-api-v1 8.0.2+d871b99e47
+	   \-- fabric-transitive-access-wideners-v1 8.0.11+d871b99e47
+	- fabricloader 0.19.5
+	   \-- mixinextras 0.5.5
+	- java 25
+	- minecraft 26.1
+[13:43:10] [main/INFO]: SpongePowered MIXIN Subsystem Version=0.8.7 Source=file:/home/runner/.minecraft/libraries/net/fabricmc/sponge-mixin/0.17.4+mixin.0.8.7/sponge-mixin-0.17.4+mixin.0.8.7.jar Service=Knot/Fabric Env=CLIENT
+[13:43:11] [main/INFO]: Initializing MixinExtras via com.llamalad7.mixinextras.service.MixinExtrasServiceImpl(version=0.5.5).
+[13:43:12] [Datafixer Bootstrap/INFO]: 291 Datafixer optimizations took 340 milliseconds
+[13:43:16] [MCEF-Downloader/INFO]: java-cef commit: eaeb3d4370aa3526ee237ad1981ad59af3de4dd1
+[13:43:16] [MCEF-Downloader/INFO]: https://github.com/Keksuccino/mcef_resources/releases/download/java-cef-eaeb3d4370aa3526ee237ad1981ad59af3de4dd1/linux_amd64.tar.gz.sha256 -> /home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test/game/mods/mcef-libraries/linux_amd64.tar.gz.sha256.temp
+[13:43:16] [Render thread/INFO]: Environment: Environment[sessionHost=https://sessionserver.mojang.com, servicesHost=https://api.minecraftservices.com, profilesHost=https://api.mojang.com, name=PROD]
+[13:43:16] [Render thread/INFO]: Setting user: BreezeDev
+[13:43:16] [Render thread/INFO]: [Breeze] Initializing on Minecraft 26.1
+[13:43:17] [Render thread/INFO]: [Breeze] Registered 89 modules
+[13:43:17] [Render thread/INFO]: [Breeze] Web interface found at assets/breeze/html/index.html
+[13:43:17] [Render thread/INFO]: [Breeze autotest] {"dir":"/home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test","event":"start","t":1795700597030}
+[13:43:17] [Render thread/INFO]: [Breeze autotest] {"on":"true","saved":"false","event":"freelook-default","t":1795700597031}
+[13:43:17] [Download-2/ERROR]: Failed to fetch user properties
+com.mojang.authlib.exceptions.InvalidCredentialsException: Status: 401
+	at knot//com.mojang.authlib.exceptions.MinecraftClientHttpException.toAuthenticationException(MinecraftClientHttpException.java:59)
+	at knot//com.mojang.authlib.yggdrasil.YggdrasilUserApiService.fetchProperties(YggdrasilUserApiService.java:150)
+	at knot//net.minecraft.client.Minecraft.lambda$new$1(Minecraft.java:459)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1789)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614)
+	at java.base/java.lang.Thread.run(Thread.java:1474)
+Caused by: com.mojang.authlib.exceptions.MinecraftClientHttpException: Status: 401
+	at knot//com.mojang.authlib.minecraft.client.MinecraftClient.readInputStream(MinecraftClient.java:103)
+	at knot//com.mojang.authlib.minecraft.client.MinecraftClient.get(MinecraftClient.java:56)
+	at knot//com.mojang.authlib.yggdrasil.YggdrasilUserApiService.fetchProperties(YggdrasilUserApiService.java:121)
+	... 5 more
+[13:43:17] [Render thread/INFO]: [Indigo] Registering Indigo renderer!
+[13:43:17] [MCEF-Downloader/INFO]: Local JCEF hash file does not exist.
+[13:43:17] [MCEF-Downloader/INFO]: https://github.com/Keksuccino/mcef_resources/releases/download/java-cef-eaeb3d4370aa3526ee237ad1981ad59af3de4dd1/linux_amd64.tar.gz -> /home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test/game/mods/mcef-libraries/linux_amd64.tar.gz
+[13:43:17] [Render thread/INFO]: Backend library: LWJGL version 3.4.1-snapshot
+[13:43:18] [Render thread/INFO]: Using optional rendering extensions: GL_ARB_buffer_storage, GL_KHR_debug, GL_ARB_vertex_attrib_binding, GL_ARB_direct_state_access, GL_EXT_texture_filter_anisotropic
+[13:43:18] [Render thread/INFO]: Reloading ResourceManager: vanilla, breeze, fabric-api, fabric-api-base, fabric-api-lookup-api-v1, fabric-biome-api-v1, fabric-block-api-v1, fabric-block-getter-api-v2, fabric-command-api-v2, fabric-content-registries-v0, fabric-convention-tags-v2, fabric-crash-report-info-v1, fabric-creative-tab-api-v1, fabric-data-attachment-api-v1, fabric-data-generation-api-v1, fabric-debug-api-v1, fabric-dimensions-v1, fabric-entity-events-v1, fabric-events-interaction-v0, fabric-game-rule-api-v1, fabric-item-api-v1, fabric-key-mapping-api-v1, fabric-lifecycle-events-v1, fabric-loot-api-v3, fabric-menu-api-v1, fabric-message-api-v1, fabric-model-loading-api-v1, fabric-networking-api-v1, fabric-object-builder-api-v1, fabric-particles-v1, fabric-recipe-api-v1, fabric-registry-sync-v0, fabric-renderer-api-v1, fabric-renderer-indigo, fabric-rendering-fluids-v1, fabric-rendering-v1, fabric-resource-conditions-api-v1, fabric-resource-loader-v0, fabric-resource-loader-v1, fabric-screen-api-v1, fabric-serialization-api-v1, fabric-sound-api-v1, fabric-tag-api-v1, fabric-transfer-api-v1, fabric-transitive-access-wideners-v1, fabricloader
+[13:43:18] [Download-1/INFO]: Could not authorize you against Realms server: javax.ws.rs.BadRequestException: Invalid session
+[13:43:18] [Download-1/ERROR]: Failed to fetch Realms feature flags
+com.mojang.realmsclient.exception.RealmsServiceException: Realms authentication error with message 'javax.ws.rs.BadRequestException: Invalid session'
+	at knot//com.mojang.realmsclient.client.RealmsClient.execute(RealmsClient.java:526)
+	at knot//com.mojang.realmsclient.client.RealmsClient.fetchFeatureFlags(RealmsClient.java:186)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1789)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614)
+	at java.base/java.lang.Thread.run(Thread.java:1474)
+[13:43:18] [Render thread/INFO]: [Breeze] Integrations: Mod Menu absent, 0 settings screens, 0 Breeze entries, 0 problems
+[13:43:18] [Render thread/INFO]: [Breeze autotest] {"class":"com.cinemamod.mcef.internal.MCEFDownloaderMenu","kind":"other","liveBrowsers":"0","event":"screen","t":1795700598934}
+[13:43:19] [Render thread/INFO]: [Breeze autotest] {"kind":"other","scale":3.0,"items":[],"event":"targets","t":1795700599118}
+[13:43:19] [ForkJoinPool.commonPool-worker-1/INFO]: [Breeze autotest] {"path":"/test/spotify-local","status":"200","error":"","event":"stub-post","t":1795700599122}
+[13:43:19] [ForkJoinPool.commonPool-worker-3/WARN]: [Breeze] friends refresh failed: HTTP 404
+[13:43:19] [Worker-Main-1/INFO]: Found unifont_all_no_pua-17.0.01.hex, loading
+[13:43:19] [Worker-Main-2/INFO]: Found unifont_pua-17.0.01.hex, loading
+[13:43:19] [Render thread/INFO]: [Breeze autotest] {"title":"Local Test Song 1","artist":"The Local Testers","app":"Chromium","positionMs":"42022","why":"NOT_CONNECTED","durationMs":"201000","artwork":"local:file:/home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test/fake-cover.png","event":"local-spotify","t":1795700599808}
+[13:43:20] [Worker-Main-1/INFO]: Found unifont_jp_patch-17.0.01.hex, loading
+[13:43:21] [Render thread/ERROR]: Error starting SoundSystem. Turning off sounds & music
+java.lang.IllegalStateException: Failed to open OpenAL device
+	at knot//com.mojang.blaze3d.audio.Library.openDeviceOrFallback(Library.java:275)
+	at knot//com.mojang.blaze3d.audio.Library.init(Library.java:150)
+	at knot//net.minecraft.client.sounds.SoundEngine.loadLibrary(SoundEngine.java:120)
+	at knot//net.minecraft.client.sounds.SoundEngine.reload(SoundEngine.java:109)
+	at knot//net.minecraft.client.sounds.SoundManager.apply(SoundManager.java:122)
+	at knot//net.minecraft.client.sounds.SoundManager.apply(SoundManager.java:41)
+	at knot//net.minecraft.server.packs.resources.SimplePreparableReloadListener.lambda$reload$1(SimplePreparableReloadListener.java:15)
+	at java.base/java.util.concurrent.CompletableFuture$UniAccept.tryFire(CompletableFuture.java:739)
+	at java.base/java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:503)
+	at knot//net.minecraft.server.packs.resources.SimpleReloadInstance.lambda$prepareTasks$3(SimpleReloadInstance.java:59)
+	at knot//net.minecraft.util.thread.BlockableEventLoop.doRunTask(BlockableEventLoop.java:173)
+	at knot//net.minecraft.util.thread.ReentrantBlockableEventLoop.doRunTask(ReentrantBlockableEventLoop.java:23)
+	at knot//net.minecraft.util.thread.BlockableEventLoop.pollTask(BlockableEventLoop.java:147)
+	at knot//net.minecraft.util.thread.BlockableEventLoop.runAllTasks(BlockableEventLoop.java:127)
+	at knot//net.minecraft.client.Minecraft.runTick(Minecraft.java:1345)
+	at knot//net.minecraft.client.Minecraft.run(Minecraft.java:991)
+	at knot//net.minecraft.client.main.Main.main(Main.java:248)
+	at net.fabricmc.loader.impl.game.minecraft.MinecraftGameProvider.launch(MinecraftGameProvider.java:517)
+	at net.fabricmc.loader.impl.launch.knot.Knot.launch(Knot.java:72)
+	at net.fabricmc.loader.impl.launch.knot.KnotClient.main(KnotClient.java:23)
+[13:43:21] [Render thread/INFO]: Created: 512x256x0 minecraft:textures/atlas/particles.png-atlas
+[13:43:22] [Render thread/INFO]: Created: 128x128x0 minecraft:textures/atlas/decorated_pot.png-atlas
+[13:43:22] [Render thread/INFO]: Created: 2048x1024x0 minecraft:textures/atlas/armor_trims.png-atlas
+[13:43:22] [Render thread/INFO]: Created: 512x256x0 minecraft:textures/atlas/paintings.png-atlas
+[13:43:22] [Render thread/INFO]: Created: 1024x512x0 minecraft:textures/atlas/shield_patterns.png-atlas
+[13:43:22] [Render thread/INFO]: Created: 2048x2048x4 minecraft:textures/atlas/blocks.png-atlas
+[13:43:22] [Render thread/INFO]: Created: 512x512x0 minecraft:textures/atlas/chest.png-atlas
+[13:43:22] [Render thread/INFO]: Created: 256x128x0 minecraft:textures/atlas/celestials.png-atlas
+[13:43:22] [Render thread/INFO]: Created: 1024x512x0 minecraft:textures/atlas/banner_patterns.png-atlas
+[13:43:22] [Render thread/INFO]: Created: 512x512x0 minecraft:textures/atlas/beds.png-atlas
+[13:43:22] [Render thread/INFO]: Created: 1024x512x0 minecraft:textures/atlas/items.png-atlas
+[13:43:22] [Render thread/INFO]: Created: 1024x1024x0 minecraft:textures/atlas/gui.png-atlas
+[13:43:22] [Render thread/INFO]: Created: 128x64x0 minecraft:textures/atlas/map_decorations.png-atlas
+[13:43:22] [Render thread/INFO]: Created: 512x256x0 minecraft:textures/atlas/signs.png-atlas
+[13:43:22] [Render thread/INFO]: Created: 512x512x0 minecraft:textures/atlas/shulker_boxes.png-atlas
+[13:43:22] [Render thread/INFO]: [Breeze autotest] {"pass":"true","title":"Local Test Song 1","reason":"","event":"local-spotify-check","t":1795700602617}
+[13:43:24] [Render thread/INFO]: Initializing CEF on linux_amd64...
+[13:43:24] [Render thread/INFO]: Using persistent MCEF browser data directory: /home/runner/.local/share/mcef/cef-cache
+[13:43:24] [Render thread/INFO]: [STDOUT]: initialize on Thread[#3,Render thread,5,main] with library path /home/runner/work/Breeze-Client-compile/Breeze-Client-compile/release-test/game/mods/mcef-libraries/linux_amd64
+[13:43:24] [Render thread/INFO]: [Breeze] MCEF finished initializing. Web menu is available.
+[13:43:24] [Render thread/INFO]: Chromium Embedded Framework initialized
+[13:43:24] [Render thread/INFO]: [Breeze] interface ready at https://breeze.local with bridge breezeQuery
+[13:43:24] [Render thread/INFO]: [Breeze] browser frame rate left at Chromium's default: java.lang.NoSuchMethodException: com.cinemamod.mcef.MCEFBrowser.setWindowlessFrameRate(int)
+[13:43:24] [Render thread/INFO]: [Breeze] interface browser opened at 1281x720 px (1 live, created in 3 ms on the render thread)
+[13:43:24] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795700604322}
+[13:43:24] [Render thread/INFO]: [Breeze autotest] {"event":"menu-open","t":1795700604323}
+[13:43:24] [ForkJoinPool.commonPool-worker-3/WARN]: [Breeze] friends refresh failed: HTTP 404
+[13:43:24] [IO-Worker-1/INFO]: Could not authorize you against Realms server: javax.ws.rs.BadRequestException: Invalid session
+[13:43:24] [IO-Worker-1/ERROR]: Couldn't connect to realms
+com.mojang.realmsclient.exception.RealmsServiceException: Realms authentication error with message 'javax.ws.rs.BadRequestException: Invalid session'
+	at knot//com.mojang.realmsclient.client.RealmsClient.execute(RealmsClient.java:526)
+	at knot//com.mojang.realmsclient.client.RealmsClient.clientCompatible(RealmsClient.java:307)
+	at knot//com.mojang.realmsclient.RealmsAvailability.lambda$check$0(RealmsAvailability.java:48)
+	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1789)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614)
+	at java.base/java.lang.Thread.run(Thread.java:1474)
+[13:43:24] [Render thread/INFO]: [Breeze autotest] {"kind":"breeze-web","scale":3.0,"items":[],"event":"targets","t":1795700604465}
+[13:43:24] [Render thread/INFO]: [Breeze autotest] {"ok":"true","targets":"35","ms":"39","event":"mixin-audit","t":1795700604691}
+[13:43:24] [Render thread/INFO]: [Breeze] the interface page answered 429 ms after its browser opened
+[13:43:24] [Render thread/INFO]: [Breeze autotest] {"action":"app.hello","event":"bridge","t":1795700604749}
+[13:43:24] [Render thread/INFO]: [Breeze] Menu wallpapers: 3 found
+[13:43:24] [Render thread/INFO]: [Breeze autotest] {"name":"test_a.jpg","where":"web","event":"wallpaper-visit","t":1795700604754}
+[13:43:24] [Render thread/INFO]: [Breeze autotest] {"action":"settings.get","event":"bridge","t":1795700604755}
+[13:43:24] [Render thread/INFO]: [Breeze autotest] {"action":"game.state","event":"bridge","t":1795700604785}
+[13:43:24] [Render thread/INFO]: [Breeze autotest] {"action":"account.get","event":"bridge","t":1795700604786}
+[13:43:24] [Render thread/INFO]: [Breeze autotest] {"action":"modules.list","event":"bridge","t":1795700604790}
+[13:43:24] [Render thread/INFO]: [Breeze autotest] {"action":"integrations.list","event":"bridge","t":1795700604814}
+[13:43:24] [Render thread/INFO]: [Breeze autotest] {"action":"ui.route","params":{"route":"home"},"event":"bridge","t":1795700604816}
+[13:43:24] [Render thread/INFO]: [Breeze autotest] {"action":"ui.shown","event":"bridge","t":1795700604830}
+[13:43:24] [Render thread/INFO]: [Breeze] menu drawn 542 ms after it was asked for (title menu, new browser)
+[13:43:27] [Render thread/INFO]: [Breeze autotest] {"file":"screenshots/autotest-title-menu.png","event":"screenshot","t":1795700607305}
+[13:43:27] [Render thread/INFO]: [Breeze autotest] {"modules":"89","found":"89","missing":"","fallbacks":{"Reconnect":"textures/item/iron_chain.png","Custom Shield":"textures/item/oak_sign.png"},"pass":"true","event":"module-icons","t":1795700607312}
+[13:43:27] [Render thread/INFO]: [Breeze autotest] {"integrations":[],"problems":[],"event":"integrations","t":1795700607313}
+[13:43:27] [Render thread/INFO]: [Breeze autotest] {"id":"key.breeze.armor_bar","count":"91","bound":"J","afterReset":"","pass":"true","event":"keys-check","t":1795700607319}
+[13:43:27] [Render thread/INFO]: [Breeze autotest] {"kind":"breeze-web","scale":3.0,"items":[],"event":"targets","t":1795700607319}
+[13:43:27] [Render thread/INFO]: [Breeze autotest] {"mode":"web","event":"READY_FOR_INPUT","t":1795700607319}
+[13:43:29] [ForkJoinPool.commonPool-worker-3/WARN]: [Breeze] friends refresh failed: HTTP 404
+[13:43:31] [Render thread/INFO]: [Breeze autotest] {"code":"258","event":"key","t":1795700611939}
+[13:43:32] [Render thread/INFO]: [Breeze autotest] {"code":"258","event":"key","t":1795700612070}
+[13:43:32] [Render thread/INFO]: [Breeze autotest] {"code":"258","event":"key","t":1795700612186}
+[13:43:32] [Render thread/INFO]: [Breeze autotest] {"code":"258","event":"key","t":1795700612303}
+[13:43:32] [Render thread/INFO]: [Breeze autotest] {"code":"257","event":"key","t":1795700612420}
+[13:43:32] [Render thread/INFO]: [Breeze autotest] {"action":"modules.list","event":"bridge","t":1795700612437}
+[13:43:32] [Render thread/INFO]: [Breeze autotest] {"action":"modules.icons","event":"bridge","t":1795700612440}
+[13:43:32] [Render thread/INFO]: [Breeze autotest] {"action":"ui.route","params":{"route":"mods/modules"},"event":"bridge","t":1795700612441}
+[13:43:34] [Render thread/INFO]: [Breeze autotest] {"code":"65","event":"key","t":1795700614191}
+[13:43:34] [Render thread/INFO]: [Breeze autotest] {"code":"82","event":"key","t":1795700614241}
+[13:43:34] [Render thread/INFO]: [Breeze autotest] {"code":"77","event":"key","t":1795700614275}
+[13:43:34] [Render thread/INFO]: [Breeze autotest] {"code":"79","event":"key","t":1795700614325}
+[13:43:34] [Render thread/INFO]: [Breeze autotest] {"code":"82","event":"key","t":1795700614375}
+[13:43:34] [ForkJoinPool.commonPool-worker-1/WARN]: [Breeze] friends refresh failed: HTTP 404
+[13:43:36] [Render thread/INFO]: [Breeze autotest] {"where":"MouseHandler","x":"0","y":"0","button":"0","result":"action 1","event":"mouse","t":1795700616260}
+[13:43:36] [Render thread/INFO]: [Breeze autotest] {"where":"BreezeWebScreen","x":"15","y":"207","button":"0","result":"true","event":"mouse","t":1795700616262}
+[13:43:36] [Render thread/INFO]: [Breeze autotest] {"where":"MouseHandler","x":"0","y":"0","button":"0","result":"action 0","event":"mouse","t":1795700616263}
+[13:43:36] [Render thread/INFO]: [Breeze autotest] {"action":"account.get","event":"bridge","t":1795700616275}
+[13:43:36] [Render thread/INFO]: [Breeze autotest] {"action":"ui.route","params":{"route":"settings"},"event":"bridge","t":1795700616275}
+[13:43:39] [ForkJoinPool.commonPool-worker-3/WARN]: [Breeze] friends refresh failed: HTTP 404
+[13:43:40] [Render thread/INFO]: [Breeze autotest] {"code":"256","event":"key","t":1795700620758}
+[13:43:40] [Render thread/INFO]: [Breeze autotest] {"action":"ui.escapeAck","params":{"handled":true},"event":"bridge","t":1795700620775}
+[13:43:40] [Render thread/INFO]: [Breeze autotest] {"action":"game.state","event":"bridge","t":1795700620776}
+[13:43:40] [Render thread/INFO]: [Breeze autotest] {"action":"account.get","event":"bridge","t":1795700620777}
+[13:43:40] [Render thread/INFO]: [Breeze autotest] {"action":"modules.list","event":"bridge","t":1795700620778}
+[13:43:40] [Render thread/INFO]: [Breeze autotest] {"action":"ui.route","params":{"route":"home"},"event":"bridge","t":1795700620780}
+[13:43:43] [Render thread/INFO]: [Breeze autotest] {"where":"MouseHandler","x":"0","y":"0","button":"0","result":"action 1","event":"mouse","t":1795700623942}
+[13:43:43] [Render thread/INFO]: [Breeze autotest] {"where":"BreezeWebScreen","x":"15","y":"51","button":"0","result":"true","event":"mouse","t":1795700623943}
+[13:43:43] [Render thread/INFO]: [Breeze autotest] {"where":"MouseHandler","x":"0","y":"0","button":"0","result":"action 0","event":"mouse","t":1795700623943}
+[13:43:43] [Render thread/INFO]: [Breeze autotest] {"action":"game.singleplayer","event":"bridge","t":1795700623946}
+[13:43:45] [Render thread/INFO]: Loaded 1515 recipes
+[13:43:45] [Render thread/INFO]: Loaded 1617 advancements
+[13:43:45] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.client.gui.screens.worldselection.CreateWorldScreen","kind":"create-world","liveBrowsers":"1","event":"screen","t":1795700625511}
+[13:43:45] [ForkJoinPool.commonPool-worker-3/WARN]: [Breeze] friends refresh failed: HTTP 404
+[13:43:45] [Render thread/INFO]: [Breeze autotest] {"kind":"create-world","scale":3.0,"items":[{"name":"Create New World","type":"widget","x":402,"y":672,"active":true},{"name":"Cancel","type":"widget","x":876,"y":672,"active":true},{"name":"World Name","type":"widget","x":408,"y":117,"active":false},{"name":"World Name","type":"widget","x":639,"y":174,"active":true,"value":"New World"},{"name":"Game Mode: Survival","type":"widget","x":639,"y":258,"active":true},{"name":"Difficulty: Normal","type":"widget","x":639,"y":342,"active":true},{"name":"Allow Commands: OFF","type":"widget","x":639,"y":426,"active":true}],"event":"targets","t":1795700625517}
+[13:43:48] [Render thread/INFO]: [Breeze] interface browser reused (loaded the page earlier)
+[13:43:48] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795700628377}
+[13:43:48] [Render thread/INFO]: [Breeze autotest] {"action":"app.hello","event":"bridge","t":1795700628379}
+[13:43:48] [Render thread/INFO]: [Breeze autotest] {"name":"test_b.jpg","where":"web","event":"wallpaper-visit","t":1795700628380}
+[13:43:48] [Render thread/INFO]: [Breeze autotest] {"action":"settings.get","event":"bridge","t":1795700628380}
+[13:43:48] [Render thread/INFO]: [Breeze autotest] {"action":"game.state","event":"bridge","t":1795700628407}
+[13:43:48] [Render thread/INFO]: [Breeze autotest] {"action":"account.get","event":"bridge","t":1795700628407}
+[13:43:48] [Render thread/INFO]: [Breeze autotest] {"action":"modules.list","event":"bridge","t":1795700628408}
+[13:43:48] [Render thread/INFO]: [Breeze autotest] {"action":"integrations.list","event":"bridge","t":1795700628409}
+[13:43:48] [Render thread/INFO]: [Breeze autotest] {"action":"ui.route","params":{"route":"home"},"event":"bridge","t":1795700628410}
+[13:43:48] [Render thread/INFO]: [Breeze autotest] {"action":"ui.shown","event":"bridge","t":1795700628438}
+[13:43:48] [Render thread/INFO]: [Breeze] menu drawn 85 ms after it was asked for (title menu, browser kept loaded)
+[13:43:48] [Render thread/INFO]: [Breeze autotest] {"kind":"breeze-web","scale":3.0,"items":[],"event":"targets","t":1795700628806}
+[13:43:50] [ForkJoinPool.commonPool-worker-3/WARN]: [Breeze] friends refresh failed: HTTP 404
+[13:43:53] [Render thread/INFO]: [Breeze autotest] {"code":"256","event":"key","t":1795700633060}
+[13:43:53] [Render thread/INFO]: [Breeze autotest] {"action":"ui.escapeAck","params":{"handled":false},"event":"bridge","t":1795700633077}
+[13:43:55] [Render thread/INFO]: [Breeze autotest] {"event":"stress-start","t":1795700635595}
+[13:43:55] [ForkJoinPool.commonPool-worker-1/WARN]: [Breeze] friends refresh failed: HTTP 404
+[13:43:55] [Render thread/INFO]: [Breeze] interface browser reused (loaded the page earlier)
+[13:43:55] [Render thread/INFO]: [Breeze autotest] {"action":"app.hello","event":"bridge","t":1795700635660}
+[13:43:55] [Render thread/INFO]: [Breeze autotest] {"name":"test_c.jpg","where":"web","event":"wallpaper-visit","t":1795700635661}
+[13:43:55] [Render thread/INFO]: [Breeze autotest] {"action":"settings.get","event":"bridge","t":1795700635663}
+[13:43:55] [Render thread/INFO]: [Breeze autotest] {"action":"game.state","event":"bridge","t":1795700635677}
+[13:43:55] [Render thread/INFO]: [Breeze autotest] {"action":"account.get","event":"bridge","t":1795700635678}
+[13:43:55] [Render thread/INFO]: [Breeze autotest] {"action":"modules.list","event":"bridge","t":1795700635678}
+[13:43:55] [Render thread/INFO]: [Breeze autotest] {"action":"integrations.list","event":"bridge","t":1795700635680}
+[13:43:55] [Render thread/INFO]: [Breeze autotest] {"action":"ui.route","params":{"route":"home"},"event":"bridge","t":1795700635680}
+[13:43:55] [Render thread/INFO]: [Breeze autotest] {"action":"ui.shown","event":"bridge","t":1795700635710}
+[13:43:55] [Render thread/INFO]: [Breeze] menu drawn 80 ms after it was asked for (title menu, browser kept loaded)
+[13:43:55] [Render thread/INFO]: [Breeze autotest] {"cycle":"0","painted":"true","ms":"97","liveBrowsers":"1","event":"cycle-open","t":1795700635745}
+[13:43:55] [Render thread/INFO]: [Breeze autotest] {"integrations":[],"problems":[],"event":"integrations","t":1795700635748}
+[13:43:55] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.client.gui.screens.options.OptionsScreen","kind":"options","liveBrowsers":"1","event":"screen","t":1795700635830}
+[13:43:55] [Render thread/INFO]: [Breeze autotest] {"cycle":"0","liveBrowsers":"1","heapMb":"441","event":"cycle-close","t":1795700635830}
+[13:43:55] [Render thread/INFO]: [Breeze] interface browser reused (loaded the page earlier)
+[13:43:55] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795700635911}
+[13:43:55] [Render thread/INFO]: [Breeze autotest] {"action":"app.hello","event":"bridge","t":1795700635912}
+[13:43:55] [Render thread/INFO]: [Breeze autotest] {"name":"test_a.jpg","where":"web","event":"wallpaper-visit","t":1795700635913}
+[13:43:55] [Render thread/INFO]: [Breeze autotest] {"action":"settings.get","event":"bridge","t":1795700635913}
+[13:43:55] [Render thread/INFO]: [Breeze autotest] {"action":"game.state","event":"bridge","t":1795700635923}
+[13:43:55] [Render thread/INFO]: [Breeze autotest] {"action":"account.get","event":"bridge","t":1795700635924}
+[13:43:55] [Render thread/INFO]: [Breeze autotest] {"action":"modules.list","event":"bridge","t":1795700635925}
+[13:43:55] [Render thread/INFO]: [Breeze autotest] {"action":"integrations.list","event":"bridge","t":1795700635928}
+[13:43:55] [Render thread/INFO]: [Breeze autotest] {"action":"ui.route","params":{"route":"home"},"event":"bridge","t":1795700635929}
+[13:43:55] [Render thread/INFO]: [Breeze autotest] {"action":"ui.shown","event":"bridge","t":1795700635973}
+[13:43:55] [Render thread/INFO]: [Breeze] menu drawn 80 ms after it was asked for (title menu, browser kept loaded)
+[13:43:56] [Render thread/INFO]: [Breeze autotest] {"cycle":"1","painted":"true","ms":"97","liveBrowsers":"1","event":"cycle-open","t":1795700636008}
+[13:43:56] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.client.gui.screens.options.OptionsScreen","kind":"options","liveBrowsers":"1","event":"screen","t":1795700636098}
+[13:43:56] [Render thread/INFO]: [Breeze autotest] {"cycle":"1","liveBrowsers":"1","heapMb":"451","event":"cycle-close","t":1795700636099}
+[13:43:56] [Render thread/INFO]: [Breeze] interface browser reused (loaded the page earlier)
+[13:43:56] [Render thread/INFO]: [Breeze autotest] {"action":"app.hello","event":"bridge","t":1795700636104}
+[13:43:56] [Render thread/INFO]: [Breeze autotest] {"name":"test_b.jpg","where":"web","event":"wallpaper-visit","t":1795700636104}
+[13:43:56] [Render thread/INFO]: [Breeze autotest] {"action":"settings.get","event":"bridge","t":1795700636105}
+[13:43:56] [Render thread/INFO]: [Breeze autotest] {"action":"game.state","event":"bridge","t":1795700636114}
+[13:43:56] [Render thread/INFO]: [Breeze autotest] {"action":"account.get","event":"bridge","t":1795700636115}
+[13:43:56] [Render thread/INFO]: [Breeze autotest] {"action":"modules.list","event":"bridge","t":1795700636115}
+[13:43:56] [Render thread/INFO]: [Breeze autotest] {"action":"integrations.list","event":"bridge","t":1795700636116}
+[13:43:56] [Render thread/INFO]: [Breeze autotest] {"action":"ui.route","params":{"route":"home"},"event":"bridge","t":1795700636117}
+[13:43:56] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795700636149}
+[13:43:56] [Render thread/INFO]: [Breeze autotest] {"action":"ui.shown","event":"bridge","t":1795700636150}
+[13:43:56] [Render thread/INFO]: [Breeze] menu drawn 63 ms after it was asked for (title menu, browser kept loaded)
+[13:43:56] [Render thread/INFO]: [Breeze autotest] {"cycle":"2","painted":"true","ms":"96","liveBrowsers":"1","event":"cycle-open","t":1795700636198}
+[13:43:56] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.client.gui.screens.options.OptionsScreen","kind":"options","liveBrowsers":"1","event":"screen","t":1795700636273}
+[13:43:56] [Render thread/INFO]: [Breeze autotest] {"cycle":"2","liveBrowsers":"1","heapMb":"461","event":"cycle-close","t":1795700636274}
+[13:43:56] [Render thread/INFO]: [Breeze] interface browser reused (loaded the page earlier)
+[13:43:56] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795700636344}
+[13:43:56] [Render thread/INFO]: [Breeze autotest] {"action":"app.hello","event":"bridge","t":1795700636345}
+[13:43:56] [Render thread/INFO]: [Breeze autotest] {"name":"test_c.jpg","where":"web","event":"wallpaper-visit","t":1795700636345}
+[13:43:56] [Render thread/INFO]: [Breeze autotest] {"action":"settings.get","event":"bridge","t":1795700636346}
+[13:43:56] [Render thread/INFO]: [Breeze autotest] {"action":"game.state","event":"bridge","t":1795700636357}
+[13:43:56] [Render thread/INFO]: [Breeze autotest] {"action":"account.get","event":"bridge","t":1795700636358}
+[13:43:56] [Render thread/INFO]: [Breeze autotest] {"action":"modules.list","event":"bridge","t":1795700636358}
+[13:43:56] [Render thread/INFO]: [Breeze autotest] {"action":"integrations.list","event":"bridge","t":1795700636360}
+[13:43:56] [Render thread/INFO]: [Breeze autotest] {"action":"ui.route","params":{"route":"home"},"event":"bridge","t":1795700636360}
+[13:43:56] [Render thread/INFO]: [Breeze autotest] {"action":"ui.shown","event":"bridge","t":1795700636407}
+[13:43:56] [Render thread/INFO]: [Breeze] menu drawn 80 ms after it was asked for (title menu, browser kept loaded)
+[13:43:56] [Render thread/INFO]: [Breeze autotest] {"cycle":"3","painted":"true","ms":"98","liveBrowsers":"1","event":"cycle-open","t":1795700636442}
+[13:43:56] [Render thread/INFO]: [Breeze autotest] {"class":"net.minecraft.client.gui.screens.options.OptionsScreen","kind":"options","liveBrowsers":"1","event":"screen","t":1795700636524}
+[13:43:56] [Render thread/INFO]: [Breeze autotest] {"cycle":"3","liveBrowsers":"1","heapMb":"471","event":"cycle-close","t":1795700636524}
+[13:43:56] [Render thread/INFO]: [Breeze] interface browser reused (loaded the page earlier)
+[13:43:56] [Render thread/INFO]: [Breeze autotest] {"class":"dev.breeze.web.BreezeWebScreen","kind":"breeze-web","liveBrowsers":"1","event":"screen","t":1795700636599}
+[13:43:56] [Render thread/INFO]: [Breeze autotest] {"action":"app.hello","event":"bridge","t":1795700636601}
+[13:43:56] [Render thread/INFO]: [Breeze autotest] {"name":"test_a.jpg","where":"web","event":"wallpaper-visit","t":1795700636601}
+[13:43:56] [Render thread/INFO]: [Breeze autotest] {"action":"settings.get","event":"bridge","t":1795700636602}
