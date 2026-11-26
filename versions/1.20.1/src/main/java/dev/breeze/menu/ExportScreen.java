@@ -125,12 +125,13 @@ public class ExportScreen extends BreezeScreen {
     @Override
     protected void init() {
         shown = this;
-        panel = Rect.centered(this.width, this.height, Math.min(this.width - 20, 560), Math.min(this.height - 16, 340));
+        panel = Rect.centered(this.width, this.height, Math.min(this.width - 20, 560), Math.max(160, this.height - 16));
         int x = panel.x + Spacing.MD, w = panel.w - Spacing.MD * 2;
-        int controls = recording != null ? 112 : 88;
-        int viewH = Math.max(40, panel.h - 34 - controls - 18);
-        view = new Rect(x, panel.y + 30, w, viewH);
-        bar = new Rect(x, view.bottom() + 4, w, 6);
+        // Below the picture: the seek bar, the play and volume row, the pack row and its note, the bottom buttons.
+        int below = 6 + 6 + 6 + 24 + (recording != null ? 24 + 24 : 0) + 34;
+        int viewH = Math.max(40, panel.h - 26 - below);
+        view = new Rect(x, panel.y + 24, w, viewH);
+        bar = new Rect(x, view.bottom() + 6, w, 6);
         int y = bar.bottom() + 6;
         if (export != null && !export.done()) {
             // Exporting: only Cancel.
@@ -141,7 +142,7 @@ public class ExportScreen extends BreezeScreen {
         net.minecraft.client.gui.components.Button play = Widgets.button(Component.literal(playing ? "Pause" : "Play"), b -> togglePlay(), x, y, 54, 20);
         play.active = canPlay;
         addRenderableWidget(play);
-        int vx = x + 60;
+        int vx = x + 130;
         boolean hasGame = info != null && info.gameTrack() >= 0, hasMic = info != null && info.micTrack() >= 0;
         vx = volumeRow(vx, y, "Game", hasGame, true);
         volumeRow(vx + 8, y, "Mic", hasMic, false);
@@ -382,8 +383,8 @@ public class ExportScreen extends BreezeScreen {
         Glass.panel(g, panel);
         int x = panel.x + Spacing.MD, w = panel.w - Spacing.MD * 2;
         String name = video != null ? video.getFileName().toString() : recording != null ? recording.getFileName().toString() : "";
-        g.drawString(this.font, "Export", x, panel.y + 10, Palette.TEXT_PRIMARY, true);
-        UiRender.textClipped(g, this.font, name, x + 44, panel.y + 10, w - 44, Palette.TEXT_FAINT);
+        g.drawString(this.font, "Export", x, panel.y + 8, Palette.TEXT_PRIMARY, true);
+        UiRender.textClipped(g, this.font, name, x + 44, panel.y + 8, w - 44, Palette.TEXT_FAINT);
         g.fill(view.x, view.y, view.right(), view.bottom(), 0xFF000000);
         if (textureMade) {
             double s = Math.min(view.w / (double) texW, view.h / (double) texH);
@@ -400,7 +401,7 @@ public class ExportScreen extends BreezeScreen {
         double pos = preview != null ? preview.position() : position;
         g.fill(bar.x, bar.y, bar.right(), bar.bottom(), Palette.SURFACE);
         if (len > 0) g.fill(bar.x, bar.y, bar.x + (int) (bar.w * Math.min(1, pos / len)), bar.bottom(), Palette.ACCENT);
-        int textY = bar.bottom() + 6 + 6;
+        int rowY = bar.bottom() + 6;
         if (export != null && !export.done()) {
             int pct = (int) Math.round(export.progress() * 100);
             Rect pr = new Rect(x, panel.bottom() - 52, w, 8);
@@ -409,10 +410,10 @@ public class ExportScreen extends BreezeScreen {
             UiRender.textClipped(g, this.font, "Exporting " + pct + "%. Only Cancel stops it.", x, panel.bottom() - 22, w - 80, Palette.TEXT_SECONDARY);
         } else {
             UiRender.textClipped(g, this.font, Timeline.clock(Math.round(pos * 1000)) + " / " + Timeline.clock(Math.round(len * 1000)),
-                    panel.right() - Spacing.MD - 90, textY - 16 + 24 + 6, 90, Palette.TEXT_FAINT);
+                    x + 58, rowY + 6, 70, Palette.TEXT_SECONDARY);
             if (recording != null) {
-                UiRender.textClipped(g, this.font, "Render draws the world again with the pack. Menus and inventory are only in the screen video.",
-                        x, textY + 24 + 24, w, Palette.TEXT_FAINT);
+                UiRender.textClipped(g, this.font, "Render draws the world again with the chosen pack.", x, rowY + 50, w, Palette.TEXT_FAINT);
+                UiRender.textClipped(g, this.font, "Menus and inventory are only in the screen video.", x, rowY + 60, w, Palette.TEXT_FAINT);
             }
             if (notice != null) UiRender.textClipped(g, this.font, notice, x + 196, panel.bottom() - 22, Math.max(0, w - 196 - 66), Palette.TEXT_SECONDARY);
         }

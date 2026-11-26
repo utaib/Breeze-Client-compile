@@ -273,6 +273,29 @@ def release = tasks.register('releaseJar', Copy) {
     into layout.buildDirectory.dir('release')
     rename { "${jarName}.jar" }
 }
+// On SRG Forge a jar that was not reobfuscated loads and then fails at the
+// first mixin (Forge 1.20.3, round 2 of the third 1.2.3 test: ForgeGradle 6's
+// in-place reobfuscation was once missing from the copied jar). The released
+// jar must have the SRG name of a field every mixin set uses.
+if (srgForge) {
+    release.configure {
+        doLast {
+            def f = new File(destinationDir, "${jarName}.jar")
+            def zip = new java.util.zip.ZipFile(f)
+            try {
+                def e = zip.getEntry('dev/breeze/mixin/MinecraftSetScreenMixin.class')
+                if (e != null) {
+                    def text = new String(zip.getInputStream(e).bytes, 'ISO-8859-1')
+                    if (!text.contains('f_91073_')) {
+                        throw new GradleException("${jarName}.jar is not reobfuscated (MinecraftSetScreenMixin still names Minecraft.level); build it again")
+                    }
+                }
+            } finally {
+                zip.close()
+            }
+        }
+    }
+}
 tasks.named('build') { dependsOn release }
 
 test {
