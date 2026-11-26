@@ -1,3 +1,3 @@
-# Forge and NeoForge jars of run 45831540831
+# ci/loader-jars-45831540831
 
-Built from da0c31f; for the launcher live loader test. Emptied afterwards.
+Emptied after the run was read. The files are in this branch's history.
