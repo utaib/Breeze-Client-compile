@@ -1,3 +1,3 @@
-# Forge and NeoForge jars of run 45917288378
+# ci/loader-jars-45917288378
 
-Built from 873ac77; for the launcher live loader test. Emptied afterwards.
+Held tested jars for round 3 of the 2.30.0 recorder work; they were copied into the private repository, so this branch was emptied.
