@@ -287,6 +287,16 @@ if (srgForge) {
                 if (e != null) {
                     def text = new String(zip.getInputStream(e).bytes, 'ISO-8859-1')
                     if (!text.contains('f_91073_')) {
+                        def bd = project.layout.buildDirectory.get().asFile
+                        bd.eachFileRecurse { x -> if (x.name.endsWith('.tsrg') || x.name.endsWith('refmap.json')) println "DEBUG file ${x} ${x.length()}" }
+                        def m = new File(bd, 'tmp/compileJava/compileJava-mappings.tsrg')
+                        if (m.exists()) m.eachLine { l -> if (l.contains('MinecraftSetScreenMixin') || l.contains('Minecraft ') || l.contains(' level ') || l.startsWith('net/minecraft/client/Minecraft')) println "DEBUG map ${l}" }
+                        def m2 = new File(bd, 'createMcpToSrg/output.tsrg')
+                        boolean inMc = false
+                        if (m2.exists()) m2.eachLine { l -> if (!l.startsWith('\t')) inMc = l.startsWith('net/minecraft/client/Minecraft '); else if (inMc && l.contains('level')) println "DEBUG mcp ${l}" }
+                        def lj = new File(bd, 'libs'); lj.eachFile { x -> println "DEBUG libs ${x} ${x.length()} ${new Date(x.lastModified())}" }
+                        tasks.findByName('reobfJar')?.with { t -> println "DEBUG reobf ${t.class} inputs=${t.inputs.files.files.take(8)} outputs=${t.outputs.files.files}"; try { println "DEBUG reobf extra ${t.extraMappings.files}" } catch (ex) { println "DEBUG reobf extra ? ${ex}" } }
+                        def i = text.indexOf('level'); println "DEBUG class strings around level: " + text.substring(Math.max(0,i-80), Math.min(text.length(), i+40)).replaceAll('[^ -~]','.')
                         throw new GradleException("${jarName}.jar is not reobfuscated (MinecraftSetScreenMixin still names Minecraft.level); build it again")
                     }
                 }
