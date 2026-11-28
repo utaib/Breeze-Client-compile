@@ -1,3 +1,3 @@
 # bedrock-addon
 
-Checks the Breeze Bedrock add-on. The source is in the commit before this one and is emptied after the run.
+Used to check the Breeze Bedrock add-on; last run 46151446134. Nothing here now.
