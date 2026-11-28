@@ -1,0 +1,5 @@
+# Pack files are shipped byte for byte: never convert line endings,
+# or dist/ stops matching a fresh build on Windows checkouts.
+packs/** -text
+dist/** binary
+tools/** text eol=lf

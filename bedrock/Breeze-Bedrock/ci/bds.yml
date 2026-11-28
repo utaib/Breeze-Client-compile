@@ -1,0 +1,54 @@
+# Loads the Breeze add-on in Mojang's Bedrock Dedicated Server: the oldest
+# version it supports, the newest release and the newest preview, on Linux,
+# and the newest release on Windows. Pushed to the branch bedrock-bds of
+# utaib/Breeze-Client-compile by Breeze-Bedrock/ci/push.sh --bds; the add-on
+# source is in the commit before the tip. The owner accepted the BDS licence
+# for this test (2026-11-28). No server file is kept: only the logs.
+name: Breeze Bedrock add-on in BDS
+on:
+  push:
+    branches: [bedrock-bds]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  bds:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: linux, kind: oldest, runner: ubuntu-latest }
+          - { os: linux, kind: release, runner: ubuntu-latest }
+          - { os: linux, kind: preview, runner: ubuntu-latest }
+          - { os: windows, kind: release, runner: windows-latest }
+    runs-on: ${{ matrix.runner }}
+    name: BDS ${{ matrix.os }} ${{ matrix.kind }}
+    steps:
+      - run: git config --global core.autocrlf false
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Restore the add-on source from the commit before
+        shell: bash
+        run: git checkout HEAD~1 -- bedrock && cat bedrock/SOURCE.txt
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Load test
+        shell: bash
+        run: bash bedrock/Breeze-Bedrock/ci/bds_test.sh ${{ matrix.os }} ${{ matrix.kind }} "$RUNNER_TEMP/bds"
+      - name: Result
+        if: always()
+        shell: bash
+        run: |
+          cat "$RUNNER_TEMP"/bds/result-*.txt 2>/dev/null || true
+          { echo '```'; cat "$RUNNER_TEMP"/bds/result-*.txt 2>/dev/null; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bds-${{ matrix.os }}-${{ matrix.kind }}
+          path: |
+            ${{ runner.temp }}/bds/*.txt
+            ${{ runner.temp }}/bds/*.log
+            ${{ runner.temp }}/bds/*.json
+          retention-days: 14
